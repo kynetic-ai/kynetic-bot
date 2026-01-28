@@ -83,6 +83,11 @@ features:
     traits: []
     notes: []
     created: 2026-01-28T07:34:41.298Z
+    acceptance_criteria:
+      - id: ac-1
+        given: channel configured with pairing_required policy
+        when: new user sends message
+        then: creates pending request awaiting admin approval
   - _ulid: 01KG1RDB0J11H95T8TACVNS0A4
     slugs:
       - channel-media

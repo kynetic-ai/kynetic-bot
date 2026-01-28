@@ -188,3 +188,7 @@ traits:
         given: missing required field
         when: detected
         then: identifies field in error
+      - id: ac-3
+        given: type mismatch
+        when: detected
+        then: includes expected type in error

@@ -83,6 +83,11 @@ features:
     traits: []
     notes: []
     created: 2026-01-28T07:35:08.941Z
+    acceptance_criteria:
+      - id: ac-1
+        given: skill module available
+        when: agent initializes
+        then: discovers and registers skill with capabilities
   - _ulid: 01KG1RE6450N1GAKD8ZPXJ9TP4
     slugs:
       - agent-escalation

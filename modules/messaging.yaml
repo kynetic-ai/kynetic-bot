@@ -100,6 +100,10 @@ features:
         given: platform does not support streaming
         when: response ready
         then: buffers complete response and sends as single message
+      - id: ac-4
+        given: platform rate limit
+        when: chunks ready
+        then: respects limit between sends
   - _ulid: 01KG1RCW2NEV0254S18NRJBZ48
     slugs:
       - msg-history

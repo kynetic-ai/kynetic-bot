@@ -1264,9 +1264,10 @@
 - _ulid: 01KG1TDFRYWSJ2Q97Y4PNPGD6Z
   slugs:
     - kspec-sync
-  title: KspecSync for @mem-kspec-sync
+    - shadow-storage-init
+  title: Implement .kbot/ shadow branch initialization
   type: task
-  spec_ref: "@mem-kspec-sync"
+  spec_ref: "@mem-shadow-storage"
   meta_ref: null
   status: pending
   blocked_by: []
@@ -2883,6 +2884,10 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: MediaHandler implemented and committed to main. Created MediaHandler class with
+    size/type validation, memory storage, and attachment processing. Added 27 comprehensive tests
+    covering all AC. All tests pass and project builds successfully. Changes committed to main
+    (aae11f9).
   depends_on:
     - "@channel-registry-task"
   context: []
@@ -2892,6 +2897,7 @@
   vcs_refs: []
   created_at: 2026-01-28T08:10:43.373Z
   started_at: 2026-01-28T14:40:39.208Z
+  completed_at: 2026-01-28T14:43:37.661Z
   notes:
     - _ulid: 01KG1TRCP1EYECP0C8DW3S70WM
       created_at: 2026-01-28T08:15:42.785Z
@@ -2963,11 +2969,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-01-28T14:43:37.661Z
-  closed_reason: MediaHandler implemented and committed to main. Created MediaHandler class with
-    size/type validation, memory storage, and attachment processing. Added 27 comprehensive tests
-    covering all AC. All tests pass and project builds successfully. Changes committed to main
-    (aae11f9).
 - _ulid: 01KG1TFBJJMXHTYAY09H0G3VXH
   slugs:
     - escalation-handler

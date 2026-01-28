@@ -78,4 +78,35 @@
         - Traits for 3+ specs needing same behavior
         - Derive tasks from specs, add implementation notes
       supersedes: null
+    - _ulid: 01KG1R48NSWMQHVF864SK5SH03
+      created_at: 2026-01-28T07:29:46.169Z
+      author: "@claude"
+      content: |-
+        ## Spec Structure Finalized
+
+        ### Gap Analysis Summary
+        - **Reusable from Kynetic (70%)**: ACP, session management, MCP tools, hub protocol
+        - **Extend (15%)**: Session routing keys, kspec MCP tools, agent lifecycle
+        - **Net-new (15%)**: Channel abstraction, DM policies, kspec memory integration
+
+        ### Core Modules
+        1. **messaging** - Conversation core (routing, transform, streaming, history)
+        2. **channels** - Platform integration (registry, lifecycle, DM policy, media)
+        3. **memory** - Context & persistence (kspec sync, conversation notes, context window)
+        4. **agent** - Execution model (lifecycle, autonomous, skills, escalation)
+
+        ### MVP Priority (Phase 1)
+        1. msg-routing - Session key routing
+        2. channel-registry - Plugin architecture
+        3. mem-kspec-sync - Persistence foundation
+        4. agent-lifecycle - Basic agent management
+
+        ### Cross-Cutting Traits
+        - @trait-idempotent - Message handler safety
+        - @trait-observable - Event emission
+        - @trait-recoverable - Crash recovery
+        - @trait-rate-limited - Platform rate limits
+
+        Next: Create kspec items with AC
+      supersedes: null
   todos: []

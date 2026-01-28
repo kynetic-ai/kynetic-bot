@@ -987,6 +987,7 @@
     - phase-1
   vcs_refs: []
   created_at: 2026-01-28T08:09:40.607Z
+  started_at: 2026-01-28T14:20:49.225Z
   notes:
     - _ulid: 01KG1TK4T1QPJCZMAH80YXD74J
       created_at: 2026-01-28T08:12:50.881Z
@@ -1070,9 +1071,46 @@
 
         Run pnpm test packages/messaging with tests covering all 3 AC.
       supersedes: null
+    - _ulid: 01KG2FS7T1P08WA4191QAFK4JF
+      created_at: 2026-01-28T14:23:10.658Z
+      author: "@claude"
+      content: |-
+        Implemented SessionKeyRouter with full test coverage.
+
+        ## What was done:
+
+        ### Types (packages/messaging/src/types.ts)
+        - Created Session interface with full conversation context
+        - Created SessionStore interface for storage abstraction
+
+        ### Router (packages/messaging/src/router.ts)
+        - Implemented SessionKeyRouter class with:
+          - resolveSession() - routes messages to sessions, handles unknown agents
+          - getOrCreateSession() - session lifecycle management
+          - closeSession() - session cleanup
+          - Agent management (addAgent, removeAgent, hasAgent)
+        - Built-in idempotency: duplicate messages don't create duplicate context
+        - Uses core utilities: buildSessionKey, parseSessionKey, UnknownAgentError
+
+        ### Tests (packages/messaging/test/router.test.ts)
+        - 15 comprehensive tests covering:
+          - All 4 spec acceptance criteria (@msg-routing ac-1 through ac-4)
+          - Session management (create, get, close)
+          - Agent management (add, remove, validate)
+          - Platform/user isolation
+          - Timestamp tracking and idempotency
+        - All tests pass
+
+        ### Coverage of @msg-routing acceptance criteria:
+        - ✓ AC-1: Resolves to unique session key based on user and agent IDs
+        - ✓ AC-2: Appends messages to existing conversation context
+        - ✓ AC-3: Returns UnknownAgentError for invalid agents
+        - ✓ AC-4: Idempotent - duplicate messages don't duplicate context
+
+        All packages build successfully. Ready for review.
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-01-28T14:20:49.225Z
 - _ulid: 01KG1TDCYN853WKRH1WDE9W8VR
   slugs:
     - channel-registry-task

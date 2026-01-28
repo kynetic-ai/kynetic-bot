@@ -515,7 +515,84 @@
     - phase-0
   vcs_refs: []
   created_at: 2026-01-28T08:09:24.664Z
-  notes: []
+  notes:
+    - _ulid: 01KG1TH2M493AF54KYF4MEDASH
+      created_at: 2026-01-28T08:11:43.109Z
+      author: "@claude"
+      content: >-
+        ## Goal
+
+        Copy ACP (Agent Communication Protocol) modules from kynetic/lifeline for agent
+        communication.
+
+
+        ## Files to Copy
+
+        FROM: ../kynetic/packages/lifeline/src/acp/
+
+        TO: packages/agent/src/acp/
+
+
+        | Source | Destination | Description |
+
+        |--------|-------------|-------------|
+
+        | client.ts | packages/agent/src/acp/client.ts | ACPClient class |
+
+        | framing.ts | packages/agent/src/acp/framing.ts | JsonRpcFraming |
+
+        | types.ts | packages/agent/src/acp/types.ts | ACP type definitions |
+
+
+        ## Dependencies
+
+        - @setup-typescript - TypeScript must be configured
+
+
+        ## Implementation
+
+        1. Create packages/agent/src/acp/ directory
+
+        2. Copy the three files from kynetic/lifeline/src/acp/
+
+        3. Adapt imports to local structure:
+           - Update relative imports
+           - Change any @kynetic/* imports to local paths
+        4. Create packages/agent/src/acp/index.ts barrel export
+
+        5. Verify all copied modules compile without errors
+
+        6. Add documentation comment at top of each file noting:
+           - Original source location
+           - Date copied
+           - Any modifications made
+
+        ## Files After Copy
+
+        - packages/agent/src/acp/client.ts - ACPClient for communicating with agents
+
+        - packages/agent/src/acp/framing.ts - JSON-RPC framing for stdio
+
+        - packages/agent/src/acp/types.ts - Protocol types and interfaces
+
+        - packages/agent/src/acp/index.ts - Barrel export
+
+
+        ## Acceptance Criteria
+
+        - AC-1: Copy ACPClient, JsonRpcFraming, types from kynetic/lifeline/src/acp
+
+        - AC-2: Adapt imports to local structure
+
+        - AC-3: All copied modules compile without errors
+
+        - AC-4: Document which files were copied and from where
+
+
+        ## Verification
+
+        Run pnpm build and verify agent package compiles successfully.
+      supersedes: null
   todos: []
 - _ulid: 01KG1TD8REHCMGXRCRN5B7TFCZ
   slugs:

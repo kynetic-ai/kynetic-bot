@@ -115,3 +115,7 @@ features:
         given: conversation has multiple turns
         when: history is retrieved
         then: returns messages in chronological order with timestamps
+      - id: ac-2
+        given: topic change detected in conversation
+        when: semantic boundary analysis runs
+        then: marks boundary in history for context windowing

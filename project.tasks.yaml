@@ -1124,6 +1124,9 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: ChannelRegistry implemented and merged to main. Created ValidationError and
+    ChannelRegistry with interface validation. Added 18 comprehensive tests covering all AC. All
+    tests pass. Changes committed to main (c48381d).
   depends_on:
     - "@core-types"
   context: []
@@ -1133,6 +1136,7 @@
   vcs_refs: []
   created_at: 2026-01-28T08:09:42.612Z
   started_at: 2026-01-28T14:24:19.361Z
+  completed_at: 2026-01-28T14:26:46.466Z
   notes:
     - _ulid: 01KG1TK7299A31FZAFN2TE26X5
       created_at: 2026-01-28T08:12:53.193Z
@@ -1257,10 +1261,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-01-28T14:26:46.466Z
-  closed_reason: ChannelRegistry implemented and merged to main. Created ValidationError and
-    ChannelRegistry with interface validation. Added 18 comprehensive tests covering all AC. All
-    tests pass. Changes committed to main (c48381d).
 - _ulid: 01KG1TDFRYWSJ2Q97Y4PNPGD6Z
   slugs:
     - kspec-sync
@@ -3294,7 +3294,7 @@
   type: task
   description: Add coverage/ directory to .gitignore
   spec_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -3321,3 +3321,4 @@
       supersedes: null
   todos: []
   automation: eligible
+  started_at: 2026-01-28T14:26:56.878Z

@@ -2457,6 +2457,7 @@
         Tests for streaming with mock agent and disconnect scenarios.
       supersedes: null
   todos: []
+  automation: eligible
 - _ulid: 01KG1TF89D2BAD47YYTG6AXTPE
   slugs:
     - media-handler

@@ -836,7 +836,7 @@
   type: task
   spec_ref: null
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on:
     - "@copy-acp-modules"
@@ -965,6 +965,11 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-01-28T14:18:59.429Z
+  closed_reason: Core types and utilities implemented. Created NormalizedMessage, SessionKey types,
+    ChannelAdapter interface. Implemented session-key parsing/building utilities with comprehensive
+    error handling. Added 23 unit tests covering all edge cases. All tests pass. Changes committed
+    to main (58cbe1d).
 - _ulid: 01KG1TDAZZW5PG1MAWGTK0HKDV
   slugs:
     - session-router

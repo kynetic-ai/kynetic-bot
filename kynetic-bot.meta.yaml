@@ -1,0 +1,237 @@
+# Kynetic Bot - Meta Manifest
+# Defines workflows, agents, conventions for the project
+
+kynetic_meta: "1.0"
+
+agents:
+  - _ulid: 01KG2000000000000000000000
+    id: claude
+    name: Claude Code Agent
+    description: Primary development agent for this project.
+    capabilities:
+      - code
+      - test
+      - refactor
+      - review
+    tools:
+      - kspec
+      - git
+      - npm
+    session_protocol:
+      start: "kspec session start"
+      checkpoint: null
+      end: null
+    conventions:
+      - Always use kspec CLI, never edit YAML directly
+      - Add notes when completing significant work
+
+workflows:
+  - _ulid: 01KG2001000000000000000000
+    id: task-work-session
+    trigger: manual
+    description: Core pattern for working on a task. Full lifecycle from start through PR merge.
+    steps:
+      - type: check
+        content: |
+          Check for existing in_progress or pending_review tasks.
+          Use: kspec session start (shows active work first)
+          Priority: pending_review > in_progress > ready
+        on_fail: |
+          Inherit existing work instead of starting new.
+          Pick up in_progress task and continue, or check PR status for pending_review.
+          Only start new work if user explicitly says to ignore existing work.
+      - type: action
+        content: |
+          Choose task to work on.
+          Use: kspec tasks ready to see available tasks
+          Or: kspec task get @task to see task details
+        inputs:
+          - name: task_ref
+            description: Reference to the task (e.g., @task-slug)
+            type: ref
+      - type: check
+        content: |
+          Verify work is not already done.
+          Check git history: git log --oneline --grep="feature-name"
+          Read implementation code if it exists.
+        on_fail: Mark task complete with "Already implemented" reason
+      - type: action
+        content: |
+          Start the task.
+          Use: kspec task start @task
+          This marks the task in_progress.
+      - type: action
+        content: |
+          Work on the task, adding notes as you go.
+          Use: kspec task note @task "What you're doing..."
+          Add notes during work, not just at end.
+      - type: check
+        content: All changes committed
+        on_fail: |
+          Commit changes with Task: @task trailer.
+          Example: git commit -m "feat: description\n\nTask: @task-slug"
+      - type: action
+        content: |
+          Submit task for review.
+          Use: kspec task submit @task
+          This marks the task pending_review (code done, awaiting merge).
+      - type: action
+        content: |
+          Create PR.
+          Use: /pr skill or gh pr create
+          Then follow @pr-review-merge workflow for merge.
+      - type: check
+        content: PR merged to main
+        on_fail: Wait for PR review and merge before completing task.
+      - type: action
+        content: |
+          Complete task after PR merged.
+          Use: kspec task complete @task --reason "Summary of what was done"
+          This marks the task completed.
+
+  - _ulid: 01KG2002000000000000000000
+    id: session-reflect
+    trigger: session-end
+    description: Structured reflection after work sessions. Surfaces learnings, identifies friction, and
+      captures improvements for system evolution.
+    steps:
+      - type: action
+        content: |
+          Identify what worked well this session.
+          Be specific: "categorizing items first" not "good planning".
+          Consider: workflows, tools/commands, communication, decisions.
+      - type: action
+        content: |
+          Identify friction points - where things were harder than needed.
+          Focus on systemic issues, not one-off mistakes.
+          Consider: repetitive steps, missing commands, context loss, workarounds.
+      - type: action
+        content: |
+          Check if friction points are already tracked.
+          Search specs, tasks, AND inbox before proposing new improvements.
+          For each: note if already tracked, partially covered, or untracked.
+        exit_criteria:
+          - Searched specs for relevant features
+          - Searched tasks for existing work
+          - Searched inbox for captured ideas
+      - type: action
+        content: |
+          For untracked friction, propose concrete improvements.
+          Include: what it would do, how it helps, rough scope (small/medium/large).
+      - type: decision
+        content: Present findings to user - ask about each improvement one at a time
+        options:
+          - Worth capturing -> proceed to capture
+          - Needs refinement -> discuss and refine
+          - Not worth it -> skip and continue
+          - Done with reflection -> complete workflow
+      - type: action
+        content: |
+          Capture approved items using appropriate destination:
+          - Actionable improvements: kspec inbox add "..." --tag reflection
+          - Friction patterns: kspec meta observe friction "..."
+          - Success patterns: kspec meta observe success "..."
+          - Open questions: kspec meta question add "..."
+
+  - _ulid: 01KG2003000000000000000000
+    id: pr-review-merge
+    trigger: pr-merge
+    description: Quality gate for reviewing and merging PRs. Ensures all CI passes, all reviews
+      addressed, all requests completed, and all threads resolved before merge.
+    steps:
+      - type: check
+        content: All CI checks complete (none pending or running)
+        on_fail: Wait for CI to finish. Do not merge while checks are running.
+      - type: check
+        content: All CI checks pass (green)
+        on_fail: Fix failures, push changes, wait for CI to re-run and pass.
+      - type: action
+        content: |
+          Read ALL review comments on the PR.
+          Use: gh pr view --comments or GitHub UI
+          Check for: automated reviews, human reviews, inline comments.
+      - type: check
+        content: All review feedback addressed
+        on_fail: |
+          Fix each issue raised by reviewers.
+          Push changes and wait for re-review if needed.
+      - type: action
+        content: |
+          Check for @claude mentions or other requests in comments.
+          Look for actions the PR agent couldn't complete (limited permissions).
+          Examples: add inbox items, run kspec commands, update tasks.
+      - type: check
+        content: All requested actions completed
+        on_fail: Complete the actions yourself before proceeding.
+      - type: check
+        content: All review threads resolved in GitHub UI
+        on_fail: Click "Resolve conversation" on each thread after addressing.
+      - type: decision
+        content: Ready to merge?
+        options:
+          - Yes - all checks green, all reviews addressed, all threads resolved
+          - No - need user approval to merge with known issues
+          - Skip - user explicitly said to merge anyway
+      - type: action
+        content: |
+          Merge the PR.
+          Use: gh pr merge (prefer merge commit to preserve trailers)
+          Or: GitHub UI merge button
+
+  - _ulid: 01KG2004000000000000000000
+    id: inbox-triage
+    trigger: session-start
+    description: Systematic processing of inbox items into specs and tasks.
+    steps:
+      - type: action
+        content: |
+          Get context and list inbox items.
+          Use: kspec session start --full
+          Use: kspec inbox list
+      - type: action
+        content: |
+          Categorize items by type:
+          - Bugs
+          - Spec gaps
+          - Quick wins
+          - Larger features (need plan mode)
+          - Delete candidates
+      - type: decision
+        content: Process each item - is it still relevant?
+        options:
+          - No -> delete it
+          - Yes, spec exists -> promote to task
+          - Yes, need spec -> create spec first
+          - Unclear -> leave for later
+      - type: action
+        content: |
+          For behavior changes, follow spec-first approach:
+          1. Check if spec covers the change
+          2. Create or update spec with AC if needed
+          3. Derive task or promote inbox item
+
+conventions:
+  - _ulid: 01KG2005000000000000000000
+    domain: commits
+    rules:
+      - Use conventional commit format (feat, fix, docs, refactor, test, chore)
+      - Include Task trailer when completing task work
+      - Include Spec trailer when implementing spec item
+      - Keep subject line under 72 characters
+    examples:
+      - good: "feat: add user login flow\n\nTask: @add-auth"
+        bad: "Added login"
+      - good: "fix(auth): handle expired tokens"
+        bad: "fixed bug"
+
+  - _ulid: 01KG2006000000000000000000
+    domain: notes
+    rules:
+      - Add notes during work, not just at end
+      - Include context for decisions made
+      - Reference related commits, PRs, or issues
+    examples:
+      - good: "Using retry with exponential backoff. Chose 3 max retries based on API rate limits."
+        bad: "Done"
+
+observations: []

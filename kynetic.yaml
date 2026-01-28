@@ -23,6 +23,11 @@ traits:
     traits: []
     notes: []
     created: 2026-01-28T08:25:44.342Z
+    acceptance_criteria:
+      - id: ac-1
+        given: duplicate request
+        when: processed
+        then: returns same result without side effects
   - _ulid: 01KG1VATBQNVP13YC0WKN4WWEV
     slugs:
       - trait-rate-limited

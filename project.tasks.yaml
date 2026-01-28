@@ -1231,7 +1231,100 @@
     - phase-1
   vcs_refs: []
   created_at: 2026-01-28T08:09:54.272Z
-  notes: []
+  notes:
+    - _ulid: 01KG1TKKHA7V16XE5G8QBJXH4X
+      created_at: 2026-01-28T08:13:05.963Z
+      author: "@claude"
+      content: |-
+        ## Goal
+        Integrate all Phase 1 components into a working bot that handles Discord messages.
+
+        ## Files
+        - packages/bot/src/bot.ts - KyneticBot main class
+        - packages/bot/src/config.ts - Configuration loading with Zod
+        - packages/bot/src/cli.ts - CLI entry point
+        - packages/bot/test/bot.test.ts - Integration tests
+
+        ## Dependencies
+        - @session-router - Message routing
+        - @channel-registry-task - Channel adapter management
+        - @kspec-sync - State persistence
+        - @agent-lifecycle-task - Agent spawning
+        - @discord-adapter - Discord platform support
+
+        ## Implementation
+
+        ### KyneticBot Class
+        ```typescript
+        interface BotConfig {
+          discord: { token: string; };
+          agents: { [id: string]: AgentConfig };
+          defaultAgent: string;
+        }
+
+        class KyneticBot {
+          private registry: ChannelRegistry;
+          private router: SessionKeyRouter;
+          private kspecSync: KspecSync;
+          private agents: Map<string, AgentLifecycle>;
+
+          async start(): Promise<void>
+          async stop(): Promise<void>
+
+          private async handleMessage(platform: string, raw: unknown): Promise<void>
+          private async routeToAgent(session: Session, message: NormalizedMessage): Promise<void>
+          private async sendResponse(session: Session, response: string): Promise<void>
+        }
+        ```
+
+        ### Message Flow
+        1. Discord message received via discord.js event
+        2. Parse with DiscordAdapter.parseIncoming()
+        3. Route with SessionKeyRouter.resolveSession()
+        4. Get or spawn agent with AgentLifecycle
+        5. Send message to agent via ACP
+        6. Receive response from agent
+        7. Send via DiscordAdapter.sendMessage()
+
+        ### Config (packages/bot/src/config.ts)
+        ```typescript
+        import { z } from 'zod';
+
+        const ConfigSchema = z.object({
+          discord: z.object({
+            token: z.string(),
+            clientId: z.string().optional(),
+          }),
+          agents: z.record(AgentConfigSchema),
+          defaultAgent: z.string(),
+        });
+        ```
+
+        ### CLI (packages/bot/src/cli.ts)
+        ```typescript
+        import { Command } from 'commander';
+
+        const cli = new Command()
+          .name('kynetic-bot')
+          .option('-c, --config <path>', 'Config file path')
+          .action(async (options) => {
+            const config = loadConfig(options.config);
+            const bot = new KyneticBot(config);
+            await bot.start();
+          });
+        ```
+
+        ## Acceptance Criteria
+        - AC-1: Given webhook, when received, then parses and routes to session
+        - AC-2: Given routed message, when agent needed, then spawns via AgentLifecycle
+        - AC-3: Given agent response, when ready, then sends via Discord adapter
+        - AC-4: Given agent error, when caught, then logs and returns error message
+        - AC-5: Configuration loading with Zod validation
+        - AC-6: E2E test: mock message -> mock agent -> mock send
+
+        ## Verification
+        Run pnpm test packages/bot with E2E mock tests.
+      supersedes: null
   todos: []
 - _ulid: 01KG1TE1Y9HJ47QHAH57HJNX86
   slugs:

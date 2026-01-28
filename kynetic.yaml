@@ -84,6 +84,10 @@ traits:
         given: incomplete state
         when: detected
         then: logs and attempts recovery
+      - id: ac-3
+        given: unrecoverable state
+        when: detected
+        then: escalates with context
   - _ulid: 01KG1VAZX8MRXFSHWD67YEE4DZ
     slugs:
       - trait-observable

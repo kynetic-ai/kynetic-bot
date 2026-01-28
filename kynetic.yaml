@@ -106,6 +106,10 @@ traits:
         given: state change
         when: occurred
         then: emits structured event
+      - id: ac-2
+        given: error
+        when: caught
+        then: logs with context and severity
   - _ulid: 01KG1VB1XBRW8DQ4NSB7YEMYFW
     slugs:
       - trait-health-monitored

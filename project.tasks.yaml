@@ -2256,7 +2256,14 @@
         ## Verification
         Unit tests with small token limits for quick testing.
       supersedes: null
+    - _ulid: 01KG1W501DVJYTJZ0N8FYC8MY7
+      created_at: 2026-01-28T08:40:04.397Z
+      author: "@claude"
+      content: "Automation status set to needs_review: Token-based compaction strategy requires
+        architectural review for summarization approach"
+      supersedes: null
   todos: []
+  automation: needs_review
 - _ulid: 01KG1TEX0F7HVTTAGH9EBRC1DT
   slugs:
     - autonomous-loop

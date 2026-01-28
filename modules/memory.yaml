@@ -29,6 +29,11 @@ features:
     traits: []
     notes: []
     created: 2026-01-28T07:34:50.694Z
+    acceptance_criteria:
+      - id: ac-1
+        given: state change occurs in session
+        when: sync triggered
+        then: commits change to shadow branch with timestamp
   - _ulid: 01KG1RDM4NVZVQP8XZ9DY2CSRY
     slugs:
       - mem-conversation

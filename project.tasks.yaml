@@ -277,7 +277,45 @@
     - phase-0
   vcs_refs: []
   created_at: 2026-01-28T08:09:14.822Z
-  notes: []
+  notes:
+    - _ulid: 01KG1TGPPZBB1JVGQR2829YPDN
+      created_at: 2026-01-28T08:11:30.912Z
+      author: "@claude"
+      content: |-
+        ## Goal
+        Set up the pnpm monorepo workspace structure with all 6 packages configured.
+
+        ## Files
+        - package.json - Root package with workspace scripts
+        - pnpm-workspace.yaml - Workspace package definitions
+        - packages/core/package.json - @kynetic-bot/core
+        - packages/messaging/package.json - @kynetic-bot/messaging
+        - packages/channels/package.json - @kynetic-bot/channels
+        - packages/memory/package.json - @kynetic-bot/memory
+        - packages/agent/package.json - @kynetic-bot/agent
+        - packages/bot/package.json - @kynetic-bot/bot
+
+        ## Dependencies
+        None - this is the first task.
+
+        ## Implementation
+        1. Create root package.json with pnpm workspace configuration
+        2. Create pnpm-workspace.yaml with packages/* glob
+        3. Create each package directory with package.json containing:
+           - name: @kynetic-bot/{package-name}
+           - main: dist/index.js
+           - types: dist/index.d.ts
+           - scripts: build, test, lint
+        4. Add workspace dependencies between packages (e.g., bot depends on all others)
+
+        ## Acceptance Criteria
+        - AC-1: pnpm workspace configured with all 6 packages
+        - AC-2: Each package has package.json with name, main, types
+        - AC-3: pnpm install succeeds from root
+
+        ## Verification
+        Run pnpm install from project root and verify no errors.
+      supersedes: null
   todos: []
 - _ulid: 01KG1TCMKE85766PTWC9TKA2EY
   slugs:
@@ -729,20 +767,20 @@
   created_at: 2026-01-28T08:10:49.193Z
   notes: []
   todos: []
-- title: Additional channel adapters (WhatsApp/Slack)
+- _ulid: 01KG1TFGK356NFMMZ0GST2A6XA
+  slugs:
+    - additional-adapters
+  title: Additional channel adapters (WhatsApp/Slack)
   type: task
   spec_ref: "@channel-registry"
   meta_ref: null
-  priority: 4
-  slugs:
-    - additional-adapters
-  tags:
-    - phase-4
-  _ulid: 01KG1TFGK356NFMMZ0GST2A6XA
   status: pending
   blocked_by: []
   depends_on: []
   context: []
+  priority: 4
+  tags:
+    - phase-4
   vcs_refs: []
   created_at: 2026-01-28T08:10:51.875Z
   notes: []

@@ -92,3 +92,7 @@ features:
         given: semantic boundary exists in history
         when: compaction runs
         then: preserves boundary markers for topic continuity
+      - id: ac-3
+        given: user references earlier topic
+        when: context assembled
+        then: retrieves relevant archived context

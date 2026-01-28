@@ -3294,7 +3294,7 @@
   type: task
   description: Add coverage/ directory to .gitignore
   spec_ref: null
-  status: in_progress
+  status: pending_review
   blocked_by: []
   depends_on: []
   context: []
@@ -3303,6 +3303,7 @@
     - phase-0
   vcs_refs: []
   created_at: 2026-01-28T14:05:51.223Z
+  started_at: 2026-01-28T14:26:56.878Z
   notes:
     - _ulid: 01KG2ESV5WVA59PRS1H78KJR43
       created_at: 2026-01-28T14:06:01.916Z
@@ -3321,4 +3322,3 @@
       supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-01-28T14:26:56.878Z

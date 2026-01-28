@@ -621,21 +621,39 @@
   created_at: 2026-01-28T08:10:27.686Z
   notes: []
   todos: []
-- title: ContextWindowManager for @mem-context-window
+- _ulid: 01KG1TETY3EBFGT1BWTQ0NWZQ4
+  slugs:
+    - context-window
+  title: ContextWindowManager for @mem-context-window
   type: task
   spec_ref: "@mem-context-window"
   meta_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
   priority: 3
-  slugs:
-    - context-window
   tags:
     - phase-3
-  _ulid: 01KG1TETY3EBFGT1BWTQ0NWZQ4
+  vcs_refs: []
+  created_at: 2026-01-28T08:10:29.699Z
+  notes: []
+  todos: []
+- title: AutonomousLoop for @agent-autonomous
+  type: task
+  spec_ref: "@agent-autonomous"
+  meta_ref: null
+  priority: 3
+  slugs:
+    - autonomous-loop
+  tags:
+    - phase-3
+  _ulid: 01KG1TEX0F7HVTTAGH9EBRC1DT
   status: pending
   blocked_by: []
   depends_on: []
   context: []
   vcs_refs: []
-  created_at: 2026-01-28T08:10:29.699Z
+  created_at: 2026-01-28T08:10:31.823Z
   notes: []
   todos: []

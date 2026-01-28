@@ -585,21 +585,39 @@
   created_at: 2026-01-28T08:10:17.060Z
   notes: []
   todos: []
-- title: StreamCoalescer for @msg-streaming
+- _ulid: 01KG1TEPNTSVQ30A0ZB267MHJ8
+  slugs:
+    - stream-coalescer
+  title: StreamCoalescer for @msg-streaming
   type: task
   spec_ref: "@msg-streaming"
   meta_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
   priority: 3
-  slugs:
-    - stream-coalescer
   tags:
     - phase-3
-  _ulid: 01KG1TEPNTSVQ30A0ZB267MHJ8
+  vcs_refs: []
+  created_at: 2026-01-28T08:10:25.338Z
+  notes: []
+  todos: []
+- title: ChannelLifecycle for @channel-lifecycle
+  type: task
+  spec_ref: "@channel-lifecycle"
+  meta_ref: null
+  priority: 3
+  slugs:
+    - channel-lifecycle-task
+  tags:
+    - phase-3
+  _ulid: 01KG1TERZ7S69XN92EBPBT359Y
   status: pending
   blocked_by: []
   depends_on: []
   context: []
   vcs_refs: []
-  created_at: 2026-01-28T08:10:25.338Z
+  created_at: 2026-01-28T08:10:27.686Z
   notes: []
   todos: []

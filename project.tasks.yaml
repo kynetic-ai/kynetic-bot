@@ -1350,7 +1350,8 @@
   meta_ref: null
   status: pending
   blocked_by: []
-  depends_on: []
+  depends_on:
+    - "@core-types"
   context: []
   priority: 2
   tags:

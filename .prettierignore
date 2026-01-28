@@ -1,0 +1,11 @@
+# Dependencies
+node_modules
+pnpm-lock.yaml
+
+# Build outputs
+dist
+*.tsbuildinfo
+
+# Misc
+.DS_Store
+coverage

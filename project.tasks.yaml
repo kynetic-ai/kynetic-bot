@@ -430,6 +430,7 @@
         Run pnpm build and verify all packages compile without errors.
       supersedes: null
   todos: []
+  automation: eligible
 - _ulid: 01KG1TCPQB3JFQZH0TA5CHMWKV
   slugs:
     - setup-vitest

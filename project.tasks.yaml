@@ -1754,6 +1754,9 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: MessageTransformer implemented and merged to main. Created PlatformTransformer
+    interface, MessageTransformer class with error handling. Added 12 comprehensive tests covering
+    all AC. All tests pass. Changes committed to main (0967508).
   depends_on:
     - "@core-types"
   context: []
@@ -1763,6 +1766,7 @@
   vcs_refs: []
   created_at: 2026-01-28T08:10:04.105Z
   started_at: 2026-01-28T14:27:37.577Z
+  completed_at: 2026-01-28T14:29:53.090Z
   notes:
     - _ulid: 01KG1TN0K1GH85VZFKDQ0Q447W
       created_at: 2026-01-28T08:13:52.098Z
@@ -1871,10 +1875,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-01-28T14:29:53.090Z
-  closed_reason: MessageTransformer implemented and merged to main. Created PlatformTransformer
-    interface, MessageTransformer class with error handling. Added 12 comprehensive tests covering
-    all AC. All tests pass. Changes committed to main (0967508).
 - _ulid: 01KG1TE51N01JR7Z64GHC13Y51
   slugs:
     - dm-policy
@@ -2350,7 +2350,7 @@
   type: task
   spec_ref: "@msg-streaming"
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on:
     - "@core-types"
@@ -2423,6 +2423,7 @@
       supersedes: null
   todos: []
   automation: eligible
+  started_at: 2026-01-28T14:30:06.561Z
 - _ulid: 01KG1TERZ7S69XN92EBPBT359Y
   slugs:
     - channel-lifecycle-task

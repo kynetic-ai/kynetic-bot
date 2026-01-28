@@ -667,7 +667,7 @@
     - "Requires dependency setup: @agentclientprotocol/sdk installation, logger utilities, and type
       guard helpers before ACP modules can be copied and adapted."
   depends_on:
-    - "@setup-typescript"
+    - "@01KG2ER6"
   context: []
   priority: 1
   tags:

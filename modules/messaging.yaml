@@ -61,6 +61,10 @@ features:
         given: message from platform with platform-specific format
         when: transformer processes the message
         then: produces normalized message with standard fields
+      - id: ac-2
+        given: normalized message ready for delivery
+        when: transformer prepares outbound message
+        then: converts to platform-specific format
   - _ulid: 01KG1RCSF0FTTSH41QD4NSAFY9
     slugs:
       - msg-streaming

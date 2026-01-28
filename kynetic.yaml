@@ -101,6 +101,11 @@ traits:
     traits: []
     notes: []
     created: 2026-01-28T08:25:52.297Z
+    acceptance_criteria:
+      - id: ac-1
+        given: state change
+        when: occurred
+        then: emits structured event
   - _ulid: 01KG1VB1XBRW8DQ4NSB7YEMYFW
     slugs:
       - trait-health-monitored

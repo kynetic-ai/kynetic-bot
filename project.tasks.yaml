@@ -486,7 +486,7 @@
   type: task
   spec_ref: null
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on:
     - "@setup-typescript"
@@ -538,6 +538,7 @@
       supersedes: null
   todos: []
   automation: eligible
+  started_at: 2026-01-28T09:13:30.804Z
 - _ulid: 01KG1TCS1VP8GK0SAB6HKJDZ1A
   slugs:
     - setup-linting
@@ -547,6 +548,8 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "ESLint and Prettier configured and merged. PR #3 successfully merged. Linting and
+    formatting tools ready for use."
   depends_on:
     - "@init-monorepo"
   context: []
@@ -556,6 +559,7 @@
   vcs_refs: []
   created_at: 2026-01-28T08:09:22.235Z
   started_at: 2026-01-28T09:10:22.486Z
+  completed_at: 2026-01-28T09:13:02.822Z
   notes:
     - _ulid: 01KG1TGZP5ZTAX4R2PXPSPCEQ3
       created_at: 2026-01-28T08:11:40.102Z
@@ -625,9 +629,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-01-28T09:13:02.822Z
-  closed_reason: "ESLint and Prettier configured and merged. PR #3 successfully merged. Linting and
-    formatting tools ready for use."
 - _ulid: 01KG1TCVDS60NH6FW759CTZJQM
   slugs:
     - copy-acp-modules

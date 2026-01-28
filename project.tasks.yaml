@@ -1150,7 +1150,14 @@
 
         Unit tests for lifecycle state transitions (spawn, health check, terminate).
       supersedes: null
+    - _ulid: 01KG1W20N6YCPK8JZFNCVQYMGA
+      created_at: 2026-01-28T08:38:26.727Z
+      author: "@claude"
+      content: "Automation status set to needs_review: Critical system for process management, sets
+        pattern for health monitoring and ACP integration"
+      supersedes: null
   todos: []
+  automation: needs_review
 - _ulid: 01KG1TDNYQD551HSS3ZHQH81GT
   slugs:
     - discord-adapter

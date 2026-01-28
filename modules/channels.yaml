@@ -26,7 +26,8 @@ features:
     implements: []
     relates_to: []
     tests: []
-    traits: []
+    traits:
+      - "@trait-validated"
     notes: []
     created: 2026-01-28T07:34:36.134Z
     acceptance_criteria:

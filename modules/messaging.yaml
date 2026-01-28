@@ -65,6 +65,10 @@ features:
         given: normalized message ready for delivery
         when: transformer prepares outbound message
         then: converts to platform-specific format
+      - id: ac-3
+        given: message with unsupported content type
+        when: transformer attempts conversion
+        then: returns error indicating unsupported type
   - _ulid: 01KG1RCSF0FTTSH41QD4NSAFY9
     slugs:
       - msg-streaming

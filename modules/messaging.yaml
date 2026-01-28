@@ -88,6 +88,10 @@ features:
         given: agent generates long response
         when: streaming is enabled
         then: delivers response in chunks as they are generated
+      - id: ac-2
+        given: streaming response in progress
+        when: client disconnects mid-stream
+        then: cleans up resources and logs disconnection
   - _ulid: 01KG1RCW2NEV0254S18NRJBZ48
     slugs:
       - msg-history

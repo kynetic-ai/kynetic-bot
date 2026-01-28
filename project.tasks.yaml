@@ -2348,7 +2348,8 @@
   meta_ref: null
   status: pending
   blocked_by: []
-  depends_on: []
+  depends_on:
+    - "@channel-registry-task"
   context: []
   priority: 4
   tags:

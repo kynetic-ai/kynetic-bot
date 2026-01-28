@@ -610,7 +610,80 @@
     - phase-1
   vcs_refs: []
   created_at: 2026-01-28T08:09:38.318Z
-  notes: []
+  notes:
+    - _ulid: 01KG1TK1RSH6YXP6EVS17MWAMV
+      created_at: 2026-01-28T08:12:47.769Z
+      author: "@claude"
+      content: |-
+        ## Goal
+        Implement core types and utilities used across all packages.
+
+        ## Files
+        - packages/core/src/types/normalized-message.ts - NormalizedMessage type
+        - packages/core/src/types/session-key.ts - SessionKey type and utilities
+        - packages/core/src/types/channel-adapter.ts - ChannelAdapter interface
+        - packages/core/src/utils/session-key.ts - parseSessionKey, buildSessionKey
+        - packages/core/src/utils/errors.ts - Error types
+        - packages/core/src/utils/logger.ts - Logging utility
+        - packages/core/src/index.ts - Barrel export
+
+        ## Dependencies
+        - @copy-acp-modules - Infrastructure must be complete
+
+        ## Implementation
+
+        ### NormalizedMessage
+        ```typescript
+        interface NormalizedMessage {
+          id: string;
+          text: string;
+          sender: {
+            id: string;
+            platform: string;
+            displayName?: string;
+          };
+          timestamp: Date;
+          channel: string;
+          metadata: Record<string, unknown>;
+          attachments?: Attachment[];
+        }
+        ```
+
+        ### SessionKey Format
+        agent:{agentId}:{platform}:{peerKind}:{peerId}
+        Example: agent:main:whatsapp:user:+1234567890
+
+        ### Session Key Functions
+        ```typescript
+        interface ParsedSessionKey {
+          agent: string;
+          platform: string;
+          peerKind: 'user' | 'channel';
+          peerId: string;
+        }
+
+        function parseSessionKey(key: string): ParsedSessionKey | InvalidSessionKeyError
+        function buildSessionKey(parts: ParsedSessionKey): string
+        ```
+
+        ### Error Types
+        ```typescript
+        class KyneticError extends Error { code: string; context?: Record<string, unknown> }
+        class UnknownAgentError extends KyneticError { code: 'UNKNOWN_AGENT' }
+        class InvalidSessionKeyError extends KyneticError { code: 'INVALID_SESSION_KEY' }
+        ```
+
+        ## Acceptance Criteria
+        - AC-1: NormalizedMessage with text, sender, timestamp, channel, metadata
+        - AC-2: SessionKey with agent, channel, peerKind, peerId segments
+        - AC-3: parseSessionKey returns structured object
+        - AC-4: buildSessionKey returns formatted string
+        - AC-5: Error types: KyneticError base, UnknownAgentError, InvalidSessionKeyError
+        - AC-6: Unit tests for parsing edge cases (missing segments, invalid format)
+
+        ## Verification
+        Run pnpm test packages/core and verify all tests pass.
+      supersedes: null
   todos: []
 - _ulid: 01KG1TDAZZW5PG1MAWGTK0HKDV
   slugs:

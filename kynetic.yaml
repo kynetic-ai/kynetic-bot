@@ -80,6 +80,10 @@ traits:
         given: crash mid-operation
         when: restarted
         then: recovers from last checkpoint
+      - id: ac-2
+        given: incomplete state
+        when: detected
+        then: logs and attempts recovery
   - _ulid: 01KG1VAZX8MRXFSHWD67YEE4DZ
     slugs:
       - trait-observable

@@ -477,21 +477,39 @@
   created_at: 2026-01-28T08:09:54.272Z
   notes: []
   todos: []
-- title: MessageTransformer for @msg-transform
+- _ulid: 01KG1TE1Y9HJ47QHAH57HJNX86
+  slugs:
+    - msg-transformer
+  title: MessageTransformer for @msg-transform
   type: task
   spec_ref: "@msg-transform"
   meta_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
   priority: 2
-  slugs:
-    - msg-transformer
   tags:
     - phase-2
-  _ulid: 01KG1TE1Y9HJ47QHAH57HJNX86
+  vcs_refs: []
+  created_at: 2026-01-28T08:10:04.105Z
+  notes: []
+  todos: []
+- title: DMPolicyManager for @channel-dm-policy
+  type: task
+  spec_ref: "@channel-dm-policy"
+  meta_ref: null
+  priority: 2
+  slugs:
+    - dm-policy
+  tags:
+    - phase-2
+  _ulid: 01KG1TE51N01JR7Z64GHC13Y51
   status: pending
   blocked_by: []
   depends_on: []
   context: []
   vcs_refs: []
-  created_at: 2026-01-28T08:10:04.105Z
+  created_at: 2026-01-28T08:10:07.285Z
   notes: []
   todos: []

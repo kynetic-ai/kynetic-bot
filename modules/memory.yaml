@@ -139,3 +139,7 @@ features:
         given: LLM prompt sent
         when: processed
         then: creates session with session.yaml (id, agent_type, status, started_at) and events.jsonl
+      - id: ac-2
+        given: streaming response
+        when: chunks received
+        then: appends message.chunk events with auto-assigned ts and seq (monotonically increasing)

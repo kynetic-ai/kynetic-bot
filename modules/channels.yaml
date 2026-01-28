@@ -34,6 +34,10 @@ features:
         given: new channel adapter module available
         when: registration requested
         then: validates adapter interface and adds to registry
+      - id: ac-2
+        given: message arrives for specific platform
+        when: adapter lookup performed
+        then: returns correct adapter for the platform
   - _ulid: 01KG1RD682MGVX9083BXA1J9M8
     slugs:
       - channel-lifecycle

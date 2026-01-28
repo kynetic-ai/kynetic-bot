@@ -28,6 +28,10 @@ traits:
         given: duplicate request
         when: processed
         then: returns same result without side effects
+      - id: ac-2
+        given: retry after timeout
+        when: reprocessed
+        then: state remains consistent
   - _ulid: 01KG1VATBQNVP13YC0WKN4WWEV
     slugs:
       - trait-rate-limited

@@ -92,6 +92,10 @@ features:
         given: streaming response in progress
         when: client disconnects mid-stream
         then: cleans up resources and logs disconnection
+      - id: ac-3
+        given: platform does not support streaming
+        when: response ready
+        then: buffers complete response and sends as single message
   - _ulid: 01KG1RCW2NEV0254S18NRJBZ48
     slugs:
       - msg-history

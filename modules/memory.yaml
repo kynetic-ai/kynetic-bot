@@ -63,7 +63,7 @@ features:
     title: Conversation Storage
     type: feature
     tags: []
-    description: Conversation storage as kspec notes with timestamps and metadata
+    description: "Two-layer conversation tracking: user threads linked to agent sessions via turns.jsonl"
     depends_on: []
     implements: []
     relates_to: []
@@ -71,6 +71,8 @@ features:
     traits:
       - "@trait-idempotent"
       - "@trait-recoverable"
+      - "@trait-observable"
+      - "@trait-validated"
     notes: []
     created: 2026-01-28T07:34:52.822Z
     acceptance_criteria:

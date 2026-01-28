@@ -1095,7 +1095,125 @@
     - phase-1
   vcs_refs: []
   created_at: 2026-01-28T08:09:51.830Z
-  notes: []
+  notes:
+    - _ulid: 01KG1TKGTVBMVC0JR5YY2JABC9
+      created_at: 2026-01-28T08:13:03.195Z
+      author: "@claude"
+      content: >-
+        ## Goal
+
+        Implement Discord channel adapter using discord.js.
+
+
+        ## Files
+
+        - packages/channels/src/adapters/discord.ts - DiscordAdapter class
+
+        - packages/channels/test/adapters/discord.test.ts - Unit tests
+
+
+        ## Dependencies
+
+        - @channel-registry-task - Needs ChannelAdapter interface
+
+        - npm: discord.js
+
+
+        ## Implementation
+
+
+        ### DiscordAdapter Class
+
+        ```typescript
+
+        import { Client, Message as DiscordMessage, TextChannel } from 'discord.js';
+
+
+        class DiscordAdapter implements ChannelAdapter {
+          readonly name = 'discord';
+          readonly platform = 'discord';
+
+          constructor(private client: Client) {}
+
+          parseIncoming(interaction: DiscordMessage): Result<NormalizedMessage, KyneticError>
+          async sendMessage(channelId: string, message: NormalizedMessage): Promise<Result<void, KyneticError>>
+          normalizeTarget(target: string): string
+        }
+
+        ```
+
+
+        ### parseIncoming
+
+        Extract from Discord message:
+
+        - id: message.id
+
+        - text: message.content
+
+        - sender.id: message.author.id
+
+        - sender.platform: 'discord'
+
+        - sender.displayName: message.author.username
+
+        - timestamp: message.createdAt
+
+        - channel: message.channelId
+
+        - attachments: map message.attachments
+
+
+        ### sendMessage
+
+        - Get channel by ID: client.channels.fetch(channelId)
+
+        - Cast to TextChannel
+
+        - Send with content and optional embeds
+
+        - Handle errors: rate limits (429), permissions (403), API failures
+
+
+        ### normalizeTarget
+
+        Handle formats:
+
+        - user:123456789 -> DM channel for user
+
+        - channel:123456789 -> Direct channel ID
+
+        - 123456789 -> Assume channel ID
+
+
+        ### Error Handling
+
+        - Rate limit: wait and retry with exponential backoff
+
+        - Permission denied: return structured error
+
+        - API failure: wrap in KyneticError
+
+
+        ## Acceptance Criteria
+
+        - AC-1: Implements ChannelAdapter interface
+
+        - AC-2: parseIncoming extracts sender, text, attachments from Discord message
+
+        - AC-3: sendMessage sends via discord.js
+
+        - AC-4: normalizeTarget handles Discord user/channel IDs
+
+        - AC-5: Error handling for rate limits, permissions, API failures
+
+        - AC-6: Integration test with mock Discord client
+
+
+        ## Verification
+
+        Run tests with mocked discord.js Client.
+      supersedes: null
   todos: []
 - _ulid: 01KG1TDRB07CBH2J4K25G786ET
   slugs:

@@ -56,6 +56,11 @@ features:
     traits: []
     notes: []
     created: 2026-01-28T07:34:21.579Z
+    acceptance_criteria:
+      - id: ac-1
+        given: message from platform with platform-specific format
+        when: transformer processes the message
+        then: produces normalized message with standard fields
   - _ulid: 01KG1RCSF0FTTSH41QD4NSAFY9
     slugs:
       - msg-streaming

@@ -2847,4 +2847,11 @@
 
         Run tests with mocked platform APIs.
       supersedes: null
+    - _ulid: 01KG1W6X566DF97D589WC0X3YV
+      created_at: 2026-01-28T08:41:06.982Z
+      author: "@claude"
+      content: "Automation status set to manual_only: Requires WhatsApp Meta Cloud API credentials and
+        Slack Bot token setup"
+      supersedes: null
   todos: []
+  automation: manual_only

@@ -82,7 +82,7 @@ features:
         then: returns error indicating unsupported type
     status:
       maturity: draft
-      implementation: in_progress
+      implementation: implemented
   - _ulid: 01KG1RCSF0FTTSH41QD4NSAFY9
     slugs:
       - msg-streaming

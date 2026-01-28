@@ -198,4 +198,39 @@
         - Dependencies are explicit
         - Unknowns resolved before bulk work begins
       supersedes: null
+    - _ulid: 01KG1SB9DFN8MBHYTYW6T0HRH0
+      created_at: 2026-01-28T07:51:04.879Z
+      author: "@claude"
+      content: |-
+        ## Implementation Research Complete
+
+        ### Kynetic Reusable Components (with file paths)
+        **ACP** (direct import):
+        - /packages/lifeline/src/acp/client.ts - ACPClient class
+        - /packages/lifeline/src/acp/framing.ts - JsonRpcFraming
+        - /packages/lifeline/src/acp/handlers.ts - createHandlers()
+
+        **Session Management** (adapt):
+        - /packages/lifeline/src/session/semantic-units.ts - groupIntoUnits(), extractRecentUnits()
+        - /packages/lifeline/src/session/compaction-trigger.ts - 70%/85% thresholds
+        - /packages/lifeline/src/session/crash-recovery.ts - CrashRecoveryHandler
+
+        **Hub Protocol** (reference):
+        - /packages/shared/src/hub-protocol/core.ts - Envelope, error codes
+        - /packages/shared/src/hub-protocol/session.ts - SessionUpdate types
+
+        ### Kspec Programmatic APIs
+        - initContext() - Detects shadow, loads manifest
+        - createTask(), saveTask(), loadAllTasks() - Task CRUD
+        - createNote(), createInboxItem() - Note/inbox creation
+        - commitIfShadow() - Auto-persist to shadow branch
+        - getReadyTasks() - Dependency-aware task filtering
+
+        ### Moltbot Patterns to Adopt
+        - Session keys: agent:{agentId}:{channel}:{peerKind}:{peerId}
+        - Channel plugin interface with configSchema, sendMessage, normalizeTarget
+        - DM pairing: pending request → code → approval → allow-list
+        - Streaming coalescing: minChars/idleMs thresholds
+        - Platform-specific chunking limits (2000-4000 chars)
+      supersedes: null
   todos: []

@@ -119,3 +119,7 @@ features:
         given: human takes over conversation
         when: escalation acknowledged
         then: agent pauses and provides conversation handoff
+      - id: ac-3
+        given: escalation timeout reached
+        when: no human response
+        then: follows configured fallback behavior

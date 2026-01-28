@@ -396,7 +396,46 @@
     - phase-0
   vcs_refs: []
   created_at: 2026-01-28T08:09:19.850Z
-  notes: []
+  notes:
+    - _ulid: 01KG1TGWZSV7J6VNGQM0VV0T57
+      created_at: 2026-01-28T08:11:37.337Z
+      author: "@claude"
+      content: |-
+        ## Goal
+        Configure Vitest for testing across all packages with shared test utilities.
+
+        ## Files
+        - vitest.config.ts - Root Vitest configuration
+        - vitest.workspace.ts - Workspace configuration for all packages
+        - packages/core/vitest.config.ts - Core package test config
+        - packages/core/src/test-utils/index.ts - Shared test utilities
+        - packages/*/vitest.config.ts - Per-package test configs
+
+        ## Dependencies
+        - @setup-typescript - TypeScript must be configured first
+
+        ## Implementation
+        1. Install vitest, @vitest/coverage-v8 as dev dependencies
+        2. Create root vitest.config.ts with:
+           - globals: true
+           - coverage provider: v8
+           - coverage reporters: text, json, html
+        3. Create vitest.workspace.ts defining all package test configs
+        4. Create shared test utilities in core package:
+           - Mock factories for common objects (NormalizedMessage, SessionKey)
+           - Test fixtures
+           - Custom matchers if needed
+        5. Add test scripts to root package.json: test, test:coverage, test:watch
+
+        ## Acceptance Criteria
+        - AC-1: Vitest configured for each package
+        - AC-2: Test utilities: mock factories, test fixtures
+        - AC-3: pnpm test runs all tests
+        - AC-4: Coverage reporting enabled
+
+        ## Verification
+        Run pnpm test and pnpm test:coverage from root.
+      supersedes: null
   todos: []
 - _ulid: 01KG1TCS1VP8GK0SAB6HKJDZ1A
   slugs:

@@ -701,7 +701,89 @@
     - phase-1
   vcs_refs: []
   created_at: 2026-01-28T08:09:40.607Z
-  notes: []
+  notes:
+    - _ulid: 01KG1TK4T1QPJCZMAH80YXD74J
+      created_at: 2026-01-28T08:12:50.881Z
+      author: "@claude"
+      content: >-
+        ## Goal
+
+        Implement session key router for message routing and session management.
+
+
+        ## Files
+
+        - packages/messaging/src/router.ts - SessionKeyRouter class
+
+        - packages/messaging/src/types.ts - Router types
+
+        - packages/messaging/src/index.ts - Barrel export
+
+        - packages/messaging/test/router.test.ts - Unit tests
+
+
+        ## Dependencies
+
+        - @core-types - Needs SessionKey and error types
+
+
+        ## Implementation
+
+
+        ### SessionKeyRouter
+
+        ```typescript
+
+        interface SessionStore {
+          get(key: string): Session | undefined;
+          create(key: string): Session;
+          delete(key: string): void;
+        }
+
+
+        class SessionKeyRouter {
+          constructor(private store: SessionStore) {}
+
+          resolveSession(message: NormalizedMessage, agentId: string): Result<Session, KyneticError>
+          getOrCreateSession(key: string): Session
+          closeSession(key: string): void
+        }
+
+        ```
+
+
+        ### Session Type
+
+        ```typescript
+
+        interface Session {
+          key: string;
+          agent: string;
+          platform: string;
+          peerId: string;
+          peerKind: 'user' | 'channel';
+          context: Message[];
+          createdAt: Date;
+          lastActivity: Date;
+        }
+
+        ```
+
+
+        ## Spec Acceptance Criteria (from @msg-routing)
+
+        - AC-1: Given message from WhatsApp user to agent, when router processes, then resolves to
+        unique session key
+
+        - AC-2: Given existing session, when new message with same key, then appends to context
+
+        - AC-3: Given unknown agent, when router resolves, then returns UnknownAgentError
+
+
+        ## Verification
+
+        Run pnpm test packages/messaging with tests covering all 3 AC.
+      supersedes: null
   todos: []
 - _ulid: 01KG1TDCYN853WKRH1WDE9W8VR
   slugs:

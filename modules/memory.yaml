@@ -75,11 +75,7 @@ features:
       - "@trait-validated"
     notes: []
     created: 2026-01-28T07:34:52.822Z
-    acceptance_criteria:
-      - id: ac-4
-        given: same turn persisted twice
-        when: saved
-        then: only one note appended
+    acceptance_criteria: []
   - _ulid: 01KG1RDP884TBCZV7QH03CV53M
     slugs:
       - mem-context-window

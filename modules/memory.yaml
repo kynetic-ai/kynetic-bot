@@ -18,16 +18,19 @@ features:
   - _ulid: 01KG1RDJ269GRVN88KT1EVKKHY
     slugs:
       - mem-kspec-sync
-    title: Kspec Sync
+      - mem-shadow-storage
+    title: Shadow Branch Storage
     type: feature
     tags: []
-    description: Shadow branch integration for persistent storage of state and conversation data
+    description: .kbot/ worktree with git shadow branch for persistent memory storage
     depends_on: []
     implements: []
     relates_to: []
     tests: []
     traits:
       - "@trait-recoverable"
+      - "@trait-observable"
+      - "@trait-validated"
     notes: []
     created: 2026-01-28T07:34:50.694Z
     acceptance_criteria:

@@ -1,0 +1,304 @@
+{
+  "generated_at": "2026-01-28T14:34:13.114Z",
+  "branch": "main",
+  "context": {
+    "focus": null,
+    "threads": [],
+    "open_questions": [],
+    "updated_at": "2026-01-28T14:34:13.114Z"
+  },
+  "active_tasks": [],
+  "pending_review_tasks": [],
+  "recent_notes": [],
+  "active_todos": [],
+  "ready_tasks": [
+    {
+      "ref": "01KG1TER",
+      "title": "ChannelLifecycle for @channel-lifecycle",
+      "priority": 3,
+      "spec_ref": "@channel-lifecycle",
+      "tags": [
+        "phase-3"
+      ]
+    },
+    {
+      "ref": "01KG1TF8",
+      "title": "MediaHandler for @channel-media",
+      "priority": 4,
+      "spec_ref": "@channel-media",
+      "tags": [
+        "phase-4"
+      ]
+    }
+  ],
+  "blocked_tasks": [],
+  "recently_completed": [
+    {
+      "ref": "01KG1TEP",
+      "title": "StreamCoalescer for @msg-streaming",
+      "completed_at": "2026-01-28T14:32:27.260Z",
+      "closed_reason": "StreamCoalescer implemented and merged to main. Created StreamCoalescer and BufferedCoalescer classes with configurable chunking and disconnect handling. Added 15 comprehensive tests covering all AC. All tests pass. Changes committed to main (6f38440)."
+    },
+    {
+      "ref": "01KG1TE1",
+      "title": "MessageTransformer for @msg-transform",
+      "completed_at": "2026-01-28T14:29:53.090Z",
+      "closed_reason": "MessageTransformer implemented and merged to main. Created PlatformTransformer interface, MessageTransformer class with error handling. Added 12 comprehensive tests covering all AC. All tests pass. Changes committed to main (0967508)."
+    },
+    {
+      "ref": "01KG2ESG",
+      "title": "Add coverage/ to .gitignore",
+      "completed_at": "2026-01-28T14:27:22.727Z",
+      "closed_reason": "Added coverage/ to .gitignore. Changes committed to main (5dbb18d)."
+    },
+    {
+      "ref": "01KG1TDC",
+      "title": "ChannelRegistry for @channel-registry",
+      "completed_at": "2026-01-28T14:26:46.466Z",
+      "closed_reason": "ChannelRegistry implemented and merged to main. Created ValidationError and ChannelRegistry with interface validation. Added 18 comprehensive tests covering all AC. All tests pass. Changes committed to main (c48381d)."
+    },
+    {
+      "ref": "01KG1TDA",
+      "title": "SessionKeyRouter for @msg-routing",
+      "completed_at": "2026-01-28T14:23:55.026Z",
+      "closed_reason": "SessionKeyRouter implemented and merged to main. Created Session/SessionStore types, implemented routing with idempotency, added 15 comprehensive tests covering all AC. All tests pass. Changes committed to main (d6138cd)."
+    },
+    {
+      "ref": "01KG1TD8",
+      "title": "Core types, session keys, error utilities",
+      "completed_at": "2026-01-28T14:18:59.429Z",
+      "closed_reason": "Core types and utilities implemented. Created NormalizedMessage, SessionKey types, ChannelAdapter interface. Implemented session-key parsing/building utilities with comprehensive error handling. Added 23 unit tests covering all edge cases. All tests pass. Changes committed to main (58cbe1d)."
+    },
+    {
+      "ref": "01KG1TCV",
+      "title": "Copy kynetic ACP modules",
+      "completed_at": "2026-01-28T14:15:58.131Z",
+      "closed_reason": "ACP modules copied from kynetic and adapted. Copied client.ts, framing.ts, types.ts and created index.ts barrel export. Updated imports to use @kynetic-bot/core. Fixed hasProperty type guard to support value parameter. All packages build successfully. Changes committed to main (b17ac9e)."
+    },
+    {
+      "ref": "01KG2ER6",
+      "title": "Set up ACP dependencies",
+      "completed_at": "2026-01-28T14:11:11.710Z",
+      "closed_reason": "ACP dependencies installed and configured. Installed @agentclientprotocol/sdk@^0.13.1, created logger and type-guard utilities. All packages build successfully. Changes committed to main (b731ca0)."
+    },
+    {
+      "ref": "01KG1TCP",
+      "title": "Set up Vitest with test utilities",
+      "completed_at": "2026-01-28T09:17:06.860Z",
+      "closed_reason": "Vitest configured and merged. PR #4 successfully merged. Test infrastructure ready with coverage reporting."
+    },
+    {
+      "ref": "01KG1TCS",
+      "title": "Configure ESLint + Prettier",
+      "completed_at": "2026-01-28T09:13:02.822Z",
+      "closed_reason": "ESLint and Prettier configured and merged. PR #3 successfully merged. Linting and formatting tools ready for use."
+    }
+  ],
+  "recent_commits": [
+    {
+      "hash": "6f38440",
+      "full_hash": "6f38440deacf7cc82c5d4a11b125c4d444429a94",
+      "date": "2026-01-28T14:32:14.000Z",
+      "message": "feat: implement StreamCoalescer for streaming responses",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "0967508",
+      "full_hash": "096750808363b4634d0ea2c3aab099f05991cf6a",
+      "date": "2026-01-28T14:29:40.000Z",
+      "message": "feat: implement MessageTransformer for message normalization",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "5dbb18d",
+      "full_hash": "5dbb18d6e3c057a20c059b597e11ef4698e0150c",
+      "date": "2026-01-28T14:27:11.000Z",
+      "message": "chore: add coverage/ to .gitignore",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "c48381d",
+      "full_hash": "c48381de044eec68cca261a3e6cc4c796f797e5e",
+      "date": "2026-01-28T14:26:35.000Z",
+      "message": "feat: implement ChannelRegistry for adapter management",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "d6138cd",
+      "full_hash": "d6138cd0e39978a38eeb9f5e72e8c9ba31d4bc0f",
+      "date": "2026-01-28T14:23:32.000Z",
+      "message": "feat: implement SessionKeyRouter for message routing",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "58cbe1d",
+      "full_hash": "58cbe1d79c57fa60a6b3d9f8a720ba5c61bae711",
+      "date": "2026-01-28T14:18:47.000Z",
+      "message": "feat: add core types and session key utilities",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "b17ac9e",
+      "full_hash": "b17ac9e6a8fe5aad35cff1dd162a3331e639b8f9",
+      "date": "2026-01-28T14:15:45.000Z",
+      "message": "feat: copy ACP modules from kynetic",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "b731ca0",
+      "full_hash": "b731ca09db1a697bf5b26045803348c2d2045d94",
+      "date": "2026-01-28T14:09:55.000Z",
+      "message": "chore: set up ACP dependencies",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "bdf1bb9",
+      "full_hash": "bdf1bb90d8f182042f8d73cb017564b407f1114a",
+      "date": "2026-01-28T09:16:38.000Z",
+      "message": "chore: configure Vitest with test utilities (#4)",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "b8b5f0d",
+      "full_hash": "b8b5f0d33e3d0db9dc476cdea387224e229a53ad",
+      "date": "2026-01-28T09:12:46.000Z",
+      "message": "chore: configure ESLint and Prettier (#3)",
+      "author": "Jacob Chapel"
+    }
+  ],
+  "working_tree": {
+    "clean": false,
+    "staged": [
+      {
+        "path": "packages/agent/tsconfig.tsbuildinfo",
+        "status": "modified",
+        "staged": true
+      }
+    ],
+    "unstaged": [
+      {
+        "path": "packages/channels/dist/index.d.ts",
+        "status": "modified",
+        "staged": false
+      },
+      {
+        "path": "packages/channels/dist/index.d.ts.map",
+        "status": "modified",
+        "staged": false
+      },
+      {
+        "path": "packages/channels/dist/index.js",
+        "status": "modified",
+        "staged": false
+      },
+      {
+        "path": "packages/channels/dist/index.js.map",
+        "status": "modified",
+        "staged": false
+      },
+      {
+        "path": "packages/channels/tsconfig.tsbuildinfo",
+        "status": "modified",
+        "staged": false
+      },
+      {
+        "path": "packages/core/dist/index.d.ts",
+        "status": "modified",
+        "staged": false
+      },
+      {
+        "path": "packages/core/dist/index.d.ts.map",
+        "status": "modified",
+        "staged": false
+      },
+      {
+        "path": "packages/core/dist/index.js",
+        "status": "modified",
+        "staged": false
+      },
+      {
+        "path": "packages/core/dist/index.js.map",
+        "status": "modified",
+        "staged": false
+      },
+      {
+        "path": "packages/core/tsconfig.tsbuildinfo",
+        "status": "modified",
+        "staged": false
+      },
+      {
+        "path": "packages/messaging/dist/index.d.ts",
+        "status": "modified",
+        "staged": false
+      },
+      {
+        "path": "packages/messaging/dist/index.d.ts.map",
+        "status": "modified",
+        "staged": false
+      },
+      {
+        "path": "packages/messaging/dist/index.js",
+        "status": "modified",
+        "staged": false
+      },
+      {
+        "path": "packages/messaging/dist/index.js.map",
+        "status": "modified",
+        "staged": false
+      },
+      {
+        "path": "packages/messaging/tsconfig.tsbuildinfo",
+        "status": "modified",
+        "staged": false
+      }
+    ],
+    "untracked": [
+      "node_modules/.pnpm/@agentclientprotocol+sdk@0.13.1_zod@4.3.6/",
+      "node_modules/.pnpm/node_modules/@agentclientprotocol/",
+      "node_modules/.pnpm/node_modules/zod",
+      "node_modules/.pnpm/zod@4.3.6/",
+      "packages/agent/dist/acp/",
+      "packages/agent/node_modules/@agentclientprotocol/",
+      "packages/channels/dist/registry.d.ts",
+      "packages/channels/dist/registry.d.ts.map",
+      "packages/channels/dist/registry.js",
+      "packages/channels/dist/registry.js.map",
+      "packages/channels/dist/types.d.ts",
+      "packages/channels/dist/types.d.ts.map",
+      "packages/channels/dist/types.js",
+      "packages/channels/dist/types.js.map",
+      "packages/channels/node_modules/.vite/",
+      "packages/core/dist/test-utils/",
+      "packages/core/dist/types/",
+      "packages/core/dist/utils/",
+      "packages/core/node_modules/",
+      "packages/messaging/dist/router.d.ts",
+      "packages/messaging/dist/router.d.ts.map",
+      "packages/messaging/dist/router.js",
+      "packages/messaging/dist/router.js.map",
+      "packages/messaging/dist/streaming.d.ts",
+      "packages/messaging/dist/streaming.d.ts.map",
+      "packages/messaging/dist/streaming.js",
+      "packages/messaging/dist/streaming.js.map",
+      "packages/messaging/dist/transformer.d.ts",
+      "packages/messaging/dist/transformer.d.ts.map",
+      "packages/messaging/dist/transformer.js",
+      "packages/messaging/dist/transformer.js.map",
+      "packages/messaging/dist/types.d.ts",
+      "packages/messaging/dist/types.d.ts.map",
+      "packages/messaging/dist/types.js",
+      "packages/messaging/dist/types.js.map",
+      "packages/messaging/node_modules/.vite/"
+    ]
+  },
+  "inbox_items": [],
+  "stats": {
+    "total_tasks": 30,
+    "in_progress": 0,
+    "pending_review": 0,
+    "ready": 6,
+    "blocked": 0,
+    "completed": 13,
+    "inbox_items": 0
+  }
+}

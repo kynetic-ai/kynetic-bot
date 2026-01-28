@@ -23,3 +23,16 @@ traits:
     traits: []
     notes: []
     created: 2026-01-28T08:25:44.342Z
+  - _ulid: 01KG1VATBQNVP13YC0WKN4WWEV
+    slugs:
+      - trait-rate-limited
+    title: Rate Limited
+    type: trait
+    tags: []
+    depends_on: []
+    implements: []
+    relates_to: []
+    tests: []
+    traits: []
+    notes: []
+    created: 2026-01-28T08:25:46.615Z

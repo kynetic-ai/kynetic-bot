@@ -29,3 +29,17 @@ features:
     traits: []
     notes: []
     created: 2026-01-28T07:34:50.694Z
+  - _ulid: 01KG1RDM4NVZVQP8XZ9DY2CSRY
+    slugs:
+      - mem-conversation
+    title: Conversation Storage
+    type: feature
+    tags: []
+    description: Conversation storage as kspec notes with timestamps and metadata
+    depends_on: []
+    implements: []
+    relates_to: []
+    tests: []
+    traits: []
+    notes: []
+    created: 2026-01-28T07:34:52.822Z

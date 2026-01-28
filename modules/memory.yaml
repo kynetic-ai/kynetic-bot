@@ -159,3 +159,7 @@ features:
         given: invalid event data
         when: append attempted
         then: rejects with Zod validation error
+      - id: ac-7
+        given: crash mid-session
+        when: restarted
+        then: marks orphaned sessions as abandoned

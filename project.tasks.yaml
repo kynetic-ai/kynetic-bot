@@ -396,6 +396,8 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "TypeScript project references configured and merged. PR #2 successfully merged. All
+    packages compile with incremental builds enabled."
   depends_on:
     - "@init-monorepo"
   context: []
@@ -405,6 +407,7 @@
   vcs_refs: []
   created_at: 2026-01-28T08:09:17.678Z
   started_at: 2026-01-28T09:06:30.831Z
+  completed_at: 2026-01-28T09:09:56.844Z
   notes:
     - _ulid: 01KG1TGSST3V9PZE0J9B6A5C54
       created_at: 2026-01-28T08:11:34.075Z
@@ -476,9 +479,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-01-28T09:09:56.844Z
-  closed_reason: "TypeScript project references configured and merged. PR #2 successfully merged. All
-    packages compile with incremental builds enabled."
 - _ulid: 01KG1TCPQB3JFQZH0TA5CHMWKV
   slugs:
     - setup-vitest
@@ -545,7 +545,7 @@
   type: task
   spec_ref: null
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on:
     - "@init-monorepo"
@@ -602,6 +602,7 @@
       supersedes: null
   todos: []
   automation: eligible
+  started_at: 2026-01-28T09:10:22.486Z
 - _ulid: 01KG1TCVDS60NH6FW759CTZJQM
   slugs:
     - copy-acp-modules

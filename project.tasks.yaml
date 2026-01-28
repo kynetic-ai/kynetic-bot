@@ -1423,7 +1423,14 @@
       content: "Infrastructure note: Basic bot integration should implement graceful shutdown behavior
         (see @trait-graceful-shutdown)"
       supersedes: null
+    - _ulid: 01KG1W25X76TRK7YNNH4YFEKBN
+      created_at: 2026-01-28T08:38:32.103Z
+      author: "@claude"
+      content: "Automation status set to needs_review: Integration point combining all Phase 1 components,
+        sets patterns for message flow"
+      supersedes: null
   todos: []
+  automation: needs_review
 - _ulid: 01KG1TE1Y9HJ47QHAH57HJNX86
   slugs:
     - msg-transformer

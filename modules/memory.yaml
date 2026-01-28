@@ -100,6 +100,10 @@ features:
         given: invalid turn data
         when: append attempted
         then: rejects with Zod validation error including field details
+      - id: ac-7
+        given: agent_session_id reference
+        when: validated
+        then: verifies session exists or rejects with clear error
   - _ulid: 01KG1RDP884TBCZV7QH03CV53M
     slugs:
       - mem-context-window

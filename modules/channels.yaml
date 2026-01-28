@@ -61,6 +61,10 @@ features:
         given: channel adapter starts
         when: initialization completes
         then: establishes connection and begins health monitoring
+      - id: ac-2
+        given: health check fails for channel
+        when: consecutive failures exceed threshold
+        then: marks channel unhealthy and triggers reconnection
   - _ulid: 01KG1RD8WH7K88Y89V0CQ473ZH
     slugs:
       - channel-dm-policy

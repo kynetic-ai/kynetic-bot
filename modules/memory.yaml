@@ -128,6 +128,9 @@ features:
     implements: []
     relates_to: []
     tests: []
-    traits: []
+    traits:
+      - "@trait-recoverable"
+      - "@trait-observable"
+      - "@trait-validated"
     notes: []
     created: 2026-01-28T17:46:16.822Z

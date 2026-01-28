@@ -3441,22 +3441,41 @@
       supersedes: null
   todos: []
   automation: eligible
-- title: Define agent session and event Zod schemas
+- _ulid: 01KG2VK6C4S6DAHF08XQQWMTKM
+  slugs:
+    - session-types
+  title: Define agent session and event Zod schemas
   type: task
   spec_ref: "@mem-agent-sessions"
   meta_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  priority: 1
+  tags:
+    - phase-1
+  vcs_refs: []
+  created_at: 2026-01-28T17:49:35.492Z
+  notes: []
+  todos: []
+  automation: eligible
+- title: Define conversation and turn Zod schemas
+  type: task
+  spec_ref: "@mem-conversation"
+  meta_ref: null
   priority: 1
   slugs:
-    - session-types
+    - conversation-types
   tags:
     - phase-1
   automation: eligible
-  _ulid: 01KG2VK6C4S6DAHF08XQQWMTKM
+  _ulid: 01KG2VK9YVD40CSKFN2T8WR585
   status: pending
   blocked_by: []
   depends_on: []
   context: []
   vcs_refs: []
-  created_at: 2026-01-28T17:49:35.492Z
+  created_at: 2026-01-28T17:49:39.162Z
   notes: []
   todos: []

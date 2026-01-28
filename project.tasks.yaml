@@ -333,21 +333,39 @@
   created_at: 2026-01-28T08:09:22.235Z
   notes: []
   todos: []
-- title: Copy kynetic ACP modules
+- _ulid: 01KG1TCVDS60NH6FW759CTZJQM
+  slugs:
+    - copy-acp-modules
+  title: Copy kynetic ACP modules
+  type: task
+  spec_ref: null
+  meta_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  priority: 1
+  tags:
+    - phase-0
+  vcs_refs: []
+  created_at: 2026-01-28T08:09:24.664Z
+  notes: []
+  todos: []
+- title: Core types, session keys, error utilities
   type: task
   spec_ref: null
   meta_ref: null
   priority: 1
   slugs:
-    - copy-acp-modules
+    - core-types
   tags:
-    - phase-0
-  _ulid: 01KG1TCVDS60NH6FW759CTZJQM
+    - phase-1
+  _ulid: 01KG1TD8REHCMGXRCRN5B7TFCZ
   status: pending
   blocked_by: []
   depends_on: []
   context: []
   vcs_refs: []
-  created_at: 2026-01-28T08:09:24.664Z
+  created_at: 2026-01-28T08:09:38.318Z
   notes: []
   todos: []

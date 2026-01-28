@@ -369,21 +369,39 @@
   created_at: 2026-01-28T08:09:38.318Z
   notes: []
   todos: []
-- title: SessionKeyRouter for @msg-routing
+- _ulid: 01KG1TDAZZW5PG1MAWGTK0HKDV
+  slugs:
+    - session-router
+  title: SessionKeyRouter for @msg-routing
   type: task
   spec_ref: "@msg-routing"
   meta_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
   priority: 1
-  slugs:
-    - session-router
   tags:
     - phase-1
-  _ulid: 01KG1TDAZZW5PG1MAWGTK0HKDV
+  vcs_refs: []
+  created_at: 2026-01-28T08:09:40.607Z
+  notes: []
+  todos: []
+- title: ChannelRegistry for @channel-registry
+  type: task
+  spec_ref: "@channel-registry"
+  meta_ref: null
+  priority: 1
+  slugs:
+    - channel-registry-task
+  tags:
+    - phase-1
+  _ulid: 01KG1TDCYN853WKRH1WDE9W8VR
   status: pending
   blocked_by: []
   depends_on: []
   context: []
   vcs_refs: []
-  created_at: 2026-01-28T08:09:40.607Z
+  created_at: 2026-01-28T08:09:42.612Z
   notes: []
   todos: []

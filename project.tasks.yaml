@@ -838,6 +838,10 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: Core types and utilities implemented. Created NormalizedMessage, SessionKey types,
+    ChannelAdapter interface. Implemented session-key parsing/building utilities with comprehensive
+    error handling. Added 23 unit tests covering all edge cases. All tests pass. Changes committed
+    to main (58cbe1d).
   depends_on:
     - "@copy-acp-modules"
   context: []
@@ -847,6 +851,7 @@
   vcs_refs: []
   created_at: 2026-01-28T08:09:38.318Z
   started_at: 2026-01-28T14:16:21.552Z
+  completed_at: 2026-01-28T14:18:59.429Z
   notes:
     - _ulid: 01KG1TK1RSH6YXP6EVS17MWAMV
       created_at: 2026-01-28T08:12:47.769Z
@@ -965,11 +970,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-01-28T14:18:59.429Z
-  closed_reason: Core types and utilities implemented. Created NormalizedMessage, SessionKey types,
-    ChannelAdapter interface. Implemented session-key parsing/building utilities with comprehensive
-    error handling. Added 23 unit tests covering all edge cases. All tests pass. Changes committed
-    to main (58cbe1d).
 - _ulid: 01KG1TDAZZW5PG1MAWGTK0HKDV
   slugs:
     - session-router
@@ -977,7 +977,7 @@
   type: task
   spec_ref: "@msg-routing"
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on:
     - "@core-types"
@@ -1072,6 +1072,7 @@
       supersedes: null
   todos: []
   automation: eligible
+  started_at: 2026-01-28T14:20:49.225Z
 - _ulid: 01KG1TDCYN853WKRH1WDE9W8VR
   slugs:
     - channel-registry-task

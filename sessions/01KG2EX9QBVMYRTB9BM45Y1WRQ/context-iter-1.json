@@ -1,0 +1,148 @@
+{
+  "generated_at": "2026-01-28T14:07:55.184Z",
+  "branch": "main",
+  "context": {
+    "focus": null,
+    "threads": [],
+    "open_questions": [],
+    "updated_at": "2026-01-28T14:07:55.184Z"
+  },
+  "active_tasks": [],
+  "pending_review_tasks": [],
+  "recent_notes": [],
+  "active_todos": [],
+  "ready_tasks": [
+    {
+      "ref": "01KG2ER6",
+      "title": "Set up ACP dependencies",
+      "priority": 1,
+      "spec_ref": null,
+      "tags": [
+        "phase-0"
+      ]
+    },
+    {
+      "ref": "01KG2ESG",
+      "title": "Add coverage/ to .gitignore",
+      "priority": 2,
+      "spec_ref": null,
+      "tags": [
+        "phase-0"
+      ]
+    }
+  ],
+  "blocked_tasks": [],
+  "recently_completed": [
+    {
+      "ref": "01KG1TCP",
+      "title": "Set up Vitest with test utilities",
+      "completed_at": "2026-01-28T09:17:06.860Z",
+      "closed_reason": "Vitest configured and merged. PR #4 successfully merged. Test infrastructure ready with coverage reporting."
+    },
+    {
+      "ref": "01KG1TCS",
+      "title": "Configure ESLint + Prettier",
+      "completed_at": "2026-01-28T09:13:02.822Z",
+      "closed_reason": "ESLint and Prettier configured and merged. PR #3 successfully merged. Linting and formatting tools ready for use."
+    },
+    {
+      "ref": "01KG1TCM",
+      "title": "Configure TypeScript project references",
+      "completed_at": "2026-01-28T09:09:56.844Z",
+      "closed_reason": "TypeScript project references configured and merged. PR #2 successfully merged. All packages compile with incremental builds enabled."
+    },
+    {
+      "ref": "01KG1TCH",
+      "title": "Initialize pnpm monorepo workspace",
+      "completed_at": "2026-01-28T09:06:09.275Z",
+      "closed_reason": "Monorepo workspace initialized and merged. PR #1 successfully merged to main. All 6 packages configured with proper dependencies."
+    },
+    {
+      "ref": "01KG1QW1",
+      "title": "Spec out core kynetic-bot functionality",
+      "completed_at": "2026-01-28T08:32:54.052Z",
+      "closed_reason": "Spec creation complete. Created 4 modules, 15 features, 7 traits, 27 implementation tasks. Plan approved and ready for implementation."
+    }
+  ],
+  "recent_commits": [
+    {
+      "hash": "bdf1bb9",
+      "full_hash": "bdf1bb90d8f182042f8d73cb017564b407f1114a",
+      "date": "2026-01-28T09:16:38.000Z",
+      "message": "chore: configure Vitest with test utilities (#4)",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "b8b5f0d",
+      "full_hash": "b8b5f0d33e3d0db9dc476cdea387224e229a53ad",
+      "date": "2026-01-28T09:12:46.000Z",
+      "message": "chore: configure ESLint and Prettier (#3)",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "40b5a52",
+      "full_hash": "40b5a526035e10030f0d24734746e059fff2e9c0",
+      "date": "2026-01-28T09:09:36.000Z",
+      "message": "chore: configure TypeScript project references (#2)",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "67f57a2",
+      "full_hash": "67f57a20bf45e9036d61d576a177147b38709d15",
+      "date": "2026-01-28T09:05:40.000Z",
+      "message": "chore: initialize pnpm monorepo workspace (#1)",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "a88e491",
+      "full_hash": "a88e4912f3a8ad01a78e271e47ef3169ee05dbef",
+      "date": "2026-01-28T08:59:56.000Z",
+      "message": "docs: add implementation plan for kynetic-bot core",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "347490f",
+      "full_hash": "347490f13abebbee2115f2c0f0d8beba8511104d",
+      "date": "2026-01-28T07:19:36.000Z",
+      "message": "feat: add /spec and /spec-plan skills",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "942f266",
+      "full_hash": "942f266994b50be7d45217a2d3eca85a48a81bc6",
+      "date": "2026-01-28T07:04:13.000Z",
+      "message": "feat: add kspec agent configuration and skills",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "e90ede7",
+      "full_hash": "e90ede7f8f434242ce64a8e5a61bc4e91882086e",
+      "date": "2026-01-28T05:26:49.000Z",
+      "message": "chore: add .kspec/ to .gitignore for shadow branch",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "2b80818",
+      "full_hash": "2b80818e2eb14e246380498eb1dd14df3503cf59",
+      "date": "2026-01-28T05:25:33.000Z",
+      "message": "chore: add readme",
+      "author": "Jacob Chapel"
+    }
+  ],
+  "working_tree": {
+    "clean": true,
+    "staged": [],
+    "unstaged": [],
+    "untracked": []
+  },
+  "inbox_items": [],
+  "stats": {
+    "total_tasks": 30,
+    "in_progress": 0,
+    "pending_review": 0,
+    "ready": 2,
+    "blocked": 0,
+    "completed": 5,
+    "inbox_items": 0
+  }
+}

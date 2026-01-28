@@ -34,6 +34,10 @@ features:
         given: session needs agent
         when: spawn requested
         then: creates agent process with configured environment variables
+      - id: ac-2
+        given: agent becomes unresponsive
+        when: health check fails
+        then: terminates stale process and spawns replacement
   - _ulid: 01KG1RE068887DHMQXFSCSTXZ6
     slugs:
       - agent-autonomous

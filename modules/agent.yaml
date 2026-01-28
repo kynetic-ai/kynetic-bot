@@ -29,6 +29,7 @@ features:
     traits:
       - "@trait-rate-limited"
       - "@trait-recoverable"
+      - "@trait-observable"
     notes: []
     created: 2026-01-28T07:35:02.892Z
     acceptance_criteria:

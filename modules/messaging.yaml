@@ -119,3 +119,7 @@ features:
         given: topic change detected in conversation
         when: semantic boundary analysis runs
         then: marks boundary in history for context windowing
+      - id: ac-3
+        given: session ended or timed out
+        when: cleanup triggered
+        then: archives history and releases active resources

@@ -675,21 +675,39 @@
   created_at: 2026-01-28T08:10:34.369Z
   notes: []
   todos: []
-- title: MediaHandler for @channel-media
+- _ulid: 01KG1TF89D2BAD47YYTG6AXTPE
+  slugs:
+    - media-handler
+  title: MediaHandler for @channel-media
   type: task
   spec_ref: "@channel-media"
   meta_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
   priority: 4
-  slugs:
-    - media-handler
   tags:
     - phase-4
-  _ulid: 01KG1TF89D2BAD47YYTG6AXTPE
+  vcs_refs: []
+  created_at: 2026-01-28T08:10:43.373Z
+  notes: []
+  todos: []
+- title: EscalationHandler for @agent-escalation
+  type: task
+  spec_ref: "@agent-escalation"
+  meta_ref: null
+  priority: 4
+  slugs:
+    - escalation-handler
+  tags:
+    - phase-4
+  _ulid: 01KG1TFBJJMXHTYAY09H0G3VXH
   status: pending
   blocked_by: []
   depends_on: []
   context: []
   vcs_refs: []
-  created_at: 2026-01-28T08:10:43.373Z
+  created_at: 2026-01-28T08:10:46.737Z
   notes: []
   todos: []

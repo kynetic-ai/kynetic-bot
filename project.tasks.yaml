@@ -495,21 +495,39 @@
   created_at: 2026-01-28T08:10:04.105Z
   notes: []
   todos: []
-- title: DMPolicyManager for @channel-dm-policy
+- _ulid: 01KG1TE51N01JR7Z64GHC13Y51
+  slugs:
+    - dm-policy
+  title: DMPolicyManager for @channel-dm-policy
   type: task
   spec_ref: "@channel-dm-policy"
   meta_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
   priority: 2
-  slugs:
-    - dm-policy
   tags:
     - phase-2
-  _ulid: 01KG1TE51N01JR7Z64GHC13Y51
+  vcs_refs: []
+  created_at: 2026-01-28T08:10:07.285Z
+  notes: []
+  todos: []
+- title: ConversationStorage for @mem-conversation
+  type: task
+  spec_ref: "@mem-conversation"
+  meta_ref: null
+  priority: 2
+  slugs:
+    - conversation-storage
+  tags:
+    - phase-2
+  _ulid: 01KG1TE7D2JHEF3R1KYJ7TRYJ0
   status: pending
   blocked_by: []
   depends_on: []
   context: []
   vcs_refs: []
-  created_at: 2026-01-28T08:10:07.285Z
+  created_at: 2026-01-28T08:10:09.698Z
   notes: []
   todos: []

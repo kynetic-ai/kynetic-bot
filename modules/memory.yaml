@@ -115,7 +115,9 @@ features:
     implements: []
     relates_to: []
     tests: []
-    traits: []
+    traits:
+      - "@trait-recoverable"
+      - "@trait-observable"
     notes: []
     created: 2026-01-28T07:34:54.984Z
     acceptance_criteria:
@@ -131,6 +133,8 @@ features:
         given: user references earlier topic
         when: context assembled
         then: retrieves relevant archived context
+    status:
+      maturity: deferred
   - _ulid: 01KG2VD4BPPHV4QP9H5XNA87HR
     slugs:
       - mem-agent-sessions

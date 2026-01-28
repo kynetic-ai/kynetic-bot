@@ -1,8 +1,12 @@
 export function hasProperty<K extends string>(
   obj: unknown,
   key: K,
+  value?: unknown,
 ): obj is Record<K, unknown> {
-  return typeof obj === 'object' && obj !== null && key in obj;
+  if (typeof obj !== 'object' || obj === null) return false;
+  if (!(key in obj)) return false;
+  if (value !== undefined && (obj as Record<K, unknown>)[key] !== value) return false;
+  return true;
 }
 
 export function isString(value: unknown): value is string {

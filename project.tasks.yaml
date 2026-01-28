@@ -3586,7 +3586,90 @@
     - phase-1
   vcs_refs: []
   created_at: 2026-01-28T17:49:35.492Z
-  notes: []
+  notes:
+    - _ulid: 01KG2VPQADTQAGVZG9ZNZTZ64X
+      created_at: 2026-01-28T17:51:31.150Z
+      author: "@claude"
+      content: |-
+        ## Goal
+        Define Zod schemas for agent session metadata and events.
+
+        ## Files
+        - packages/memory/src/types/session.ts - Session schemas
+        - packages/memory/src/types/index.ts - Type barrel exports
+        - packages/memory/package.json - Add zod dependency
+
+        ## Dependencies
+        - zod ^3.23.8 (add to package.json)
+        - @kynetic-bot/core (for type guards if needed)
+
+        ## Implementation
+
+        ### Session Status
+        ```typescript
+        export const AgentSessionStatusSchema = z.enum(['active', 'completed', 'abandoned']);
+        export type AgentSessionStatus = z.infer<typeof AgentSessionStatusSchema>;
+        ```
+
+        ### Event Types
+        ```typescript
+        export const SessionEventTypeSchema = z.enum([
+          'session.start', 'session.end',
+          'prompt.sent', 'message.chunk',
+          'tool.call', 'tool.result', 'note'
+        ]);
+        ```
+
+        ### Session Metadata
+        ```typescript
+        export const AgentSessionMetadataSchema = z.object({
+          id: z.string(),                           // ULID
+          conversation_id: z.string().optional(),   // Links to conversation
+          agent_type: z.string(),                   // 'claude', etc.
+          session_key: z.string().optional(),       // From @kynetic-bot/core
+          status: AgentSessionStatusSchema,
+          started_at: z.string().datetime(),
+          ended_at: z.string().datetime().optional(),
+        });
+        ```
+
+        ### Session Event
+        ```typescript
+        export const SessionEventSchema = z.object({
+          ts: z.number(),                          // Unix ms
+          seq: z.number().int().nonnegative(),     // Sequence
+          type: SessionEventTypeSchema,
+          session_id: z.string(),
+          trace_id: z.string().optional(),
+          data: z.unknown(),
+        });
+        ```
+
+        ### Input Schemas (omit auto-assigned fields)
+        ```typescript
+        export const SessionMetadataInputSchema = AgentSessionMetadataSchema.omit({
+          status: true, started_at: true, ended_at: true
+        }).extend({ status: AgentSessionStatusSchema.optional() });
+
+        export const SessionEventInputSchema = SessionEventSchema.omit({
+          ts: true, seq: true
+        }).extend({ ts: z.number().optional(), seq: z.number().optional() });
+        ```
+
+        ## Tests
+        - AgentSessionStatusSchema accepts valid values, rejects invalid
+        - SessionEventTypeSchema accepts all 7 event types
+        - AgentSessionMetadataSchema validates required fields
+        - SessionEventSchema validates structure
+        - Input schemas allow omitting auto-assigned fields
+
+        ## Spec AC Mapping
+        - @mem-agent-sessions AC-1 (session.yaml fields)
+        - @mem-agent-sessions AC-6 (Zod validation error)
+
+        ## Reference
+        - /home/chapel/Projects/kynetic-spec/src/sessions/types.ts (lines 1-122)
+      supersedes: null
   todos: []
   automation: eligible
 - _ulid: 01KG2VK9YVD40CSKFN2T8WR585

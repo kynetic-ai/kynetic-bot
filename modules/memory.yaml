@@ -143,3 +143,7 @@ features:
         given: streaming response
         when: chunks received
         then: appends message.chunk events with auto-assigned ts and seq (monotonically increasing)
+      - id: ac-3
+        given: tool call requested
+        when: executed
+        then: appends tool.call and tool.result events with correlation

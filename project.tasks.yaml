@@ -1813,6 +1813,7 @@
         Unit tests for discovery and error handling.
       supersedes: null
   todos: []
+  automation: eligible
 - _ulid: 01KG1TECJE69VX6XWJD3T8F1FZ
   slugs:
     - conversation-history

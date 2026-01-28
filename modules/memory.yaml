@@ -14,3 +14,18 @@ relates_to: []
 tests: []
 traits: []
 notes: []
+features:
+  - _ulid: 01KG1RDJ269GRVN88KT1EVKKHY
+    slugs:
+      - mem-kspec-sync
+    title: Kspec Sync
+    type: feature
+    tags: []
+    description: Shadow branch integration for persistent storage of state and conversation data
+    depends_on: []
+    implements: []
+    relates_to: []
+    tests: []
+    traits: []
+    notes: []
+    created: 2026-01-28T07:34:50.694Z

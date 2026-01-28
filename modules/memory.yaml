@@ -117,3 +117,17 @@ features:
         given: user references earlier topic
         when: context assembled
         then: retrieves relevant archived context
+  - _ulid: 01KG2VD4BPPHV4QP9H5XNA87HR
+    slugs:
+      - mem-agent-sessions
+    title: Agent Session Tracking
+    type: feature
+    tags: []
+    description: Track all LLM interactions as JSONL events for audit trails
+    depends_on: []
+    implements: []
+    relates_to: []
+    tests: []
+    traits: []
+    notes: []
+    created: 2026-01-28T17:46:16.822Z

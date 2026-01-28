@@ -86,4 +86,13 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KG2H072QQ764PNJ5DV7W9AZJ
+    type: success
+    content: Direct commits to main in automation loop mode. When running /task-work loop, committing
+      directly to main (not creating PR branches) reduces overhead for automation-eligible tasks.
+      Allows immediate completion without PR merge wait.
+    created_at: 2026-01-28T14:44:27.864Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

@@ -162,6 +162,10 @@ traits:
         given: pending operations
         when: draining
         then: completes or times out
+      - id: ac-3
+        given: resources held
+        when: shutdown complete
+        then: releases all
   - _ulid: 01KG1VB72PM6ZZRDY2P8GN22AG
     slugs:
       - trait-validated

@@ -233,4 +233,31 @@
         - Streaming coalescing: minChars/idleMs thresholds
         - Platform-specific chunking limits (2000-4000 chars)
       supersedes: null
+    - _ulid: 01KG1SX3JRA1BXNVY6A66SNSQ9
+      created_at: 2026-01-28T08:00:48.728Z
+      author: "@claude"
+      content: |-
+        ## Decisions Finalized
+
+        ### Critical Decisions Made
+        1. **MVP Channel**: Discord (not WhatsApp) - simpler API, free, easy to test
+        2. **Agent Execution**: Local subprocess - spawn claude-code as child process  
+        3. **Kynetic Access**: Copy source files - copy ACP modules into kynetic-bot
+
+        ### Plan Summary
+        - **27 tasks** across 5 phases (0-4)
+        - Phase 0: Infrastructure (monorepo, TypeScript, testing, lint, copy ACP)
+        - Phase 1: MVP (Discord -> Agent -> Discord flow)
+        - Phase 2: Core (transform, DM policy, conversation storage, skills, history)
+        - Phase 3: Robustness (streaming, health, context window, autonomous loop)
+        - Phase 4: Polish (media, escalation, E2E tests, more channels)
+
+        ### Next Steps After Approval
+        1. Derive tasks from specs
+        2. Add implementation notes to each task
+        3. Break down any remaining large tasks
+        4. Begin Phase 0 implementation
+
+        Plan file: ~/.claude/plans/compressed-hugging-dolphin.md
+      supersedes: null
   todos: []

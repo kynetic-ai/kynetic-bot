@@ -34,6 +34,10 @@ features:
         given: state change occurs in session
         when: sync triggered
         then: commits change to shadow branch with timestamp
+      - id: ac-2
+        given: application restarts
+        when: initialization loads state
+        then: recovers all persisted state from shadow branch
   - _ulid: 01KG1RDM4NVZVQP8XZ9DY2CSRY
     slugs:
       - mem-conversation

@@ -977,7 +977,7 @@
   type: task
   spec_ref: "@msg-routing"
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on:
     - "@core-types"
@@ -1111,6 +1111,10 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-01-28T14:23:55.026Z
+  closed_reason: SessionKeyRouter implemented and merged to main. Created Session/SessionStore types,
+    implemented routing with idempotency, added 15 comprehensive tests covering all AC. All tests
+    pass. Changes committed to main (d6138cd).
 - _ulid: 01KG1TDCYN853WKRH1WDE9W8VR
   slugs:
     - channel-registry-task

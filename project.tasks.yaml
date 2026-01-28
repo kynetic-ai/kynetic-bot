@@ -2324,7 +2324,67 @@
     - phase-4
   vcs_refs: []
   created_at: 2026-01-28T08:10:43.373Z
-  notes: []
+  notes:
+    - _ulid: 01KG1TRCP1EYECP0C8DW3S70WM
+      created_at: 2026-01-28T08:15:42.785Z
+      author: "@claude"
+      content: |-
+        ## Goal
+        Implement media attachment handling for images and files.
+
+        ## Files
+        - packages/channels/src/media.ts - MediaHandler class
+        - packages/channels/test/media.test.ts - Unit tests
+
+        ## Dependencies
+        - @channel-registry-task - Needs channel context
+
+        ## Implementation
+
+        ### MediaHandler Class
+        ```typescript
+        interface MediaConfig {
+          maxSizeBytes: number;
+          allowedTypes: string[];
+          storage: 'local' | 's3';
+          storagePath?: string;
+        }
+
+        interface MediaAttachment {
+          id: string;
+          type: string;
+          url: string;
+          size: number;
+          filename: string;
+          metadata: Record<string, unknown>;
+        }
+
+        class MediaHandler {
+          constructor(private config: MediaConfig) {}
+
+          async processIncoming(attachment: unknown): Promise<Result<MediaAttachment, KyneticError>>
+          async prepareOutgoing(attachment: MediaAttachment): Promise<Result<unknown, KyneticError>>
+          async validateSize(size: number): Result<void, SizeLimitError>
+
+          private async store(data: Buffer, metadata: MediaMetadata): Promise<string>
+          private async retrieve(id: string): Promise<Buffer>
+        }
+        ```
+
+        ### Size Limits
+        Per-platform configurable limits:
+        - Discord: 8MB (nitro: 50MB)
+        - WhatsApp: 16MB
+        - Slack: varies
+
+        ## Spec Acceptance Criteria (from @channel-media)
+        - AC-1: Given image message, when received, then extracts and stores with metadata
+        - AC-2: Given file to send, when preparing, then uploads and includes reference
+        - AC-3: Given oversized attachment, when validated, then rejects with error
+
+        ## Verification
+        Unit tests for size validation and storage mocks.
+      supersedes: null
   todos: []
 - _ulid: 01KG1TFBJJMXHTYAY09H0G3VXH
   slugs:

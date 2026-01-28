@@ -2142,7 +2142,84 @@
     - phase-3
   vcs_refs: []
   created_at: 2026-01-28T08:10:31.823Z
-  notes: []
+  notes:
+    - _ulid: 01KG1TQ46HF08ZFHC7705ESTAB
+      created_at: 2026-01-28T08:15:01.329Z
+      author: "@claude"
+      content: |-
+        ## Goal
+        Implement autonomous task processing loop with circuit breaker protection.
+
+        ## Files
+        - packages/agent/src/autonomous.ts - AutonomousLoop class
+        - packages/agent/test/autonomous.test.ts - Unit tests
+
+        ## Dependencies
+        - @agent-lifecycle-task - For agent management
+        - @skills-registry - For task execution
+
+        ## Implementation
+
+        ### AutonomousLoop Class
+        ```typescript
+        type CircuitState = 'closed' | 'open' | 'half-open';
+
+        interface AutonomousOptions {
+          errorThreshold?: number;    // Default 3
+          cooldownMs?: number;        // Default 60000
+          pollIntervalMs?: number;    // Default 5000
+        }
+
+        class AutonomousLoop {
+          private state: CircuitState = 'closed';
+          private errors = 0;
+          private lastError: Date | null = null;
+          private running = false;
+
+          constructor(
+            private lifecycle: AgentLifecycle,
+            private skills: SkillsRegistry,
+            private kspecSync: KspecSync,
+            private options: AutonomousOptions
+          ) {}
+
+          async start(): Promise<void>
+          async stop(): Promise<void>
+
+          private async runLoop(): Promise<void>
+          private async processTask(task: Task): Promise<Result<void, KyneticError>>
+          private async pollTasks(): Promise<Task[]>
+
+          private handleError(error: KyneticError): void
+          private tripCircuitBreaker(): void
+          private attemptRecovery(): void
+        }
+        ```
+
+        ### Circuit Breaker States
+        - Closed: Normal operation, process tasks
+        - Open: Stopped, wait for cooldown
+        - Half-open: Try single task, reset on success
+
+        ### Task Polling
+        Use kspec CLI to find eligible tasks:
+        ```bash
+        kspec task list --status pending --automation eligible
+        ```
+
+        ### Error Tracking
+        - Track consecutive errors
+        - Trip breaker at threshold
+        - Log and optionally alert on trip
+
+        ## Spec Acceptance Criteria (from @agent-autonomous)
+        - AC-1: Given eligible tasks, when runLoop(), then processes autonomously
+        - AC-2: Given N consecutive errors, when threshold hit, then circuit breaker trips
+        - AC-3: Given cooldown elapsed, when half-open, then attempts single task
+
+        ## Verification
+        Unit tests for circuit breaker state transitions.
+      supersedes: null
   todos: []
 - _ulid: 01KG1TEZG2CMJ3CKE1HMSJZQHA
   slugs:

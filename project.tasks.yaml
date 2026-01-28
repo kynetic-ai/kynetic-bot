@@ -3294,7 +3294,7 @@
   type: task
   description: Add coverage/ directory to .gitignore
   spec_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -3322,3 +3322,5 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-01-28T14:27:22.727Z
+  closed_reason: Added coverage/ to .gitignore. Changes committed to main (5dbb18d).

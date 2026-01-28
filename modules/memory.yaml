@@ -83,3 +83,8 @@ features:
     traits: []
     notes: []
     created: 2026-01-28T07:34:54.984Z
+    acceptance_criteria:
+      - id: ac-1
+        given: context approaches token limit
+        when: new message added
+        then: compacts older messages while preserving key context

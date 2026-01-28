@@ -48,4 +48,13 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KG2GCKCB7MC1S979703A1NRQ
+    type: success
+    content: "Git operations require project root directory. Using explicit 'cd
+      /home/chapel/Projects/kynetic-bot' before git commands prevents path errors. Pattern: always
+      return to project root before git/kspec commands."
+    created_at: 2026-01-28T14:33:45.099Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

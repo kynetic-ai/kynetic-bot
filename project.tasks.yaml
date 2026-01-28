@@ -1762,6 +1762,7 @@
     - phase-2
   vcs_refs: []
   created_at: 2026-01-28T08:10:04.105Z
+  started_at: 2026-01-28T14:27:37.577Z
   notes:
     - _ulid: 01KG1TN0K1GH85VZFKDQ0Q447W
       created_at: 2026-01-28T08:13:52.098Z
@@ -1830,9 +1831,46 @@
 
         Unit tests for round-trip transformation.
       supersedes: null
+    - _ulid: 01KG2G4QZTV8Z56MCM5E4T93Z7
+      created_at: 2026-01-28T14:29:27.674Z
+      author: "@claude"
+      content: |-
+        Implemented MessageTransformer with full test coverage.
+
+        ## What was done:
+
+        ### Transformer (packages/messaging/src/transformer.ts)
+        - Created error types:
+          - UnsupportedTypeError - for unsupported content types
+          - MissingTransformerError - for unregistered platforms
+        - Created PlatformTransformer interface:
+          - normalize() - converts platform format to NormalizedMessage
+          - denormalize() - converts NormalizedMessage to platform format
+        - Implemented MessageTransformer class:
+          - registerTransformer() - registers platform transformers
+          - normalize() - routes normalization to platform transformer
+          - denormalize() - routes denormalization to platform transformer
+          - Management methods (hasTransformer, listPlatforms, unregisterTransformer, clear)
+
+        ### Tests (packages/messaging/test/transformer.test.ts)
+        - 12 comprehensive tests with mock WhatsApp and Telegram transformers
+        - Coverage of:
+          - All 3 spec acceptance criteria (@msg-transform ac-1 through ac-3)
+          - Transformer registration and management
+          - Error handling (missing transformers, unsupported types)
+          - Multiple platforms handling
+          - Round-trip transformation (normalize -> denormalize)
+        - All tests pass
+
+        ### Coverage of @msg-transform acceptance criteria:
+        - ✓ AC-1: Produces normalized message with standard fields from platform format
+        - ✓ AC-2: Converts normalized message to platform-specific format
+        - ✓ AC-3: Returns UnsupportedTypeError for unsupported content types
+
+        All packages build successfully. Ready for review.
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-01-28T14:27:37.577Z
 - _ulid: 01KG1TE51N01JR7Z64GHC13Y51
   slugs:
     - dm-policy

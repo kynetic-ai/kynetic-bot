@@ -84,7 +84,7 @@ features:
         then: queues and retries with backoff
     status:
       maturity: draft
-      implementation: in_progress
+      implementation: implemented
   - _ulid: 01KG1RD8WH7K88Y89V0CQ473ZH
     slugs:
       - channel-dm-policy

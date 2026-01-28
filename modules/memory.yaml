@@ -37,6 +37,10 @@ features:
         given: write operation occurs
         when: completed
         then: file atomically written to .kbot/
+      - id: ac-2
+        given: batch interval (5min) OR event threshold (100 events) reached
+        when: triggered
+        then: commits pending changes to shadow branch
   - _ulid: 01KG1RDM4NVZVQP8XZ9DY2CSRY
     slugs:
       - mem-conversation

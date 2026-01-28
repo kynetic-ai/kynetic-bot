@@ -32,6 +32,10 @@ traits:
         given: retry after timeout
         when: reprocessed
         then: state remains consistent
+      - id: ac-3
+        given: concurrent identical requests
+        when: both complete
+        then: only one takes effect
   - _ulid: 01KG1VATBQNVP13YC0WKN4WWEV
     slugs:
       - trait-rate-limited

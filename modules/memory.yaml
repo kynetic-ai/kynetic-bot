@@ -1,0 +1,16 @@
+_ulid: 01KG1RC9W69NND94E5VZHEYK3G
+slugs:
+  - memory
+title: Memory
+type: module
+status:
+  maturity: draft
+  implementation: not_started
+description: "Persistent state: kspec shadow branch sync, conversation storage, and context window management"
+tags: []
+depends_on: []
+implements: []
+relates_to: []
+tests: []
+traits: []
+notes: []

@@ -69,6 +69,10 @@ features:
         given: shutdown signal received
         when: graceful shutdown initiated
         then: drains pending messages and closes connections cleanly
+      - id: ac-4
+        given: rate limit exceeded
+        when: sending message
+        then: queues and retries with backoff
   - _ulid: 01KG1RD8WH7K88Y89V0CQ473ZH
     slugs:
       - channel-dm-policy

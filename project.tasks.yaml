@@ -1614,7 +1614,85 @@
     - phase-2
   vcs_refs: []
   created_at: 2026-01-28T08:10:12.766Z
-  notes: []
+  notes:
+    - _ulid: 01KG1TN8QYCDEMB5FTESRD0X4E
+      created_at: 2026-01-28T08:14:00.446Z
+      author: "@claude"
+      content: >-
+        ## Goal
+
+        Implement skill discovery and registration for extending agent capabilities.
+
+
+        ## Files
+
+        - packages/agent/src/skills.ts - SkillsRegistry class
+
+        - packages/agent/test/skills.test.ts - Unit tests
+
+
+        ## Dependencies
+
+        - @agent-lifecycle-task - Skills are used by agents
+
+
+        ## Implementation
+
+
+        ### SkillsRegistry Class
+
+        ```typescript
+
+        interface Skill {
+          name: string;
+          description: string;
+          capabilities: string[];
+          execute(context: SkillContext, args: unknown): Promise<Result<unknown, KyneticError>>;
+        }
+
+
+        interface SkillContext {
+          sessionKey: string;
+          agent: string;
+          kspecSync: KspecSync;
+        }
+
+
+        class SkillsRegistry {
+          private skills = new Map<string, Skill>();
+
+          register(skill: Skill): void
+          discoverSkills(paths: string[]): Promise<void>
+          getSkill(name: string): Skill | undefined
+          getSkillByCapability(capability: string): Skill | undefined
+          listSkills(): Skill[]
+
+          async executeSkill(name: string, context: SkillContext, args: unknown): Promise<Result<unknown, KyneticError>>
+        }
+
+        ```
+
+
+        ### Built-in Skills
+
+        - kspec: Task and spec management
+
+        - memory: Conversation history access
+
+
+        ## Spec Acceptance Criteria (from @agent-skills)
+
+        - AC-1: Given startup, when discoverSkills(), then registers all available skills
+
+        - AC-2: Given capability request, when getSkill(), then returns appropriate tool
+
+        - AC-3: Given skill error, when executeSkill(), then catches and returns structured error
+
+
+        ## Verification
+
+        Unit tests for discovery and error handling.
+      supersedes: null
   todos: []
 - _ulid: 01KG1TECJE69VX6XWJD3T8F1FZ
   slugs:

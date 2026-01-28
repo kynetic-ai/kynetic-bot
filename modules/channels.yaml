@@ -56,6 +56,11 @@ features:
     traits: []
     notes: []
     created: 2026-01-28T07:34:38.595Z
+    acceptance_criteria:
+      - id: ac-1
+        given: channel adapter starts
+        when: initialization completes
+        then: establishes connection and begins health monitoring
   - _ulid: 01KG1RD8WH7K88Y89V0CQ473ZH
     slugs:
       - channel-dm-policy

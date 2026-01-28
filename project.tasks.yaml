@@ -2162,7 +2162,9 @@
   meta_ref: null
   status: pending
   blocked_by: []
-  depends_on: []
+  depends_on:
+    - "@agent-lifecycle-task"
+    - "@skills-registry"
   context: []
   priority: 3
   tags:

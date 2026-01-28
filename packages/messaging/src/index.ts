@@ -11,3 +11,10 @@ export {
   UnsupportedTypeError,
   MissingTransformerError,
 } from './transformer.js';
+
+// Streaming
+export {
+  StreamCoalescer,
+  BufferedCoalescer,
+  type StreamOptions,
+} from './streaming.js';

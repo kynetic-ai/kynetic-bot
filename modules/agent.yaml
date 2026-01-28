@@ -38,6 +38,10 @@ features:
         given: agent becomes unresponsive
         when: health check fails
         then: terminates stale process and spawns replacement
+      - id: ac-3
+        given: session ends
+        when: cleanup triggered
+        then: terminates agent gracefully with state persistence
   - _ulid: 01KG1RE068887DHMQXFSCSTXZ6
     slugs:
       - agent-autonomous

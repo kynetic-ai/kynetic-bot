@@ -100,6 +100,10 @@ features:
         given: admin denies pending DM request
         when: denial processed
         then: request removed and user notified of rejection
+      - id: ac-5
+        given: same approval request submitted twice
+        when: processed
+        then: only one session created
   - _ulid: 01KG1RDB0J11H95T8TACVNS0A4
     slugs:
       - channel-media

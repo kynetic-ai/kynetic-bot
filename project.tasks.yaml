@@ -553,6 +553,7 @@
         Create a test file with lint issues, run pnpm lint, verify detection.
       supersedes: null
   todos: []
+  automation: eligible
 - _ulid: 01KG1TCVDS60NH6FW759CTZJQM
   slugs:
     - copy-acp-modules

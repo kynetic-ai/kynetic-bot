@@ -2727,6 +2727,7 @@
         Run pnpm test:integration and verify all tests pass.
       supersedes: null
   todos: []
+  automation: eligible
 - _ulid: 01KG1TFGK356NFMMZ0GST2A6XA
   slugs:
     - additional-adapters

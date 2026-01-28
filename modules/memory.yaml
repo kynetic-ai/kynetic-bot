@@ -80,6 +80,10 @@ features:
         given: user message received
         when: processed
         then: creates/updates conversation with turn (role, content, ts, seq) in turns.jsonl
+      - id: ac-2
+        given: LLM response completed
+        when: saved
+        then: appends assistant turn with agent_session_id linking to @mem-agent-sessions
   - _ulid: 01KG1RDP884TBCZV7QH03CV53M
     slugs:
       - mem-context-window

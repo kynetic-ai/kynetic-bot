@@ -513,21 +513,39 @@
   created_at: 2026-01-28T08:10:07.285Z
   notes: []
   todos: []
-- title: ConversationStorage for @mem-conversation
+- _ulid: 01KG1TE7D2JHEF3R1KYJ7TRYJ0
+  slugs:
+    - conversation-storage
+  title: ConversationStorage for @mem-conversation
   type: task
   spec_ref: "@mem-conversation"
   meta_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
   priority: 2
-  slugs:
-    - conversation-storage
   tags:
     - phase-2
-  _ulid: 01KG1TE7D2JHEF3R1KYJ7TRYJ0
+  vcs_refs: []
+  created_at: 2026-01-28T08:10:09.698Z
+  notes: []
+  todos: []
+- title: SkillsRegistry for @agent-skills
+  type: task
+  spec_ref: "@agent-skills"
+  meta_ref: null
+  priority: 2
+  slugs:
+    - skills-registry
+  tags:
+    - phase-2
+  _ulid: 01KG1TEACYBVQ0NNP51BBC4KSQ
   status: pending
   blocked_by: []
   depends_on: []
   context: []
   vcs_refs: []
-  created_at: 2026-01-28T08:10:09.698Z
+  created_at: 2026-01-28T08:10:12.766Z
   notes: []
   todos: []

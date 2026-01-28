@@ -179,3 +179,8 @@ traits:
     traits: []
     notes: []
     created: 2026-01-28T08:25:59.638Z
+    acceptance_criteria:
+      - id: ac-1
+        given: invalid input
+        when: validated
+        then: returns structured error

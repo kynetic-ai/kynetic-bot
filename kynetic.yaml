@@ -75,6 +75,11 @@ traits:
     traits: []
     notes: []
     created: 2026-01-28T08:25:49.302Z
+    acceptance_criteria:
+      - id: ac-1
+        given: crash mid-operation
+        when: restarted
+        then: recovers from last checkpoint
   - _ulid: 01KG1VAZX8MRXFSHWD67YEE4DZ
     slugs:
       - trait-observable

@@ -3788,7 +3788,169 @@
     - phase-1
   vcs_refs: []
   created_at: 2026-01-28T17:49:50.919Z
-  notes: []
+  notes:
+    - _ulid: 01KG2VQWFY4BPGG5XRXS8Y2E1Q
+      created_at: 2026-01-28T17:52:09.215Z
+      author: "@claude"
+      content: >-
+        ## Goal
+
+        Implement SessionStore class for creating sessions and appending JSONL events.
+
+
+        ## Files
+
+        - packages/memory/src/store/session-store.ts - SessionStore class
+
+        - packages/memory/src/store/index.ts - Store barrel exports
+
+        - packages/memory/test/session-store.test.ts - Unit tests
+
+
+        ## Dependencies
+
+        - yaml ^2.8.2 (add to package.json)
+
+        - @kynetic-bot/core (createLogger, KyneticError)
+
+        - ./types/session (Zod schemas from @session-types)
+
+        - ./shadow (detect, paths from @shadow-storage-init)
+
+        - node:fs/promises, node:fs (appendFileSync for atomic writes)
+
+        - ulid ^2.3.0 (for session IDs if needed)
+
+
+        ## Implementation
+
+
+        ### Storage Layout
+
+        ```
+
+        .kbot/sessions/{session-id}/
+
+        ├── session.yaml       # SessionMetadata
+
+        └── events.jsonl       # Append-only event log
+
+        ```
+
+
+        ### SessionStore Class
+
+        ```typescript
+
+        export interface SessionStoreOptions {
+          baseDir: string;  // .kbot/ directory
+          logger?: Logger;
+        }
+
+
+        export class SessionStore {
+          constructor(options: SessionStoreOptions);
+
+          // Session CRUD
+          createSession(input: SessionMetadataInput): Promise<AgentSessionMetadata>;
+          getSession(sessionId: string): Promise<AgentSessionMetadata | null>;
+          updateSessionStatus(sessionId: string, status: AgentSessionStatus): Promise<AgentSessionMetadata | null>;
+          listSessions(options?: { status?: AgentSessionStatus }): Promise<AgentSessionMetadata[]>;
+          sessionExists(sessionId: string): Promise<boolean>;
+
+          // Event operations (JSONL append)
+          appendEvent(input: SessionEventInput): Promise<SessionEvent>;
+          readEvents(sessionId: string): Promise<SessionEvent[]>;
+          readEventsSince(sessionId: string, since: number, until?: number): Promise<SessionEvent[]>;
+          getLastEvent(sessionId: string): Promise<SessionEvent | null>;
+        }
+
+        ```
+
+
+        ### Key Patterns
+
+
+        **Atomic JSONL Append:**
+
+        ```typescript
+
+        // Use appendFileSync for crash-safe writes
+
+        import { appendFileSync } from 'node:fs';
+
+        const line = JSON.stringify(event) + '\n';
+
+        appendFileSync(eventsPath, line, 'utf-8');
+
+        ```
+
+
+        **Auto-assign ts and seq:**
+
+        ```typescript
+
+        const existingLines = await countLines(eventsPath);
+
+        const event = {
+          ...input,
+          ts: input.ts ?? Date.now(),
+          seq: input.seq ?? existingLines,
+        };
+
+        ```
+
+
+        **Invalid JSON line handling:**
+
+        ```typescript
+
+        // Skip invalid lines during read
+
+        lines.filter(line => {
+          try { JSON.parse(line); return true; }
+          catch { logger.warn('Invalid JSON line skipped'); return false; }
+        });
+
+        ```
+
+
+        ## Tests
+
+        - createSession creates directory and session.yaml
+
+        - createSession auto-assigns status='active' and started_at
+
+        - getSession returns null for non-existent session
+
+        - appendEvent creates events.jsonl if missing
+
+        - appendEvent auto-assigns ts and seq
+
+        - readEvents returns events sorted by seq
+
+        - readEvents skips invalid JSON lines
+
+        - updateSessionStatus sets ended_at when status \!= 'active'
+
+
+        ## Spec AC Mapping
+
+        - @mem-agent-sessions AC-1 (create session with yaml + jsonl)
+
+        - @mem-agent-sessions AC-2, AC-3, AC-4 (append events, update status)
+
+        - @mem-agent-sessions AC-5 (emit events - via logger.info)
+
+        - @mem-agent-sessions AC-6 (Zod validation in append)
+
+        - @mem-agent-sessions AC-7 (recovery - listSessions with status filter)
+
+
+        ## Reference
+
+        - /home/chapel/Projects/kynetic-spec/src/sessions/store.ts (lines 1-436)
+      supersedes: null
   todos: []
   automation: eligible
 - _ulid: 01KG2VKRMYD4MVASZHEBREDK18

@@ -2487,7 +2487,80 @@
     - phase-4
   vcs_refs: []
   created_at: 2026-01-28T08:10:49.193Z
-  notes: []
+  notes:
+    - _ulid: 01KG1TRHV5W4E3PB5FB0M2DGVM
+      created_at: 2026-01-28T08:15:48.070Z
+      author: "@claude"
+      content: |-
+        ## Goal
+        Comprehensive end-to-end integration tests for the complete bot.
+
+        ## Files
+        - packages/bot/test/integration/message-flow.test.ts
+        - packages/bot/test/integration/session-persistence.test.ts
+        - packages/bot/test/integration/streaming.test.ts
+        - packages/bot/test/integration/escalation.test.ts
+        - packages/bot/test/integration/dm-pairing.test.ts
+        - packages/bot/test/fixtures/ - Test fixtures and mocks
+
+        ## Dependencies
+        All previous tasks must be complete.
+
+        ## Implementation
+
+        ### Test: Full message flow
+        ```typescript
+        test('message flows from webhook to response', async () => {
+          const mockDiscord = createMockDiscordClient();
+          const mockAgent = createMockAgent();
+          const bot = createTestBot({ discord: mockDiscord, agent: mockAgent });
+
+          await bot.start();
+
+          // Simulate incoming message
+          await mockDiscord.emit('messageCreate', {
+            content: 'Hello bot',
+            author: { id: '123', username: 'testuser' },
+            channelId: '456'
+          });
+
+          // Verify agent received message
+          expect(mockAgent.lastMessage).toContain('Hello bot');
+
+          // Simulate agent response
+          mockAgent.respond('Hello human!');
+
+          // Verify response sent
+          expect(mockDiscord.sentMessages).toContainEqual({
+            channelId: '456',
+            content: 'Hello human!'
+          });
+        });
+        ```
+
+        ### Test: Session persistence
+        Test restart recovery from kspec state.
+
+        ### Test: Streaming response
+        Test chunked delivery and buffering.
+
+        ### Test: Error escalation
+        Test human notification and fallback.
+
+        ### Test: DM pairing
+        Test approval flow with codes.
+
+        ## Acceptance Criteria
+        - AC-1: Test full message flow (webhook -> route -> agent -> response)
+        - AC-2: Test session persistence across bot restart
+        - AC-3: Test streaming response delivery
+        - AC-4: Test error escalation path
+        - AC-5: Test DM pairing approval flow
+        - AC-6: All tests pass with mocks
+
+        ## Verification
+        Run pnpm test:integration and verify all tests pass.
+      supersedes: null
   todos: []
 - _ulid: 01KG1TFGK356NFMMZ0GST2A6XA
   slugs:

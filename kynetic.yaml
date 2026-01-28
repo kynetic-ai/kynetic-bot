@@ -127,6 +127,11 @@ traits:
     traits: []
     notes: []
     created: 2026-01-28T08:25:54.347Z
+    acceptance_criteria:
+      - id: ac-1
+        given: health check interval
+        when: elapsed
+        then: probes component
   - _ulid: 01KG1VB4XZAK25HYSNF1BTAN0N
     slugs:
       - trait-graceful-shutdown

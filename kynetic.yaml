@@ -136,6 +136,10 @@ traits:
         given: N consecutive failures
         when: threshold exceeded
         then: marks unhealthy
+      - id: ac-3
+        given: recovery
+        when: health restored
+        then: marks healthy and logs
   - _ulid: 01KG1VB4XZAK25HYSNF1BTAN0N
     slugs:
       - trait-graceful-shutdown

@@ -29,3 +29,17 @@ features:
     traits: []
     notes: []
     created: 2026-01-28T07:34:19.553Z
+  - _ulid: 01KG1RCNMA9JZAKTVGYBPJ3TBG
+    slugs:
+      - msg-transform
+    title: Message Transformation
+    type: feature
+    tags: []
+    description: Platform-agnostic message normalization for consistent handling across channels
+    depends_on: []
+    implements: []
+    relates_to: []
+    tests: []
+    traits: []
+    notes: []
+    created: 2026-01-28T07:34:21.579Z

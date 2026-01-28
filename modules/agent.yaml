@@ -56,6 +56,11 @@ features:
     traits: []
     notes: []
     created: 2026-01-28T07:35:05.160Z
+    acceptance_criteria:
+      - id: ac-1
+        given: agent in ralph mode
+        when: task available
+        then: processes task in autonomous loop
   - _ulid: 01KG1RE3WCZG5R9NMR9N1Z1A01
     slugs:
       - agent-skills

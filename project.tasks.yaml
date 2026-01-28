@@ -845,6 +845,7 @@
         Run pnpm test packages/messaging with tests covering all 3 AC.
       supersedes: null
   todos: []
+  automation: eligible
 - _ulid: 01KG1TDCYN853WKRH1WDE9W8VR
   slugs:
     - channel-registry-task

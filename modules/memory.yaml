@@ -88,3 +88,7 @@ features:
         given: context approaches token limit
         when: new message added
         then: compacts older messages while preserving key context
+      - id: ac-2
+        given: semantic boundary exists in history
+        when: compaction runs
+        then: preserves boundary markers for topic continuity

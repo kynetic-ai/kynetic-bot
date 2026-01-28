@@ -88,6 +88,7 @@ features:
     tests: []
     traits:
       - "@trait-rate-limited"
+      - "@trait-graceful-shutdown"
     notes: []
     created: 2026-01-28T07:34:25.505Z
     acceptance_criteria:

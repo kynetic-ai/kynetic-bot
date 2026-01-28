@@ -1528,7 +1528,75 @@
     - phase-2
   vcs_refs: []
   created_at: 2026-01-28T08:10:09.698Z
-  notes: []
+  notes:
+    - _ulid: 01KG1TN68HRT7B0SVCYN5R1KR7
+      created_at: 2026-01-28T08:13:57.906Z
+      author: "@claude"
+      content: |-
+        ## Goal
+        Implement conversation storage using kspec notes with compaction support.
+
+        ## Files
+        - packages/memory/src/conversation.ts - ConversationStorage class
+        - packages/memory/test/conversation.test.ts - Integration tests
+
+        ## Dependencies
+        - @kspec-sync - Uses kspec for persistence
+
+        ## Implementation
+
+        ### ConversationStorage Class
+        ```typescript
+        interface ConversationTurn {
+          role: 'user' | 'assistant';
+          content: string;
+          timestamp: Date;
+          metadata?: Record<string, unknown>;
+        }
+
+        interface ConversationStorageOptions {
+          compactionThreshold?: number;  // Default 50
+          summaryModel?: string;
+        }
+
+        class ConversationStorage {
+          constructor(private kspecSync: KspecSync, private options: ConversationStorageOptions) {}
+
+          async append(sessionKey: string, turn: ConversationTurn): Promise<void>
+          async getHistory(sessionKey: string): Promise<ConversationTurn[]>
+          async compact(sessionKey: string): Promise<void>
+          async recover(sessionKey: string): Promise<ConversationTurn[]>
+
+          private async shouldCompact(sessionKey: string): Promise<boolean>
+          private async summarizeTurns(turns: ConversationTurn[]): Promise<string>
+        }
+        ```
+
+        ### Storage Format
+        Use kspec task notes:
+        ```yaml
+        notes:
+          - author: '@kynetic-bot'
+            created_at: '2026-01-28T...'
+            content: |
+              role: user
+              content: Hello\!
+              timestamp: 2026-01-28T10:00:00Z
+        ```
+
+        ### Compaction
+        - Trigger when turns > threshold (default 50)
+        - Summarize older turns using configured model
+        - Keep last N turns verbatim
+
+        ## Spec Acceptance Criteria (from @mem-conversation)
+        - AC-1: Given turn complete, when persist(), then appends note with timestamp
+        - AC-2: Given 50+ notes, when new turn, then triggers compaction
+        - AC-3: Given agent crash, when recover(), then loads from kspec notes
+
+        ## Verification
+        Integration tests with compaction threshold set to 5 for quick testing.
+      supersedes: null
   todos: []
 - _ulid: 01KG1TEACYBVQ0NNP51BBC4KSQ
   slugs:

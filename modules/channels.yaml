@@ -82,6 +82,9 @@ features:
         given: rate limit exceeded
         when: sending message
         then: queues and retries with backoff
+    status:
+      maturity: draft
+      implementation: in_progress
   - _ulid: 01KG1RD8WH7K88Y89V0CQ473ZH
     slugs:
       - channel-dm-policy

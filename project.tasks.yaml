@@ -2402,7 +2402,74 @@
     - phase-4
   vcs_refs: []
   created_at: 2026-01-28T08:10:46.737Z
-  notes: []
+  notes:
+    - _ulid: 01KG1TRF549N9E0EEVKEYYAR91
+      created_at: 2026-01-28T08:15:45.317Z
+      author: "@claude"
+      content: |-
+        ## Goal
+        Implement human escalation handling for agent failures.
+
+        ## Files
+        - packages/agent/src/escalation.ts - EscalationHandler class
+        - packages/agent/test/escalation.test.ts - Unit tests
+
+        ## Dependencies
+        - @agent-lifecycle-task - Triggered by agent errors
+
+        ## Implementation
+
+        ### EscalationHandler Class
+        ```typescript
+        interface EscalationConfig {
+          channels: EscalationChannel[];
+          timeout: number;  // ms, default 300000 (5 min)
+          fallback: 'retry' | 'apologize' | 'disconnect';
+        }
+
+        interface EscalationChannel {
+          type: 'discord' | 'slack' | 'email';
+          target: string;  // channel ID, email address
+        }
+
+        type EscalationState = 'idle' | 'pending' | 'acknowledged' | 'timeout';
+
+        class EscalationHandler {
+          private state: EscalationState = 'idle';
+          private timer: NodeJS.Timeout | null = null;
+
+          constructor(private config: EscalationConfig) {}
+
+          async escalate(session: Session, error: KyneticError): Promise<void>
+          async acknowledge(sessionKey: string, humanId: string): Promise<void>
+          async resolve(sessionKey: string): Promise<void>
+
+          private async notifyHumans(session: Session, error: KyneticError): Promise<void>
+          private handleTimeout(): void
+          private async executeFallback(session: Session): Promise<void>
+        }
+        ```
+
+        ### Notification Content
+        Include in escalation:
+        - Session key and user info
+        - Error details
+        - Conversation context (last N turns)
+        - Timestamp
+
+        ### Fallback Behaviors
+        - retry: Attempt task again
+        - apologize: Send apology message to user
+        - disconnect: End session cleanly
+
+        ## Spec Acceptance Criteria (from @agent-escalation)
+        - AC-1: Given error, when escalate(), then notifies configured humans
+        - AC-2: Given acknowledgment, when received, then pauses agent and provides handoff
+        - AC-3: Given timeout, when elapsed, then follows configured fallback
+
+        ## Verification
+        Unit tests for state machine and fallback execution.
+      supersedes: null
   todos: []
 - _ulid: 01KG1TFDZ926K9T6TGVDCBWBFH
   slugs:

@@ -29,3 +29,17 @@ features:
     traits: []
     notes: []
     created: 2026-01-28T07:34:36.134Z
+  - _ulid: 01KG1RD682MGVX9083BXA1J9M8
+    slugs:
+      - channel-lifecycle
+    title: Channel Lifecycle
+    type: feature
+    tags: []
+    description: Connection management with health checks for platform adapters
+    depends_on: []
+    implements: []
+    relates_to: []
+    tests: []
+    traits: []
+    notes: []
+    created: 2026-01-28T07:34:38.595Z

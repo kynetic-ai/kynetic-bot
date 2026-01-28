@@ -41,6 +41,10 @@ features:
         given: batch interval (5min) OR event threshold (100 events) reached
         when: triggered
         then: commits pending changes to shadow branch
+      - id: ac-3
+        given: .kbot/ worktree not found
+        when: storage accessed
+        then: returns clear error with init suggestion
   - _ulid: 01KG1RDM4NVZVQP8XZ9DY2CSRY
     slugs:
       - mem-conversation

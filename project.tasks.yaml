@@ -1710,7 +1710,86 @@
     - phase-2
   vcs_refs: []
   created_at: 2026-01-28T08:10:14.989Z
-  notes: []
+  notes:
+    - _ulid: 01KG1TNCQGQC6RBJGP51RMGY6F
+      created_at: 2026-01-28T08:14:04.529Z
+      author: "@claude"
+      content: >-
+        ## Goal
+
+        Implement conversation history management with semantic boundary detection.
+
+
+        ## Files
+
+        - packages/messaging/src/history.ts - ConversationHistory class
+
+        - packages/messaging/test/history.test.ts - Unit tests
+
+
+        ## Dependencies
+
+        - @conversation-storage - Uses ConversationStorage for persistence
+
+
+        ## Implementation
+
+
+        ### ConversationHistory Class
+
+        ```typescript
+
+        interface HistoryEntry {
+          turn: ConversationTurn;
+          semanticBoundary?: boolean;
+          topic?: string;
+        }
+
+
+        interface HistoryOptions {
+          sessionTimeout?: number;  // ms, default 30 minutes
+          boundaryPatterns?: RegExp[];
+        }
+
+
+        class ConversationHistory {
+          constructor(private storage: ConversationStorage, private options: HistoryOptions) {}
+
+          async getHistory(sessionKey: string): Promise<HistoryEntry[]>
+          async addTurn(sessionKey: string, turn: ConversationTurn): Promise<void>
+          async markBoundary(sessionKey: string, index: number): Promise<void>
+          async cleanup(sessionKey: string): Promise<void>
+
+          private detectBoundary(previousTurn: ConversationTurn, currentTurn: ConversationTurn): boolean
+        }
+
+        ```
+
+
+        ### Boundary Detection
+
+        Detect topic changes using:
+
+        - Explicit markers (let's talk about..., changing topic...)
+
+        - Long pauses (> 5 minutes)
+
+        - Question-answer pattern breaks
+
+
+        ## Spec Acceptance Criteria (from @msg-history)
+
+        - AC-1: Given session, when getHistory(), then returns messages chronologically
+
+        - AC-2: Given topic change, when boundary analysis, then marks semantic boundary
+
+        - AC-3: Given session timeout, when cleanup(), then archives and releases
+
+
+        ## Verification
+
+        Unit tests for chronological ordering and boundary detection.
+      supersedes: null
   todos: []
 - _ulid: 01KG1TEEK47KKFMSE6Z3RNZXMP
   slugs:

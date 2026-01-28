@@ -2352,6 +2352,9 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: StreamCoalescer implemented and merged to main. Created StreamCoalescer and
+    BufferedCoalescer classes with configurable chunking and disconnect handling. Added 15
+    comprehensive tests covering all AC. All tests pass. Changes committed to main (6f38440).
   depends_on:
     - "@core-types"
   context: []
@@ -2361,6 +2364,7 @@
   vcs_refs: []
   created_at: 2026-01-28T08:10:25.338Z
   started_at: 2026-01-28T14:30:06.561Z
+  completed_at: 2026-01-28T14:32:27.260Z
   notes:
     - _ulid: 01KG1TPW5SJDZKB1CBVWKET4V1
       created_at: 2026-01-28T08:14:53.114Z
@@ -2463,10 +2467,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-01-28T14:32:27.260Z
-  closed_reason: StreamCoalescer implemented and merged to main. Created StreamCoalescer and
-    BufferedCoalescer classes with configurable chunking and disconnect handling. Added 15
-    comprehensive tests covering all AC. All tests pass. Changes committed to main (6f38440).
 - _ulid: 01KG1TERZ7S69XN92EBPBT359Y
   slugs:
     - channel-lifecycle-task
@@ -2474,7 +2474,7 @@
   type: task
   spec_ref: "@channel-lifecycle"
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on:
     - "@channel-registry-task"
@@ -2574,6 +2574,7 @@
       supersedes: null
   todos: []
   automation: eligible
+  started_at: 2026-01-28T14:34:50.645Z
 - _ulid: 01KG1TETY3EBFGT1BWTQ0NWZQ4
   slugs:
     - context-window

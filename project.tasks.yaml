@@ -283,6 +283,28 @@
 
         Plan copied to: IMPLEMENTATION_PLAN.md
       supersedes: null
+    - _ulid: 01KG1VKX5XFPM1P5KGJNW4R1F5
+      created_at: 2026-01-28T08:30:44.413Z
+      author: "@claude"
+      content: |-
+        ## Traits Created
+
+        7 cross-cutting traits created and applied to specs:
+
+        | Trait | Description | Applied To |
+        |-------|-------------|------------|
+        | @trait-idempotent | Duplicate request safety | 3 features |
+        | @trait-rate-limited | Rate limit handling | 3 features |
+        | @trait-recoverable | Crash recovery | 5 features |
+        | @trait-observable | Event emission/logging | 5 features |
+        | @trait-health-monitored | Health check patterns | 3 features |
+        | @trait-graceful-shutdown | Clean shutdown | 3 features |
+        | @trait-validated | Input validation errors | 5 features |
+
+        Each trait has 3 acceptance criteria. Features inherit trait AC automatically.
+
+        Added 6 new AC to existing specs for idempotency and rate limiting coverage.
+      supersedes: null
   todos: []
 - _ulid: 01KG1TCHT7HG62QECKPQ8PD996
   slugs:

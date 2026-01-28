@@ -29,3 +29,17 @@ features:
     traits: []
     notes: []
     created: 2026-01-28T07:35:02.892Z
+  - _ulid: 01KG1RE068887DHMQXFSCSTXZ6
+    slugs:
+      - agent-autonomous
+    title: Autonomous Mode
+    type: feature
+    tags: []
+    description: Ralph-mode autonomous loop with circuit breaker for safe operation
+    depends_on: []
+    implements: []
+    relates_to: []
+    tests: []
+    traits: []
+    notes: []
+    created: 2026-01-28T07:35:05.160Z

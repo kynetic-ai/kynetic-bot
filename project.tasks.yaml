@@ -2578,5 +2578,106 @@
     - phase-4
   vcs_refs: []
   created_at: 2026-01-28T08:10:51.875Z
-  notes: []
+  notes:
+    - _ulid: 01KG1TRN71NZ8MPPZ4X6YVY5G3
+      created_at: 2026-01-28T08:15:51.521Z
+      author: "@claude"
+      content: >-
+        ## Goal
+
+        Implement WhatsApp and Slack channel adapters.
+
+
+        ## Files
+
+        - packages/channels/src/adapters/whatsapp.ts - WhatsAppAdapter
+
+        - packages/channels/src/adapters/slack.ts - SlackAdapter
+
+        - packages/channels/test/adapters/whatsapp.test.ts
+
+        - packages/channels/test/adapters/slack.test.ts
+
+
+        ## Dependencies
+
+        - @channel-registry-task - ChannelAdapter interface
+
+
+        ## Implementation
+
+
+        ### WhatsAppAdapter (Meta Cloud API)
+
+        ```typescript
+
+        class WhatsAppAdapter implements ChannelAdapter {
+          readonly name = 'whatsapp';
+          readonly platform = 'whatsapp';
+
+          constructor(private config: WhatsAppConfig) {}
+
+          parseIncoming(webhook: WhatsAppWebhook): Result<NormalizedMessage, KyneticError>
+          async sendMessage(phoneNumber: string, message: NormalizedMessage): Promise<Result<void, KyneticError>>
+          normalizeTarget(target: string): string
+        }
+
+        ```
+
+
+        WhatsApp specifics:
+
+        - Webhook verification challenge
+
+        - Phone number formatting (+E.164)
+
+        - Template messages for first contact
+
+        - 24-hour messaging window
+
+
+        ### SlackAdapter
+
+        ```typescript
+
+        class SlackAdapter implements ChannelAdapter {
+          readonly name = 'slack';
+          readonly platform = 'slack';
+
+          constructor(private config: SlackConfig) {}
+
+          parseIncoming(event: SlackEvent): Result<NormalizedMessage, KyneticError>
+          async sendMessage(channelId: string, message: NormalizedMessage): Promise<Result<void, KyneticError>>
+          normalizeTarget(target: string): string
+        }
+
+        ```
+
+
+        Slack specifics:
+
+        - Bot token authentication
+
+        - Event subscriptions
+
+        - Block Kit for rich messages
+
+        - Thread support
+
+
+        ## Acceptance Criteria
+
+        - AC-1: WhatsApp adapter implements ChannelAdapter (Meta Cloud API)
+
+        - AC-2: Slack adapter implements ChannelAdapter
+
+        - AC-3: Both have normalizeTarget, parseIncoming, sendMessage
+
+        - AC-4: Integration tests with mock APIs
+
+
+        ## Verification
+
+        Run tests with mocked platform APIs.
+      supersedes: null
   todos: []

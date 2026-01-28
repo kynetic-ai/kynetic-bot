@@ -9,3 +9,17 @@ includes:
   - modules/channels.yaml
   - modules/memory.yaml
   - modules/agent.yaml
+traits:
+  - _ulid: 01KG1VAR4N7TPZJTPHGSNZCWY8
+    slugs:
+      - trait-idempotent
+    title: Idempotent
+    type: trait
+    tags: []
+    depends_on: []
+    implements: []
+    relates_to: []
+    tests: []
+    traits: []
+    notes: []
+    created: 2026-01-28T08:25:44.342Z

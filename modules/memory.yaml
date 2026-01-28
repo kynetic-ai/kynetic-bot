@@ -53,6 +53,10 @@ features:
         given: invalid state data
         when: write attempted
         then: rejects with structured validation error
+      - id: ac-6
+        given: crash during batch commit
+        when: restarted
+        then: recovers from last successful commit
   - _ulid: 01KG1RDM4NVZVQP8XZ9DY2CSRY
     slugs:
       - mem-conversation

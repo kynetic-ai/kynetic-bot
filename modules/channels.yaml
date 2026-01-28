@@ -38,6 +38,10 @@ features:
         given: message arrives for specific platform
         when: adapter lookup performed
         then: returns correct adapter for the platform
+      - id: ac-3
+        given: adapter with invalid interface
+        when: registration attempted
+        then: returns validation error listing missing methods
   - _ulid: 01KG1RD682MGVX9083BXA1J9M8
     slugs:
       - channel-lifecycle

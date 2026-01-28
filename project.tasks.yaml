@@ -1026,7 +1026,14 @@
         ## Verification
         Run integration tests with real .kspec worktree.
       supersedes: null
+    - _ulid: 01KG1W1XTJKNC3VDQ7ZWDC8JKR
+      created_at: 2026-01-28T08:38:23.826Z
+      author: "@claude"
+      content: "Automation status set to needs_review: First kspec integration, sets pattern for all kspec
+        interactions"
+      supersedes: null
   todos: []
+  automation: needs_review
 - _ulid: 01KG1TDKTGZFS74P83XX93YKJF
   slugs:
     - agent-lifecycle-task

@@ -453,7 +453,51 @@
     - phase-0
   vcs_refs: []
   created_at: 2026-01-28T08:09:22.235Z
-  notes: []
+  notes:
+    - _ulid: 01KG1TGZP5ZTAX4R2PXPSPCEQ3
+      created_at: 2026-01-28T08:11:40.102Z
+      author: "@claude"
+      content: |-
+        ## Goal
+        Configure ESLint and Prettier for consistent code quality and formatting.
+
+        ## Files
+        - eslint.config.js - ESLint flat config
+        - .prettierrc - Prettier configuration
+        - .prettierignore - Prettier ignore patterns
+        - package.json - Add lint/format scripts
+
+        ## Dependencies
+        - @init-monorepo - Package structure must exist
+
+        ## Implementation
+        1. Install dependencies:
+           - eslint, @eslint/js
+           - typescript-eslint
+           - prettier, eslint-config-prettier
+        2. Create eslint.config.js with flat config:
+           - TypeScript parser and rules
+           - Recommended rules from @eslint/js
+           - Prettier compatibility
+        3. Create .prettierrc with:
+           - semi: true
+           - singleQuote: true
+           - trailingComma: es5
+           - printWidth: 100
+        4. Add scripts to root package.json:
+           - lint: eslint packages/*/src
+           - lint:fix: eslint --fix packages/*/src
+           - format: prettier --write packages/*/src/**/*.ts
+           - format:check: prettier --check packages/*/src/**/*.ts
+
+        ## Acceptance Criteria
+        - AC-1: ESLint with TypeScript rules
+        - AC-2: Prettier for formatting
+        - AC-3: pnpm lint and pnpm format work
+
+        ## Verification
+        Create a test file with lint issues, run pnpm lint, verify detection.
+      supersedes: null
   todos: []
 - _ulid: 01KG1TCVDS60NH6FW759CTZJQM
   slugs:

@@ -1342,7 +1342,74 @@
     - phase-2
   vcs_refs: []
   created_at: 2026-01-28T08:10:04.105Z
-  notes: []
+  notes:
+    - _ulid: 01KG1TN0K1GH85VZFKDQ0Q447W
+      created_at: 2026-01-28T08:13:52.098Z
+      author: "@claude"
+      content: >-
+        ## Goal
+
+        Implement message transformation for platform-agnostic message handling.
+
+
+        ## Files
+
+        - packages/messaging/src/transformer.ts - MessageTransformer class
+
+        - packages/messaging/test/transformer.test.ts - Unit tests
+
+
+        ## Dependencies
+
+        - @core-types - Needs NormalizedMessage type
+
+
+        ## Implementation
+
+
+        ### MessageTransformer Class
+
+        ```typescript
+
+        interface PlatformTransformer {
+          platform: string;
+          normalize(raw: unknown): Result<NormalizedMessage, KyneticError>;
+          denormalize(message: NormalizedMessage): Result<unknown, KyneticError>;
+        }
+
+
+        class MessageTransformer {
+          private transformers = new Map<string, PlatformTransformer>();
+
+          registerTransformer(transformer: PlatformTransformer): void
+          normalize(platform: string, raw: unknown): Result<NormalizedMessage, KyneticError>
+          denormalize(platform: string, message: NormalizedMessage): Result<unknown, KyneticError>
+        }
+
+        ```
+
+
+        ### Error Handling
+
+        - UnsupportedTypeError for unknown content types
+
+        - MissingTransformerError for unregistered platforms
+
+
+        ## Spec Acceptance Criteria (from @msg-transform)
+
+        - AC-1: Given platform message, when normalize(), then produces NormalizedMessage
+
+        - AC-2: Given normalized message, when denormalize(platform), then converts to platform
+        format
+
+        - AC-3: Given unsupported type, when normalize(), then returns UnsupportedTypeError
+
+
+        ## Verification
+
+        Unit tests for round-trip transformation.
+      supersedes: null
   todos: []
 - _ulid: 01KG1TE51N01JR7Z64GHC13Y51
   slugs:

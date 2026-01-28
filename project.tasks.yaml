@@ -1723,7 +1723,8 @@
   meta_ref: null
   status: pending
   blocked_by: []
-  depends_on: []
+  depends_on:
+    - "@conversation-storage"
   context: []
   priority: 2
   tags:

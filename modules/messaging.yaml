@@ -83,6 +83,11 @@ features:
     traits: []
     notes: []
     created: 2026-01-28T07:34:25.505Z
+    acceptance_criteria:
+      - id: ac-1
+        given: agent generates long response
+        when: streaming is enabled
+        then: delivers response in chunks as they are generated
   - _ulid: 01KG1RCW2NEV0254S18NRJBZ48
     slugs:
       - msg-history

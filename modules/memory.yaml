@@ -32,11 +32,7 @@ features:
       - "@trait-validated"
     notes: []
     created: 2026-01-28T07:34:50.694Z
-    acceptance_criteria:
-      - id: ac-3
-        given: concurrent modifications to state
-        when: sync conflict detected
-        then: applies merge strategy and logs resolution
+    acceptance_criteria: []
   - _ulid: 01KG1RDM4NVZVQP8XZ9DY2CSRY
     slugs:
       - mem-conversation

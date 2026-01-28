@@ -88,6 +88,10 @@ features:
         given: skill module available
         when: agent initializes
         then: discovers and registers skill with capabilities
+      - id: ac-2
+        given: agent needs capability
+        when: skill lookup performed
+        then: returns appropriate tool for the capability
   - _ulid: 01KG1RE6450N1GAKD8ZPXJ9TP4
     slugs:
       - agent-escalation

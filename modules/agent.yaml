@@ -14,3 +14,18 @@ relates_to: []
 tests: []
 traits: []
 notes: []
+features:
+  - _ulid: 01KG1RDXZCYB0ZEWQJT9JP9B42
+    slugs:
+      - agent-lifecycle
+    title: Agent Lifecycle
+    type: feature
+    tags: []
+    description: Spawn, monitor, and restart agents with environment configuration
+    depends_on: []
+    implements: []
+    relates_to: []
+    tests: []
+    traits: []
+    notes: []
+    created: 2026-01-28T07:35:02.892Z

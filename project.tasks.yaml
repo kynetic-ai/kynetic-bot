@@ -1517,6 +1517,7 @@
         Unit tests for round-trip transformation.
       supersedes: null
   todos: []
+  automation: eligible
 - _ulid: 01KG1TE51N01JR7Z64GHC13Y51
   slugs:
     - dm-policy

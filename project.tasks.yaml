@@ -489,6 +489,7 @@
         Run pnpm test and pnpm test:coverage from root.
       supersedes: null
   todos: []
+  automation: eligible
 - _ulid: 01KG1TCS1VP8GK0SAB6HKJDZ1A
   slugs:
     - setup-linting

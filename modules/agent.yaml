@@ -65,6 +65,10 @@ features:
         given: consecutive errors exceed threshold
         when: circuit breaker trips
         then: pauses autonomous operation and alerts
+      - id: ac-3
+        given: circuit breaker in open state
+        when: cooldown period expires
+        then: transitions to half-open and attempts recovery
   - _ulid: 01KG1RE3WCZG5R9NMR9N1Z1A01
     slugs:
       - agent-skills

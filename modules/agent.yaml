@@ -92,6 +92,10 @@ features:
         given: agent needs capability
         when: skill lookup performed
         then: returns appropriate tool for the capability
+      - id: ac-3
+        given: skill execution fails
+        when: error handler invoked
+        then: logs failure and returns structured error to agent
   - _ulid: 01KG1RE6450N1GAKD8ZPXJ9TP4
     slugs:
       - agent-escalation

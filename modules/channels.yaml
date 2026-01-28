@@ -65,6 +65,10 @@ features:
         given: health check fails for channel
         when: consecutive failures exceed threshold
         then: marks channel unhealthy and triggers reconnection
+      - id: ac-3
+        given: shutdown signal received
+        when: graceful shutdown initiated
+        then: drains pending messages and closes connections cleanly
   - _ulid: 01KG1RD8WH7K88Y89V0CQ473ZH
     slugs:
       - channel-dm-policy

@@ -979,7 +979,105 @@
     - phase-1
   vcs_refs: []
   created_at: 2026-01-28T08:09:49.647Z
-  notes: []
+  notes:
+    - _ulid: 01KG1TKD54SA3VRSFJB7MR6C43
+      created_at: 2026-01-28T08:12:59.429Z
+      author: "@claude"
+      content: >-
+        ## Goal
+
+        Implement agent process lifecycle management with health monitoring.
+
+
+        ## Files
+
+        - packages/agent/src/lifecycle.ts - AgentLifecycle class
+
+        - packages/agent/src/types.ts - Agent types
+
+        - packages/agent/src/index.ts - Barrel export
+
+        - packages/agent/test/lifecycle.test.ts - Unit tests
+
+
+        ## Dependencies
+
+        - @core-types - Needs error types
+
+        - Uses ACP modules copied in @copy-acp-modules
+
+
+        ## Implementation
+
+
+        ### AgentLifecycle Class
+
+        ```typescript
+
+        interface AgentConfig {
+          command: string;  // e.g., 'claude-code'
+          args?: string[];
+          env?: Record<string, string>;
+          healthCheckInterval?: number;  // ms, default 30000
+          maxUnresponsiveTime?: number;  // ms, default 60000
+        }
+
+
+        class AgentLifecycle {
+          private process: ChildProcess | null = null;
+          private acpClient: ACPClient | null = null;
+
+          async spawn(sessionKey: string, config: AgentConfig): Promise<Result<ACPClient, KyneticError>>
+          async healthCheck(): Promise<boolean>
+          async terminate(graceful?: boolean): Promise<void>
+
+          getState(): 'idle' | 'spawning' | 'running' | 'unhealthy' | 'terminating'
+        }
+
+        ```
+
+
+        ### Environment Variables
+
+        Set KYNETIC_* env vars when spawning:
+
+        - KYNETIC_SESSION_KEY
+
+        - KYNETIC_BOT_NAME
+
+        - KYNETIC_WORKSPACE
+
+
+        ### Health Monitoring
+
+        - Periodic health checks via ACP heartbeat
+
+        - Track consecutive failures
+
+        - Auto-terminate and respawn if unhealthy
+
+
+        ### ACP Integration
+
+        - Use JsonRpcFraming for stdio communication
+
+        - Import ACPClient from ./acp/client
+
+
+        ## Spec Acceptance Criteria (from @agent-lifecycle)
+
+        - AC-1: Given session needs agent, when spawn(), then creates process with KYNETIC_* env
+        vars
+
+        - AC-2: Given agent unresponsive, when health check fails, then terminates and respawns
+
+        - AC-3: Given session end, when cleanup(), then terminates gracefully with state save
+
+
+        ## Verification
+
+        Unit tests for lifecycle state transitions (spawn, health check, terminate).
+      supersedes: null
   todos: []
 - _ulid: 01KG1TDNYQD551HSS3ZHQH81GT
   slugs:

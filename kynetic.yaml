@@ -132,6 +132,10 @@ traits:
         given: health check interval
         when: elapsed
         then: probes component
+      - id: ac-2
+        given: N consecutive failures
+        when: threshold exceeded
+        then: marks unhealthy
   - _ulid: 01KG1VB4XZAK25HYSNF1BTAN0N
     slugs:
       - trait-graceful-shutdown

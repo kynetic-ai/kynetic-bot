@@ -2350,7 +2350,7 @@
   type: task
   spec_ref: "@msg-streaming"
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on:
     - "@core-types"
@@ -2463,6 +2463,10 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-01-28T14:32:27.260Z
+  closed_reason: StreamCoalescer implemented and merged to main. Created StreamCoalescer and
+    BufferedCoalescer classes with configurable chunking and disconnect handling. Added 15
+    comprehensive tests covering all AC. All tests pass. Changes committed to main (6f38440).
 - _ulid: 01KG1TERZ7S69XN92EBPBT359Y
   slugs:
     - channel-lifecycle-task

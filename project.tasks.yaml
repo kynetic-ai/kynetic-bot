@@ -496,6 +496,7 @@
     - phase-0
   vcs_refs: []
   created_at: 2026-01-28T08:09:19.850Z
+  started_at: 2026-01-28T09:13:30.804Z
   notes:
     - _ulid: 01KG1TGWZSV7J6VNGQM0VV0T57
       created_at: 2026-01-28T08:11:37.337Z
@@ -536,9 +537,31 @@
         ## Verification
         Run pnpm test and pnpm test:coverage from root.
       supersedes: null
+    - _ulid: 01KG1Y6EQBAVTFXYKA7AX33S9T
+      created_at: 2026-01-28T09:15:49.356Z
+      author: "@claude"
+      content: |-
+        Vitest configuration complete for monorepo testing.
+
+        Created:
+        - vitest.workspace.ts: Defines all 6 packages for testing
+        - vitest.config.ts in each package: Node environment, v8 coverage
+        - packages/core/src/test-utils/index.ts: Shared test utilities (delay helper)
+        - packages/core/src/test-utils/index.test.ts: Sample test to verify setup
+
+        Updated package.json scripts:
+        - test: vitest run
+        - test:watch: vitest (watch mode)
+        - test:coverage: vitest run --coverage
+
+        Dependencies:
+        - vitest v4.0.18 (upgraded from v2)
+        - @vitest/coverage-v8 v4.0.18
+
+        Verified: pnpm test runs successfully, pnpm test:coverage generates reports.
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-01-28T09:13:30.804Z
 - _ulid: 01KG1TCS1VP8GK0SAB6HKJDZ1A
   slugs:
     - setup-linting

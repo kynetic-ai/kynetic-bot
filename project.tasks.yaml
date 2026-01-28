@@ -1807,7 +1807,59 @@
     - phase-2
   vcs_refs: []
   created_at: 2026-01-28T08:10:17.060Z
-  notes: []
+  notes:
+    - _ulid: 01KG1TNFASGJSP164EP1G5D04P
+      created_at: 2026-01-28T08:14:07.194Z
+      author: "@claude"
+      content: |-
+        ## Goal
+        Integrate MessageTransformer into the bot for consistent message handling.
+
+        ## Files
+        - packages/bot/src/bot.ts - Update handleMessage to use transformer
+        - packages/bot/test/transform.test.ts - Tests
+
+        ## Dependencies
+        - @msg-transformer - MessageTransformer implementation
+        - @bot-integration - Existing bot integration
+
+        ## Implementation
+
+        ### Update KyneticBot
+        ```typescript
+        class KyneticBot {
+          private transformer: MessageTransformer;
+
+          private async handleMessage(platform: string, raw: unknown): Promise<void> {
+            // Normalize incoming message
+            const normalized = this.transformer.normalize(platform, raw);
+            if (normalized.isErr()) {
+              this.handleError(normalized.error);
+              return;
+            }
+
+            // ... route to agent ...
+
+            // Denormalize outgoing response
+            const platformMessage = this.transformer.denormalize(platform, response);
+            await this.sendResponse(session, platformMessage);
+          }
+        }
+        ```
+
+        ### Unknown Content Handling
+        - Log warning for unknown types
+        - Skip gracefully (don't crash)
+        - Optionally send unsupported content message to user
+
+        ## Acceptance Criteria
+        - AC-1: Given incoming message, when processed, then normalized before routing
+        - AC-2: Given outgoing response, when sending, then denormalized for platform
+        - AC-3: Given unknown content type, when detected, then logged and skipped gracefully
+
+        ## Verification
+        Tests for normalize/denormalize integration.
+      supersedes: null
   todos: []
 - _ulid: 01KG1TEPNTSVQ30A0ZB267MHJ8
   slugs:

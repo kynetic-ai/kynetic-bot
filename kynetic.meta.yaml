@@ -39,4 +39,13 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KG2FKVX1PBMNR3TFVRBH9058
+    type: friction
+    content: Build artifacts (dist/, *.tsbuildinfo, node_modules subdirs) appear in git status and must
+      be manually excluded when staging. Task @01KG2ESG only covers coverage/ but pattern applies to
+      all build output.
+    created_at: 2026-01-28T14:20:14.625Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

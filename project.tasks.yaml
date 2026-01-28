@@ -2065,6 +2065,7 @@
         Unit tests for chunking with different buffer sizes and timing.
       supersedes: null
   todos: []
+  automation: eligible
 - _ulid: 01KG1TERZ7S69XN92EBPBT359Y
   slugs:
     - channel-lifecycle-task

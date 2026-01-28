@@ -12,6 +12,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-01-28T07:25:17.077Z
+  started_at: 2026-01-28T07:25:32.707Z
   notes:
     - _ulid: 01KG1QWB61BTD9E260GBGMJ7FF
       created_at: 2026-01-28T07:25:26.593Z
@@ -39,5 +40,42 @@
         3. Synthesize into spec items with acceptance criteria
         4. Cover explicit and implicit user expectations
       supersedes: null
+    - _ulid: 01KG1R0PR4HWKQPTT94XKD8Z89
+      created_at: 2026-01-28T07:27:49.508Z
+      author: "@claude"
+      content: |-
+        ## Research Complete
+
+        ### Moltbot Key Patterns
+        - **Architecture**: Local-first Gateway control plane with WebSocket hub
+        - **Platforms**: 13+ channels (WhatsApp, Telegram, Slack, Discord, Signal, iMessage, etc.)
+        - **Session Keys**: Encodes agent:agentId:sessionType:peerInfo for routing
+        - **Agent**: Pi runtime with tool streaming, subagent registry
+        - **Memory**: Vector search (SQLite + embeddings), session compaction
+        - **Skills**: Bundled, managed, workspace-level - skill.yaml + handlers
+        - **Protocol**: JSON-RPC frames (req/res/event) over WebSocket
+
+        ### Kynetic Key Patterns
+        - **Architecture**: Hub (orchestrator) ↔ Lifeline (bridge) ↔ Agent (ephemeral)
+        - **ACP**: JSON-RPC 2.0 framing, stdio communication, timeout management
+        - **Sessions**: Semantic units, compaction triggers, crash recovery with lineage
+        - **Skills**: MCP server integration, skill:// URI protocol
+        - **Protocol**: Message envelopes with seq/ack, gap detection, idempotency
+        - **State**: Task states (pending→ready→assigned→in_progress→completed)
+
+        ### Kspec Key Patterns
+        - **Shadow Branch**: Spec/task state separate from code, auto-commit
+        - **Tasks**: Append-only notes, automation eligibility, failure tracking
+        - **Specs**: module > feature > requirement hierarchy, Given/When/Then AC
+        - **Traits**: Reusable AC bundles for cross-cutting concerns
+        - **Ralph Mode**: Autonomous loop with circuit breaker, escalation on failures
+        - **Meta-spec**: Agents, workflows, conventions, observations
+
+        ### Spec Writing Guidelines
+        - Use CLI commands, not manual YAML
+        - AC format: given/when/then, concrete examples
+        - 3-5 AC per item, independently testable
+        - Traits for 3+ specs needing same behavior
+        - Derive tasks from specs, add implementation notes
+      supersedes: null
   todos: []
-  started_at: 2026-01-28T07:25:32.707Z

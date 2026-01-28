@@ -29,6 +29,11 @@ features:
     traits: []
     notes: []
     created: 2026-01-28T07:34:36.134Z
+    acceptance_criteria:
+      - id: ac-1
+        given: new channel adapter module available
+        when: registration requested
+        then: validates adapter interface and adds to registry
   - _ulid: 01KG1RD682MGVX9083BXA1J9M8
     slugs:
       - channel-lifecycle

@@ -32,7 +32,11 @@ features:
       - "@trait-validated"
     notes: []
     created: 2026-01-28T07:34:50.694Z
-    acceptance_criteria: []
+    acceptance_criteria:
+      - id: ac-1
+        given: write operation occurs
+        when: completed
+        then: file atomically written to .kbot/
   - _ulid: 01KG1RDM4NVZVQP8XZ9DY2CSRY
     slugs:
       - mem-conversation

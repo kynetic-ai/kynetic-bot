@@ -2537,6 +2537,7 @@
         Unit tests for size validation and storage mocks.
       supersedes: null
   todos: []
+  automation: eligible
 - _ulid: 01KG1TFBJJMXHTYAY09H0G3VXH
   slugs:
     - escalation-handler

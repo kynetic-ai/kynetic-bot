@@ -4153,6 +4153,166 @@
     - phase-1
   vcs_refs: []
   created_at: 2026-01-28T17:49:57.774Z
-  notes: []
+  notes:
+    - _ulid: 01KG2VS438PHJ12AACCDKF61E9
+      created_at: 2026-01-28T17:52:49.768Z
+      author: "@claude"
+      content: >-
+        ## Goal
+
+        Implement batch commit scheduler for periodically committing .kbot/ changes to shadow
+        branch.
+
+
+        ## Files
+
+        - packages/memory/src/shadow/scheduler.ts - CommitScheduler class
+
+        - packages/memory/src/shadow/index.ts - Update exports
+
+        - packages/memory/test/scheduler.test.ts - Unit tests
+
+
+        ## Dependencies
+
+        - ./shadow/commit (commitIfKbotShadow from @shadow-storage-init)
+
+        - @kynetic-bot/core (createLogger)
+
+
+        ## Implementation
+
+
+        ### CommitScheduler Class
+
+        ```typescript
+
+        export interface CommitSchedulerOptions {
+          baseDir: string;           // .kbot/ directory
+          maxInterval?: number;      // Default: 300000 (5 minutes)
+          maxEvents?: number;        // Default: 100
+          logger?: Logger;
+        }
+
+
+        export class CommitScheduler {
+          private pendingChanges: boolean = false;
+          private lastCommitTime: number = Date.now();
+          private eventsSinceCommit: number = 0;
+          private timer: NodeJS.Timeout | null = null;
+
+          constructor(options: CommitSchedulerOptions);
+
+          // Lifecycle
+          start(): void;
+          stop(): Promise<void>;  // Calls forceCommit before stopping
+
+          // Event tracking
+          recordChange(): void;   // Called by stores after writes
+
+          // Commit operations
+          scheduleCommit(): void;
+          forceCommit(): Promise<void>;
+
+          // Status
+          getPendingChanges(): boolean;
+          getEventsSinceCommit(): number;
+        }
+
+        ```
+
+
+        ### Trigger Logic
+
+        ```typescript
+
+        recordChange() {
+          this.pendingChanges = true;
+          this.eventsSinceCommit++;
+
+          // Check threshold trigger
+          if (this.eventsSinceCommit >= this.maxEvents) {
+            this.scheduleCommit();
+          }
+        }
+
+
+        // Timer-based trigger (runs every maxInterval)
+
+        private async timerTick() {
+          const elapsed = Date.now() - this.lastCommitTime;
+          if (this.pendingChanges && elapsed >= this.maxInterval) {
+            await this.performCommit();
+          }
+        }
+
+
+        async performCommit() {
+          if (\!this.pendingChanges) return;
+
+          await commitIfKbotShadow(this.config, 'batch commit', `events:${this.eventsSinceCommit}`);
+
+          this.pendingChanges = false;
+          this.eventsSinceCommit = 0;
+          this.lastCommitTime = Date.now();
+
+          this.logger.info('Batch commit completed', { events: this.eventsSinceCommit });
+        }
+
+        ```
+
+
+        ### Integration with Stores
+
+        ```typescript
+
+        // In SessionStore.appendEvent():
+
+        const event = await this.appendEventInternal(input);
+
+        this.scheduler?.recordChange();
+
+        return event;
+
+
+        // In ConversationStore.appendTurn():
+
+        const turn = await this.appendTurnInternal(conversationId, turn);
+
+        this.scheduler?.recordChange();
+
+        return turn;
+
+        ```
+
+
+        ## Tests
+
+        - recordChange increments eventsSinceCommit
+
+        - threshold trigger: commits when maxEvents reached
+
+        - interval trigger: commits when maxInterval elapsed with pending changes
+
+        - forceCommit commits immediately regardless of thresholds
+
+        - stop() calls forceCommit before stopping
+
+        - no commit when no pending changes
+
+
+        ## Spec AC Mapping
+
+        - @mem-shadow-storage AC-2 (batch interval/threshold triggers)
+
+        - @mem-shadow-storage AC-4 (emits sync events)
+
+        - @mem-shadow-storage AC-6 (recovery - continues from last commit)
+
+
+        ## Reference
+
+        - /home/chapel/Projects/kynetic-spec/src/parser/shadow.ts (commit patterns)
+      supersedes: null
   todos: []
   automation: eligible

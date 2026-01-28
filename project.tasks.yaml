@@ -1294,7 +1294,14 @@
 
         Run tests with mocked discord.js Client.
       supersedes: null
+    - _ulid: 01KG1W238FC6T96Z5BZC6QB3JJ
+      created_at: 2026-01-28T08:38:29.391Z
+      author: "@claude"
+      content: "Automation status set to manual_only: Requires Discord bot token setup and application
+        configuration"
+      supersedes: null
   todos: []
+  automation: manual_only
 - _ulid: 01KG1TDRB07CBH2J4K25G786ET
   slugs:
     - bot-integration

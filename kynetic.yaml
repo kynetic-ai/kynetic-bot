@@ -8,3 +8,4 @@ includes:
   - modules/messaging.yaml
   - modules/channels.yaml
   - modules/memory.yaml
+  - modules/agent.yaml

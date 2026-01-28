@@ -1,0 +1,16 @@
+_ulid: 01KG1RCBDEGY4R33FPA0ECAYTF
+slugs:
+  - agent
+title: Agent
+type: module
+status:
+  maturity: draft
+  implementation: not_started
+description: "Agent orchestration: lifecycle management, autonomous mode, skills, and human escalation"
+tags: []
+depends_on: []
+implements: []
+relates_to: []
+tests: []
+traits: []
+notes: []

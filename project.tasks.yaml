@@ -672,6 +672,7 @@
     - phase-0
   vcs_refs: []
   created_at: 2026-01-28T08:09:24.664Z
+  started_at: 2026-01-28T09:17:39.766Z
   notes:
     - _ulid: 01KG1TH2M493AF54KYF4MEDASH
       created_at: 2026-01-28T08:11:43.109Z
@@ -750,9 +751,49 @@
 
         Run pnpm build and verify agent package compiles successfully.
       supersedes: null
+    - _ulid: 01KG1YBEVA6K787AXJ9GG42GNE
+      created_at: 2026-01-28T09:18:33.323Z
+      author: "@claude"
+      content: >-
+        Task requires more setup than initially scoped. The ACP modules have several dependencies
+        that need to be addressed first:
+
+
+        Dependencies identified:
+
+        1. @agentclientprotocol/sdk - Official ACP SDK package (needs to be installed)
+
+        2. @kynetic/shared - Logger utilities (createLogger function)
+
+        3. ../utils/index.js - Type guard utilities (hasProperty, isNumber, isObject, isString)
+
+
+        Files to copy:
+
+        - client.ts (~15KB) - ACPClient class
+
+        - framing.ts (~12KB) - JsonRpcFraming layer
+
+        - types.ts (~10KB) - ACP type definitions + JSON-RPC types
+
+
+        Recommended approach:
+
+        1. Install @agentclientprotocol/sdk as dependency
+
+        2. Create minimal logger stub in agent package
+
+        3. Create utility type guards in core package
+
+        4. Copy and adapt the three ACP files
+
+        5. Update imports to use local paths
+
+
+        This task should be split into subtasks or requires additional dependency setup tasks first.
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-01-28T09:17:39.766Z
 - _ulid: 01KG1TD8REHCMGXRCRN5B7TFCZ
   slugs:
     - core-types

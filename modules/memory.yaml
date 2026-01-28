@@ -84,6 +84,10 @@ features:
         given: LLM response completed
         when: saved
         then: appends assistant turn with agent_session_id linking to @mem-agent-sessions
+      - id: ac-3
+        given: bot restarts
+        when: conversation resumed
+        then: recovers all turns from .kbot/ (skipping invalid JSON lines with warning)
   - _ulid: 01KG1RDP884TBCZV7QH03CV53M
     slugs:
       - mem-context-window

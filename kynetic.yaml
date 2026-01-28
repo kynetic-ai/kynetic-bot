@@ -58,6 +58,10 @@ traits:
         given: queued operations
         when: limit resets
         then: processes in order
+      - id: ac-3
+        given: persistent rate limiting
+        when: threshold exceeded
+        then: logs warning
   - _ulid: 01KG1VAWZP12F5MR7E9PJAFJAJ
     slugs:
       - trait-recoverable

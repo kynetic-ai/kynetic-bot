@@ -38,6 +38,10 @@ features:
         given: existing session with established context
         when: new message arrives with same session key
         then: appends message to existing conversation context
+      - id: ac-3
+        given: message targeting unknown or invalid agent
+        when: router attempts to resolve session
+        then: returns error with unknown agent code
   - _ulid: 01KG1RCNMA9JZAKTVGYBPJ3TBG
     slugs:
       - msg-transform

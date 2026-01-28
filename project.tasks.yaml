@@ -3091,3 +3091,20 @@
       supersedes: null
   todos: []
   automation: eligible
+- title: Add coverage/ to .gitignore
+  type: task
+  priority: 2
+  spec_ref: null
+  tags:
+    - phase-0
+  description: Add coverage/ directory to .gitignore
+  _ulid: 01KG2ESGQQZ8TEYHWPSZ3WFXDC
+  slugs: []
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  vcs_refs: []
+  created_at: 2026-01-28T14:05:51.223Z
+  notes: []
+  todos: []

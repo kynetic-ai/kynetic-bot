@@ -1,8 +1,1 @@
-inbox:
-  - _ulid: 01KG1YE5X7E2FTQEM2JEGFFNA6
-    text: Add coverage/ directory to .gitignore
-    created_at: 2026-01-28T09:20:02.471Z
-    tags:
-      - reflection
-      - phase-0
-    added_by: "@claude"
+inbox: []

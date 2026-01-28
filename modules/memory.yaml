@@ -65,6 +65,10 @@ features:
         given: conversation has 50+ notes
         when: new turn added
         then: triggers compaction to summarize older turns
+      - id: ac-3
+        given: agent process crashes
+        when: agent restarts
+        then: recovers conversation state from kspec notes
   - _ulid: 01KG1RDP884TBCZV7QH03CV53M
     slugs:
       - mem-context-window

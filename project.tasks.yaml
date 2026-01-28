@@ -792,6 +792,36 @@
 
         This task should be split into subtasks or requires additional dependency setup tasks first.
       supersedes: null
+    - _ulid: 01KG2FB9MQG2ARNY790YSWVCS4
+      created_at: 2026-01-28T14:15:33.784Z
+      author: "@claude"
+      content: >-
+        Completed all acceptance criteria:
+
+        - AC-1: Copied ACPClient, JsonRpcFraming, and types from kynetic/lifeline/src/acp/
+
+        - AC-2: Adapted imports to use @kynetic-bot/core instead of @kynetic/shared and relative
+        paths
+
+        - AC-3: All modules compile without errors (pnpm build succeeds)
+
+        - AC-4: Added documentation headers to each file noting source, date, and modifications
+
+
+        Files copied:
+
+        - client.ts (15KB) - ACPClient class for agent communication
+
+        - framing.ts (12KB) - JsonRpcFraming layer for stdio transport
+
+        - types.ts (10KB) - ACP type definitions and JSON-RPC types
+
+        - index.ts (created) - Barrel export for all ACP modules
+
+
+        Also fixed hasProperty type guard to support optional value parameter for proper type
+        checking.
+      supersedes: null
   todos: []
   automation: eligible
 - _ulid: 01KG1TD8REHCMGXRCRN5B7TFCZ

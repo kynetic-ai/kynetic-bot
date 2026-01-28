@@ -459,21 +459,39 @@
   created_at: 2026-01-28T08:09:51.830Z
   notes: []
   todos: []
-- title: Basic bot integration
+- _ulid: 01KG1TDRB07CBH2J4K25G786ET
+  slugs:
+    - bot-integration
+  title: Basic bot integration
   type: task
   spec_ref: null
   meta_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
   priority: 1
-  slugs:
-    - bot-integration
   tags:
     - phase-1
-  _ulid: 01KG1TDRB07CBH2J4K25G786ET
+  vcs_refs: []
+  created_at: 2026-01-28T08:09:54.272Z
+  notes: []
+  todos: []
+- title: MessageTransformer for @msg-transform
+  type: task
+  spec_ref: "@msg-transform"
+  meta_ref: null
+  priority: 2
+  slugs:
+    - msg-transformer
+  tags:
+    - phase-2
+  _ulid: 01KG1TE1Y9HJ47QHAH57HJNX86
   status: pending
   blocked_by: []
   depends_on: []
   context: []
   vcs_refs: []
-  created_at: 2026-01-28T08:09:54.272Z
+  created_at: 2026-01-28T08:10:04.105Z
   notes: []
   todos: []

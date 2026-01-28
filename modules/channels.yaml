@@ -119,3 +119,7 @@ features:
         given: message contains image attachment
         when: media handler processes message
         then: extracts and stores image with metadata
+      - id: ac-2
+        given: agent response includes file
+        when: media prepared for delivery
+        then: uploads file and includes reference in outbound message

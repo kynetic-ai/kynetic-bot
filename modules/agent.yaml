@@ -64,6 +64,7 @@ features:
     traits:
       - "@trait-recoverable"
       - "@trait-observable"
+      - "@trait-health-monitored"
     notes: []
     created: 2026-01-28T07:35:05.160Z
     acceptance_criteria:

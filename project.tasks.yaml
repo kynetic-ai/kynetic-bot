@@ -387,21 +387,39 @@
   created_at: 2026-01-28T08:09:40.607Z
   notes: []
   todos: []
-- title: ChannelRegistry for @channel-registry
+- _ulid: 01KG1TDCYN853WKRH1WDE9W8VR
+  slugs:
+    - channel-registry-task
+  title: ChannelRegistry for @channel-registry
   type: task
   spec_ref: "@channel-registry"
   meta_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
   priority: 1
-  slugs:
-    - channel-registry-task
   tags:
     - phase-1
-  _ulid: 01KG1TDCYN853WKRH1WDE9W8VR
+  vcs_refs: []
+  created_at: 2026-01-28T08:09:42.612Z
+  notes: []
+  todos: []
+- title: KspecSync for @mem-kspec-sync
+  type: task
+  spec_ref: "@mem-kspec-sync"
+  meta_ref: null
+  priority: 1
+  slugs:
+    - kspec-sync
+  tags:
+    - phase-1
+  _ulid: 01KG1TDFRYWSJ2Q97Y4PNPGD6Z
   status: pending
   blocked_by: []
   depends_on: []
   context: []
   vcs_refs: []
-  created_at: 2026-01-28T08:09:42.612Z
+  created_at: 2026-01-28T08:09:45.502Z
   notes: []
   todos: []

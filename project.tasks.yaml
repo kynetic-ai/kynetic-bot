@@ -390,7 +390,8 @@
   meta_ref: null
   status: pending
   blocked_by: []
-  depends_on: []
+  depends_on:
+    - "@setup-typescript"
   context: []
   priority: 1
   tags:

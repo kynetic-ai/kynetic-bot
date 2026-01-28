@@ -92,6 +92,7 @@ features:
     tests: []
     traits:
       - "@trait-idempotent"
+      - "@trait-validated"
     notes: []
     created: 2026-01-28T07:34:41.298Z
     acceptance_criteria:

@@ -1877,7 +1877,67 @@
     - phase-3
   vcs_refs: []
   created_at: 2026-01-28T08:10:25.338Z
-  notes: []
+  notes:
+    - _ulid: 01KG1TPW5SJDZKB1CBVWKET4V1
+      created_at: 2026-01-28T08:14:53.114Z
+      author: "@claude"
+      content: |-
+        ## Goal
+        Implement streaming response handling with configurable chunking.
+
+        ## Files
+        - packages/messaging/src/streaming.ts - StreamCoalescer class
+        - packages/messaging/test/streaming.test.ts - Unit tests
+
+        ## Dependencies
+        - @core-types - Needs base types
+
+        ## Implementation
+
+        ### StreamCoalescer Class
+        ```typescript
+        interface StreamOptions {
+          minChars?: number;   // Default 1500
+          idleMs?: number;     // Default 1000
+          onChunk: (chunk: string) => Promise<void>;
+          onComplete: (full: string) => Promise<void>;
+          onError: (error: KyneticError) => Promise<void>;
+        }
+
+        class StreamCoalescer {
+          private buffer = '';
+          private lastFlush = Date.now();
+          private timer: NodeJS.Timeout | null = null;
+
+          constructor(private options: StreamOptions) {}
+
+          async push(text: string): Promise<void>
+          async flush(): Promise<void>
+          async complete(): Promise<void>
+          abort(): void
+
+          private shouldFlush(): boolean
+        }
+        ```
+
+        ### Chunking Logic
+        - Flush when buffer >= minChars
+        - Flush when idle >= idleMs
+        - On complete, flush remaining buffer
+
+        ### Non-streaming Fallback
+        If platform doesn't support streaming:
+        - Buffer entire response
+        - Send as single message on complete
+
+        ## Spec Acceptance Criteria (from @msg-streaming)
+        - AC-1: Given long response, when streaming, then delivers in chunks (minChars/idleMs)
+        - AC-2: Given client disconnect, when detected, then cleans up and logs
+        - AC-3: Given non-streaming platform, when response ready, then buffers complete
+
+        ## Verification
+        Unit tests for chunking with different buffer sizes and timing.
+      supersedes: null
   todos: []
 - _ulid: 01KG1TERZ7S69XN92EBPBT359Y
   slugs:

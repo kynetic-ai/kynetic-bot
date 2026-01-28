@@ -43,6 +43,9 @@ features:
         given: adapter with invalid interface
         when: registration attempted
         then: returns validation error listing missing methods
+    status:
+      maturity: draft
+      implementation: in_progress
   - _ulid: 01KG1RD682MGVX9083BXA1J9M8
     slugs:
       - channel-lifecycle

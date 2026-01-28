@@ -151,3 +151,7 @@ features:
         given: session ended
         when: status updated
         then: sets ended_at timestamp and final status (completed/abandoned)
+      - id: ac-5
+        given: event appended
+        when: completed
+        then: emits structured event for observability

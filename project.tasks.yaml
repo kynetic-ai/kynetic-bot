@@ -3106,6 +3106,21 @@
     - phase-0
   vcs_refs: []
   created_at: 2026-01-28T14:05:51.223Z
-  notes: []
+  notes:
+    - _ulid: 01KG2ESV5WVA59PRS1H78KJR43
+      created_at: 2026-01-28T14:06:01.916Z
+      author: "@claude"
+      content: |-
+        Add coverage/ directory to .gitignore to prevent test coverage reports from being committed.
+
+        ## Implementation
+        Add this line to .gitignore:
+        ```
+        coverage/
+        ```
+
+        ## Verification
+        Run git status after generating coverage - coverage/ should not appear.
+      supersedes: null
   todos: []
   automation: eligible

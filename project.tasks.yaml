@@ -900,7 +900,68 @@
     - phase-1
   vcs_refs: []
   created_at: 2026-01-28T08:09:45.502Z
-  notes: []
+  notes:
+    - _ulid: 01KG1TKA7VEYKRHFN8B9BFAZ9J
+      created_at: 2026-01-28T08:12:56.444Z
+      author: "@claude"
+      content: |-
+        ## Goal
+        Implement kspec shadow branch synchronization for persistent state storage.
+
+        ## Files
+        - packages/memory/src/kspec-sync.ts - KspecSync class
+        - packages/memory/src/types.ts - Memory types
+        - packages/memory/src/index.ts - Barrel export
+        - packages/memory/test/kspec-sync.test.ts - Unit tests
+
+        ## Dependencies
+        - @core-types - Needs error types
+
+        ## Implementation
+
+        ### KspecSync Class
+        ```typescript
+        interface KspecSyncOptions {
+          workdir: string;  // Project root with .kspec/
+          autoCommit?: boolean;  // Default true
+        }
+
+        class KspecSync {
+          constructor(private options: KspecSyncOptions) {}
+
+          // State persistence via kspec CLI
+          async commitState(type: string, data: unknown): Promise<Result<void, KyneticError>>
+          async loadState(type: string): Promise<Result<unknown, KyneticError>>
+
+          // Conflict handling
+          async resolveConflict(strategy: 'ours' | 'theirs' | 'merge'): Promise<void>
+
+          // Shadow branch operations
+          async sync(): Promise<void>
+          async status(): Promise<ShadowStatus>
+        }
+        ```
+
+        ### Kspec CLI Usage
+        Use child_process.spawn to run kspec commands:
+        - kspec inbox add - Add state entries
+        - kspec task note - Append conversation turns
+        - kspec shadow sync - Sync with remote
+        - kspec shadow status - Check status
+
+        ### Error Handling
+        - Handle CLI spawn failures
+        - Parse kspec output for errors
+        - Handle merge conflicts gracefully
+
+        ## Spec Acceptance Criteria (from @mem-kspec-sync)
+        - AC-1: Given state change, when commitState(), then commits to shadow branch with timestamp
+        - AC-2: Given bot restart, when loadState(), then recovers all state from shadow branch
+        - AC-3: Given merge conflict, when detected, then applies strategy and logs resolution
+
+        ## Verification
+        Run integration tests with real .kspec worktree.
+      supersedes: null
   todos: []
 - _ulid: 01KG1TDKTGZFS74P83XX93YKJF
   slugs:

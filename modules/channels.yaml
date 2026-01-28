@@ -96,6 +96,10 @@ features:
         given: channel configured with open policy
         when: any user sends message
         then: session created immediately without approval
+      - id: ac-4
+        given: admin denies pending DM request
+        when: denial processed
+        then: request removed and user notified of rejection
   - _ulid: 01KG1RDB0J11H95T8TACVNS0A4
     slugs:
       - channel-media

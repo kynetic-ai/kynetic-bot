@@ -69,6 +69,10 @@ features:
         given: agent process crashes
         when: agent restarts
         then: recovers conversation state from kspec notes
+      - id: ac-4
+        given: same turn persisted twice
+        when: saved
+        then: only one note appended
   - _ulid: 01KG1RDP884TBCZV7QH03CV53M
     slugs:
       - mem-context-window

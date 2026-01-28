@@ -261,3 +261,21 @@
         Plan file: ~/.claude/plans/compressed-hugging-dolphin.md
       supersedes: null
   todos: []
+- title: Initialize pnpm monorepo workspace
+  type: task
+  spec_ref: null
+  meta_ref: null
+  priority: 1
+  slugs:
+    - init-monorepo
+  tags:
+    - phase-0
+  _ulid: 01KG1TCHT7HG62QECKPQ8PD996
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  vcs_refs: []
+  created_at: 2026-01-28T08:09:14.822Z
+  notes: []
+  todos: []

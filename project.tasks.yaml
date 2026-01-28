@@ -662,8 +662,10 @@
   type: task
   spec_ref: null
   meta_ref: null
-  status: in_progress
-  blocked_by: []
+  status: blocked
+  blocked_by:
+    - "Requires dependency setup: @agentclientprotocol/sdk installation, logger utilities, and type
+      guard helpers before ACP modules can be copied and adapted."
   depends_on:
     - "@setup-typescript"
   context: []

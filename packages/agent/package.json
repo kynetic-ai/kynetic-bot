@@ -11,10 +11,10 @@
     "lint": "eslint src",
     "clean": "rm -rf dist"
   },
-  "devDependencies": {},
   "dependencies": {
+    "@agentclientprotocol/sdk": "^0.13.1",
     "@kynetic-bot/core": "workspace:*",
-    "@kynetic-bot/messaging": "workspace:*",
-    "@kynetic-bot/memory": "workspace:*"
+    "@kynetic-bot/memory": "workspace:*",
+    "@kynetic-bot/messaging": "workspace:*"
   }
 }

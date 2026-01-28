@@ -155,3 +155,7 @@ features:
         given: event appended
         when: completed
         then: emits structured event for observability
+      - id: ac-6
+        given: invalid event data
+        when: append attempted
+        then: rejects with Zod validation error

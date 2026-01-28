@@ -110,3 +110,8 @@ features:
     traits: []
     notes: []
     created: 2026-01-28T07:34:28.181Z
+    acceptance_criteria:
+      - id: ac-1
+        given: conversation has multiple turns
+        when: history is retrieved
+        then: returns messages in chronological order with timestamps

@@ -134,3 +134,8 @@ features:
       - "@trait-validated"
     notes: []
     created: 2026-01-28T17:46:16.822Z
+    acceptance_criteria:
+      - id: ac-1
+        given: LLM prompt sent
+        when: processed
+        then: creates session with session.yaml (id, agent_type, status, started_at) and events.jsonl

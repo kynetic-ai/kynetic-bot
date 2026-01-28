@@ -59,7 +59,8 @@ features:
     implements: []
     relates_to: []
     tests: []
-    traits: []
+    traits:
+      - "@trait-recoverable"
     notes: []
     created: 2026-01-28T07:35:05.160Z
     acceptance_criteria:

@@ -3688,7 +3688,86 @@
     - phase-1
   vcs_refs: []
   created_at: 2026-01-28T17:49:39.162Z
-  notes: []
+  notes:
+    - _ulid: 01KG2VQ6NCZMY0JRN9CRWXECG1
+      created_at: 2026-01-28T17:51:46.861Z
+      author: "@claude"
+      content: |-
+        ## Goal
+        Define Zod schemas for conversation metadata and turns.
+
+        ## Files
+        - packages/memory/src/types/conversation.ts - Conversation schemas
+        - packages/memory/src/types/index.ts - Update barrel exports
+
+        ## Dependencies
+        - zod ^3.23.8 (already added by @session-types)
+        - @kynetic-bot/core (SessionKey type for reference)
+
+        ## Implementation
+
+        ### Conversation Status
+        ```typescript
+        export const ConversationStatusSchema = z.enum(['active', 'archived']);
+        export type ConversationStatus = z.infer<typeof ConversationStatusSchema>;
+        ```
+
+        ### Turn Role
+        ```typescript
+        export const TurnRoleSchema = z.enum(['user', 'assistant', 'system']);
+        export type TurnRole = z.infer<typeof TurnRoleSchema>;
+        ```
+
+        ### Conversation Metadata
+        ```typescript
+        export const ConversationMetadataSchema = z.object({
+          id: z.string(),                         // ULID
+          session_key: z.string(),                // agent:X:platform:kind:peer
+          status: ConversationStatusSchema,
+          created_at: z.string().datetime(),
+          updated_at: z.string().datetime(),
+          turn_count: z.number().int().nonnegative(),
+          metadata: z.record(z.unknown()).optional(),
+        });
+        ```
+
+        ### Conversation Turn
+        ```typescript
+        export const ConversationTurnSchema = z.object({
+          ts: z.number(),                         // Unix ms
+          seq: z.number().int().nonnegative(),    // Turn sequence
+          role: TurnRoleSchema,
+          content: z.string(),
+          agent_session_id: z.string().optional(), // Links to AgentSession
+          message_id: z.string().optional(),       // Platform message ID for dedup
+          metadata: z.record(z.unknown()).optional(),
+        });
+        ```
+
+        ### Input Schemas
+        ```typescript
+        export const ConversationTurnInputSchema = ConversationTurnSchema.omit({
+          ts: true, seq: true
+        }).extend({ ts: z.number().optional(), seq: z.number().optional() });
+        ```
+
+        ## Tests
+        - ConversationStatusSchema accepts 'active', 'archived'
+        - TurnRoleSchema accepts 'user', 'assistant', 'system'
+        - ConversationMetadataSchema validates session_key format
+        - ConversationTurnSchema validates all fields
+        - message_id optional but used for idempotency
+
+        ## Spec AC Mapping
+        - @mem-conversation AC-1 (turn fields: role, content, ts, seq)
+        - @mem-conversation AC-2 (agent_session_id field)
+        - @mem-conversation AC-4 (message_id for dedup)
+        - @mem-conversation AC-6 (Zod validation)
+
+        ## Reference
+        - /home/chapel/Projects/kynetic-spec/src/sessions/types.ts (pattern)
+        - /home/chapel/Projects/kynetic-bot/packages/core/src/types/session-key.ts
+      supersedes: null
   todos: []
   automation: eligible
 - _ulid: 01KG2VKNE88NR0NBSCS3Y16ZPV

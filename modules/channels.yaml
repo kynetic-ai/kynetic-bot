@@ -1,0 +1,16 @@
+_ulid: 01KG1RC8K79XY382WY05JJ3JVR
+slugs:
+  - channels
+title: Channels
+type: module
+status:
+  maturity: draft
+  implementation: not_started
+description: "Platform adapter system: registration, lifecycle, DM policies, and media handling"
+tags: []
+depends_on: []
+implements: []
+relates_to: []
+tests: []
+traits: []
+notes: []

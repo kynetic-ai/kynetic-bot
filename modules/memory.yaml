@@ -53,7 +53,8 @@ features:
     implements: []
     relates_to: []
     tests: []
-    traits: []
+    traits:
+      - "@trait-idempotent"
     notes: []
     created: 2026-01-28T07:34:52.822Z
     acceptance_criteria:

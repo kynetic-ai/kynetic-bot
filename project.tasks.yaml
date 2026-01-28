@@ -846,6 +846,7 @@
     - phase-1
   vcs_refs: []
   created_at: 2026-01-28T08:09:38.318Z
+  started_at: 2026-01-28T14:16:21.552Z
   notes:
     - _ulid: 01KG1TK1RSH6YXP6EVS17MWAMV
       created_at: 2026-01-28T08:12:47.769Z
@@ -920,9 +921,50 @@
         ## Verification
         Run pnpm test packages/core and verify all tests pass.
       supersedes: null
+    - _ulid: 01KG2FGRR2YTSYN3H2S0HGZNZZ
+      created_at: 2026-01-28T14:18:33.090Z
+      author: "@claude"
+      content: >-
+        Completed all acceptance criteria:
+
+        - AC-1: Created NormalizedMessage type with text, sender, timestamp, channel, metadata, and
+        attachments
+
+        - AC-2: Created SessionKey type with agent, platform, peerKind, peerId segments
+
+        - AC-3: Implemented parseSessionKey to return structured ParsedSessionKey object
+
+        - AC-4: Implemented buildSessionKey to return formatted session key string
+
+        - AC-5: Created error types: KyneticError base class, UnknownAgentError,
+        InvalidSessionKeyError
+
+        - AC-6: Added comprehensive unit tests for session-key parsing with 23 test cases covering
+        edge cases
+
+
+        Files created:
+
+        - packages/core/src/types/normalized-message.ts - NormalizedMessage, MessageSender,
+        Attachment
+
+        - packages/core/src/types/session-key.ts - SessionKey, ParsedSessionKey, PeerKind types
+
+        - packages/core/src/types/channel-adapter.ts - ChannelAdapter interface
+
+        - packages/core/src/utils/session-key.ts - parseSessionKey, buildSessionKey,
+        isValidSessionKey
+
+        - packages/core/src/utils/errors.ts - KyneticError, UnknownAgentError,
+        InvalidSessionKeyError
+
+        - packages/core/src/utils/session-key.test.ts - Comprehensive test suite with 23 tests
+
+
+        All tests pass (48 total). Build succeeds.
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-01-28T14:16:21.552Z
 - _ulid: 01KG1TDAZZW5PG1MAWGTK0HKDV
   slugs:
     - session-router

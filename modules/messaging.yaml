@@ -29,6 +29,7 @@ features:
     traits:
       - "@trait-idempotent"
       - "@trait-observable"
+      - "@trait-validated"
     notes: []
     created: 2026-01-28T07:34:19.553Z
     acceptance_criteria:

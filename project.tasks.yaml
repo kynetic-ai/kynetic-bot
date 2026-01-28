@@ -1347,6 +1347,135 @@
       content: "Automation status set to needs_review: First kspec integration, sets pattern for all kspec
         interactions"
       supersedes: null
+    - _ulid: 01KG2VP4Y7CD16HVE1X1GZY8AN
+      created_at: 2026-01-28T17:51:12.327Z
+      author: "@claude"
+      content: >-
+        ## Updated Implementation (2026-01-28)
+
+
+        **Previous notes are outdated.** New approach: Adapt from kynetic-spec library, not kspec
+        CLI.
+
+
+        ## Goal
+
+        Initialize and manage .kbot/ shadow branch worktree for persistent memory storage.
+
+
+        ## Files
+
+        - packages/memory/src/shadow/config.ts - ShadowConfig types
+
+        - packages/memory/src/shadow/detect.ts - Detect existing shadow worktree
+
+        - packages/memory/src/shadow/init.ts - Initialize .kbot/ shadow branch
+
+        - packages/memory/src/shadow/commit.ts - Batch commit operations
+
+        - packages/memory/src/shadow/index.ts - Barrel exports
+
+        - packages/memory/src/errors.ts - ShadowError class
+
+        - packages/memory/test/shadow.test.ts - Unit tests
+
+
+        ## Dependencies
+
+        - @kynetic-bot/core (KyneticError, Logger)
+
+        - node:fs/promises
+
+        - node:child_process (for git commands)
+
+
+        ## Implementation
+
+
+        ### ShadowConfig
+
+        ```typescript
+
+        interface KbotShadowConfig {
+          enabled: boolean;
+          worktreeDir: string;     // .kbot/
+          branchName: string;      // kbot-memory
+          projectRoot: string;
+        }
+
+        ```
+
+
+        ### Key Functions
+
+        - detectKbotShadow(startDir): Promise<KbotShadowConfig | null>
+
+        - initializeKbotShadow(projectRoot): Promise<ShadowInitResult>
+
+        - getKbotShadowStatus(projectRoot): Promise<ShadowStatus>
+
+        - commitIfKbotShadow(config, operation, ref?): Promise<boolean>
+
+
+        ### Git Commands (via child_process)
+
+        - git worktree add .kbot kbot-memory --orphan
+
+        - git -C .kbot add . && git -C .kbot commit -m 'message'
+
+        - git branch --list kbot-memory
+
+
+        ### Batch Commit Scheduler
+
+        ```typescript
+
+        interface CommitScheduler {
+          maxInterval: 300000;     // 5 minutes
+          maxEvents: 100;
+          scheduleCommit(): void;
+          forceCommit(): Promise<void>;
+        }
+
+        ```
+
+
+        ## Tests
+
+        - detect returns null when .kbot/ doesn't exist
+
+        - detect returns config when .kbot/ exists and is valid worktree
+
+        - init creates orphan branch and worktree
+
+        - init fails gracefully if branch already exists
+
+        - commit batches multiple writes
+
+        - forceCommit commits immediately
+
+
+        ## Spec AC Mapping
+
+        - @mem-shadow-storage AC-1 (atomic writes) - handled by store layers
+
+        - @mem-shadow-storage AC-2 (batch commits) - CommitScheduler
+
+        - @mem-shadow-storage AC-3 (error on missing) - detect returns null
+
+        - @mem-shadow-storage AC-4 (events) - emitEvent in commit functions
+
+        - @mem-shadow-storage AC-5 (validation) - handled by store layers
+
+        - @mem-shadow-storage AC-6 (recovery) - detect + status check
+
+
+        ## Reference
+
+        - /home/chapel/Projects/kynetic-spec/src/parser/shadow.ts (lines 1-400)
+
+        - /home/chapel/Projects/kynetic-spec/src/sessions/store.ts (commit patterns)
+      supersedes: null
   todos: []
   automation: needs_review
 - _ulid: 01KG1TDKTGZFS74P83XX93YKJF

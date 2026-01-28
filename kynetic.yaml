@@ -36,3 +36,16 @@ traits:
     traits: []
     notes: []
     created: 2026-01-28T08:25:46.615Z
+  - _ulid: 01KG1VAWZP12F5MR7E9PJAFJAJ
+    slugs:
+      - trait-recoverable
+    title: Recoverable
+    type: trait
+    tags: []
+    depends_on: []
+    implements: []
+    relates_to: []
+    tests: []
+    traits: []
+    notes: []
+    created: 2026-01-28T08:25:49.302Z

@@ -149,3 +149,6 @@ features:
         given: attachment exceeds size limit
         when: media handler validates
         then: rejects with size limit error
+    status:
+      maturity: draft
+      implementation: in_progress

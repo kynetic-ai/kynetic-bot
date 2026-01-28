@@ -57,3 +57,17 @@ features:
     traits: []
     notes: []
     created: 2026-01-28T07:35:08.941Z
+  - _ulid: 01KG1RE6450N1GAKD8ZPXJ9TP4
+    slugs:
+      - agent-escalation
+    title: Human Escalation
+    type: feature
+    tags: []
+    description: Human escalation paths on failures with configurable thresholds
+    depends_on: []
+    implements: []
+    relates_to: []
+    tests: []
+    traits: []
+    notes: []
+    created: 2026-01-28T07:35:11.238Z

@@ -664,6 +664,10 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: ACP modules copied from kynetic and adapted. Copied client.ts, framing.ts, types.ts
+    and created index.ts barrel export. Updated imports to use @kynetic-bot/core. Fixed hasProperty
+    type guard to support value parameter. All packages build successfully. Changes committed to
+    main (b17ac9e).
   depends_on:
     - "@01KG2ER6"
   context: []
@@ -673,6 +677,7 @@
   vcs_refs: []
   created_at: 2026-01-28T08:09:24.664Z
   started_at: 2026-01-28T14:11:30.021Z
+  completed_at: 2026-01-28T14:15:58.131Z
   notes:
     - _ulid: 01KG1TH2M493AF54KYF4MEDASH
       created_at: 2026-01-28T08:11:43.109Z
@@ -824,11 +829,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-01-28T14:15:58.131Z
-  closed_reason: ACP modules copied from kynetic and adapted. Copied client.ts, framing.ts, types.ts
-    and created index.ts barrel export. Updated imports to use @kynetic-bot/core. Fixed hasProperty
-    type guard to support value parameter. All packages build successfully. Changes committed to
-    main (b17ac9e).
 - _ulid: 01KG1TD8REHCMGXRCRN5B7TFCZ
   slugs:
     - core-types
@@ -836,7 +836,7 @@
   type: task
   spec_ref: null
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on:
     - "@copy-acp-modules"
@@ -922,6 +922,7 @@
       supersedes: null
   todos: []
   automation: eligible
+  started_at: 2026-01-28T14:16:21.552Z
 - _ulid: 01KG1TDAZZW5PG1MAWGTK0HKDV
   slugs:
     - session-router

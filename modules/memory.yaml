@@ -17,7 +17,6 @@ notes: []
 features:
   - _ulid: 01KG1RDJ269GRVN88KT1EVKKHY
     slugs:
-      - mem-kspec-sync
       - mem-shadow-storage
     title: Shadow Branch Storage
     type: feature

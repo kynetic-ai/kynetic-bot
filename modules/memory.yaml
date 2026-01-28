@@ -147,3 +147,7 @@ features:
         given: tool call requested
         when: executed
         then: appends tool.call and tool.result events with correlation
+      - id: ac-4
+        given: session ended
+        when: status updated
+        then: sets ended_at timestamp and final status (completed/abandoned)

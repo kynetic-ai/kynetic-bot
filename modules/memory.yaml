@@ -76,10 +76,6 @@ features:
     notes: []
     created: 2026-01-28T07:34:52.822Z
     acceptance_criteria:
-      - id: ac-2
-        given: conversation has 50+ notes
-        when: new turn added
-        then: triggers compaction to summarize older turns
       - id: ac-3
         given: agent process crashes
         when: agent restarts

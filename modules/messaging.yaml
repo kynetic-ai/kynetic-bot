@@ -14,3 +14,18 @@ relates_to: []
 tests: []
 traits: []
 notes: []
+features:
+  - _ulid: 01KG1RCKN1GG1PSKPF6FW1PSQD
+    slugs:
+      - msg-routing
+    title: Message Routing
+    type: feature
+    tags: []
+    description: Session key-based message routing to resolve agents and maintain conversation context
+    depends_on: []
+    implements: []
+    relates_to: []
+    tests: []
+    traits: []
+    notes: []
+    created: 2026-01-28T07:34:19.553Z

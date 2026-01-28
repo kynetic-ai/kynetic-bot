@@ -3488,7 +3488,9 @@
   meta_ref: null
   status: pending
   blocked_by: []
-  depends_on: []
+  depends_on:
+    - "@session-types"
+    - "@shadow-storage-init"
   context: []
   priority: 2
   tags:
@@ -3517,22 +3519,22 @@
   notes: []
   todos: []
   automation: eligible
-- title: Implement batch commit scheduler for .kbot/
+- _ulid: 01KG2VKW4ETZSVMHCCE2XYTV2Z
+  slugs:
+    - batch-commit-scheduler
+  title: Implement batch commit scheduler for .kbot/
   type: task
   spec_ref: "@mem-shadow-storage"
   meta_ref: null
-  priority: 3
-  slugs:
-    - batch-commit-scheduler
-  tags:
-    - phase-1
-  automation: eligible
-  _ulid: 01KG2VKW4ETZSVMHCCE2XYTV2Z
   status: pending
   blocked_by: []
   depends_on: []
   context: []
+  priority: 3
+  tags:
+    - phase-1
   vcs_refs: []
   created_at: 2026-01-28T17:49:57.774Z
   notes: []
   todos: []
+  automation: eligible

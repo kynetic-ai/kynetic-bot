@@ -3971,7 +3971,169 @@
     - phase-1
   vcs_refs: []
   created_at: 2026-01-28T17:49:54.205Z
-  notes: []
+  notes:
+    - _ulid: 01KG2VRG7DJB82P4697KHPG7A5
+      created_at: 2026-01-28T17:52:29.421Z
+      author: "@claude"
+      content: >-
+        ## Goal
+
+        Implement ConversationStore class for managing conversations and appending turns.
+
+
+        ## Files
+
+        - packages/memory/src/store/conversation-store.ts - ConversationStore class
+
+        - packages/memory/src/store/index.ts - Update barrel exports
+
+        - packages/memory/test/conversation-store.test.ts - Unit tests
+
+
+        ## Dependencies
+
+        - yaml ^2.8.2 (already added)
+
+        - @kynetic-bot/core (createLogger, SessionKey type)
+
+        - ./types/conversation (Zod schemas from @conversation-types)
+
+        - ./shadow (detect, paths from @shadow-storage-init)
+
+        - ./store/session-store (for session validation)
+
+
+        ## Implementation
+
+
+        ### Storage Layout
+
+        ```
+
+        .kbot/conversations/{conversation-id}/
+
+        ├── conversation.yaml  # ConversationMetadata
+
+        └── turns.jsonl        # Append-only turn log
+
+        ```
+
+
+        ### ConversationStore Class
+
+        ```typescript
+
+        export interface ConversationStoreOptions {
+          baseDir: string;  // .kbot/ directory
+          sessionStore?: SessionStore;  // For validating agent_session_id
+          logger?: Logger;
+        }
+
+
+        export class ConversationStore {
+          constructor(options: ConversationStoreOptions);
+
+          // Conversation CRUD
+          createConversation(sessionKey: string): Promise<ConversationMetadata>;
+          getConversation(conversationId: string): Promise<ConversationMetadata | null>;
+          getConversationBySessionKey(sessionKey: string): Promise<ConversationMetadata | null>;
+          listConversations(options?: { status?: ConversationStatus }): Promise<ConversationMetadata[]>;
+          archiveConversation(conversationId: string): Promise<ConversationMetadata | null>;
+
+          // Turn operations (JSONL append)
+          appendTurn(conversationId: string, turn: ConversationTurnInput): Promise<ConversationTurn>;
+          readTurns(conversationId: string): Promise<ConversationTurn[]>;
+          readTurnsSince(conversationId: string, since: number): Promise<ConversationTurn[]>;
+          getLastTurn(conversationId: string): Promise<ConversationTurn | null>;
+        }
+
+        ```
+
+
+        ### Key Patterns
+
+
+        **Session key lookup (index file):**
+
+        ```typescript
+
+        // .kbot/conversations/session-key-index.json
+
+        // Maps session_key -> conversation_id for fast lookup
+
+        const index = await readIndex();
+
+        return index[sessionKey] ?? null;
+
+        ```
+
+
+        **Idempotent turn append (message_id dedup):**
+
+        ```typescript
+
+        if (turn.message_id) {
+          const existing = await this.readTurns(conversationId);
+          if (existing.some(t => t.message_id === turn.message_id)) {
+            return existing.find(t => t.message_id === turn.message_id)\!;
+          }
+        }
+
+        ```
+
+
+        **Session validation:**
+
+        ```typescript
+
+        if (turn.agent_session_id && this.sessionStore) {
+          const session = await this.sessionStore.getSession(turn.agent_session_id);
+          if (\!session) throw new MemoryError('Invalid agent_session_id', 'INVALID_SESSION_REF');
+        }
+
+        ```
+
+
+        ## Tests
+
+        - createConversation creates directory and conversation.yaml
+
+        - createConversation increments turn_count on append
+
+        - getConversationBySessionKey returns correct conversation
+
+        - appendTurn auto-assigns ts and seq
+
+        - appendTurn with same message_id returns existing (idempotent)
+
+        - appendTurn validates agent_session_id if sessionStore provided
+
+        - readTurns skips invalid JSON lines
+
+        - archiveConversation sets status='archived'
+
+
+        ## Spec AC Mapping
+
+        - @mem-conversation AC-1 (create/update conversation with turn)
+
+        - @mem-conversation AC-2 (agent_session_id linking)
+
+        - @mem-conversation AC-3 (recovery - skipping invalid JSON)
+
+        - @mem-conversation AC-4 (idempotent by message_id)
+
+        - @mem-conversation AC-5 (emit events - via logger.info)
+
+        - @mem-conversation AC-6 (Zod validation)
+
+        - @mem-conversation AC-7 (session validation)
+
+
+        ## Reference
+
+        - /home/chapel/Projects/kynetic-spec/src/sessions/store.ts (JSONL patterns)
+      supersedes: null
   todos: []
   automation: eligible
 - _ulid: 01KG2VKW4ETZSVMHCCE2XYTV2Z

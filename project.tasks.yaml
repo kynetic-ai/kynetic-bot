@@ -3008,7 +3008,8 @@
   meta_ref: null
   status: pending
   blocked_by: []
-  depends_on: []
+  depends_on:
+    - "@setup-typescript"
   context: []
   priority: 1
   tags:
@@ -3091,3 +3092,4 @@
         Run pnpm build from root - all packages should compile.
       supersedes: null
   todos: []
+  automation: eligible

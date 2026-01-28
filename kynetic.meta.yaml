@@ -1,0 +1,15 @@
+kynetic_meta: "1.0"
+agents: []
+workflows: []
+conventions: []
+observations:
+  - _ulid: 01KG1YEE33BMDR3E1FE1VX4MVH
+    type: success
+    content: Using TodoWrite tool for multi-step tasks provides clear progress tracking and prevents
+      skipped steps. Breaking tasks like 'setup vitest' into 6 subtodos made progress visible and
+      ensured nothing was missed.
+    created_at: 2026-01-28T09:20:10.852Z
+    author: "@claude"
+    resolved: false
+    resolution: null
+includes: []

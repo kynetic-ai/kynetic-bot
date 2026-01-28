@@ -1715,6 +1715,7 @@
         Integration tests with compaction threshold set to 5 for quick testing.
       supersedes: null
   todos: []
+  automation: eligible
 - _ulid: 01KG1TEACYBVQ0NNP51BBC4KSQ
   slugs:
     - skills-registry

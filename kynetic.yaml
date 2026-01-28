@@ -153,6 +153,11 @@ traits:
     traits: []
     notes: []
     created: 2026-01-28T08:25:57.440Z
+    acceptance_criteria:
+      - id: ac-1
+        given: shutdown signal
+        when: received
+        then: stops accepting new work
   - _ulid: 01KG1VB72PM6ZZRDY2P8GN22AG
     slugs:
       - trait-validated

@@ -45,6 +45,10 @@ features:
         given: .kbot/ worktree not found
         when: storage accessed
         then: returns clear error with init suggestion
+      - id: ac-4
+        given: sync operation occurs
+        when: completed
+        then: emits structured event (sync_start, sync_complete, sync_error)
   - _ulid: 01KG1RDM4NVZVQP8XZ9DY2CSRY
     slugs:
       - mem-conversation

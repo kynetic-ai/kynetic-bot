@@ -221,6 +221,8 @@ Every acceptance criterion should have test coverage with AC annotations.
 | `/meta` | Session context (focus, threads, questions, observations) |
 | `/pr` | Create pull requests |
 | `/reflect` | Session reflection and learning capture |
+| `/spec` | Spec authoring - item types, acceptance criteria, traits |
+| `/spec-plan` | Translate approved plans to specs with AC and derived tasks |
 
 ## Workflows
 

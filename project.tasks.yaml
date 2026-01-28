@@ -662,7 +662,7 @@
   type: task
   spec_ref: null
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on:
     - "@01KG2ER6"
@@ -824,6 +824,11 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-01-28T14:15:58.131Z
+  closed_reason: ACP modules copied from kynetic and adapted. Copied client.ts, framing.ts, types.ts
+    and created index.ts barrel export. Updated imports to use @kynetic-bot/core. Fixed hasProperty
+    type guard to support value parameter. All packages build successfully. Changes committed to
+    main (b17ac9e).
 - _ulid: 01KG1TD8REHCMGXRCRN5B7TFCZ
   slugs:
     - core-types

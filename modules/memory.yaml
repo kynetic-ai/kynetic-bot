@@ -96,6 +96,10 @@ features:
         given: turn appended
         when: completed
         then: emits structured event (turn_appended, conversation_created)
+      - id: ac-6
+        given: invalid turn data
+        when: append attempted
+        then: rejects with Zod validation error including field details
   - _ulid: 01KG1RDP884TBCZV7QH03CV53M
     slugs:
       - mem-context-window

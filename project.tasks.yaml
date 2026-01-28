@@ -2060,7 +2060,71 @@
     - phase-3
   vcs_refs: []
   created_at: 2026-01-28T08:10:29.699Z
-  notes: []
+  notes:
+    - _ulid: 01KG1TQ1FN0ECNT890Y5JN7TR4
+      created_at: 2026-01-28T08:14:58.549Z
+      author: "@claude"
+      content: |-
+        ## Goal
+        Implement context window management with token-based compaction.
+
+        ## Files
+        - packages/memory/src/context-window.ts - ContextWindowManager class
+        - packages/memory/test/context-window.test.ts - Unit tests
+
+        ## Dependencies
+        - @conversation-storage - For persistence
+        - @conversation-history - For semantic boundaries
+
+        ## Implementation
+
+        ### ContextWindowManager Class
+        ```typescript
+        interface ContextWindowOptions {
+          maxTokens?: number;      // Default 100000
+          softThreshold?: number;  // Default 0.7 (70%)
+          hardThreshold?: number;  // Default 0.85 (85%)
+          charsPerToken?: number;  // Default 4
+        }
+
+        class ContextWindowManager {
+          constructor(
+            private storage: ConversationStorage,
+            private history: ConversationHistory,
+            private options: ContextWindowOptions
+          ) {}
+
+          async getContext(sessionKey: string): Promise<HistoryEntry[]>
+          async addMessage(sessionKey: string, message: ConversationTurn): Promise<void>
+          async retrieveArchived(sessionKey: string, query: string): Promise<HistoryEntry[]>
+
+          private estimateTokens(text: string): number
+          private async compact(sessionKey: string): Promise<void>
+          private shouldCompact(currentTokens: number): 'none' | 'soft' | 'hard'
+        }
+        ```
+
+        ### Token Estimation
+        - ~4 characters per token (configurable)
+        - Track running total
+        - Trigger compaction at thresholds
+
+        ### Compaction Strategy
+        - Soft (70%): Summarize oldest turns, preserve boundaries
+        - Hard (85%): More aggressive, keep only recent + summaries
+
+        ### Archived Context Retrieval
+        - Store summaries with topic keywords
+        - Basic keyword matching for retrieval
+
+        ## Spec Acceptance Criteria (from @mem-context-window)
+        - AC-1: Given new message, when approaching limit, then compacts older context
+        - AC-2: Given compaction, when executed, then preserves semantic boundaries
+        - AC-3: Given topic query, when retrieveContext(), then returns relevant archived context
+
+        ## Verification
+        Unit tests with small token limits for quick testing.
+      supersedes: null
   todos: []
 - _ulid: 01KG1TEX0F7HVTTAGH9EBRC1DT
   slugs:

@@ -43,3 +43,17 @@ features:
     traits: []
     notes: []
     created: 2026-01-28T07:35:05.160Z
+  - _ulid: 01KG1RE3WCZG5R9NMR9N1Z1A01
+    slugs:
+      - agent-skills
+    title: Skills System
+    type: feature
+    tags: []
+    description: Skill discovery and tool registration for extending agent capabilities
+    depends_on: []
+    implements: []
+    relates_to: []
+    tests: []
+    traits: []
+    notes: []
+    created: 2026-01-28T07:35:08.941Z

@@ -34,6 +34,10 @@ features:
         given: message received from WhatsApp user to agent
         when: router processes the message
         then: resolves to unique session key based on user and agent IDs
+      - id: ac-2
+        given: existing session with established context
+        when: new message arrives with same session key
+        then: appends message to existing conversation context
   - _ulid: 01KG1RCNMA9JZAKTVGYBPJ3TBG
     slugs:
       - msg-transform

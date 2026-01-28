@@ -43,3 +43,17 @@ features:
     traits: []
     notes: []
     created: 2026-01-28T07:34:52.822Z
+  - _ulid: 01KG1RDP884TBCZV7QH03CV53M
+    slugs:
+      - mem-context-window
+    title: Context Window Management
+    type: feature
+    tags: []
+    description: Context window management with compaction to maintain optimal context size
+    depends_on: []
+    implements: []
+    relates_to: []
+    tests: []
+    traits: []
+    notes: []
+    created: 2026-01-28T07:34:54.984Z

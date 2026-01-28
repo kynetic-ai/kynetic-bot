@@ -56,6 +56,11 @@ features:
     traits: []
     notes: []
     created: 2026-01-28T07:34:52.822Z
+    acceptance_criteria:
+      - id: ac-1
+        given: conversation turn completes
+        when: persistence triggered
+        then: appends note with timestamp and turn metadata
   - _ulid: 01KG1RDP884TBCZV7QH03CV53M
     slugs:
       - mem-context-window

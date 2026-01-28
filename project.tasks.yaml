@@ -1955,7 +1955,94 @@
     - phase-3
   vcs_refs: []
   created_at: 2026-01-28T08:10:27.686Z
-  notes: []
+  notes:
+    - _ulid: 01KG1TPYQQZ5XB9H8BT6RRS8Z6
+      created_at: 2026-01-28T08:14:55.736Z
+      author: "@claude"
+      content: >-
+        ## Goal
+
+        Implement channel connection lifecycle management with health monitoring.
+
+
+        ## Files
+
+        - packages/channels/src/lifecycle.ts - ChannelLifecycle class
+
+        - packages/channels/test/lifecycle.test.ts - Unit tests
+
+
+        ## Dependencies
+
+        - @channel-registry-task - Manages channel adapters
+
+
+        ## Implementation
+
+
+        ### ChannelLifecycle Class
+
+        ```typescript
+
+        interface LifecycleOptions {
+          healthCheckInterval?: number;  // Default 30000ms
+          failureThreshold?: number;     // Default 3
+          reconnectDelay?: number;       // Default 5000ms
+        }
+
+
+        class ChannelLifecycle {
+          private healthy = true;
+          private failures = 0;
+          private timer: NodeJS.Timeout | null = null;
+
+          constructor(private adapter: ChannelAdapter, private options: LifecycleOptions) {}
+
+          async start(): Promise<void>
+          async stop(): Promise<void>
+
+          isHealthy(): boolean
+
+          private async healthCheck(): Promise<boolean>
+          private async reconnect(): Promise<void>
+          private markUnhealthy(): void
+        }
+
+        ```
+
+
+        ### Health Check
+
+        - Platform-specific health check (e.g., Discord gateway ping)
+
+        - Track consecutive failures
+
+        - Auto-reconnect when threshold exceeded
+
+
+        ### Graceful Shutdown
+
+        - Drain pending messages
+
+        - Close connections cleanly
+
+        - Log shutdown reason
+
+
+        ## Spec Acceptance Criteria (from @channel-lifecycle)
+
+        - AC-1: Given start(), when called, then establishes connection and begins health monitoring
+
+        - AC-2: Given N health failures, when threshold exceeded, then marks unhealthy and
+        reconnects
+
+        - AC-3: Given shutdown(), when called, then drains pending and closes cleanly
+
+
+        ## Verification
+
+        Unit tests for health check and reconnection logic.
+      supersedes: null
   todos: []
 - _ulid: 01KG1TETY3EBFGT1BWTQ0NWZQ4
   slugs:

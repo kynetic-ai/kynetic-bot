@@ -95,4 +95,14 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KG2H0DF19J72BESHPN4G34WJ
+    type: friction
+    content: KyneticError constructor parameter order (message, code) is opposite of typical Error(code,
+      message) patterns. Led to initial implementation errors in SizeLimitError and
+      UnsupportedMediaTypeError. Consider documenting parameter order prominently or adding JSDoc
+      examples.
+    created_at: 2026-01-28T14:44:34.401Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

@@ -42,6 +42,10 @@ features:
         given: message targeting unknown or invalid agent
         when: router attempts to resolve session
         then: returns error with unknown agent code
+      - id: ac-4
+        given: same message received twice
+        when: router processes
+        then: returns same session without duplicate context
   - _ulid: 01KG1RCNMA9JZAKTVGYBPJ3TBG
     slugs:
       - msg-transform

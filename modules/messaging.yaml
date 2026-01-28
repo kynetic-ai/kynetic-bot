@@ -80,6 +80,9 @@ features:
         given: message with unsupported content type
         when: transformer attempts conversion
         then: returns error indicating unsupported type
+    status:
+      maturity: draft
+      implementation: in_progress
   - _ulid: 01KG1RCSF0FTTSH41QD4NSAFY9
     slugs:
       - msg-streaming

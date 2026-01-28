@@ -42,6 +42,10 @@ features:
         given: session ends
         when: cleanup triggered
         then: terminates agent gracefully with state persistence
+      - id: ac-4
+        given: spawn rate limit
+        when: multiple spawns requested
+        then: queues excess requests
   - _ulid: 01KG1RE068887DHMQXFSCSTXZ6
     slugs:
       - agent-autonomous

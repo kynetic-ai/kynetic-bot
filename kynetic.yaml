@@ -75,3 +75,16 @@ traits:
     traits: []
     notes: []
     created: 2026-01-28T08:25:54.347Z
+  - _ulid: 01KG1VB4XZAK25HYSNF1BTAN0N
+    slugs:
+      - trait-graceful-shutdown
+    title: Graceful Shutdown
+    type: trait
+    tags: []
+    depends_on: []
+    implements: []
+    relates_to: []
+    tests: []
+    traits: []
+    notes: []
+    created: 2026-01-28T08:25:57.440Z

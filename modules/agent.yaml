@@ -110,3 +110,8 @@ features:
     traits: []
     notes: []
     created: 2026-01-28T07:35:11.238Z
+    acceptance_criteria:
+      - id: ac-1
+        given: agent encounters unrecoverable error
+        when: escalation triggered
+        then: notifies configured human contacts with context

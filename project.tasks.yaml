@@ -1985,6 +1985,7 @@
         Tests for normalize/denormalize integration.
       supersedes: null
   todos: []
+  automation: eligible
 - _ulid: 01KG1TEPNTSVQ30A0ZB267MHJ8
   slugs:
     - stream-coalescer

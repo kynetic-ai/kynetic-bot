@@ -567,21 +567,39 @@
   created_at: 2026-01-28T08:10:14.989Z
   notes: []
   todos: []
-- title: Transform integration into bot
+- _ulid: 01KG1TEEK47KKFMSE6Z3RNZXMP
+  slugs:
+    - transform-integration
+  title: Transform integration into bot
   type: task
   spec_ref: null
   meta_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
   priority: 2
-  slugs:
-    - transform-integration
   tags:
     - phase-2
-  _ulid: 01KG1TEEK47KKFMSE6Z3RNZXMP
+  vcs_refs: []
+  created_at: 2026-01-28T08:10:17.060Z
+  notes: []
+  todos: []
+- title: StreamCoalescer for @msg-streaming
+  type: task
+  spec_ref: "@msg-streaming"
+  meta_ref: null
+  priority: 3
+  slugs:
+    - stream-coalescer
+  tags:
+    - phase-3
+  _ulid: 01KG1TEPNTSVQ30A0ZB267MHJ8
   status: pending
   blocked_by: []
   depends_on: []
   context: []
   vcs_refs: []
-  created_at: 2026-01-28T08:10:17.060Z
+  created_at: 2026-01-28T08:10:25.338Z
   notes: []
   todos: []

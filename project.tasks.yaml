@@ -743,6 +743,7 @@
         Run pnpm test packages/core and verify all tests pass.
       supersedes: null
   todos: []
+  automation: eligible
 - _ulid: 01KG1TDAZZW5PG1MAWGTK0HKDV
   slugs:
     - session-router

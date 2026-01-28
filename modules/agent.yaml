@@ -115,3 +115,7 @@ features:
         given: agent encounters unrecoverable error
         when: escalation triggered
         then: notifies configured human contacts with context
+      - id: ac-2
+        given: human takes over conversation
+        when: escalation acknowledged
+        then: agent pauses and provides conversation handoff

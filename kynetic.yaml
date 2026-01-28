@@ -184,3 +184,7 @@ traits:
         given: invalid input
         when: validated
         then: returns structured error
+      - id: ac-2
+        given: missing required field
+        when: detected
+        then: identifies field in error

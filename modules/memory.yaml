@@ -76,10 +76,6 @@ features:
     notes: []
     created: 2026-01-28T07:34:52.822Z
     acceptance_criteria:
-      - id: ac-3
-        given: agent process crashes
-        when: agent restarts
-        then: recovers conversation state from kspec notes
       - id: ac-4
         given: same turn persisted twice
         when: saved

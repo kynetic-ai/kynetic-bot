@@ -110,6 +110,10 @@ traits:
         given: error
         when: caught
         then: logs with context and severity
+      - id: ac-3
+        given: operation complete
+        when: significant
+        then: emits completion event
   - _ulid: 01KG1VB1XBRW8DQ4NSB7YEMYFW
     slugs:
       - trait-health-monitored

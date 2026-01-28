@@ -2476,6 +2476,10 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: ChannelLifecycle implemented and committed to main. Created ChannelLifecycle class
+    with health monitoring, automatic reconnection, message queueing with retry logic, and graceful
+    shutdown. Added 24 comprehensive tests covering all AC. All tests pass and project builds
+    successfully. Changes committed to main (5b37c0b).
   depends_on:
     - "@channel-registry-task"
   context: []
@@ -2485,6 +2489,7 @@
   vcs_refs: []
   created_at: 2026-01-28T08:10:27.686Z
   started_at: 2026-01-28T14:34:50.645Z
+  completed_at: 2026-01-28T14:40:23.438Z
   notes:
     - _ulid: 01KG1TPYQQZ5XB9H8BT6RRS8Z6
       created_at: 2026-01-28T08:14:55.736Z
@@ -2584,11 +2589,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-01-28T14:40:23.438Z
-  closed_reason: ChannelLifecycle implemented and committed to main. Created ChannelLifecycle class
-    with health monitoring, automatic reconnection, message queueing with retry logic, and graceful
-    shutdown. Added 24 comprehensive tests covering all AC. All tests pass and project builds
-    successfully. Changes committed to main (5b37c0b).
 - _ulid: 01KG1TETY3EBFGT1BWTQ0NWZQ4
   slugs:
     - context-window
@@ -2881,7 +2881,7 @@
   type: task
   spec_ref: "@channel-media"
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on:
     - "@channel-registry-task"
@@ -2954,6 +2954,7 @@
       supersedes: null
   todos: []
   automation: eligible
+  started_at: 2026-01-28T14:40:39.208Z
 - _ulid: 01KG1TFBJJMXHTYAY09H0G3VXH
   slugs:
     - escalation-handler

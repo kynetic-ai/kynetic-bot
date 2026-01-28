@@ -76,10 +76,6 @@ features:
     notes: []
     created: 2026-01-28T07:34:52.822Z
     acceptance_criteria:
-      - id: ac-1
-        given: conversation turn completes
-        when: persistence triggered
-        then: appends note with timestamp and turn metadata
       - id: ac-2
         given: conversation has 50+ notes
         when: new turn added

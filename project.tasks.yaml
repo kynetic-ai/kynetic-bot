@@ -693,21 +693,39 @@
   created_at: 2026-01-28T08:10:43.373Z
   notes: []
   todos: []
-- title: EscalationHandler for @agent-escalation
+- _ulid: 01KG1TFBJJMXHTYAY09H0G3VXH
+  slugs:
+    - escalation-handler
+  title: EscalationHandler for @agent-escalation
   type: task
   spec_ref: "@agent-escalation"
   meta_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
   priority: 4
-  slugs:
-    - escalation-handler
   tags:
     - phase-4
-  _ulid: 01KG1TFBJJMXHTYAY09H0G3VXH
+  vcs_refs: []
+  created_at: 2026-01-28T08:10:46.737Z
+  notes: []
+  todos: []
+- title: E2E integration test suite
+  type: task
+  spec_ref: null
+  meta_ref: null
+  priority: 4
+  slugs:
+    - e2e-tests
+  tags:
+    - phase-4
+  _ulid: 01KG1TFDZ926K9T6TGVDCBWBFH
   status: pending
   blocked_by: []
   depends_on: []
   context: []
   vcs_refs: []
-  created_at: 2026-01-28T08:10:46.737Z
+  created_at: 2026-01-28T08:10:49.193Z
   notes: []
   todos: []

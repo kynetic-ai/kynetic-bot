@@ -3004,7 +3004,7 @@
   type: task
   spec_ref: null
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on:
     - "@setup-typescript"
@@ -3113,6 +3113,10 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-01-28T14:11:11.710Z
+  closed_reason: ACP dependencies installed and configured. Installed
+    @agentclientprotocol/sdk@^0.13.1, created logger and type-guard utilities. All packages build
+    successfully. Changes committed to main (b731ca0).
 - _ulid: 01KG2ESGQQZ8TEYHWPSZ3WFXDC
   slugs: []
   title: Add coverage/ to .gitignore

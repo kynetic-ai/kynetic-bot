@@ -54,6 +54,10 @@ traits:
         given: rate limit exceeded
         when: operation attempted
         then: queues with backoff
+      - id: ac-2
+        given: queued operations
+        when: limit resets
+        then: processes in order
   - _ulid: 01KG1VAWZP12F5MR7E9PJAFJAJ
     slugs:
       - trait-recoverable

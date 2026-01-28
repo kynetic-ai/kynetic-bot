@@ -3000,3 +3000,20 @@
       supersedes: null
   todos: []
   automation: manual_only
+- title: Set up ACP dependencies
+  type: task
+  spec_ref: null
+  meta_ref: null
+  priority: 1
+  slugs: []
+  tags:
+    - phase-0
+  _ulid: 01KG2ER6T1D3DKR2KJDG8P0S4F
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  vcs_refs: []
+  created_at: 2026-01-28T14:05:08.289Z
+  notes: []
+  todos: []

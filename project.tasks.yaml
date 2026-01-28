@@ -2172,6 +2172,7 @@
         Unit tests for health check and reconnection logic.
       supersedes: null
   todos: []
+  automation: eligible
 - _ulid: 01KG1TETY3EBFGT1BWTQ0NWZQ4
   slugs:
     - context-window

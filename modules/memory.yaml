@@ -38,6 +38,10 @@ features:
         given: application restarts
         when: initialization loads state
         then: recovers all persisted state from shadow branch
+      - id: ac-3
+        given: concurrent modifications to state
+        when: sync conflict detected
+        then: applies merge strategy and logs resolution
   - _ulid: 01KG1RDM4NVZVQP8XZ9DY2CSRY
     slugs:
       - mem-conversation

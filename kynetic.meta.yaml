@@ -77,4 +77,13 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KG2H01PB4FFJRZ429D8HVD4A
+    type: friction
+    content: Test utilities (@kynetic-bot/core/test-utils) not exported in package.json. Had to inline
+      delay() helper in lifecycle tests. Need to add exports field to core/package.json for
+      test-utils subpath or re-export from main index.
+    created_at: 2026-01-28T14:44:22.347Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

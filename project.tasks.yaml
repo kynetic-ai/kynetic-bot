@@ -405,21 +405,39 @@
   created_at: 2026-01-28T08:09:42.612Z
   notes: []
   todos: []
-- title: KspecSync for @mem-kspec-sync
+- _ulid: 01KG1TDFRYWSJ2Q97Y4PNPGD6Z
+  slugs:
+    - kspec-sync
+  title: KspecSync for @mem-kspec-sync
   type: task
   spec_ref: "@mem-kspec-sync"
   meta_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
   priority: 1
-  slugs:
-    - kspec-sync
   tags:
     - phase-1
-  _ulid: 01KG1TDFRYWSJ2Q97Y4PNPGD6Z
+  vcs_refs: []
+  created_at: 2026-01-28T08:09:45.502Z
+  notes: []
+  todos: []
+- title: AgentLifecycle for @agent-lifecycle
+  type: task
+  spec_ref: "@agent-lifecycle"
+  meta_ref: null
+  priority: 1
+  slugs:
+    - agent-lifecycle-task
+  tags:
+    - phase-1
+  _ulid: 01KG1TDKTGZFS74P83XX93YKJF
   status: pending
   blocked_by: []
   depends_on: []
   context: []
   vcs_refs: []
-  created_at: 2026-01-28T08:09:45.502Z
+  created_at: 2026-01-28T08:09:49.647Z
   notes: []
   todos: []

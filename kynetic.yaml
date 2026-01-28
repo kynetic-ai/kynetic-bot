@@ -1,0 +1,8 @@
+kynetic: "1.0"
+project:
+  name: Kynetic Bot
+  version: 0.1.0
+  status: draft
+includes:
+  - modules/main.yaml
+  - modules/messaging.yaml

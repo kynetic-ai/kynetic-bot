@@ -1,0 +1,16 @@
+_ulid: 01KG1RC1W97WZJYPAF1JP1DJNR
+slugs:
+  - messaging
+title: Messaging
+type: module
+status:
+  maturity: draft
+  implementation: not_started
+description: "Core message handling: routing, transformation, streaming, and history management"
+tags: []
+depends_on: []
+implements: []
+relates_to: []
+tests: []
+traits: []
+notes: []

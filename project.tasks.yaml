@@ -333,7 +333,52 @@
     - phase-0
   vcs_refs: []
   created_at: 2026-01-28T08:09:17.678Z
-  notes: []
+  notes:
+    - _ulid: 01KG1TGSST3V9PZE0J9B6A5C54
+      created_at: 2026-01-28T08:11:34.075Z
+      author: "@claude"
+      content: |-
+        ## Goal
+        Configure TypeScript with project references for incremental builds across the monorepo.
+
+        ## Files
+        - tsconfig.base.json - Shared TypeScript configuration
+        - tsconfig.json - Root config with project references
+        - packages/core/tsconfig.json - Core package config
+        - packages/messaging/tsconfig.json - Messaging package config
+        - packages/channels/tsconfig.json - Channels package config
+        - packages/memory/tsconfig.json - Memory package config
+        - packages/agent/tsconfig.json - Agent package config
+        - packages/bot/tsconfig.json - Bot package config (references all others)
+
+        ## Dependencies
+        - @init-monorepo - Package structure must exist first
+
+        ## Implementation
+        1. Create tsconfig.base.json with:
+           - strict: true
+           - target: ES2022
+           - module: Node16 / moduleResolution: Node16
+           - declaration: true
+           - declarationMap: true
+           - sourceMap: true
+           - composite: true (for project references)
+        2. Create root tsconfig.json with references to all packages
+        3. Each package tsconfig.json extends base and adds:
+           - outDir: ./dist
+           - rootDir: ./src
+           - references to dependencies
+        4. Configure path aliases for @kynetic-bot/* imports
+
+        ## Acceptance Criteria
+        - AC-1: Base config with strict mode, ES2022 target
+        - AC-2: Project references for incremental builds
+        - AC-3: Path aliases for @kynetic-bot/* imports
+        - AC-4: pnpm build compiles all packages
+
+        ## Verification
+        Run pnpm build and verify all packages compile without errors.
+      supersedes: null
   todos: []
 - _ulid: 01KG1TCPQB3JFQZH0TA5CHMWKV
   slugs:

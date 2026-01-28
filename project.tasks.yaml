@@ -3000,20 +3000,94 @@
       supersedes: null
   todos: []
   automation: manual_only
-- title: Set up ACP dependencies
+- _ulid: 01KG2ER6T1D3DKR2KJDG8P0S4F
+  slugs: []
+  title: Set up ACP dependencies
   type: task
   spec_ref: null
   meta_ref: null
-  priority: 1
-  slugs: []
-  tags:
-    - phase-0
-  _ulid: 01KG2ER6T1D3DKR2KJDG8P0S4F
   status: pending
   blocked_by: []
   depends_on: []
   context: []
+  priority: 1
+  tags:
+    - phase-0
   vcs_refs: []
   created_at: 2026-01-28T14:05:08.289Z
-  notes: []
+  notes:
+    - _ulid: 01KG2ERNQCB70HCASCQMMDZBAA
+      created_at: 2026-01-28T14:05:23.565Z
+      author: "@claude"
+      content: |-
+        ## Goal
+        Set up dependencies required before copying ACP modules from kynetic.
+
+        ## Dependencies Needed
+
+        ### 1. Install @agentclientprotocol/sdk
+        ```bash
+        cd packages/agent && pnpm add @agentclientprotocol/sdk
+        ```
+
+        ### 2. Create Logger Utility
+        File: packages/core/src/utils/logger.ts
+        ```typescript
+        // Minimal logger interface matching kynetic pattern
+        export interface Logger {
+          debug(msg: string, ...args: unknown[]): void;
+          info(msg: string, ...args: unknown[]): void;
+          warn(msg: string, ...args: unknown[]): void;
+          error(msg: string, ...args: unknown[]): void;
+          child(name: string): Logger;
+        }
+
+        export function createLogger(name: string): Logger {
+          const prefix = `[${name}]`;
+          return {
+            debug: (msg, ...args) => console.debug(prefix, msg, ...args),
+            info: (msg, ...args) => console.info(prefix, msg, ...args),
+            warn: (msg, ...args) => console.warn(prefix, msg, ...args),
+            error: (msg, ...args) => console.error(prefix, msg, ...args),
+            child: (childName) => createLogger(`${name}:${childName}`),
+          };
+        }
+        ```
+
+        ### 3. Create Type Guard Utilities
+        File: packages/core/src/utils/type-guards.ts
+        ```typescript
+        export function hasProperty<K extends string>(
+          obj: unknown,
+          key: K
+        ): obj is Record<K, unknown> {
+          return typeof obj === 'object' && obj !== null && key in obj;
+        }
+
+        export function isString(value: unknown): value is string {
+          return typeof value === 'string';
+        }
+
+        export function isNumber(value: unknown): value is number {
+          return typeof value === 'number';
+        }
+
+        export function isObject(value: unknown): value is Record<string, unknown> {
+          return typeof value === 'object' && value !== null && !Array.isArray(value);
+        }
+        ```
+
+        ### 4. Export from core package
+        Update packages/core/src/index.ts to export logger and type guards.
+
+        ## Acceptance Criteria
+        - AC-1: @agentclientprotocol/sdk installed in agent package
+        - AC-2: Logger utility created with debug/info/warn/error/child methods
+        - AC-3: Type guard utilities created (hasProperty, isString, isNumber, isObject)
+        - AC-4: All utilities exported from @kynetic-bot/core
+        - AC-5: pnpm build succeeds
+
+        ## Verification
+        Run pnpm build from root - all packages should compile.
+      supersedes: null
   todos: []

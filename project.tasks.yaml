@@ -946,6 +946,7 @@
         Run pnpm test packages/channels with tests for adapter registration, lookup, and validation.
       supersedes: null
   todos: []
+  automation: eligible
 - _ulid: 01KG1TDFRYWSJ2Q97Y4PNPGD6Z
   slugs:
     - kspec-sync

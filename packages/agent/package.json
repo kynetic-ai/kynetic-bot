@@ -1,0 +1,20 @@
+{
+  "name": "@kynetic-bot/agent",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {},
+  "dependencies": {
+    "@kynetic-bot/core": "workspace:*",
+    "@kynetic-bot/messaging": "workspace:*",
+    "@kynetic-bot/memory": "workspace:*"
+  }
+}

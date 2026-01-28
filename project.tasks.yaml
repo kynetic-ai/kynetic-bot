@@ -318,6 +318,8 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "Monorepo workspace initialized and merged. PR #1 successfully merged to main. All 6
+    packages configured with proper dependencies."
   depends_on: []
   context: []
   priority: 1
@@ -326,6 +328,7 @@
   vcs_refs: []
   created_at: 2026-01-28T08:09:14.822Z
   started_at: 2026-01-28T09:02:23.581Z
+  completed_at: 2026-01-28T09:06:09.275Z
   notes:
     - _ulid: 01KG1TGPPZBB1JVGQR2829YPDN
       created_at: 2026-01-28T08:11:30.912Z
@@ -384,9 +387,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-01-28T09:06:09.275Z
-  closed_reason: "Monorepo workspace initialized and merged. PR #1 successfully merged to main. All 6
-    packages configured with proper dependencies."
 - _ulid: 01KG1TCMKE85766PTWC9TKA2EY
   slugs:
     - setup-typescript
@@ -394,7 +394,7 @@
   type: task
   spec_ref: null
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on:
     - "@init-monorepo"
@@ -452,6 +452,7 @@
       supersedes: null
   todos: []
   automation: eligible
+  started_at: 2026-01-28T09:06:30.831Z
 - _ulid: 01KG1TCPQB3JFQZH0TA5CHMWKV
   slugs:
     - setup-vitest

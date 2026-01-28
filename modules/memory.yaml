@@ -88,6 +88,10 @@ features:
         given: bot restarts
         when: conversation resumed
         then: recovers all turns from .kbot/ (skipping invalid JSON lines with warning)
+      - id: ac-4
+        given: same message_id persisted twice
+        when: saved
+        then: only one turn appended
   - _ulid: 01KG1RDP884TBCZV7QH03CV53M
     slugs:
       - mem-context-window

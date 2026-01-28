@@ -2237,7 +2237,76 @@
     - phase-3
   vcs_refs: []
   created_at: 2026-01-28T08:10:34.369Z
-  notes: []
+  notes:
+    - _ulid: 01KG1TQ6X2GV1RDCJXG60WGWTK
+      created_at: 2026-01-28T08:15:04.099Z
+      author: "@claude"
+      content: |-
+        ## Goal
+        Integrate StreamCoalescer into the bot for streaming response delivery.
+
+        ## Files
+        - packages/bot/src/bot.ts - Update to use StreamCoalescer
+        - packages/bot/test/streaming.test.ts - Tests
+
+        ## Dependencies
+        - @stream-coalescer - StreamCoalescer implementation
+        - @bot-integration - Existing bot integration
+
+        ## Implementation
+
+        ### Update KyneticBot
+        ```typescript
+        class KyneticBot {
+          private async routeToAgent(session: Session, message: NormalizedMessage): Promise<void> {
+            const coalescer = new StreamCoalescer({
+              minChars: 1500,
+              idleMs: 1000,
+              onChunk: async (chunk) => {
+                if (this.supportsStreaming(session.platform)) {
+                  await this.sendChunk(session, chunk);
+                }
+              },
+              onComplete: async (full) => {
+                if (!this.supportsStreaming(session.platform)) {
+                  await this.sendResponse(session, full);
+                }
+              },
+              onError: async (error) => {
+                this.handleError(error);
+              }
+            });
+
+            // Stream from agent
+            for await (const chunk of agent.stream(message)) {
+              await coalescer.push(chunk);
+            }
+            await coalescer.complete();
+          }
+
+          private supportsStreaming(platform: string): boolean {
+            // Discord: yes (can edit messages)
+            // WhatsApp: limited (typing indicators)
+            return platform === 'discord';
+          }
+        }
+        ```
+
+        ### Disconnect Handling
+        - Detect client disconnect
+        - Abort coalescer
+        - Clean up resources
+        - Log for debugging
+
+        ## Acceptance Criteria
+        - AC-1: Given agent streaming response, when received, then passes through coalescer
+        - AC-2: Given platform supports streaming, when chunks ready, then sends incrementally
+        - AC-3: Given platform doesn't stream, when complete, then sends buffered response
+        - AC-4: Given disconnect mid-stream, when detected, then cleans up properly
+
+        ## Verification
+        Tests for streaming with mock agent and disconnect scenarios.
+      supersedes: null
   todos: []
 - _ulid: 01KG1TF89D2BAD47YYTG6AXTPE
   slugs:

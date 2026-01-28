@@ -118,7 +118,14 @@ features:
     traits:
       - "@trait-recoverable"
       - "@trait-observable"
-    notes: []
+    notes:
+      - _ulid: 01KG2VGNEPEAWHZ1EZRE5X6GR5
+        created_at: 2026-01-28T17:48:12.630Z
+        author: "@claude"
+        content: Deferred - implement after core storage (@mem-shadow-storage, @mem-agent-sessions,
+          @mem-conversation) is stable. Compaction and context management will be designed once we
+          have experience with the basic JSONL storage patterns.
+        supersedes: null
     created: 2026-01-28T07:34:54.984Z
     acceptance_criteria:
       - id: ac-1

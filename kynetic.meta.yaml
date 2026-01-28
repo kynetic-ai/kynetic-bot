@@ -57,4 +57,14 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KG2GCWHG94HCM5JPXT124YKE
+    type: success
+    content: "Test-driven AC coverage workflow: 1) Read spec ACs from task start message, 2) Write tests
+      covering each AC with // AC: @spec-ref ac-N comments, 3) Implement features, 4) Verify all ACs
+      covered in task note. This systematic approach ensured 100% AC coverage across 5 tasks with
+      60+ tests."
+    created_at: 2026-01-28T14:33:54.480Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

@@ -1122,7 +1122,7 @@
   type: task
   spec_ref: "@channel-registry"
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on:
     - "@core-types"
@@ -1257,6 +1257,10 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-01-28T14:26:46.466Z
+  closed_reason: ChannelRegistry implemented and merged to main. Created ValidationError and
+    ChannelRegistry with interface validation. Added 18 comprehensive tests covering all AC. All
+    tests pass. Changes committed to main (c48381d).
 - _ulid: 01KG1TDFRYWSJ2Q97Y4PNPGD6Z
   slugs:
     - kspec-sync

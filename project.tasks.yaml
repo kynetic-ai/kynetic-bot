@@ -1780,7 +1780,7 @@
     - discord-adapter
   title: Discord channel adapter
   type: task
-  spec_ref: "@channel-registry"
+  spec_ref: "@discord-channel-adapter"
   meta_ref: null
   status: pending
   blocked_by: []

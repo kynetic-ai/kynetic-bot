@@ -12,3 +12,12 @@ export {
   type ListSessionsOptions,
   type SessionStoreEvents,
 } from './session-store.js';
+
+export {
+  ConversationStore,
+  ConversationStoreError,
+  ConversationValidationError,
+  type ConversationStoreOptions,
+  type ListConversationsOptions,
+  type ConversationStoreEvents,
+} from './conversation-store.js';

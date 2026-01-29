@@ -35,5 +35,18 @@ export {
   type DMPolicyEvents,
 } from './dm-policy.js';
 
+// Discord Adapter
+export {
+  DiscordAdapter,
+  DiscordAdapterConfigSchema,
+  type DiscordAdapterConfig,
+  type DiscordSendOptions,
+  DiscordConnectionError,
+  DiscordSendError,
+  DiscordChannelNotFoundError,
+  DiscordPermissionError,
+  type DiscordMessageMetadata,
+} from './adapters/discord/index.js';
+
 // Types
 export { ValidationError, type Result } from './types.js';

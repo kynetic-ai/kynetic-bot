@@ -99,9 +99,9 @@ features:
         when: detected by health monitor
         then: attempts restart with backoff per AgentLifecycle behavior
       - id: ac-6
-        given: ESCALATION_CHANNEL environment variable is set
-        when: agent emits escalate event
-        then: sends notification to configured channel with error context
+        given: agent emits escalate event
+        when: escalation handler processes event
+        then: sends notification to escalationChannel if configured, otherwise to lastActiveChannel
   - _ulid: 01KG4GD4PBMEWWEDEN8HPA2DV5
     slugs:
       - bot-cli

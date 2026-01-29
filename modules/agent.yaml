@@ -51,6 +51,9 @@ features:
         given: spawn rate limit
         when: multiple spawns requested
         then: queues excess requests
+    status:
+      maturity: draft
+      implementation: in_progress
   - _ulid: 01KG1RE068887DHMQXFSCSTXZ6
     slugs:
       - agent-autonomous

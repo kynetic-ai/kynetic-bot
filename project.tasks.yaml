@@ -2274,6 +2274,8 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "DMPolicyManager implemented with full policy management, pairing codes, validation,
+    and idempotency. PR #11 merged with all review fixes addressed. 44 tests passing."
   depends_on:
     - "@channel-registry-task"
     - "@kspec-sync"
@@ -2284,6 +2286,7 @@
   vcs_refs: []
   created_at: 2026-01-28T08:10:07.285Z
   started_at: 2026-01-29T10:51:17.538Z
+  completed_at: 2026-01-29T11:01:34.118Z
   notes:
     - _ulid: 01KG1TN3A38JPA66RCDQ26GRRD
       created_at: 2026-01-28T08:13:54.883Z
@@ -2480,9 +2483,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-01-29T11:01:34.118Z
-  closed_reason: "DMPolicyManager implemented with full policy management, pairing codes, validation,
-    and idempotency. PR #11 merged with all review fixes addressed. 44 tests passing."
 - _ulid: 01KG1TE7D2JHEF3R1KYJ7TRYJ0
   slugs:
     - conversation-storage
@@ -2490,7 +2490,7 @@
   type: task
   spec_ref: "@mem-conversation"
   meta_ref: null
-  status: pending
+  status: cancelled
   blocked_by: []
   depends_on:
     - "@kspec-sync"
@@ -2669,6 +2669,8 @@
       supersedes: null
   todos: []
   automation: eligible
+  closed_reason: Duplicate of @conversation-store (01KG2VKR) which was completed. ConversationStore
+    already implemented with 44 tests.
 - _ulid: 01KG1TEACYBVQ0NNP51BBC4KSQ
   slugs:
     - skills-registry

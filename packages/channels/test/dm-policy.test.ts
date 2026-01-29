@@ -17,6 +17,7 @@ import { parse as yamlParse } from 'yaml';
 import {
   DMPolicyManager,
   DMPolicyError,
+  DMPolicyValidationError,
   type PendingDMRequest,
   type DMPolicyEvents,
 } from '../src/dm-policy.js';
@@ -524,6 +525,191 @@ describe('DMPolicyManager', () => {
 
       const requests = await newManager.listRequests({ userId: 'user123' });
       expect(requests).toHaveLength(1);
+    });
+  });
+
+  // AC: @trait-validated - Input validation tests
+  describe('Input Validation (@trait-validated)', () => {
+    // AC: @trait-validated ac-1 - Invalid input returns structured error
+    it('throws DMPolicyValidationError for empty channel', async () => {
+      await expect(manager.setChannelPolicy('', 'open')).rejects.toThrow(DMPolicyValidationError);
+
+      try {
+        await manager.setChannelPolicy('', 'open');
+      } catch (err) {
+        expect(err).toBeInstanceOf(DMPolicyValidationError);
+        expect((err as DMPolicyValidationError).field).toBe('channel');
+      }
+    });
+
+    it('throws DMPolicyValidationError for empty userId in checkAccess', async () => {
+      await manager.setChannelPolicy('discord:dm:*', 'pairing_required');
+
+      await expect(manager.checkAccess('discord:dm:user1', '', 'discord')).rejects.toThrow(
+        DMPolicyValidationError,
+      );
+
+      try {
+        await manager.checkAccess('discord:dm:user1', '', 'discord');
+      } catch (err) {
+        expect(err).toBeInstanceOf(DMPolicyValidationError);
+        expect((err as DMPolicyValidationError).field).toBe('userId');
+      }
+    });
+
+    it('throws DMPolicyValidationError for empty platform', async () => {
+      await manager.setChannelPolicy('discord:dm:*', 'pairing_required');
+
+      await expect(manager.checkAccess('discord:dm:user1', 'user1', '')).rejects.toThrow(
+        DMPolicyValidationError,
+      );
+
+      try {
+        await manager.checkAccess('discord:dm:user1', 'user1', '');
+      } catch (err) {
+        expect(err).toBeInstanceOf(DMPolicyValidationError);
+        expect((err as DMPolicyValidationError).field).toBe('platform');
+      }
+    });
+
+    // AC: @trait-validated ac-2 - Missing required field identified in error
+    it('identifies missing field in error', async () => {
+      try {
+        await manager.checkAccess('discord:dm:user1', '', 'discord');
+      } catch (err) {
+        expect(err).toBeInstanceOf(DMPolicyValidationError);
+        const validationErr = err as DMPolicyValidationError;
+        expect(validationErr.field).toBe('userId');
+        expect(validationErr.message).toContain('userId');
+      }
+    });
+
+    // AC: @trait-validated ac-3 - Type mismatch includes expected type in error
+    it('throws DMPolicyValidationError for invalid policy type', async () => {
+      await expect(
+        manager.setChannelPolicy('discord:dm:*', 'invalid_policy' as unknown as 'open'),
+      ).rejects.toThrow(DMPolicyValidationError);
+
+      try {
+        await manager.setChannelPolicy('discord:dm:*', 'invalid_policy' as unknown as 'open');
+      } catch (err) {
+        expect(err).toBeInstanceOf(DMPolicyValidationError);
+        const validationErr = err as DMPolicyValidationError;
+        expect(validationErr.field).toBe('policy');
+        expect(validationErr.context).toHaveProperty('expectedType');
+      }
+    });
+  });
+
+  // AC: @trait-idempotent ac-3 - Sequential identical requests produce consistent results
+  // Note: File locking ensures only one operation proceeds at a time within a process.
+  // Cross-process concurrent access is protected by the file lock mechanism.
+  describe('Idempotent Operations (@trait-idempotent)', () => {
+    it('sequential identical requests return same result', async () => {
+      await manager.setChannelPolicy('discord:dm:*', 'pairing_required');
+
+      // Make multiple sequential requests for the same user
+      const result1 = await manager.checkAccess('discord:dm:user1', 'user1', 'discord');
+      const result2 = await manager.checkAccess('discord:dm:user1', 'user1', 'discord');
+      const result3 = await manager.checkAccess('discord:dm:user1', 'user1', 'discord');
+
+      // All should return pending status with the same request
+      expect(result1.status).toBe('pending');
+      expect(result2.status).toBe('pending');
+      expect(result3.status).toBe('pending');
+
+      if (
+        result1.status === 'pending' &&
+        result2.status === 'pending' &&
+        result3.status === 'pending'
+      ) {
+        // All requests should have the same ID (idempotent)
+        expect(result1.request.id).toBe(result2.request.id);
+        expect(result2.request.id).toBe(result3.request.id);
+      }
+
+      // Verify only one request exists in storage
+      const allRequests = await manager.listRequests({ userId: 'user1' });
+      expect(allRequests).toHaveLength(1);
+    });
+
+    it('approval is idempotent - reapproving already approved throws', async () => {
+      await manager.setChannelPolicy('discord:dm:*', 'pairing_required');
+
+      const createResult = await manager.checkAccess('discord:dm:user1', 'user1', 'discord');
+      expect(createResult.status).toBe('pending');
+
+      if (createResult.status === 'pending') {
+        const requestId = createResult.request.id;
+
+        // First approval succeeds
+        const approved = await manager.approveRequest(requestId);
+        expect(approved.status).toBe('approved');
+
+        // Second approval throws (already approved)
+        await expect(manager.approveRequest(requestId)).rejects.toThrow(DMPolicyError);
+
+        // Verify request remains approved (state unchanged)
+        const request = await manager.getRequest(requestId);
+        expect(request?.status).toBe('approved');
+      }
+    });
+
+    it('rejection is idempotent - rerejecting already rejected throws', async () => {
+      await manager.setChannelPolicy('discord:dm:*', 'pairing_required');
+
+      const createResult = await manager.checkAccess('discord:dm:user1', 'user1', 'discord');
+      expect(createResult.status).toBe('pending');
+
+      if (createResult.status === 'pending') {
+        const requestId = createResult.request.id;
+
+        // First rejection succeeds
+        const rejected = await manager.rejectRequest(requestId, 'Spam');
+        expect(rejected.status).toBe('rejected');
+
+        // Second rejection throws (already rejected)
+        await expect(manager.rejectRequest(requestId, 'Spam again')).rejects.toThrow(DMPolicyError);
+
+        // Verify request remains rejected with original reason
+        const request = await manager.getRequest(requestId);
+        expect(request?.status).toBe('rejected');
+        expect(request?.rejectionReason).toBe('Spam');
+      }
+    });
+
+    it('checkAccess returns allowed after approval (state consistent)', async () => {
+      await manager.setChannelPolicy('discord:dm:*', 'pairing_required');
+
+      // Create request
+      const createResult = await manager.checkAccess('discord:dm:user1', 'user1', 'discord');
+      expect(createResult.status).toBe('pending');
+
+      if (createResult.status === 'pending') {
+        // Approve
+        await manager.approveRequest(createResult.request.id);
+
+        // Subsequent checkAccess returns allowed
+        const result = await manager.checkAccess('discord:dm:user1', 'user1', 'discord');
+        expect(result.status).toBe('allowed');
+      }
+    });
+  });
+
+  describe('rejectRequest without reason', () => {
+    it('rejects without a reason', async () => {
+      await manager.setChannelPolicy('discord:dm:*', 'pairing_required');
+
+      const createResult = await manager.checkAccess('discord:dm:user123', 'user123', 'discord');
+      expect(createResult.status).toBe('pending');
+
+      if (createResult.status === 'pending') {
+        const rejected = await manager.rejectRequest(createResult.request.id);
+
+        expect(rejected.status).toBe('rejected');
+        expect(rejected.rejectedAt).toBeDefined();
+        expect(rejected.rejectionReason).toBeUndefined();
+      }
     });
   });
 });

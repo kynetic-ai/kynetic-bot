@@ -8,8 +8,9 @@
  */
 
 import * as fs from 'node:fs/promises';
-import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync, unlinkSync, statSync } from 'node:fs';
 import * as path from 'node:path';
+import * as crypto from 'node:crypto';
 import { stringify as yamlStringify, parse as yamlParse } from 'yaml';
 import { ulid } from 'ulid';
 import { z } from 'zod';
@@ -199,25 +200,57 @@ export class DMPolicyManager {
   // Lock Helpers
   // ==========================================================================
 
+  /** Maximum age (ms) for a lock file before considering it stale */
+  private static readonly LOCK_STALE_MS = 30_000; // 30 seconds
+
+  /**
+   * Synchronous sleep helper for waiting between lock attempts.
+   * Uses a simple busy-wait approach which is acceptable for short durations.
+   */
+  private syncSleep(ms: number): void {
+    const end = Date.now() + ms;
+    while (Date.now() < end) {
+      // Busy wait - acceptable for very short durations (10-30ms)
+    }
+  }
+
+  /**
+   * Acquire a file lock for exclusive access.
+   * Includes stale lock detection to handle crashed processes.
+   */
   private acquireLock(timeout = 5000): boolean {
     const lockPath = this.lockFilePath();
     const startTime = Date.now();
 
-    // Ensure directory exists
+    // Ensure directory exists synchronously
     if (!existsSync(this.policyDir)) {
-      return true; // First operation will create directory
+      try {
+        // Create directory synchronously to avoid race
+        require('node:fs').mkdirSync(this.policyDir, { recursive: true });
+      } catch {
+        // Directory may have been created by another process, continue
+      }
     }
 
     while (Date.now() - startTime < timeout) {
       try {
-        writeFileSync(lockPath, String(process.pid), { flag: 'wx' });
+        // Try to create lock file exclusively
+        writeFileSync(lockPath, `${process.pid}:${Date.now()}`, { flag: 'wx' });
         return true;
       } catch (err: unknown) {
         if ((err as NodeJS.ErrnoException).code === 'EEXIST') {
-          const waitUntil = Date.now() + 10;
-          while (Date.now() < waitUntil) {
-            // Spin
+          // Lock exists, check if it's stale
+          if (this.isLockStale(lockPath)) {
+            try {
+              unlinkSync(lockPath);
+              continue; // Try to acquire again
+            } catch {
+              // Another process may have already cleaned it up
+            }
           }
+          // Wait with jitter before retrying
+          const waitMs = 10 + Math.random() * 20; // 10-30ms jitter
+          this.syncSleep(waitMs);
           continue;
         }
         throw err;
@@ -226,12 +259,55 @@ export class DMPolicyManager {
     return false;
   }
 
+  /**
+   * Check if a lock file is stale (process crashed or exceeded max age).
+   */
+  private isLockStale(lockPath: string): boolean {
+    try {
+      const content = readFileSync(lockPath, 'utf-8');
+      const [pidStr, timestampStr] = content.split(':');
+      const lockTime = parseInt(timestampStr, 10);
+
+      // Check age first (most reliable)
+      if (!isNaN(lockTime) && Date.now() - lockTime > DMPolicyManager.LOCK_STALE_MS) {
+        return true;
+      }
+
+      // Check if process still exists (Unix only, safe to skip on Windows)
+      const pid = parseInt(pidStr, 10);
+      if (!isNaN(pid) && pid !== process.pid) {
+        try {
+          process.kill(pid, 0); // Signal 0 just checks if process exists
+          return false; // Process exists, lock is valid
+        } catch {
+          return true; // Process doesn't exist, lock is stale
+        }
+      }
+
+      return false;
+    } catch {
+      // Can't read lock file, consider it stale
+      return true;
+    }
+  }
+
+  /**
+   * Release the file lock.
+   * Only releases if we own the lock (matches our PID).
+   */
   private releaseLock(): void {
     const lockPath = this.lockFilePath();
     try {
-      unlinkSync(lockPath);
+      const content = readFileSync(lockPath, 'utf-8');
+      const [pidStr] = content.split(':');
+      const lockPid = parseInt(pidStr, 10);
+
+      // Only delete if we own the lock
+      if (lockPid === process.pid) {
+        unlinkSync(lockPath);
+      }
     } catch {
-      // Ignore
+      // Lock file may already be removed
     }
   }
 
@@ -263,19 +339,34 @@ export class DMPolicyManager {
       const content = await fs.readFile(filePath, 'utf-8');
       const data = yamlParse(content);
       if (!data || !Array.isArray(data.requests)) {
+        // File exists but has no valid requests array - this is expected for new files
         return [];
       }
 
-      // Validate each request
+      // Validate each request, filtering out invalid entries
       const valid: PendingDMRequest[] = [];
       for (const req of data.requests) {
         const result = PendingDMRequestSchema.safeParse(req);
         if (result.success) {
           valid.push(result.data);
+        } else {
+          // Emit error event for observability but continue
+          this.emit('error', {
+            error: new Error(`Invalid request in storage: ${result.error.message}`),
+            operation: 'readPendingRequests',
+            requestId: req?.id,
+          });
         }
       }
       return valid;
-    } catch {
+    } catch (err) {
+      // Emit error for observability - this could indicate file corruption
+      this.emit('error', {
+        error: err instanceof Error ? err : new Error(String(err)),
+        operation: 'readPendingRequests',
+      });
+      // Return empty array to allow operations to continue
+      // Callers should check for unexpected empty results
       return [];
     }
   }
@@ -298,8 +389,28 @@ export class DMPolicyManager {
       if (!data || typeof data.policies !== 'object') {
         return {};
       }
-      return data.policies as Record<string, DMPolicy>;
-    } catch {
+
+      // Validate each policy value
+      const validated: Record<string, DMPolicy> = {};
+      for (const [channel, policy] of Object.entries(data.policies)) {
+        const result = DMPolicySchema.safeParse(policy);
+        if (result.success) {
+          validated[channel] = result.data;
+        } else {
+          // Emit error for invalid policy value but continue
+          this.emit('error', {
+            error: new Error(`Invalid policy for channel ${channel}: ${policy}`),
+            operation: 'readChannelPolicies',
+          });
+        }
+      }
+      return validated;
+    } catch (err) {
+      // Emit error for observability
+      this.emit('error', {
+        error: err instanceof Error ? err : new Error(String(err)),
+        operation: 'readChannelPolicies',
+      });
       return {};
     }
   }
@@ -315,15 +426,63 @@ export class DMPolicyManager {
   // ==========================================================================
 
   /**
-   * Generate a 6-character alphanumeric pairing code
+   * Generate a 6-character alphanumeric pairing code using crypto.
+   * Uses rejection sampling to ensure uniform distribution.
    */
   private generatePairingCode(): string {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Exclude similar chars
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // 32 chars, excludes similar (0,O,1,I,L)
+    const charLen = chars.length; // 32
+    const bytes = crypto.randomBytes(6);
     let code = '';
+
     for (let i = 0; i < 6; i++) {
-      code += chars[Math.floor(Math.random() * chars.length)];
+      // Use rejection sampling for uniform distribution (32 divides 256 evenly)
+      code += chars[bytes[i] % charLen];
     }
+
     return code;
+  }
+
+  // ==========================================================================
+  // Channel Policy Operations
+  // ==========================================================================
+
+  // ==========================================================================
+  // Input Validation Helpers
+  // ==========================================================================
+
+  /**
+   * Validate that a string input is non-empty.
+   * @throws DMPolicyValidationError if validation fails
+   */
+  private validateNonEmptyString(value: unknown, fieldName: string): string {
+    if (typeof value !== 'string') {
+      throw new DMPolicyValidationError(
+        `${fieldName} must be a string`,
+        fieldName,
+        { expectedType: 'string', actualType: typeof value },
+      );
+    }
+    if (value.trim().length === 0) {
+      throw new DMPolicyValidationError(`${fieldName} cannot be empty`, fieldName);
+    }
+    return value;
+  }
+
+  /**
+   * Validate a DMPolicy value.
+   * @throws DMPolicyValidationError if validation fails
+   */
+  private validatePolicy(value: unknown, fieldName: string): DMPolicy {
+    const result = DMPolicySchema.safeParse(value);
+    if (!result.success) {
+      throw new DMPolicyValidationError(
+        `${fieldName} must be 'open' or 'pairing_required'`,
+        fieldName,
+        { expectedType: "DMPolicy ('open' | 'pairing_required')", actualValue: value },
+      );
+    }
+    return result.data;
   }
 
   // ==========================================================================
@@ -335,8 +494,13 @@ export class DMPolicyManager {
    *
    * @param channel - Channel pattern (can use * as wildcard)
    * @param policy - Policy to apply
+   * @throws DMPolicyValidationError if inputs are invalid
    */
   async setChannelPolicy(channel: string, policy: DMPolicy): Promise<void> {
+    // Validate inputs
+    this.validateNonEmptyString(channel, 'channel');
+    this.validatePolicy(policy, 'policy');
+
     if (!this.acquireLock()) {
       throw new DMPolicyError('Failed to acquire lock', 'LOCK_FAILED');
     }
@@ -393,6 +557,7 @@ export class DMPolicyManager {
    * @param userId - User identifier
    * @param platform - Platform identifier
    * @returns Access status and request if pending
+   * @throws DMPolicyValidationError if inputs are invalid
    */
   async checkAccess(
     channel: string,
@@ -403,6 +568,11 @@ export class DMPolicyManager {
     | { status: 'pending'; request: PendingDMRequest }
     | { status: 'denied'; reason?: string }
   > {
+    // Validate inputs
+    this.validateNonEmptyString(channel, 'channel');
+    this.validateNonEmptyString(userId, 'userId');
+    this.validateNonEmptyString(platform, 'platform');
+
     const policy = await this.getChannelPolicy(channel);
 
     // AC-3: Open policy allows immediate access

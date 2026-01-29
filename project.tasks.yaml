@@ -6335,6 +6335,59 @@
   tags: []
   vcs_refs: []
   created_at: 2026-01-29T22:52:54.257Z
-  notes: []
-  todos: []
   started_at: 2026-01-29T22:54:55.231Z
+  notes:
+    - _ulid: 01KG5ZTEW5G6G7TK8XY25TK9V6
+      created_at: 2026-01-29T23:01:11.173Z
+      author: "@claude"
+      content: >-
+        Fixed all 62 lint errors across packages:
+
+
+        **packages/agent:**
+
+        - skills.ts: Removed unused SkillState import
+
+        - acp/client.ts: Removed unnecessary type assertion, fixed throwing plain objects (created
+        JsonRpcException class)
+
+        - acp/framing.ts: Added explicit types for error handlers and parsed JSON
+
+        - acp/types.ts: Added JsonRpcException class extending Error for JSON-RPC errors
+
+        - escalation.ts: Added eslint-disable for async method without await (preserving API)
+
+
+        **packages/messaging:**
+
+        - router.ts: Removed unused SessionKey and parseSessionKey imports
+
+        - streaming.ts: Added proper error types, added eslint-disable for sync push method
+
+
+        **packages/channels:**
+
+        - dm-policy.ts: Replaced require() with proper import, typed yamlParse results
+
+        - lifecycle.ts: Fixed unused error variables, floating promises, sync health check
+
+        - media.ts: Removed async from sync methods, added case blocks, fixed never type
+
+
+        **packages/core:**
+
+        - session-key.ts: Fixed never type in template literal
+
+        - session-key.test.ts: Fixed any type usage
+
+
+        **packages/memory:**
+
+        - conversation-store.ts: Removed unused imports, typed JSON.parse results
+
+        - session-store.ts: Typed JSON.parse results, added eslint-disable for async methods
+
+
+        All 62 errors fixed, tests passing (671/672, 1 skipped).
+      supersedes: null
+  todos: []

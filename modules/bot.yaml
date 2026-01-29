@@ -64,6 +64,7 @@ features:
       - "@trait-observable"
       - "@trait-recoverable"
       - "@trait-graceful-shutdown"
+      - "@trait-health-monitored"
     notes: []
     created: 2026-01-29T09:11:57.514Z
     acceptance_criteria:

@@ -306,8 +306,16 @@ export class KbotShadow {
     }
 
     this.schedulerTimer = setInterval(() => {
-      void this.schedulerTick();
+      this.schedulerTick().catch((error) => {
+        this.events.emit('sync_error', {
+          operation: 'scheduled_commit',
+          error: error instanceof Error ? error : new Error(String(error)),
+        });
+      });
     }, this.schedulerConfig.maxInterval);
+
+    // Don't keep the Node.js process alive just for this timer
+    this.schedulerTimer.unref();
   }
 
   /**
@@ -353,8 +361,13 @@ export class KbotShadow {
       console.error(`[KBOT DEBUG] Event recorded: ${operation}${ref ? ` (${ref})` : ''}`);
     }
 
-    // Check threshold asynchronously
-    void this.checkEventThreshold();
+    // Check threshold asynchronously with error handling
+    this.checkEventThreshold().catch((error) => {
+      this.events.emit('sync_error', {
+        operation: 'threshold_commit',
+        error: error instanceof Error ? error : new Error(String(error)),
+      });
+    });
   }
 
   /**

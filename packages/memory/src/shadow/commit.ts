@@ -38,27 +38,40 @@ function isDebugMode(debug?: boolean): boolean {
 /**
  * Acquire lock for commit operation.
  * Returns true if lock acquired, false if already locked.
+ * Uses atomic file creation to prevent race conditions.
  *
  * AC-6: Lock file for crash recovery
  */
 export async function acquireLock(worktreeDir: string): Promise<boolean> {
   const lockPath = path.join(worktreeDir, KBOT_LOCK_FILE);
+
+  // Check for stale lock first
   try {
-    // Check if lock exists and is recent (< 5 minutes old)
     const stat = await fs.stat(lockPath);
     const age = Date.now() - stat.mtimeMs;
-    if (age < 300000) {
+    if (age >= 300000) {
+      // Stale lock (>= 5 minutes old) - remove it
+      await fs.rm(lockPath);
+    } else {
       // Lock is fresh - another operation in progress
       return false;
     }
-    // Stale lock - can proceed
   } catch {
-    // Lock doesn't exist - good
+    // Lock doesn't exist - good, proceed to create
   }
 
-  // Create lock
-  await fs.writeFile(lockPath, Date.now().toString(), 'utf-8');
-  return true;
+  // Atomic lock creation using exclusive flag
+  // This prevents race conditions between stat and writeFile
+  try {
+    await fs.writeFile(lockPath, Date.now().toString(), { flag: 'wx' });
+    return true;
+  } catch (err) {
+    // EEXIST means another process created the lock first
+    if ((err as NodeJS.ErrnoException).code === 'EEXIST') {
+      return false;
+    }
+    throw err;
+  }
 }
 
 /**

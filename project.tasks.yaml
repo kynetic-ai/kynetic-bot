@@ -2046,6 +2046,92 @@
       content: "Automation status set to needs_review: Integration point combining all Phase 1 components,
         sets patterns for message flow"
       supersedes: null
+    - _ulid: 01KG4E8KCTZKG65M0MWTF6ZQGC
+      created_at: 2026-01-29T08:35:05.754Z
+      author: "@claude"
+      content: >-
+        ## MVP Completion Analysis (2026-01-29)
+
+
+        ### Current State
+
+        - 86% of Phase 1 complete (6/7 tasks)
+
+        - All dependencies for this task are complete EXCEPT @discord-adapter
+
+        - 221 tests passing across all packages
+
+
+        ### Files to Create (confirmed)
+
+        ```
+
+        packages/bot/src/config.ts  → BotConfigSchema, loadConfig()
+
+        packages/bot/src/bot.ts     → Bot class (orchestrator)  
+
+        packages/bot/src/cli.ts     → Entry point, signal handlers
+
+        packages/bot/test/integration.test.ts → E2E test
+
+        ```
+
+
+        ### Detailed Config Schema
+
+        ```typescript
+
+        export const BotConfigSchema = z.object({
+          // Required
+          discordToken: z.string().min(1, 'DISCORD_TOKEN required'),
+          agentCommand: z.string().min(1, 'AGENT_COMMAND required'),
+          // Optional with defaults
+          kbotDataDir: z.string().default('.kbot'),
+          logLevel: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
+          // Agent options
+          healthCheckInterval: z.number().default(30000),
+          shutdownTimeout: z.number().default(10000),
+          // Discord options
+          discordIntents: z.array(z.string()).default(['Guilds', 'GuildMessages', 'MessageContent']),
+        });
+
+        ```
+
+
+        ### Signal Handling (CLI)
+
+        ```typescript
+
+        process.on('SIGINT', () => shutdown('SIGINT'));
+
+        process.on('SIGTERM', () => shutdown('SIGTERM'));
+
+        process.on('uncaughtException', async (err) => {
+          log.error('Uncaught exception', { error: err.message });
+          await bot.stop();
+          process.exit(1);
+        });
+
+        ```
+
+
+        ### Blocking Dependencies
+
+        - @discord-adapter must complete first (manual_only - needs Discord token)
+
+
+        ### Verification
+
+        MVP complete when:
+
+        - [ ] `pnpm build` passes
+
+        - [ ] `pnpm test` passes (including new integration test)
+
+        - [ ] Can run `DISCORD_TOKEN=xxx AGENT_COMMAND=xxx pnpm start`
+
+        - [ ] Bot connects to Discord and responds to messages
+      supersedes: null
   todos: []
   automation: needs_review
 - _ulid: 01KG1TE1Y9HJ47QHAH57HJNX86

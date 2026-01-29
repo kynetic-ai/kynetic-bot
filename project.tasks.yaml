@@ -2678,7 +2678,7 @@
   type: task
   spec_ref: "@agent-skills"
   meta_ref: null
-  status: in_progress
+  status: pending_review
   blocked_by: []
   depends_on:
     - "@agent-lifecycle-task"
@@ -2688,6 +2688,7 @@
     - phase-2
   vcs_refs: []
   created_at: 2026-01-28T08:10:12.766Z
+  started_at: 2026-01-29T11:03:01.611Z
   notes:
     - _ulid: 01KG1TN8QYCDEMB5FTESRD0X4E
       created_at: 2026-01-28T08:14:00.446Z
@@ -2887,7 +2888,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-01-29T11:03:01.611Z
 - _ulid: 01KG1TECJE69VX6XWJD3T8F1FZ
   slugs:
     - conversation-history

@@ -49,3 +49,9 @@ inbox:
     created_at: 2026-01-29T22:47:34.704Z
     tags: []
     added_by: "@claude"
+  - _ulid: 01KG5Z1KS7G4V7V09QT1VHTM9Y
+    text: "Discord adapter: make bot message filtering configurable (currently filters all bots, not
+      just self)"
+    created_at: 2026-01-29T22:47:36.999Z
+    tags: []
+    added_by: "@claude"

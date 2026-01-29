@@ -4242,7 +4242,7 @@
   type: task
   spec_ref: "@mem-agent-sessions"
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -4337,6 +4337,7 @@
       supersedes: null
   todos: []
   automation: eligible
+  started_at: 2026-01-29T10:19:09.359Z
 - _ulid: 01KG2VK9YVD40CSKFN2T8WR585
   slugs:
     - conversation-types

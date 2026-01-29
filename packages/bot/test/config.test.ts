@@ -307,16 +307,31 @@ describe('Bot Configuration', () => {
       expect(config.escalationChannel).toBeUndefined();
     });
 
-    // AC: @bot-config ac-4 - returns Zod error for invalid format
-    it('handles invalid number format gracefully', () => {
+    // AC: @bot-config ac-4 - throws error for invalid number format
+    it('throws error for invalid HEALTH_CHECK_INTERVAL format', () => {
       process.env.DISCORD_TOKEN = 'test-token';
       process.env.AGENT_COMMAND = 'test-command';
       process.env.HEALTH_CHECK_INTERVAL = 'not-a-number';
 
-      // Invalid number strings result in NaN from parseInt, which becomes undefined
-      // and then uses the default value
-      const config = loadConfig();
-      expect(config.healthCheckInterval).toBe(30000); // Falls back to default
+      expect(() => loadConfig()).toThrow('Invalid integer for HEALTH_CHECK_INTERVAL');
+    });
+
+    // AC: @bot-config ac-4 - throws error for invalid number format
+    it('throws error for HEALTH_CHECK_INTERVAL with units suffix', () => {
+      process.env.DISCORD_TOKEN = 'test-token';
+      process.env.AGENT_COMMAND = 'test-command';
+      process.env.HEALTH_CHECK_INTERVAL = '30s';
+
+      expect(() => loadConfig()).toThrow('Invalid integer for HEALTH_CHECK_INTERVAL');
+    });
+
+    // AC: @bot-config ac-4 - throws error for invalid number format
+    it('throws error for invalid SHUTDOWN_TIMEOUT format', () => {
+      process.env.DISCORD_TOKEN = 'test-token';
+      process.env.AGENT_COMMAND = 'test-command';
+      process.env.SHUTDOWN_TIMEOUT = '10sec';
+
+      expect(() => loadConfig()).toThrow('Invalid integer for SHUTDOWN_TIMEOUT');
     });
 
     // AC: @bot-config ac-4 - validates log level
@@ -369,6 +384,32 @@ describe('Bot Configuration', () => {
       const config = loadConfig();
       expect(config.healthCheckInterval).toBe(60000);
       expect(config.shutdownTimeout).toBe(5000);
+    });
+
+    it('rejects zero values for numeric fields (must be positive)', () => {
+      process.env.DISCORD_TOKEN = 'test-token';
+      process.env.AGENT_COMMAND = 'test-command';
+      process.env.HEALTH_CHECK_INTERVAL = '0';
+
+      expect(() => loadConfig()).toThrow(ZodError);
+    });
+
+    it('accepts numeric values with whitespace', () => {
+      process.env.DISCORD_TOKEN = 'test-token';
+      process.env.AGENT_COMMAND = 'test-command';
+      process.env.HEALTH_CHECK_INTERVAL = ' 45000 ';
+
+      // Whitespace around numbers should be handled (trimmed)
+      const config = loadConfig();
+      expect(config.healthCheckInterval).toBe(45000);
+    });
+
+    it('rejects decimal numbers in environment variables', () => {
+      process.env.DISCORD_TOKEN = 'test-token';
+      process.env.AGENT_COMMAND = 'test-command';
+      process.env.HEALTH_CHECK_INTERVAL = '30000.5';
+
+      expect(() => loadConfig()).toThrow('Invalid integer for HEALTH_CHECK_INTERVAL');
     });
   });
 });

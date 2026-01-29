@@ -53,12 +53,20 @@ export type BotConfig = z.infer<typeof BotConfigSchema>;
  * Parse an optional environment variable as a number
  *
  * @param value - The environment variable value
+ * @param name - The environment variable name (for error messages)
  * @returns The parsed number or undefined if value is empty
+ * @throws Error if value is present but not a valid integer
  */
-function parseOptionalNumber(value: string | undefined): number | undefined {
+function parseOptionalNumber(
+  value: string | undefined,
+  name: string,
+): number | undefined {
   if (!value) return undefined;
   const parsed = parseInt(value, 10);
-  return Number.isNaN(parsed) ? undefined : parsed;
+  if (Number.isNaN(parsed) || String(parsed) !== value.trim()) {
+    throw new Error(`Invalid integer for ${name}: "${value}"`);
+  }
+  return parsed;
 }
 
 /**
@@ -82,8 +90,14 @@ export function loadConfig(): BotConfig {
     agentCommand: process.env.AGENT_COMMAND,
     kbotDataDir: process.env.KBOT_DATA_DIR || undefined,
     logLevel: process.env.LOG_LEVEL || undefined,
-    healthCheckInterval: parseOptionalNumber(process.env.HEALTH_CHECK_INTERVAL),
-    shutdownTimeout: parseOptionalNumber(process.env.SHUTDOWN_TIMEOUT),
+    healthCheckInterval: parseOptionalNumber(
+      process.env.HEALTH_CHECK_INTERVAL,
+      'HEALTH_CHECK_INTERVAL',
+    ),
+    shutdownTimeout: parseOptionalNumber(
+      process.env.SHUTDOWN_TIMEOUT,
+      'SHUTDOWN_TIMEOUT',
+    ),
     escalationChannel: process.env.ESCALATION_CHANNEL || undefined,
   });
 }

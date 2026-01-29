@@ -1917,6 +1917,15 @@
       content: "Automation status set to manual_only: Requires Discord bot token setup and application
         configuration"
       supersedes: null
+    - _ulid: 01KG5ZBASJNY5YPTB78XP84M7E
+      created_at: 2026-01-29T22:52:55.474Z
+      author: "@claude"
+      content: "Initial plan: Thin adapter with Discord.js managing resilience. Modular structure with
+        separate files for config (Zod schema), errors (extending KyneticError), parser
+        (Discord.Message → NormalizedMessage), splitter (2000 char limit with code block
+        preservation), and main adapter class. Interface change: ChannelAdapter.sendMessage()
+        returns Promise<string | void> to support message ID returns."
+      supersedes: null
   todos: []
   automation: manual_only
 - _ulid: 01KG1TDRB07CBH2J4K25G786ET
@@ -6291,18 +6300,18 @@
   created_at: 2026-01-29T22:46:32.765Z
   notes: []
   todos: []
-- title: Fix pre-existing lint errors across packages
+- _ulid: 01KG5ZB9KHZE3EMSKMJP8VBBC8
+  slugs: []
+  title: Fix pre-existing lint errors across packages
   type: task
   spec_ref: null
   meta_ref: null
-  priority: 3
-  slugs: []
-  tags: []
-  _ulid: 01KG5ZB9KHZE3EMSKMJP8VBBC8
   status: pending
   blocked_by: []
   depends_on: []
   context: []
+  priority: 3
+  tags: []
   vcs_refs: []
   created_at: 2026-01-29T22:52:54.257Z
   notes: []

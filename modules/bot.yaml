@@ -39,3 +39,7 @@ features:
         given: required variable missing
         when: config loaded
         then: throws descriptive error identifying the missing variable
+      - id: ac-3
+        given: optional variable missing
+        when: config loaded
+        then: uses sensible defaults (logLevel=info, healthCheckInterval=30000)

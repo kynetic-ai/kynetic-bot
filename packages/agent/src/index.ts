@@ -25,5 +25,21 @@ export type {
   SkillResult,
 } from './skills-types.js';
 
+// Escalation Handler
+export {
+  EscalationHandler,
+  EscalationError,
+  EscalationNotFoundError,
+  EscalationAlreadyAcknowledgedError,
+} from './escalation.js';
+export type {
+  EscalationState,
+  EscalationFallback,
+  EscalationConfig,
+  EscalationRecord,
+  EscalationHandlerEvents,
+  EscalationHandlerOptions,
+} from './escalation.js';
+
 // ACP Client
 export * from './acp/index.js';

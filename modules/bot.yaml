@@ -53,6 +53,10 @@ features:
         given: invalid value format
         when: validated
         then: returns Zod error with path and expected type
+      - id: ac-5
+        given: ESCALATION_CHANNEL environment variable set
+        when: config loaded
+        then: includes escalationChannel in config for dedicated escalation notifications
   - _ulid: 01KG4GC3A9Y86BFZ87BM4D6N6W
     slugs:
       - bot-orchestration

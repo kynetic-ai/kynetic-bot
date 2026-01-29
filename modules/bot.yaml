@@ -48,3 +48,18 @@ features:
         given: invalid value format
         when: validated
         then: returns Zod error with path and expected type
+  - _ulid: 01KG4GC3A9Y86BFZ87BM4D6N6W
+    slugs:
+      - bot-orchestration
+    title: Bot Orchestration
+    type: feature
+    tags: []
+    description: Main Bot class that wires ChannelRegistry, AgentLifecycle, SessionKeyRouter, and
+      KbotShadow together. Handles message flow from channel to agent and back.
+    depends_on: []
+    implements: []
+    relates_to: []
+    tests: []
+    traits: []
+    notes: []
+    created: 2026-01-29T09:11:57.514Z

@@ -1269,7 +1269,7 @@
   type: task
   spec_ref: "@mem-shadow-storage"
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on:
     - "@core-types"
@@ -1478,6 +1478,7 @@
       supersedes: null
   todos: []
   automation: needs_review
+  started_at: 2026-01-29T02:53:25.330Z
 - _ulid: 01KG1TDKTGZFS74P83XX93YKJF
   slugs:
     - agent-lifecycle-task

@@ -2478,6 +2478,104 @@
         ## Verification
         Integration tests with compaction threshold set to 5 for quick testing.
       supersedes: null
+    - _ulid: 01KG4C81C1EQ95JK1RVSJ0KFVT
+      created_at: 2026-01-29T07:59:50.145Z
+      author: "@claude"
+      content: >-
+        ## Clarification (2026-01-28)
+
+
+        ### Storage Mechanism Clarified
+
+
+        **Incorrect reference in original notes:** "kspec notes" / "KspecSync" don't exist in
+        codebase
+
+
+        **Correct approach:** Use KbotShadow + JSONL files (matches spec ACs)
+
+
+        ### Storage Structure (from spec)
+
+
+        ```
+
+        .kbot/conversations/
+
+        ├── {conversation-id}/
+
+        │   ├── metadata.yaml    # ConversationMetadata (from @conversation-types)
+
+        │   └── turns.jsonl      # Append-only turn log
+
+        ```
+
+
+        ### Updated Dependencies
+
+        - @shadow-storage-init [COMPLETED] - KbotShadow for persistence
+
+        - @conversation-types - Zod schemas for turns (should implement first)
+
+
+        ### Constructor Signature
+
+
+        ```typescript
+
+        class ConversationStorage {
+          constructor(
+            private shadow: KbotShadow,
+            private options: ConversationStorageOptions
+          );
+        }
+
+        ```
+
+
+        ### Key Methods (from spec ACs)
+
+
+        ```typescript
+
+        // AC-1, AC-2: Append turns
+
+        appendTurn(conversationId: string, turn: ConversationTurnInput): Promise<ConversationTurn>;
+
+
+        // AC-3: Recovery on restart
+
+        recover(conversationId: string): Promise<ConversationTurn[]>;
+
+
+        // AC-4: Idempotency via message_id
+
+        private isDuplicate(conversationId: string, messageId: string): boolean;
+
+
+        // AC-5: Event emission
+
+        // Emits 'turn:appended', 'conversation:created'
+
+
+        // AC-6: Zod validation
+
+        // Uses ConversationTurnSchema from @conversation-types
+
+
+        // AC-7: Session reference validation
+
+        private validateSessionRef(agentSessionId: string): Promise<boolean>;
+
+        ```
+
+
+        ### Implementation Order
+
+        1. @conversation-types (Zod schemas) - prerequisite
+
+        2. @conversation-storage (this task) - uses schemas
+      supersedes: null
   todos: []
   automation: eligible
 - _ulid: 01KG1TEACYBVQ0NNP51BBC4KSQ

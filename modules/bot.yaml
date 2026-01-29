@@ -11,7 +11,12 @@ description: Main bot orchestration layer that wires all components together to 
 tags: []
 depends_on: []
 implements: []
-relates_to: []
+relates_to:
+  - "@channel-registry"
+  - "@channel-lifecycle"
+  - "@agent-lifecycle"
+  - "@msg-routing"
+  - "@mem-shadow-storage"
 tests: []
 traits: []
 notes: []

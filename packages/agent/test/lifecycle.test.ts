@@ -655,5 +655,102 @@ describe('AgentLifecycle', () => {
       expect(restored.consecutiveFailures).toBe(saved.consecutiveFailures);
       expect(restored.currentBackoffMs).toBe(saved.currentBackoffMs);
     });
+
+    // Issue 8: Test that no respawn occurs during intentional shutdown
+    it('should NOT trigger respawn when process exits during stop', async () => {
+      await lifecycle.spawn();
+      mockSpawn.mockClear();
+
+      await lifecycle.stop();
+
+      // Should NOT have attempted respawn during intentional shutdown
+      expect(mockSpawn).not.toHaveBeenCalled();
+      expect(lifecycle.getState()).toBe('idle');
+    });
+
+    // Issue 9: Test actual escalation path through code
+    // This tests that the escalate event fires when spawn fails at max backoff
+    // The escalate event is emitted in restartUnhealthyAgent after performSpawn fails
+    // and currentBackoffMs >= options.backoff.max
+    it('should emit escalate when respawn fails at max backoff', async () => {
+      // Create lifecycle with small max backoff for testing
+      const testLifecycle = new AgentLifecycle({
+        command: 'test-agent',
+        args: ['--test'],
+        healthCheckInterval: 1000,
+        failureThreshold: 3,
+        shutdownTimeout: 100,
+        backoff: {
+          initial: 10,
+          max: 10, // Same as initial so first failure triggers escalate
+          multiplier: 2,
+        },
+      });
+
+      // Track escalation
+      let escalated = false;
+      let escalateReason = '';
+      testLifecycle.on('escalate', (reason) => {
+        escalated = true;
+        escalateReason = reason;
+      });
+
+      // First spawn succeeds
+      const process1 = createMockChildProcess();
+      mockSpawn.mockReturnValueOnce(process1 as unknown as ReturnType<typeof spawn>);
+      await testLifecycle.spawn();
+
+      expect(testLifecycle.getState()).toBe('healthy');
+
+      // Make future spawns fail - this must be set BEFORE triggering exit
+      mockSpawn.mockImplementation(() => {
+        throw new Error('Spawn failed');
+      });
+
+      // Trigger unexpected exit - this calls handleProcessExit -> restartUnhealthyAgent
+      // Flow: handleProcessExit -> restartUnhealthyAgent -> kill -> wait backoff -> performSpawn (fails) -> check escalate
+      // At this point backoff is at initial (10ms) which equals max (10ms)
+      // After performSpawn fails, backoff increases to min(10*2, 10) = 10, still at max
+      // Then escalate is emitted
+      process1.exitCode = 1;
+      process1._emit('exit', 1, null);
+
+      // Wait for: kill + backoff (10ms) + spawn attempt + processing
+      await delay(100);
+
+      expect(escalated).toBe(true);
+      expect(escalateReason).toContain('Max backoff reached');
+    });
+
+    // Issue 10: Test checkpoint restore returns false from non-idle state
+    it('should return false when restoring from non-idle state', async () => {
+      await lifecycle.spawn();
+
+      const result = lifecycle.restoreFromCheckpoint({
+        timestamp: Date.now(),
+        state: 'idle',
+        consecutiveFailures: 0,
+        currentBackoffMs: 1000,
+      });
+
+      expect(result).toBe(false);
+      expect(lifecycle.getState()).toBe('healthy');
+
+      await lifecycle.kill();
+    });
+
+    // Additional test: verify restoreFromCheckpoint returns true on success
+    it('should return true when restoring from idle state', () => {
+      const result = lifecycle.restoreFromCheckpoint({
+        timestamp: Date.now(),
+        state: 'failed',
+        consecutiveFailures: 5,
+        currentBackoffMs: 2000,
+      });
+
+      expect(result).toBe(true);
+      expect(lifecycle.getCheckpoint().consecutiveFailures).toBe(5);
+      expect(lifecycle.getCheckpoint().currentBackoffMs).toBe(2000);
+    });
   });
 });

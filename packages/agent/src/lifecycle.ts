@@ -186,30 +186,32 @@ export class AgentLifecycle extends EventEmitter {
     this.process.kill('SIGTERM');
 
     // Wait for process to exit or timeout
+    let timeoutId: NodeJS.Timeout | null = null;
+
     const exitPromise = new Promise<void>((resolve) => {
       if (!this.process) {
         resolve();
         return;
       }
 
-      const onExit = () => {
-        resolve();
-      };
-
-      this.process.once('exit', onExit);
-
-      // Also resolve if process is already dead
+      // Check if already dead BEFORE adding listener (avoids TOCTOU race)
       if (this.process.exitCode !== null || this.process.signalCode !== null) {
-        this.process.removeListener('exit', onExit);
         resolve();
+        return;
       }
+
+      this.process.once('exit', () => resolve());
     });
 
-    const timeoutPromise = new Promise<'timeout'>((resolve) =>
-      setTimeout(() => resolve('timeout'), this.options.shutdownTimeout),
-    );
+    const timeoutPromise = new Promise<'timeout'>((resolve) => {
+      timeoutId = setTimeout(() => resolve('timeout'), this.options.shutdownTimeout);
+    });
 
     const result = await Promise.race([exitPromise, timeoutPromise]);
+
+    if (timeoutId !== null) {
+      clearTimeout(timeoutId);
+    }
 
     if (result === 'timeout') {
       log.warn('Graceful shutdown timeout, force killing', {
@@ -254,14 +256,13 @@ export class AgentLifecycle extends EventEmitter {
         return;
       }
 
-      const onExit = () => resolve();
-      this.process.once('exit', onExit);
-
-      // Already dead
+      // Check if already dead BEFORE adding listener (avoids TOCTOU race)
       if (this.process.exitCode !== null || this.process.signalCode !== null) {
-        this.process.removeListener('exit', onExit);
         resolve();
+        return;
       }
+
+      this.process.once('exit', () => resolve());
     });
 
     // Emit shutdown:complete BEFORE cleanup (which removes listeners)
@@ -291,14 +292,16 @@ export class AgentLifecycle extends EventEmitter {
    *
    * Note: This only restores state metadata. The actual process
    * must be re-spawned separately.
+   *
+   * @returns true if restoration succeeded, false if not in idle state
    */
-  restoreFromCheckpoint(checkpoint: AgentCheckpoint): void {
+  restoreFromCheckpoint(checkpoint: AgentCheckpoint): boolean {
     // Only restore if in idle state
     if (this.state !== 'idle') {
       log.warn('Cannot restore checkpoint, not in idle state', {
         currentState: this.state,
       });
-      return;
+      return false;
     }
 
     this.consecutiveFailures = checkpoint.consecutiveFailures;
@@ -310,6 +313,7 @@ export class AgentLifecycle extends EventEmitter {
       savedState: checkpoint.state,
       consecutiveFailures: checkpoint.consecutiveFailures,
     });
+    return true;
   }
 
   /**
@@ -404,7 +408,10 @@ export class AgentLifecycle extends EventEmitter {
       this.consecutiveFailures = 0;
       this.currentBackoffMs = this.options.backoff.initial;
 
-      const pid = this.process.pid!;
+      const pid = this.process.pid;
+      if (pid === undefined) {
+        throw new Error('Process spawned but PID is undefined');
+      }
       log.info('Agent spawned successfully', { pid });
       this.emit('agent:spawned', pid);
 
@@ -621,6 +628,11 @@ export class AgentLifecycle extends EventEmitter {
     log.info('Agent process exited', { code, signal });
     this.emit('agent:exited', code, signal);
 
+    // Don't trigger respawn during intentional shutdown
+    if (this.state === 'stopping' || this.state === 'terminating') {
+      return;
+    }
+
     // If we were healthy, this is unexpected - mark as unhealthy
     if (this.state === 'healthy' || this.state === 'unhealthy') {
       this.transitionState('unhealthy');
@@ -670,16 +682,17 @@ export class AgentLifecycle extends EventEmitter {
     // Clear timers
     this.stopHealthMonitoring();
 
+    // Remove ACP client listeners before nulling to prevent accumulation
+    if (this.acpClient) {
+      this.acpClient.removeAllListeners();
+      this.acpClient.close();
+    }
+
     // Clear references
     this.process = null;
     this.acpClient = null;
     this.sessionId = undefined;
 
-    // Remove all listeners (except error to avoid issues)
-    const errorListeners = this.listeners('error');
-    this.removeAllListeners();
-    for (const listener of errorListeners) {
-      this.on('error', listener as (...args: unknown[]) => void);
-    }
+    // Don't remove user-attached listeners - instance remains usable
   }
 }

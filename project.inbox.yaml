@@ -33,3 +33,9 @@ inbox:
     created_at: 2026-01-29T19:13:34.642Z
     tags: []
     added_by: "@claude"
+  - _ulid: 01KG5YZQ3CQA4PEGAV4HVYQ90H
+    text: "Discord splitter: actually append truncation marker when hard-cutting long content without
+      word boundaries"
+    created_at: 2026-01-29T22:46:34.861Z
+    tags: []
+    added_by: "@claude"

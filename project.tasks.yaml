@@ -5635,6 +5635,140 @@
         - ac-5: Given agent process crashes, when detected by health monitor, then attempts restart
         with backoff per AgentLifecycle behavior
       supersedes: null
+    - _ulid: 01KG4GEZ3AS96WNB2Y4DAJMQMQ
+      created_at: 2026-01-29T09:13:31.498Z
+      author: "@claude"
+      content: |-
+        ## Implementation
+
+        **File**: `packages/bot/src/bot.ts`
+
+        **Class structure**:
+        ```typescript
+        import { ChannelRegistry, ChannelLifecycle } from '@kynetic-bot/channels';
+        import { AgentLifecycle } from '@kynetic-bot/agent';
+        import { SessionKeyRouter } from '@kynetic-bot/messaging';
+        import { KbotShadow } from '@kynetic-bot/memory';
+        import { createLogger, type NormalizedMessage } from '@kynetic-bot/core';
+        import type { BotConfig } from './config.js';
+
+        const log = createLogger('bot');
+
+        export class Bot {
+          private config: BotConfig;
+          private registry: ChannelRegistry;
+          private channelLifecycle: ChannelLifecycle | null = null;
+          private agent: AgentLifecycle;
+          private router: SessionKeyRouter;
+          private shadow: KbotShadow;
+
+          private constructor(config: BotConfig) {
+            this.config = config;
+          }
+
+          static async create(config: BotConfig): Promise<Bot> {
+            const bot = new Bot(config);
+            await bot.initialize();
+            return bot;
+          }
+
+          private async initialize(): Promise<void> {
+            // 1. Initialize shadow storage
+            this.shadow = new KbotShadow({
+              projectRoot: process.cwd(),
+              worktreeDir: this.config.kbotDataDir,
+            });
+            await this.shadow.initialize();
+
+            // 2. Initialize channel registry
+            this.registry = new ChannelRegistry();
+
+            // 3. Initialize agent lifecycle
+            this.agent = new AgentLifecycle({
+              command: this.config.agentCommand,
+              healthCheckInterval: this.config.healthCheckInterval,
+              shutdownTimeout: this.config.shutdownTimeout,
+            });
+
+            // 4. Initialize router with valid agents
+            this.router = new SessionKeyRouter();
+
+            // 5. Wire up escalation handler
+            this.agent.on('escalate', (reason, ctx) => this.handleEscalation(reason, ctx));
+          }
+
+          async start(): Promise<void> {
+            // Note: Discord adapter registration happens externally
+            // This allows flexibility for testing with mock adapters
+            await this.agent.spawn();
+            log.info('Bot started');
+          }
+
+          async stop(): Promise<void> {
+            log.info('Shutting down...');
+            await this.agent.stop();
+            if (this.channelLifecycle) {
+              await this.channelLifecycle.stop();
+            }
+            await this.shadow.shutdown();
+            log.info('Bot stopped');
+          }
+
+          async handleMessage(msg: NormalizedMessage): Promise<void> {
+            try {
+              // 1. Route to session
+              const result = this.router.resolveSession(msg, 'default');
+              if (\!result.ok) {
+                log.error('Routing failed', { error: result.error });
+                return;
+              }
+
+              // 2. Get ACP client from agent
+              const client = this.agent.getClient();
+              if (\!client) {
+                log.warn('Agent not ready, queuing message');
+                return;
+              }
+
+              // 3. Send to agent
+              const response = await client.sendPrompt({
+                sessionKey: result.value.sessionKey,
+                content: msg.content,
+                source: 'user',
+              });
+
+              // 4. Send response back via channel
+              // (handled by caller who has channel reference)
+
+            } catch (err) {
+              log.error('Message handling failed', { error: err });
+            }
+          }
+
+          private handleEscalation(reason: string, context: Record<string, unknown>): void {
+            log.error('Agent escalation', { reason, ...context });
+            // Future: notify configured escalation channel
+          }
+
+          // Accessors for wiring
+          get channelRegistry(): ChannelRegistry { return this.registry; }
+          get agentLifecycle(): AgentLifecycle { return this.agent; }
+          get sessionRouter(): SessionKeyRouter { return this.router; }
+        }
+        ```
+
+        **Test file**: `packages/bot/test/bot.test.ts`
+
+        **Test coverage**:
+        - AC-1: Mock all dependencies, verify Bot.create() initializes them
+        - AC-2: Mock message flow, verify routing -> agent -> response
+        - AC-3: Emit escalate event, verify logged
+        - AC-4: Call stop(), verify graceful shutdown sequence
+        - AC-5: Simulate agent crash, verify restart attempted
+
+        **Note**: Actual Discord adapter integration is separate (@discord-adapter task).
+        This task focuses on the Bot class orchestration with mockable interfaces.
+      supersedes: null
   todos: []
 - _ulid: 01KG4GE0DG8QHPJF3118HPK4KJ
   slugs:

@@ -13,6 +13,8 @@
   },
   "dependencies": {
     "@kynetic-bot/core": "workspace:*",
+    "ulid": "^2.3",
+    "yaml": "^2.8",
     "zod": "^3.23"
   }
 }

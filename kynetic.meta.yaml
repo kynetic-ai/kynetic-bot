@@ -124,4 +124,13 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KG4E8Z32VWJTGFH8G2EX5VYB
+    type: friction
+    content: Created duplicate task (@01KG4D9F) without checking existing tasks. Subagent MVP analysis
+      didn't surface @bot-integration. Should run 'kspec search' before creating new tasks to avoid
+      duplication.
+    created_at: 2026-01-29T08:35:17.730Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

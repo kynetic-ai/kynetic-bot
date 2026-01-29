@@ -17,6 +17,7 @@ relates_to:
   - "@agent-lifecycle"
   - "@msg-routing"
   - "@mem-shadow-storage"
+  - "@bot-config"
 tests: []
 traits: []
 notes: []

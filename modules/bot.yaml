@@ -102,3 +102,8 @@ features:
     traits: []
     notes: []
     created: 2026-01-29T09:12:31.692Z
+    acceptance_criteria:
+      - id: ac-1
+        given: pnpm start or node dist/cli.js
+        when: executed
+        then: loads config, creates bot, starts listening

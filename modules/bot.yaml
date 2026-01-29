@@ -1,0 +1,17 @@
+_ulid: 01KG4GB4JN84KJR979D8S8K757
+slugs:
+  - bot
+title: Bot
+type: module
+status:
+  maturity: draft
+  implementation: not_started
+description: Main bot orchestration layer that wires all components together to create a functioning
+  Discord bot.
+tags: []
+depends_on: []
+implements: []
+relates_to: []
+tests: []
+traits: []
+notes: []

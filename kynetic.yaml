@@ -3,12 +3,6 @@ project:
   name: Kynetic Bot
   version: 0.1.0
   status: draft
-includes:
-  - modules/main.yaml
-  - modules/messaging.yaml
-  - modules/channels.yaml
-  - modules/memory.yaml
-  - modules/agent.yaml
 traits:
   - _ulid: 01KG1VAR4N7TPZJTPHGSNZCWY8
     slugs:
@@ -192,3 +186,10 @@ traits:
         given: type mismatch
         when: detected
         then: includes expected type in error
+includes:
+  - modules/main.yaml
+  - modules/messaging.yaml
+  - modules/channels.yaml
+  - modules/memory.yaml
+  - modules/agent.yaml
+  - modules/bot.yaml

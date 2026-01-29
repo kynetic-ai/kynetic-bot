@@ -3675,7 +3675,7 @@
         Task ready for automation.
       supersedes: null
   todos: []
-  automation: needs_review
+  automation: eligible
 - _ulid: 01KG1TFDZ926K9T6TGVDCBWBFH
   slugs:
     - e2e-tests

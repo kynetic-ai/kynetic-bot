@@ -5591,6 +5591,26 @@
 
         **Dependencies**: zod (already in monorepo)
       supersedes: null
+    - _ulid: 01KG4K4W15YD7140H72T3SE3T3
+      created_at: 2026-01-29T10:00:26.406Z
+      author: "@claude"
+      content: |-
+        ## Config Schema Update
+
+        Add escalationChannel to BotConfigSchema:
+
+        ```typescript
+        export const BotConfigSchema = z.object({
+          // ... existing fields ...
+
+          // Optional escalation channel (defaults to conversation channel if not set)
+          escalationChannel: z.string().optional(),
+        });
+        ```
+
+        When ESCALATION_CHANNEL is set, escalation notifications go there.
+        When not set, escalations go to the same channel as the conversation.
+      supersedes: null
   todos: []
   automation: eligible
 - _ulid: 01KG4GE0C5SBMNM64Y3DGVF6YZ

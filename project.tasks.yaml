@@ -5520,15 +5520,21 @@
         expected type
       supersedes: null
   todos: []
-- title: "Implement: Bot Orchestration"
+- _ulid: 01KG4GE0C5SBMNM64Y3DGVF6YZ
+  slugs:
+    - task-bot-orchestration
+  title: "Implement: Bot Orchestration"
   type: task
   spec_ref: "@bot-orchestration"
   derivation: auto
-  priority: 3
-  slugs:
-    - task-bot-orchestration
-  tags: []
+  status: pending
+  blocked_by: []
   depends_on: []
+  context: []
+  priority: 3
+  tags: []
+  vcs_refs: []
+  created_at: 2026-01-29T09:13:00.037Z
   notes:
     - _ulid: 01KG4GE0C56PSAVK86P7XNCVY3
       created_at: 2026-01-29T09:13:00.037Z
@@ -5559,10 +5565,45 @@
         - ac-5: Given agent process crashes, when detected by health monitor, then attempts restart
         with backoff per AgentLifecycle behavior
       supersedes: null
-  _ulid: 01KG4GE0C5SBMNM64Y3DGVF6YZ
+  todos: []
+- title: "Implement: Bot CLI"
+  type: task
+  spec_ref: "@bot-cli"
+  derivation: auto
+  priority: 3
+  slugs:
+    - task-bot-cli
+  tags: []
+  depends_on: []
+  notes:
+    - _ulid: 01KG4GE0DGBV3JSWMHDVVX29EE
+      created_at: 2026-01-29T09:13:00.080Z
+      author: "@claude"
+      content: >-
+        Implementation notes (auto-generated from spec):
+
+
+        CLI entry point that bootstraps the bot, handles process signals, and manages graceful
+        shutdown.
+
+
+
+        Acceptance Criteria:
+
+        - ac-1: Given pnpm start or node dist/cli.js, when executed, then loads config, creates bot,
+        starts listening
+
+        - ac-2: Given SIGINT (Ctrl+C), when received, then initiates graceful shutdown
+
+        - ac-3: Given SIGTERM, when received, then initiates graceful shutdown
+
+        - ac-4: Given uncaught exception, when thrown, then logs error, attempts graceful shutdown,
+        exits with code 1
+      supersedes: null
+  _ulid: 01KG4GE0DG8QHPJF3118HPK4KJ
   status: pending
   blocked_by: []
   context: []
   vcs_refs: []
-  created_at: 2026-01-29T09:13:00.037Z
+  created_at: 2026-01-29T09:13:00.080Z
   todos: []

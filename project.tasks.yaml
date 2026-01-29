@@ -5599,7 +5599,8 @@
   derivation: auto
   status: pending
   blocked_by: []
-  depends_on: []
+  depends_on:
+    - "@task-bot-configuration"
   context: []
   priority: 3
   tags: []

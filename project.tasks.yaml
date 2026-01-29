@@ -5800,6 +5800,56 @@
       content: "Automation status set to needs_review: Complex integration of 5 components; requires
         careful mocking strategy"
       supersedes: null
+    - _ulid: 01KG4K5G0KWFCDR1MQTFGTXNG7
+      created_at: 2026-01-29T10:00:46.868Z
+      author: "@claude"
+      content: |-
+        ## Escalation Design
+
+        **Bot tracks lastActiveChannel** for escalation fallback:
+
+        ```typescript
+        // In Bot class
+        export class Bot extends EventEmitter {
+          private lastActiveChannel: string | null = null;
+
+          async handleMessage(msg: NormalizedMessage): Promise<void> {
+            // Track last active channel for escalation fallback
+            this.lastActiveChannel = msg.channelId;
+            // ... rest of message handling
+          }
+
+          private handleEscalation(reason: string, context: Record<string, unknown>): void {
+            log.error('Agent escalation', { reason, ...context });
+            this.emit('escalation', {
+              reason,
+              context,
+              lastActiveChannel: this.lastActiveChannel,
+            });
+          }
+        }
+        ```
+
+        **CLI/orchestrator wires the event** to send notification:
+
+        ```typescript
+        bot.on('escalation', async ({ reason, context, lastActiveChannel }) => {
+          const targetChannel = config.escalationChannel || lastActiveChannel;
+          if (targetChannel) {
+            await channelAdapter.sendMessage(targetChannel, formatEscalation(reason, context));
+          } else {
+            log.warn('No channel available for escalation notification');
+          }
+        });
+        ```
+
+        **Priority order**:
+        1. escalationChannel (from config) - dedicated ops channel
+        2. lastActiveChannel - most recent conversation
+        3. Log warning if neither available
+
+        This keeps Bot adapter-agnostic while supporting dedicated escalation channels.
+      supersedes: null
   todos: []
   automation: needs_review
 - _ulid: 01KG4GE0DG8QHPJF3118HPK4KJ

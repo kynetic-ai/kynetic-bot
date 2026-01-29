@@ -115,3 +115,7 @@ features:
         given: SIGTERM
         when: received
         then: initiates graceful shutdown
+      - id: ac-4
+        given: uncaught exception
+        when: thrown
+        then: logs error, attempts graceful shutdown, exits with code 1

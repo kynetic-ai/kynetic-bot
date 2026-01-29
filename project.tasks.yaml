@@ -2286,6 +2286,110 @@
       content: "Automation status set to needs_review: First policy-based access control implementation,
         sets patterns for approval workflows"
       supersedes: null
+    - _ulid: 01KG4C13WGB4ZFZKM5YWW3M7CB
+      created_at: 2026-01-29T07:56:03.347Z
+      author: "@claude"
+      content: >-
+        ## Updated Analysis (2026-01-28)
+
+
+        ### Storage Strategy Resolved: YAML + KbotShadow
+
+
+        **Decision**: Use `.kbot/dm-policy/pending-requests.yaml` with KbotShadow integration
+
+
+        ### Storage Structure
+
+
+        ```
+
+        .kbot/dm-policy/
+
+        ├── pending-requests.yaml      # Active requests (mutable, compacted)
+
+        └── archive/                   # Expired/resolved requests (append-only)
+            └── YYYY-MM-DD.jsonl
+        ```
+
+
+        ### PendingDMRequestsStore Interface
+
+
+        ```typescript
+
+        interface PendingDMRequest {
+          id: string;           // ULID
+          userId: string;
+          platform: string;
+          pairingCode: string;  // 6-char alphanumeric
+          expiresAt: number;    // Unix ms, TTL 60 min
+          createdAt: number;
+          channel: string;      // session key
+          status: 'pending' | 'approved' | 'rejected' | 'expired';
+        }
+
+
+        class PendingDMRequestsStore {
+          constructor(shadow: KbotShadow);
+          // CRUD
+          create(request: Omit<PendingDMRequest, 'id' | 'createdAt'>): Promise<PendingDMRequest>;
+          get(id: string): Promise<PendingDMRequest | null>;
+          list(filters?: { userId?: string; platform?: string; status?: string }): Promise<PendingDMRequest[]>;
+          // State changes (idempotent)
+          approve(id: string): Promise<void>;
+          reject(id: string): Promise<void>;
+          // Maintenance
+          cleanupExpired(): Promise<number>;
+          compact(): Promise<void>;  // Auto at 50+ items
+        }
+
+        ```
+
+
+        ### Integration Pattern
+
+
+        ```typescript
+
+        // Initialize with shadow
+
+        const shadow = new KbotShadow({ projectRoot });
+
+        await shadow.initialize();
+
+        const requestStore = new PendingDMRequestsStore(shadow);
+
+
+        // Create request - auto-commits via shadow scheduler
+
+        const request = await requestStore.create({
+          userId: '+1234567890',
+          platform: 'whatsapp',
+          pairingCode: generatePairingCode(),
+          expiresAt: Date.now() + 60 * 60 * 1000, // 60 min TTL
+          channel: 'whatsapp:user:+1234567890',
+          status: 'pending',
+        });
+
+        shadow.recordEvent('dm-policy', `request-created:${request.id}`);
+
+        ```
+
+
+        ### Dependencies Updated
+
+        - @channel-registry-task [COMPLETED]
+
+        - @shadow-storage-init [COMPLETED] - KbotShadow for persistence
+
+        - Remove "KspecSync" reference - use KbotShadow directly
+
+
+        ### Blocking Issue Resolved
+
+        Storage strategy now defined. Task can proceed with automation.
+      supersedes: null
   todos: []
   automation: needs_review
 - _ulid: 01KG1TE7D2JHEF3R1KYJ7TRYJ0

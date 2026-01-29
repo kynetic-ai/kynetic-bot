@@ -107,3 +107,7 @@ features:
         given: pnpm start or node dist/cli.js
         when: executed
         then: loads config, creates bot, starts listening
+      - id: ac-2
+        given: SIGINT (Ctrl+C)
+        when: received
+        then: initiates graceful shutdown

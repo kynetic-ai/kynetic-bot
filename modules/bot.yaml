@@ -101,6 +101,7 @@ features:
     tests: []
     traits:
       - "@trait-graceful-shutdown"
+      - "@trait-observable"
     notes: []
     created: 2026-01-29T09:12:31.692Z
     acceptance_criteria:

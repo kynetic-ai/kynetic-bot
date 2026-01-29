@@ -1935,6 +1935,14 @@
         propagate message IDs. Added discord.js dependency. Exports added to
         packages/channels/src/index.ts."
       supersedes: null
+    - _ulid: 01KG5ZBPPZGP78E9G95A76HD22
+      created_at: 2026-01-29T22:53:07.679Z
+      author: "@claude"
+      content: "Submitted PR #15, reviewed by subagent (approved with minor suggestions). Merged to main
+        as commit 93be434. Follow-up items captured: task for embed strategy (01KG5YZN), inbox items
+        for truncation marker, health checks, rate limit logging, configurable bot filtering,
+        expanded send options."
+      supersedes: null
   todos: []
   automation: manual_only
 - _ulid: 01KG1TDRB07CBH2J4K25G786ET

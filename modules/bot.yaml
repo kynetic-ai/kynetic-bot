@@ -76,3 +76,7 @@ features:
         given: agent emits escalate event
         when: handled
         then: logs error with context and optionally notifies configured channel
+      - id: ac-4
+        given: SIGTERM/SIGINT received
+        when: shutdown triggered
+        then: gracefully stops agent, drains messages, disconnects Discord

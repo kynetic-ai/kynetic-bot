@@ -1541,7 +1541,7 @@
   type: task
   spec_ref: "@agent-lifecycle"
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on:
     - "@core-types"
@@ -1771,6 +1771,10 @@
       supersedes: null
   todos: []
   automation: needs_review
+  completed_at: 2026-01-29T06:33:14.455Z
+  closed_reason: "AgentLifecycle implemented with full state machine, health monitoring, spawn rate
+    limiting, graceful shutdown, and checkpoint persistence. PR #6 merged with all review fixes
+    addressed. 34 tests passing."
 - _ulid: 01KG1TDNYQD551HSS3ZHQH81GT
   slugs:
     - discord-adapter

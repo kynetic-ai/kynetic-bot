@@ -62,6 +62,7 @@ features:
     tests: []
     traits:
       - "@trait-observable"
+      - "@trait-recoverable"
     notes: []
     created: 2026-01-29T09:11:57.514Z
     acceptance_criteria:

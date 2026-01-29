@@ -4,6 +4,11 @@
  * Defines schemas for conversation metadata and turns.
  * Two-layer conversation tracking: user threads linked to agent sessions.
  *
+ * Note on AC-7 (agent_session_id reference validation):
+ * Validating that agent_session_id references an existing session requires
+ * async storage lookup and is therefore a service-layer concern, not schema
+ * validation. The ConversationStorage implementation will handle this.
+ *
  * @see @mem-conversation
  */
 
@@ -43,11 +48,18 @@ export type TurnRole = z.infer<typeof TurnRoleSchema>;
  *
  * Tracks conversation-level information, separate from individual turns.
  */
+/**
+ * Session key format pattern.
+ * Format: platform:kind:identifier (e.g., "discord:dm:123456" or "discord:guild:server:channel:user")
+ * Flexible pattern allows for varying segment counts depending on platform.
+ */
+export const SESSION_KEY_PATTERN = /^[\w-]+(?::[\w-]+)+$/;
+
 export const ConversationMetadataSchema = z.object({
   /** Unique conversation identifier (ULID) */
   id: z.string().min(1),
-  /** Session key for routing (agent:X:platform:kind:peer format) */
-  session_key: z.string().min(1),
+  /** Session key for routing (platform:kind:identifier format) */
+  session_key: z.string().regex(SESSION_KEY_PATTERN, 'Invalid session key format'),
   /** Current conversation status */
   status: ConversationStatusSchema,
   /** ISO 8601 timestamp when conversation was created */
@@ -72,6 +84,10 @@ export type ConversationMetadata = z.infer<typeof ConversationMetadataSchema>;
  * AC: @mem-conversation ac-2 - agent_session_id links to agent sessions
  * AC: @mem-conversation ac-4 - message_id for idempotency/dedup
  * AC: @mem-conversation ac-6 - Zod validation for turns
+ *
+ * Note: content allows empty strings for system messages (e.g., function call
+ * results where the content may be encoded in metadata). User and assistant
+ * turns typically have non-empty content.
  */
 export const ConversationTurnSchema = z.object({
   /** Unix timestamp in milliseconds (auto-assigned if not provided) */
@@ -80,7 +96,7 @@ export const ConversationTurnSchema = z.object({
   seq: z.number().int().nonnegative(),
   /** Role of the message author */
   role: TurnRoleSchema,
-  /** Content of the turn/message */
+  /** Content of the turn/message (empty allowed for system messages with metadata) */
   content: z.string(),
   /** Links to AgentSession that generated this turn (for assistant turns) */
   agent_session_id: z.string().optional(),
@@ -173,7 +189,7 @@ export type ConversationEvent = z.infer<typeof ConversationEventSchema>;
  */
 export const ConversationCreatedDataSchema = z.object({
   /** Session key for the new conversation */
-  session_key: z.string().min(1),
+  session_key: z.string().regex(SESSION_KEY_PATTERN, 'Invalid session key format'),
   /** Optional trigger information */
   trigger: z.string().optional(),
 });

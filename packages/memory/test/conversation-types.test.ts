@@ -21,6 +21,7 @@ import {
   ConversationTurnSchema,
   ConversationUpdatedDataSchema,
   ConversationUpdatedEventSchema,
+  SESSION_KEY_PATTERN,
   TurnAppendedDataSchema,
   TurnAppendedEventSchema,
   TurnRecoveredDataSchema,
@@ -60,6 +61,33 @@ describe('Conversation Types', () => {
     });
   });
 
+  describe('SESSION_KEY_PATTERN', () => {
+    it('matches valid session key formats', () => {
+      const validKeys = [
+        'discord:dm:123456',
+        'discord:guild:server:channel:user',
+        'slack:workspace:channel',
+        'whatsapp:phone:12345',
+        'platform-1:kind_2:id-3',
+      ];
+      for (const key of validKeys) {
+        expect(SESSION_KEY_PATTERN.test(key)).toBe(true);
+      }
+    });
+
+    it('rejects invalid session key formats', () => {
+      const invalidKeys = [
+        'nocolon',            // No colon
+        'single:',            // Empty segment
+        ':invalid',           // Empty first segment
+        'has space:segment',  // Space not allowed
+      ];
+      for (const key of invalidKeys) {
+        expect(SESSION_KEY_PATTERN.test(key)).toBe(false);
+      }
+    });
+  });
+
   describe('ConversationMetadataSchema', () => {
     const validMetadata = {
       id: '01ABC123XYZ',
@@ -73,6 +101,15 @@ describe('Conversation Types', () => {
     it('validates required fields', () => {
       const result = ConversationMetadataSchema.safeParse(validMetadata);
       expect(result.success).toBe(true);
+    });
+
+    it('validates session_key format', () => {
+      const invalidKey = { ...validMetadata, session_key: 'invalid' };
+      const result = ConversationMetadataSchema.safeParse(invalidKey);
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues.some((i) => i.message.includes('Invalid session key format'))).toBe(true);
+      }
     });
 
     it('accepts optional metadata field', () => {
@@ -185,6 +222,13 @@ describe('Conversation Types', () => {
       const negativeTs = { ...validTurn, ts: -1000 };
       const result2 = ConversationTurnSchema.safeParse(negativeTs);
       expect(result2.success).toBe(false);
+    });
+
+    // Empty content allowed for system messages (e.g., function results in metadata)
+    it('allows empty content for system messages', () => {
+      const systemTurn = { ...validTurn, role: 'system' as const, content: '', metadata: { fn_result: 'ok' } };
+      const result = ConversationTurnSchema.safeParse(systemTurn);
+      expect(result.success).toBe(true);
     });
 
     it('rejects missing content', () => {
@@ -319,6 +363,12 @@ describe('Conversation Types', () => {
         };
         const result = ConversationCreatedDataSchema.safeParse(data);
         expect(result.success).toBe(true);
+      });
+
+      it('validates session_key format', () => {
+        const invalidKey = { session_key: 'invalid-no-colon' };
+        const result = ConversationCreatedDataSchema.safeParse(invalidKey);
+        expect(result.success).toBe(false);
       });
     });
 
@@ -505,7 +555,7 @@ describe('Conversation Types', () => {
 
     it('validates any typed event', () => {
       const events = [
-        { ...baseEvent, type: 'conversation_created' as const, data: { session_key: 'key' } },
+        { ...baseEvent, type: 'conversation_created' as const, data: { session_key: 'discord:dm:user' } },
         { ...baseEvent, type: 'conversation_updated' as const, data: { updated_fields: ['x'] } },
         { ...baseEvent, type: 'conversation_archived' as const, data: { final_turn_count: 10 } },
         { ...baseEvent, type: 'turn_appended' as const, data: { seq: 0, role: 'user' as const } },

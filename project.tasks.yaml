@@ -1926,7 +1926,7 @@
   type: task
   spec_ref: null
   meta_ref: null
-  status: pending
+  status: cancelled
   blocked_by: []
   depends_on:
     - "@session-router"
@@ -2134,6 +2134,7 @@
       supersedes: null
   todos: []
   automation: needs_review
+  closed_reason: "Replaced by spec-derived tasks: @task-bot-configuration, @task-bot-orchestration, @task-bot-cli"
 - _ulid: 01KG1TE1Y9HJ47QHAH57HJNX86
   slugs:
     - msg-transformer

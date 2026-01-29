@@ -3584,6 +3584,96 @@
       content: "Automation status set to needs_review: Human escalation paths require configuration of
         notification channels and fallback behavior"
       supersedes: null
+    - _ulid: 01KG4C76TQPEMSTH5HPY9M3X5X
+      created_at: 2026-01-29T07:59:22.968Z
+      author: "@claude"
+      content: |-
+        ## Updated Analysis (2026-01-28)
+
+        ### MVP Scope Clarified
+
+        **Notification channels:**
+        - MVP: Console only (always available via createLogger)
+        - Future: Discord, Slack via ChannelRegistry when adapters exist
+
+        **Default fallback:** Retry spawn (matches AgentLifecycle recovery pattern)
+
+        ### Integration with AgentLifecycle
+
+        AgentLifecycle already emits escalate event (lifecycle.ts:613-616):
+        ```typescript
+        this.emit('escalate', 'Max backoff reached after repeated spawn failures', {
+          backoffMs: this.currentBackoffMs,
+          consecutiveFailures: this.consecutiveFailures,
+        });
+        ```
+
+        EscalationHandler subscribes to this event.
+
+        ### Type Imports Clarified
+
+        ```typescript
+        import type { AgentLifecycleState, AgentCheckpoint } from './types.js';
+        import { AgentLifecycle } from './lifecycle.js';
+        import { KbotShadow } from '@kynetic-bot/memory';
+        import { ChannelRegistry } from '@kynetic-bot/channels';
+        import { createLogger, KyneticError } from '@kynetic-bot/core';
+        ```
+
+        ### State Persistence
+
+        Use KbotShadow for escalation audit trail:
+        ```
+        .kbot/escalations/
+        └── history.jsonl   # Append-only log of all escalations
+        ```
+
+        ### Updated Interface
+
+        ```typescript
+        interface EscalationConfig {
+          notificationChannels: string[];  // ['console'] for MVP
+          timeoutMs: number;               // Default: 300000 (5 min)
+          fallback: 'retry' | 'pause' | 'fail';  // Default: 'retry'
+          contacts?: Record<string, string>;     // Future: human contacts
+        }
+
+        type EscalationState = 'idle' | 'pending' | 'acknowledged' | 'timeout';
+
+        class EscalationHandler extends EventEmitter {
+          constructor(
+            lifecycle: AgentLifecycle,
+            channels: ChannelRegistry,
+            shadow: KbotShadow,
+            config: EscalationConfig
+          );
+          // AC-1: Notify on escalation
+          private handleEscalation(reason: string, context: Record<string, unknown>): Promise<void>;
+          // AC-2: Human acknowledgment
+          acknowledge(escalationId: string, humanId?: string): Promise<void>;
+          // AC-3: Timeout fallback
+          private handleTimeout(escalationId: string): Promise<void>;
+          // Events emitted
+          // 'escalation:notified' - notification sent
+          // 'escalation:acknowledged' - human took over
+          // 'escalation:timeout' - timeout triggered
+          // 'escalation:retry' - retry spawn fallback
+        }
+        ```
+
+        ### Blocking Issues Resolved
+        - Type imports: clarified above
+        - Notification channels: MVP uses console only
+        - State persistence: uses KbotShadow
+        - Fallback behavior: retry spawn by default
+
+        ### Dependencies Updated
+        - @agent-lifecycle-task [COMPLETED] - emits escalate event
+        - @shadow-storage-init [COMPLETED] - for persistence
+        - @channel-registry-task [COMPLETED] - future channel integration
+
+        Task ready for automation.
+      supersedes: null
   todos: []
   automation: needs_review
 - _ulid: 01KG1TFDZ926K9T6TGVDCBWBFH

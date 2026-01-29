@@ -2990,7 +2990,7 @@
   blocked_by: []
   depends_on:
     - "@msg-transformer"
-    - "@bot-integration"
+    - "@task-bot-orchestration"
   context: []
   priority: 2
   tags:

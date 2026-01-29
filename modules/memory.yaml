@@ -196,4 +196,4 @@ features:
         then: marks orphaned sessions as abandoned
     status:
       maturity: draft
-      implementation: in_progress
+      implementation: implemented

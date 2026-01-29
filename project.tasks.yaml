@@ -1269,7 +1269,7 @@
   type: task
   spec_ref: "@mem-shadow-storage"
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on:
     - "@core-types"
@@ -1531,6 +1531,9 @@
       supersedes: null
   todos: []
   automation: needs_review
+  completed_at: 2026-01-29T03:23:04.242Z
+  closed_reason: "Implemented shadow branch storage with auto-init, batch commits, crash recovery, and
+    events. PR #5 merged."
 - _ulid: 01KG1TDKTGZFS74P83XX93YKJF
   slugs:
     - agent-lifecycle-task

@@ -80,3 +80,7 @@ features:
         given: SIGTERM/SIGINT received
         when: shutdown triggered
         then: gracefully stops agent, drains messages, disconnects Discord
+      - id: ac-5
+        given: agent process crashes
+        when: detected by health monitor
+        then: attempts restart with backoff per AgentLifecycle behavior

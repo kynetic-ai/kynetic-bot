@@ -111,3 +111,7 @@ features:
         given: SIGINT (Ctrl+C)
         when: received
         then: initiates graceful shutdown
+      - id: ac-3
+        given: SIGTERM
+        when: received
+        then: initiates graceful shutdown

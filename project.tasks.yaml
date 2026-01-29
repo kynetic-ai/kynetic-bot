@@ -2272,7 +2272,7 @@
   type: task
   spec_ref: "@channel-dm-policy"
   meta_ref: null
-  status: in_progress
+  status: pending_review
   blocked_by: []
   depends_on:
     - "@channel-registry-task"
@@ -2283,6 +2283,7 @@
     - phase-2
   vcs_refs: []
   created_at: 2026-01-28T08:10:07.285Z
+  started_at: 2026-01-29T10:51:17.538Z
   notes:
     - _ulid: 01KG1TN3A38JPA66RCDQ26GRRD
       created_at: 2026-01-28T08:13:54.883Z
@@ -2479,7 +2480,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-01-29T10:51:17.538Z
 - _ulid: 01KG1TE7D2JHEF3R1KYJ7TRYJ0
   slugs:
     - conversation-storage

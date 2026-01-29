@@ -5519,6 +5519,76 @@
         - ac-4: Given invalid value format, when validated, then returns Zod error with path and
         expected type
       supersedes: null
+    - _ulid: 01KG4GEB0N7MZP98G50YZPTV22
+      created_at: 2026-01-29T09:13:10.934Z
+      author: "@claude"
+      content: >-
+        ## Implementation
+
+
+        **File**: `packages/bot/src/config.ts`
+
+
+        **Schema**:
+
+        ```typescript
+
+        import { z } from 'zod';
+
+
+        export const BotConfigSchema = z.object({
+          // Required
+          discordToken: z.string().min(1, 'DISCORD_TOKEN required'),
+          agentCommand: z.string().min(1, 'AGENT_COMMAND required'),
+
+          // Optional with defaults
+          kbotDataDir: z.string().default('.kbot'),
+          logLevel: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
+
+          // Agent options
+          healthCheckInterval: z.number().default(30000),
+          shutdownTimeout: z.number().default(10000),
+
+          // Discord options
+          discordIntents: z.array(z.string()).default(['Guilds', 'GuildMessages', 'MessageContent']),
+        });
+
+
+        export type BotConfig = z.infer<typeof BotConfigSchema>;
+
+
+        export function loadConfig(): BotConfig {
+          return BotConfigSchema.parse({
+            discordToken: process.env.DISCORD_TOKEN,
+            agentCommand: process.env.AGENT_COMMAND,
+            kbotDataDir: process.env.KBOT_DATA_DIR,
+            logLevel: process.env.LOG_LEVEL,
+            healthCheckInterval: process.env.HEALTH_CHECK_INTERVAL
+              ? parseInt(process.env.HEALTH_CHECK_INTERVAL) : undefined,
+            shutdownTimeout: process.env.SHUTDOWN_TIMEOUT
+              ? parseInt(process.env.SHUTDOWN_TIMEOUT) : undefined,
+          });
+        }
+
+        ```
+
+
+        **Test file**: `packages/bot/test/config.test.ts`
+
+
+        **Test coverage**:
+
+        - AC-1: Test with all env vars set
+
+        - AC-2: Test missing DISCORD_TOKEN throws
+
+        - AC-3: Test defaults when optional vars missing
+
+        - AC-4: Test invalid number format returns Zod error
+
+
+        **Dependencies**: zod (already in monorepo)
+      supersedes: null
   todos: []
 - _ulid: 01KG4GE0C5SBMNM64Y3DGVF6YZ
   slugs:
@@ -5566,15 +5636,21 @@
         with backoff per AgentLifecycle behavior
       supersedes: null
   todos: []
-- title: "Implement: Bot CLI"
+- _ulid: 01KG4GE0DG8QHPJF3118HPK4KJ
+  slugs:
+    - task-bot-cli
+  title: "Implement: Bot CLI"
   type: task
   spec_ref: "@bot-cli"
   derivation: auto
-  priority: 3
-  slugs:
-    - task-bot-cli
-  tags: []
+  status: pending
+  blocked_by: []
   depends_on: []
+  context: []
+  priority: 3
+  tags: []
+  vcs_refs: []
+  created_at: 2026-01-29T09:13:00.080Z
   notes:
     - _ulid: 01KG4GE0DGBV3JSWMHDVVX29EE
       created_at: 2026-01-29T09:13:00.080Z
@@ -5600,10 +5676,4 @@
         - ac-4: Given uncaught exception, when thrown, then logs error, attempts graceful shutdown,
         exits with code 1
       supersedes: null
-  _ulid: 01KG4GE0DG8QHPJF3118HPK4KJ
-  status: pending
-  blocked_by: []
-  context: []
-  vcs_refs: []
-  created_at: 2026-01-29T09:13:00.080Z
   todos: []

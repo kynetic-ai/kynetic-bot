@@ -6225,19 +6225,28 @@
       supersedes: null
   todos: []
   automation: eligible
-- title: Fix flaky ConversationStore concurrent access test
+- _ulid: 01KG5JN4DH1WAWA7YC9RF1433C
+  slugs: []
+  title: Fix flaky ConversationStore concurrent access test
   type: task
   spec_ref: null
   meta_ref: null
-  priority: 3
-  slugs: []
-  tags: []
-  _ulid: 01KG5JN4DH1WAWA7YC9RF1433C
   status: pending
   blocked_by: []
   depends_on: []
   context: []
+  priority: 3
+  tags: []
   vcs_refs: []
   created_at: 2026-01-29T19:11:05.137Z
-  notes: []
+  notes:
+    - _ulid: 01KG5JNCV2QBH1MXR9YWXHZ9E5
+      created_at: 2026-01-29T19:11:13.762Z
+      author: "@claude"
+      content: "Context from PR #10 review: Test was added but removed as 'flaky due to timing-sensitive
+        spin locks'. ConversationStore has different locking than SessionStore (index lock + data
+        lock), so SessionStore tests don't fully validate this behavior. Need to either: 1) Fix the
+        spin-lock timing sensitivity, or 2) Use a different synchronization approach that's more
+        testable."
+      supersedes: null
   todos: []

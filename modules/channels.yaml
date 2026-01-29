@@ -164,7 +164,8 @@ features:
     implements: []
     relates_to: []
     tests: []
-    traits: []
+    traits:
+      - "@trait-rate-limited"
     notes: []
     created: 2026-01-29T09:59:44.199Z
     acceptance_criteria:

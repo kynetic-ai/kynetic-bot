@@ -93,6 +93,10 @@ features:
         given: agent process crashes
         when: detected by health monitor
         then: attempts restart with backoff per AgentLifecycle behavior
+      - id: ac-6
+        given: ESCALATION_CHANNEL environment variable is set
+        when: agent emits escalate event
+        then: sends notification to configured channel with error context
   - _ulid: 01KG4GD4PBMEWWEDEN8HPA2DV5
     slugs:
       - bot-cli

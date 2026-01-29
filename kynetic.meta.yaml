@@ -198,4 +198,13 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KG5K5P9XGAKJNWCEFNYP74WW
+    type: success
+    content: "Structured recommendation walkthrough: Used AskUserQuestion with concrete options for each
+      recommendation. Kept discussion focused, captured clear decisions, enabled appropriate routing
+      (code tasks vs process improvements to different projects)."
+    created_at: 2026-01-29T19:20:07.741Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

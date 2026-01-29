@@ -3869,11 +3869,7 @@
   status: pending
   blocked_by: []
   depends_on:
-    - "@bot-integration"
-    - "@transform-integration"
-    - "@streaming-integration"
-    - "@dm-policy"
-    - "@escalation-handler"
+    - "@task-bot-orchestration"
   context: []
   priority: 4
   tags:

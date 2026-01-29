@@ -59,7 +59,7 @@ features:
         then: recovers from last successful commit
     status:
       maturity: draft
-      implementation: in_progress
+      implementation: implemented
   - _ulid: 01KG1RDM4NVZVQP8XZ9DY2CSRY
     slugs:
       - mem-conversation

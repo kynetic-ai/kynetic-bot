@@ -15,7 +15,6 @@ import type {
   SkillsRegistryOptions,
   SkillsRegistryEvents,
   SkillResult,
-  SkillState,
 } from './skills-types.js';
 
 const log = createLogger('skills-registry');

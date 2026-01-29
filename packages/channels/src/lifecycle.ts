@@ -93,9 +93,9 @@ export class ChannelLifecycle {
 
       // AC-1: Begins health monitoring
       this.startHealthMonitoring();
-    } catch (error) {
+    } catch (err) {
       this.state = 'idle';
-      throw error;
+      throw err;
     }
   }
 
@@ -118,7 +118,7 @@ export class ChannelLifecycle {
 
       // AC-3: Closes connections cleanly
       await this.adapter.stop();
-    } catch (error) {
+    } catch {
       // Swallow stop errors but ensure state cleanup
     } finally {
       this.state = 'idle';
@@ -166,7 +166,7 @@ export class ChannelLifecycle {
         reject,
       });
 
-      this.processMessageQueue();
+      void this.processMessageQueue();
     });
   }
 
@@ -179,7 +179,7 @@ export class ChannelLifecycle {
     }
 
     this.healthTimer = setInterval(() => {
-      void this.performHealthCheck();
+      this.performHealthCheck();
     }, this.options.healthCheckInterval);
   }
 
@@ -196,7 +196,7 @@ export class ChannelLifecycle {
   /**
    * Perform a health check on the adapter
    */
-  private async performHealthCheck(): Promise<void> {
+  private performHealthCheck(): void {
     if (this.state !== 'healthy' && this.state !== 'unhealthy') {
       return;
     }
@@ -215,7 +215,7 @@ export class ChannelLifecycle {
           this.state = 'healthy';
         }
       }
-    } catch (error) {
+    } catch {
       this.handleHealthCheckFailure();
     }
   }
@@ -274,7 +274,7 @@ export class ChannelLifecycle {
 
       // Resume health monitoring
       this.startHealthMonitoring();
-    } catch (error) {
+    } catch {
       // Reconnection failed, mark as unhealthy and try again later
       this.state = 'unhealthy';
       this.startHealthMonitoring();

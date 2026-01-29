@@ -225,6 +225,33 @@ export interface JsonRpcErrorObject {
 }
 
 /**
+ * JSON-RPC 2.0 Error that can be thrown
+ * Extends Error so it satisfies @typescript-eslint/only-throw-error
+ */
+export class JsonRpcException extends Error {
+  readonly code: number;
+  readonly data?: unknown;
+
+  constructor(code: number, message: string, data?: unknown) {
+    super(message);
+    this.name = 'JsonRpcException';
+    this.code = code;
+    this.data = data;
+  }
+
+  /**
+   * Convert to a JSON-RPC error object
+   */
+  toErrorObject(): JsonRpcErrorObject {
+    return {
+      code: this.code,
+      message: this.message,
+      ...(this.data !== undefined && { data: this.data }),
+    };
+  }
+}
+
+/**
  * JSON-RPC 2.0 Error response
  */
 export interface JsonRpcError {

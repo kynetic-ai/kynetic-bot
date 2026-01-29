@@ -8,7 +8,7 @@
  */
 
 import * as fs from 'node:fs/promises';
-import { existsSync, readFileSync, writeFileSync, unlinkSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync, unlinkSync, mkdirSync } from 'node:fs';
 import * as path from 'node:path';
 import * as crypto from 'node:crypto';
 import { stringify as yamlStringify, parse as yamlParse } from 'yaml';
@@ -226,7 +226,7 @@ export class DMPolicyManager {
     if (!existsSync(this.policyDir)) {
       try {
         // Create directory synchronously to avoid race
-        require('node:fs').mkdirSync(this.policyDir, { recursive: true });
+        mkdirSync(this.policyDir, { recursive: true });
       } catch {
         // Directory may have been created by another process, continue
       }
@@ -337,7 +337,7 @@ export class DMPolicyManager {
 
     try {
       const content = await fs.readFile(filePath, 'utf-8');
-      const data = yamlParse(content);
+      const data = yamlParse(content) as { requests?: unknown[] } | null;
       if (!data || !Array.isArray(data.requests)) {
         // File exists but has no valid requests array - this is expected for new files
         return [];
@@ -354,7 +354,7 @@ export class DMPolicyManager {
           this.emit('error', {
             error: new Error(`Invalid request in storage: ${result.error.message}`),
             operation: 'readPendingRequests',
-            requestId: req?.id,
+            requestId: (req as { id?: string } | null)?.id,
           });
         }
       }
@@ -385,7 +385,7 @@ export class DMPolicyManager {
 
     try {
       const content = await fs.readFile(filePath, 'utf-8');
-      const data = yamlParse(content);
+      const data = yamlParse(content) as { policies?: Record<string, unknown> } | null;
       if (!data || typeof data.policies !== 'object') {
         return {};
       }
@@ -399,7 +399,7 @@ export class DMPolicyManager {
         } else {
           // Emit error for invalid policy value but continue
           this.emit('error', {
-            error: new Error(`Invalid policy for channel ${channel}: ${policy}`),
+            error: new Error(`Invalid policy for channel ${channel}: ${String(policy)}`),
             operation: 'readChannelPolicies',
           });
         }

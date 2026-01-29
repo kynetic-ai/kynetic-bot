@@ -178,9 +178,12 @@ export class StreamCoalescer {
    */
   private scheduleFlush(): void {
     this.timer = setTimeout(() => {
-      this.flush().catch((error) => {
+      this.flush().catch((error: unknown) => {
         this.logger.error('Error in scheduled flush', { error });
-        this.options.onError(error as KyneticError).catch((err) => {
+        const kyneticError = error instanceof Error
+          ? error as KyneticError
+          : new Error(String(error)) as KyneticError;
+        this.options.onError(kyneticError).catch((err: unknown) => {
           this.logger.error('Error in onError handler', { error: err });
         });
       });
@@ -237,7 +240,7 @@ export class BufferedCoalescer {
   /**
    * Push text into the buffer
    */
-  async push(text: string): Promise<void> {
+  push(text: string): void {
     if (this.completed) {
       this.logger.warn('Attempted to push to completed buffer');
       return;

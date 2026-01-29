@@ -180,3 +180,7 @@ features:
         given: message content exceeds Discord limit (2000 chars)
         when: sendMessage called
         then: splits into multiple messages or uses embed
+      - id: ac-4
+        given: Discord connection lost
+        when: reconnect triggered
+        then: attempts reconnection with exponential backoff

@@ -152,3 +152,18 @@ features:
     status:
       maturity: draft
       implementation: implemented
+  - _ulid: 01KG4K3JT7X9P3Q81XNTQRZSHE
+    slugs:
+      - discord-channel-adapter
+    title: Discord Channel Adapter
+    type: feature
+    tags: []
+    description: Discord.js-based implementation of ChannelAdapter interface. Handles message
+      normalization, sending, and Discord-specific features like threads and embeds.
+    depends_on: []
+    implements: []
+    relates_to: []
+    tests: []
+    traits: []
+    notes: []
+    created: 2026-01-29T09:59:44.199Z

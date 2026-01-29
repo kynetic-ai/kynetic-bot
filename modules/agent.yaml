@@ -114,7 +114,7 @@ features:
         then: logs failure and returns structured error to agent
     status:
       maturity: draft
-      implementation: in_progress
+      implementation: implemented
   - _ulid: 01KG1RE6450N1GAKD8ZPXJ9TP4
     slugs:
       - agent-escalation

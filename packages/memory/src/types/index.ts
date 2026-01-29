@@ -3,3 +3,4 @@
  */
 
 export * from './session.js';
+export * from './conversation.js';

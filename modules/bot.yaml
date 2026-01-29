@@ -15,3 +15,18 @@ relates_to: []
 tests: []
 traits: []
 notes: []
+features:
+  - _ulid: 01KG4GBA2SE73ZB8MRF07HGX1K
+    slugs:
+      - bot-config
+    title: Bot Configuration
+    type: feature
+    tags: []
+    description: Environment configuration loading and validation using Zod schemas.
+    depends_on: []
+    implements: []
+    relates_to: []
+    tests: []
+    traits: []
+    notes: []
+    created: 2026-01-29T09:11:31.673Z

@@ -1926,6 +1926,15 @@
         preservation), and main adapter class. Interface change: ChannelAdapter.sendMessage()
         returns Promise<string | void> to support message ID returns."
       supersedes: null
+    - _ulid: 01KG5ZBMQB8V8A137WG6XAN8GC
+      created_at: 2026-01-29T22:53:05.643Z
+      author: "@claude"
+      content: "Implementation: Created 6 source files in packages/channels/src/adapters/discord/
+        (adapter.ts, config.ts, errors.ts, parser.ts, splitter.ts, index.ts). Added 4 test files
+        with 87 tests covering all ACs. Updated ChannelAdapter interface and ChannelLifecycle to
+        propagate message IDs. Added discord.js dependency. Exports added to
+        packages/channels/src/index.ts."
+      supersedes: null
   todos: []
   automation: manual_only
 - _ulid: 01KG1TDRB07CBH2J4K25G786ET

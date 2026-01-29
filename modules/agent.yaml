@@ -143,3 +143,6 @@ features:
         given: escalation timeout reached
         when: no human response
         then: follows configured fallback behavior
+    status:
+      maturity: draft
+      implementation: in_progress

@@ -1543,6 +1543,9 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "AgentLifecycle implemented with full state machine, health monitoring, spawn rate
+    limiting, graceful shutdown, and checkpoint persistence. PR #6 merged with all review fixes
+    addressed. 34 tests passing."
   depends_on:
     - "@core-types"
   context: []
@@ -1552,6 +1555,7 @@
   vcs_refs: []
   created_at: 2026-01-28T08:09:49.647Z
   started_at: 2026-01-29T05:46:42.920Z
+  completed_at: 2026-01-29T06:33:14.455Z
   notes:
     - _ulid: 01KG1TKD54SA3VRSFJB7MR6C43
       created_at: 2026-01-28T08:12:59.429Z
@@ -1771,10 +1775,6 @@
       supersedes: null
   todos: []
   automation: needs_review
-  completed_at: 2026-01-29T06:33:14.455Z
-  closed_reason: "AgentLifecycle implemented with full state machine, health monitoring, spawn rate
-    limiting, graceful shutdown, and checkpoint persistence. PR #6 merged with all review fixes
-    addressed. 34 tests passing."
 - _ulid: 01KG1TDNYQD551HSS3ZHQH81GT
   slugs:
     - discord-adapter
@@ -2471,6 +2471,124 @@
         ## Verification
 
         Unit tests for discovery and error handling.
+      supersedes: null
+    - _ulid: 01KG4BP4KK175338Q27KEPTGGF
+      created_at: 2026-01-29T07:50:03.635Z
+      author: "@claude"
+      content: >-
+        ## Updated Analysis (2026-01-28)
+
+
+        ### Architecture Decision: Hybrid Skill Implementation
+
+        - **Memory skill**: Native APIs (KbotShadow, file I/O) - speed matters for conversation
+        context
+
+        - **Kspec skill**: Shell out to `kspec` CLI - leverages existing validation/sync logic
+
+
+        ### Expanded Skill Interface
+
+
+        Follow AgentLifecycle EventEmitter pattern (composition, not inheritance):
+
+
+        ```typescript
+
+        export interface Skill {
+          readonly id: string;
+          readonly name: string;
+          readonly description: string;
+          readonly version: string;
+          isReady(): boolean;
+          initialize(): Promise<void>;
+          execute(params: unknown): Promise<unknown>;
+          cleanup(): Promise<void>;
+        }
+
+
+        export interface SkillEvents {
+          'execute:start': { skillId: string; params: unknown };
+          'execute:complete': { skillId: string; result: unknown; duration: number };
+          'execute:error': { skillId: string; error: Error };
+          'state:change': { skillId: string; from: string; to: string };
+        }
+
+        ```
+
+
+        ### Built-in Skill Interfaces
+
+
+        **KspecSkill** (shells out to CLI):
+
+        ```typescript
+
+        interface KspecSkill extends Skill {
+          // Task operations - spawn `kspec task <cmd>`
+          taskStart(slug: string): Promise<void>;
+          taskNote(slug: string, note: string): Promise<void>;
+          taskComplete(slug: string, reason: string): Promise<void>;
+          // Session - spawn `kspec session start`
+          sessionStart(): Promise<SessionContext>;
+          // Queries - spawn `kspec task get`
+          taskGet(slug: string): Promise<TaskInfo>;
+        }
+
+        ```
+
+
+        **MemorySkill** (native APIs):
+
+        ```typescript
+
+        interface MemorySkill extends Skill {
+          // Direct KbotShadow access
+          getState(): MemoryState;
+          forceCommit(message?: string): Promise<boolean>;
+          // Conversation access (uses ConversationStorage)
+          getHistory(sessionKey: string): Promise<ConversationTurn[]>;
+          appendTurn(sessionKey: string, turn: ConversationTurn): Promise<void>;
+        }
+
+        ```
+
+
+        ### Registry Pattern
+
+
+        Follow ChannelRegistry:
+
+        - `Map<string, Skill>` storage
+
+        - `Result<T, E>` error handling
+
+        - Interface validation before registration
+
+        - Both sync and async execution
+
+
+        ### Error Types
+
+
+        ```typescript
+
+        class SkillError extends KyneticError { skillId: string }
+
+        class SkillValidationError extends SkillError { missingMethods: string[] }
+
+        class SkillExecutionError extends SkillError { originalError?: Error }
+
+        ```
+
+
+        ### Dependencies Updated
+
+        - @agent-lifecycle-task [COMPLETED] - EventEmitter pattern reference
+
+        - @conversation-storage (for MemorySkill history access)
+
+        - kspec CLI binary (for KspecSkill shell commands)
       supersedes: null
   todos: []
   automation: eligible

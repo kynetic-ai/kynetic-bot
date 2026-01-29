@@ -5451,15 +5451,21 @@
       supersedes: null
   todos: []
   automation: eligible
-- title: "Implement: Bot"
+- _ulid: 01KG4GE08X4JBJMHMR276PR71S
+  slugs:
+    - task-bot
+  title: "Implement: Bot"
   type: task
   spec_ref: "@bot"
   derivation: auto
-  priority: 3
-  slugs:
-    - task-bot
-  tags: []
+  status: pending
+  blocked_by: []
   depends_on: []
+  context: []
+  priority: 3
+  tags: []
+  vcs_refs: []
+  created_at: 2026-01-29T09:12:59.933Z
   notes:
     - _ulid: 01KG4GE08WFJ0CMG4TJDGMK70N
       created_at: 2026-01-29T09:12:59.933Z
@@ -5471,10 +5477,46 @@
         Main bot orchestration layer that wires all components together to create a functioning
         Discord bot.
       supersedes: null
-  _ulid: 01KG4GE08X4JBJMHMR276PR71S
+  todos: []
+- title: "Implement: Bot Configuration"
+  type: task
+  spec_ref: "@bot-config"
+  derivation: auto
+  priority: 3
+  slugs:
+    - task-bot-configuration
+  tags: []
+  depends_on: []
+  notes:
+    - _ulid: 01KG4GE0APYDHS3DACXKB3SX25
+      created_at: 2026-01-29T09:12:59.990Z
+      author: "@claude"
+      content: >-
+        Implementation notes (auto-generated from spec):
+
+
+        Environment configuration loading and validation using Zod schemas.
+
+
+
+        Acceptance Criteria:
+
+        - ac-1: Given environment variables set, when bot starts, then loads DISCORD_TOKEN,
+        AGENT_COMMAND, KBOT_DATA_DIR with Zod validation
+
+        - ac-2: Given required variable missing, when config loaded, then throws descriptive error
+        identifying the missing variable
+
+        - ac-3: Given optional variable missing, when config loaded, then uses sensible defaults
+        (logLevel=info, healthCheckInterval=30000)
+
+        - ac-4: Given invalid value format, when validated, then returns Zod error with path and
+        expected type
+      supersedes: null
+  _ulid: 01KG4GE0APQ0QAPCFFE3RMV5VJ
   status: pending
   blocked_by: []
   context: []
   vcs_refs: []
-  created_at: 2026-01-29T09:12:59.933Z
+  created_at: 2026-01-29T09:12:59.990Z
   todos: []

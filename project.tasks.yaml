@@ -3503,8 +3503,7 @@
   status: pending
   blocked_by: []
   depends_on:
-    - "@stream-coalescer"
-    - "@bot-integration"
+    - "@task-bot-orchestration"
   context: []
   priority: 3
   tags:

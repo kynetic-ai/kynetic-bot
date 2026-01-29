@@ -2391,7 +2391,7 @@
         Storage strategy now defined. Task can proceed with automation.
       supersedes: null
   todos: []
-  automation: needs_review
+  automation: eligible
 - _ulid: 01KG1TE7D2JHEF3R1KYJ7TRYJ0
   slugs:
     - conversation-storage

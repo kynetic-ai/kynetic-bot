@@ -175,6 +175,21 @@ describe('SkillsRegistry', () => {
       await expect(registry.register(skill)).rejects.toThrow(SkillValidationError);
       await expect(registry.register(skill)).rejects.toThrow('execute must be a function');
     });
+
+    // AC: @trait-validated ac-3 - Type mismatch includes expected type in error
+    it('includes expected and actual type in validation error context', async () => {
+      const skill = createMockSkill({ description: 123 as unknown as string });
+
+      try {
+        await registry.register(skill);
+        expect.fail('Should have thrown');
+      } catch (err) {
+        expect(err).toBeInstanceOf(SkillValidationError);
+        const validationErr = err as SkillValidationError;
+        expect(validationErr.context).toHaveProperty('expectedType', 'string');
+        expect(validationErr.context).toHaveProperty('actualType', 'number');
+      }
+    });
   });
 
   describe('Unregistration', () => {

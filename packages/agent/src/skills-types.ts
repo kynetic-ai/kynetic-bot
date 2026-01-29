@@ -107,9 +107,6 @@ export interface SkillsRegistryEvents {
   /** Skill execution failed */
   'skill:execute:error': { skillId: string; error: Error; durationMs: number };
 
-  /** Skill state changed */
-  'skill:state:change': { skillId: string; from: SkillState; to: SkillState };
-
   /** Error occurred */
   error: { error: Error; operation: string; skillId?: string };
 }

@@ -197,36 +197,87 @@ export class SkillsRegistry extends EventEmitter {
 
     const s = skill as Skill;
 
-    // Validate field types
+    // Validate field types with expected type information
+    // AC: @trait-validated ac-3 - Type mismatch includes expected type in error
     if (typeof s.id !== 'string' || s.id.trim().length === 0) {
-      throw new SkillValidationError('Skill id must be a non-empty string', s.id, ['id']);
+      throw new SkillValidationError(
+        `Skill id must be a non-empty string, got ${typeof s.id}`,
+        s.id,
+        ['id'],
+        { expectedType: 'non-empty string', actualType: typeof s.id },
+      );
     }
     if (typeof s.name !== 'string' || s.name.trim().length === 0) {
-      throw new SkillValidationError('Skill name must be a non-empty string', s.id, ['name']);
+      throw new SkillValidationError(
+        `Skill name must be a non-empty string, got ${typeof s.name}`,
+        s.id,
+        ['name'],
+        { expectedType: 'non-empty string', actualType: typeof s.name },
+      );
     }
     if (typeof s.description !== 'string') {
-      throw new SkillValidationError('Skill description must be a string', s.id, ['description']);
+      throw new SkillValidationError(
+        `Skill description must be a string, got ${typeof s.description}`,
+        s.id,
+        ['description'],
+        { expectedType: 'string', actualType: typeof s.description },
+      );
     }
     if (typeof s.version !== 'string') {
-      throw new SkillValidationError('Skill version must be a string', s.id, ['version']);
+      throw new SkillValidationError(
+        `Skill version must be a string, got ${typeof s.version}`,
+        s.id,
+        ['version'],
+        { expectedType: 'string', actualType: typeof s.version },
+      );
     }
     if (!Array.isArray(s.capabilities)) {
-      throw new SkillValidationError('Skill capabilities must be an array', s.id, ['capabilities']);
+      throw new SkillValidationError(
+        `Skill capabilities must be an array, got ${typeof s.capabilities}`,
+        s.id,
+        ['capabilities'],
+        { expectedType: 'string[]', actualType: typeof s.capabilities },
+      );
     }
     if (typeof s.isReady !== 'function') {
-      throw new SkillValidationError('Skill isReady must be a function', s.id, ['isReady']);
+      throw new SkillValidationError(
+        `Skill isReady must be a function, got ${typeof s.isReady}`,
+        s.id,
+        ['isReady'],
+        { expectedType: 'function', actualType: typeof s.isReady },
+      );
     }
     if (typeof s.getState !== 'function') {
-      throw new SkillValidationError('Skill getState must be a function', s.id, ['getState']);
+      throw new SkillValidationError(
+        `Skill getState must be a function, got ${typeof s.getState}`,
+        s.id,
+        ['getState'],
+        { expectedType: 'function', actualType: typeof s.getState },
+      );
     }
     if (typeof s.initialize !== 'function') {
-      throw new SkillValidationError('Skill initialize must be a function', s.id, ['initialize']);
+      throw new SkillValidationError(
+        `Skill initialize must be a function, got ${typeof s.initialize}`,
+        s.id,
+        ['initialize'],
+        { expectedType: 'function', actualType: typeof s.initialize },
+      );
     }
     if (typeof s.execute !== 'function') {
-      throw new SkillValidationError('Skill execute must be a function', s.id, ['execute']);
+      throw new SkillValidationError(
+        `Skill execute must be a function, got ${typeof s.execute}`,
+        s.id,
+        ['execute'],
+        { expectedType: 'function', actualType: typeof s.execute },
+      );
     }
     if (typeof s.dispose !== 'function') {
-      throw new SkillValidationError('Skill dispose must be a function', s.id, ['dispose']);
+      throw new SkillValidationError(
+        `Skill dispose must be a function, got ${typeof s.dispose}`,
+        s.id,
+        ['dispose'],
+        { expectedType: 'function', actualType: typeof s.dispose },
+      );
     }
 
     return true;
@@ -333,6 +384,11 @@ export class SkillsRegistry extends EventEmitter {
         log.warn('Error disposing skill', {
           id: skillId,
           error: (err as Error).message,
+        });
+        this.emitEvent('error', {
+          error: err as Error,
+          operation: 'dispose',
+          skillId,
         });
       }
     }

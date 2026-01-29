@@ -1,0 +1,234 @@
+{
+  "generated_at": "2026-01-29T11:22:51.127Z",
+  "branch": "main",
+  "context": {
+    "focus": null,
+    "threads": [],
+    "open_questions": [],
+    "updated_at": "2026-01-29T11:22:51.127Z"
+  },
+  "active_tasks": [
+    {
+      "ref": "01KG4GE0A",
+      "title": "Implement: Bot Configuration",
+      "started_at": "2026-01-29T11:10:23.916Z",
+      "priority": 3,
+      "spec_ref": "@bot-config",
+      "note_count": 3,
+      "last_note_at": "2026-01-29T10:00:26.406Z",
+      "todo_count": 0,
+      "incomplete_todos": 0
+    }
+  ],
+  "pending_review_tasks": [],
+  "recent_notes": [
+    {
+      "task_ref": "01KG4GE0A",
+      "task_title": "Implement: Bot Configuration",
+      "note_ulid": "01KG4K4W",
+      "created_at": "2026-01-29T10:00:26.406Z",
+      "author": "@claude",
+      "content": "## Config Schema Update\n\nAdd escalationChannel to BotConfigSchema:\n\n```typescript\nexport const BotConfigSchema = z.object({\n  // ... existing fields ...\n\n  // Optional escalation channel (defaults to conversation channel if not set)\n  escalationChannel: z.string().optional(),\n});\n```\n\nWhen ESCALATION_CHANNEL is set, escalation notifications go there.\nWhen not set, escalations go to the same channel as the conversation."
+    },
+    {
+      "task_ref": "01KG4GE0A",
+      "task_title": "Implement: Bot Configuration",
+      "note_ulid": "01KG4GEB",
+      "created_at": "2026-01-29T09:13:10.934Z",
+      "author": "@claude",
+      "content": "## Implementation\n\n**File**: `packages/bot/src/config.ts`\n\n**Schema**:\n```typescript\nimport { z } from 'zod';\n\nexport const BotConfigSchema = z.object({\n  // Required\n  discordToken: z.string().min(1, 'DISCORD_TOKEN required'),\n  agentCommand: z.string().min(1, 'AGENT_COMMAND required'),\n\n  // Optional with defaults\n  kbotDataDir: z.string().default('.kbot'),\n  logLevel: z.enum(['debug', 'info', 'warn', 'error']).default('info'),\n\n  // Agent options\n  healthCheckInterval: z.number().default(30000),\n  shutdownTimeout: z.number().default(10000),\n\n  // Discord options\n  discordIntents: z.array(z.string()).default(['Guilds', 'GuildMessages', 'MessageContent']),\n});\n\nexport type BotConfig = z.infer<typeof BotConfigSchema>;\n\nexport function loadConfig(): BotConfig {\n  return BotConfigSchema.parse({\n    discordToken: process.env.DISCORD_TOKEN,\n    agentCommand: process.env.AGENT_COMMAND,\n    kbotDataDir: process.env.KBOT_DATA_DIR,\n    logLevel: process.env.LOG_LEVEL,\n    healthCheckInterval: process.env.HEALTH_CHECK_INTERVAL\n      ? parseInt(process.env.HEALTH_CHECK_INTERVAL) : undefined,\n    shutdownTimeout: process.env.SHUTDOWN_TIMEOUT\n      ? parseInt(process.env.SHUTDOWN_TIMEOUT) : undefined,\n  });\n}\n```\n\n**Test file**: `packages/bot/test/config.test.ts`\n\n**Test coverage**:\n- AC-1: Test with all env vars set\n- AC-2: Test missing DISCORD_TOKEN throws\n- AC-3: Test defaults when optional vars missing\n- AC-4: Test invalid number format returns Zod error\n\n**Dependencies**: zod (already in monorepo)"
+    },
+    {
+      "task_ref": "01KG4GE0A",
+      "task_title": "Implement: Bot Configuration",
+      "note_ulid": "01KG4GE0",
+      "created_at": "2026-01-29T09:12:59.990Z",
+      "author": "@claude",
+      "content": "Implementation notes (auto-generated from spec):\n\nEnvironment configuration loading and validation using Zod schemas.\n\n\nAcceptance Criteria:\n- ac-1: Given environment variables set, when bot starts, then loads DISCORD_TOKEN, AGENT_COMMAND, KBOT_DATA_DIR with Zod validation\n- ac-2: Given required variable missing, when config loaded, then throws descriptive error identifying the missing variable\n- ac-3: Given optional variable missing, when config loaded, then uses sensible defaults (logLevel=info, healthCheckInterval=30000)\n- ac-4: Given invalid value format, when validated, then returns Zod error with path and expected type"
+    }
+  ],
+  "active_todos": [],
+  "ready_tasks": [],
+  "blocked_tasks": [],
+  "recently_completed": [
+    {
+      "ref": "01KG1TFB",
+      "title": "EscalationHandler for @agent-escalation",
+      "completed_at": "2026-01-29T11:21:29.649Z",
+      "closed_reason": "EscalationHandler implemented with full AC coverage. 44 tests passing. PR #13 merged to main. Addresses review feedback with additional @trait-observable ac-3 tests."
+    },
+    {
+      "ref": "01KG2VKW",
+      "title": "Implement batch commit scheduler for .kbot/",
+      "completed_at": "2026-01-29T11:10:09.974Z",
+      "closed_reason": "Batch commit scheduler already implemented in KbotShadow class. Scheduler supports interval-based commits, event thresholds, force commits, and crash recovery. 28 shadow tests passing."
+    },
+    {
+      "ref": "01KG1TEA",
+      "title": "SkillsRegistry for @agent-skills",
+      "completed_at": "2026-01-29T11:09:04.349Z",
+      "closed_reason": "SkillsRegistry implemented with skill discovery, capability-based lookup, and structured error handling. PR #12 merged with all review fixes addressed. 78 tests passing."
+    },
+    {
+      "ref": "01KG1TE5",
+      "title": "DMPolicyManager for @channel-dm-policy",
+      "completed_at": "2026-01-29T11:01:34.118Z",
+      "closed_reason": "DMPolicyManager implemented with full policy management, pairing codes, validation, and idempotency. PR #11 merged with all review fixes addressed. 44 tests passing."
+    },
+    {
+      "ref": "01KG2VKR",
+      "title": "Implement ConversationStore for turn storage",
+      "completed_at": "2026-01-29T10:50:49.526Z",
+      "closed_reason": "Implemented ConversationStore for turn storage. PR #10 merged with review feedback addressed (index locking, duplicate detection documentation). 44 tests covering all AC."
+    },
+    {
+      "ref": "01KG2VKN",
+      "title": "Implement SessionStore for JSONL event storage",
+      "completed_at": "2026-01-29T10:42:27.958Z",
+      "closed_reason": "Implemented SessionStore for JSONL event storage. PR #9 merged with all review feedback addressed (KyneticError base class, file locking for concurrency, schema validation on read, single error emission). 45 tests covering all AC."
+    },
+    {
+      "ref": "01KG2VK9",
+      "title": "Define conversation and turn Zod schemas",
+      "completed_at": "2026-01-29T10:34:14.972Z",
+      "closed_reason": "Implemented Zod schemas for conversation metadata and turns. PR #8 merged with review feedback addressed (AC-7 documented as service-layer concern, session key format validation added, empty content documented). 52 tests covering all schemas."
+    },
+    {
+      "ref": "01KG2VK6",
+      "title": "Define agent session and event Zod schemas",
+      "completed_at": "2026-01-29T10:25:27.999Z",
+      "closed_reason": "Implemented Zod schemas for agent session metadata and events. PR #7 merged with approval after code review. 50 tests covering all schemas."
+    },
+    {
+      "ref": "01KG1TDK",
+      "title": "AgentLifecycle for @agent-lifecycle",
+      "completed_at": "2026-01-29T06:33:14.455Z",
+      "closed_reason": "AgentLifecycle implemented with full state machine, health monitoring, spawn rate limiting, graceful shutdown, and checkpoint persistence. PR #6 merged with all review fixes addressed. 34 tests passing."
+    },
+    {
+      "ref": "01KG1TDF",
+      "title": "Implement .kbot/ shadow branch initialization",
+      "completed_at": "2026-01-29T03:23:04.242Z",
+      "closed_reason": "Implemented shadow branch storage with auto-init, batch commits, crash recovery, and events. PR #5 merged."
+    }
+  ],
+  "recent_commits": [
+    {
+      "hash": "fc789f2",
+      "full_hash": "fc789f2d311f38f8710012454e3f04548fe6a110",
+      "date": "2026-01-29T11:21:17.000Z",
+      "message": "feat: implement EscalationHandler for human escalation paths (#13)",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "a3a86ca",
+      "full_hash": "a3a86ca33a1c0b37bd0273c74e502e667369f1ef",
+      "date": "2026-01-29T11:08:52.000Z",
+      "message": "feat: implement SkillsRegistry for agent skill management (#12)",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "6e633e2",
+      "full_hash": "6e633e2af730c7740d4a6d8eab78988244b1bd3a",
+      "date": "2026-01-29T11:01:22.000Z",
+      "message": "feat: implement DMPolicyManager for DM request workflows (#11)",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "a76ff4b",
+      "full_hash": "a76ff4b5bf74eb9e42400692aaecacb960708e7f",
+      "date": "2026-01-29T10:50:38.000Z",
+      "message": "Merge pull request #10 from kynetic-ai/feat/conversation-store",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "cef7cd1",
+      "full_hash": "cef7cd125c541d6217887d4604bab9609c72278c",
+      "date": "2026-01-29T10:50:18.000Z",
+      "message": "fix: address PR review feedback for ConversationStore",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "f1b1b8c",
+      "full_hash": "f1b1b8cb09dc43bdf05bb0fe6498b6d01fa8db98",
+      "date": "2026-01-29T10:47:07.000Z",
+      "message": "feat: implement ConversationStore for turn storage",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "acd681b",
+      "full_hash": "acd681b492d0b3813c3e867c23e2030c5d2f9cd6",
+      "date": "2026-01-29T10:42:16.000Z",
+      "message": "Merge pull request #9 from kynetic-ai/feat/session-store",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "036b173",
+      "full_hash": "036b17378713f2df1bb1037ff14b5bd1b3f77ab8",
+      "date": "2026-01-29T10:41:59.000Z",
+      "message": "fix: address PR review feedback for SessionStore",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "bc4635d",
+      "full_hash": "bc4635d23a0949bf220bb91be781a55c0d58311b",
+      "date": "2026-01-29T10:38:00.000Z",
+      "message": "feat: implement SessionStore for JSONL event storage",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "e00d0fb",
+      "full_hash": "e00d0fb8e69e743e2b0e14185d1ab94def02456d",
+      "date": "2026-01-29T10:34:03.000Z",
+      "message": "Merge pull request #8 from kynetic-ai/feat/conversation-types",
+      "author": "Jacob Chapel"
+    }
+  ],
+  "working_tree": {
+    "clean": true,
+    "staged": [],
+    "unstaged": [],
+    "untracked": []
+  },
+  "inbox_items": [
+    {
+      "ref": "01KG4KV8",
+      "text": "Spec review workflow/skill that runs verification + holistic review after spec changes. Would automate the repeated 'run two subagents to check plan vs implementation and find gaps' pattern.",
+      "created_at": "2026-01-29T10:12:40.090Z",
+      "tags": [
+        "reflection",
+        "workflow"
+      ],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG4KVB",
+      "text": "Allow kspec item trait add to accept multiple traits: kspec item trait add @spec @trait1 @trait2 @trait3 instead of requiring separate commands for each trait.",
+      "created_at": "2026-01-29T10:12:43.363Z",
+      "tags": [
+        "reflection",
+        "kspec-cli"
+      ],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG4KVD",
+      "text": "Display relates_to and depends_on fields in kspec item get output. Currently these fields are only visible by reading the YAML directly.",
+      "created_at": "2026-01-29T10:12:45.470Z",
+      "tags": [
+        "reflection",
+        "kspec-cli"
+      ],
+      "added_by": "@claude"
+    }
+  ],
+  "stats": {
+    "total_tasks": 40,
+    "in_progress": 1,
+    "pending_review": 0,
+    "ready": 4,
+    "blocked": 0,
+    "completed": 25,
+    "inbox_items": 3
+  }
+}

@@ -5668,6 +5668,8 @@
   derivation: auto
   status: completed
   blocked_by: []
+  closed_reason: "BotConfigSchema implemented with Zod validation. 33 tests covering all AC. PR #14
+    merged with review feedback addressed (fail-fast on invalid numeric formats)."
   depends_on: []
   context: []
   priority: 3
@@ -5675,6 +5677,7 @@
   vcs_refs: []
   created_at: 2026-01-29T09:12:59.990Z
   started_at: 2026-01-29T11:10:23.916Z
+  completed_at: 2026-01-29T11:29:19.370Z
   notes:
     - _ulid: 01KG4GE0APYDHS3DACXKB3SX25
       created_at: 2026-01-29T09:12:59.990Z
@@ -5832,9 +5835,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-01-29T11:29:19.370Z
-  closed_reason: "BotConfigSchema implemented with Zod validation. 33 tests covering all AC. PR #14
-    merged with review feedback addressed (fail-fast on invalid numeric formats)."
 - _ulid: 01KG4GE0C5SBMNM64Y3DGVF6YZ
   slugs:
     - task-bot-orchestration
@@ -6225,3 +6225,19 @@
       supersedes: null
   todos: []
   automation: eligible
+- title: Fix flaky ConversationStore concurrent access test
+  type: task
+  spec_ref: null
+  meta_ref: null
+  priority: 3
+  slugs: []
+  tags: []
+  _ulid: 01KG5JN4DH1WAWA7YC9RF1433C
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  vcs_refs: []
+  created_at: 2026-01-29T19:11:05.137Z
+  notes: []
+  todos: []

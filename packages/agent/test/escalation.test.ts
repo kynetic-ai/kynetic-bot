@@ -458,6 +458,38 @@ describe('EscalationHandler', () => {
       expect(warnSpy).toHaveBeenCalled();
       warnSpy.mockRestore();
     });
+
+    // AC: @trait-observable ac-3 - emits completion event for significant operations
+    it('emits completion event when escalation acknowledged', async () => {
+      const acknowledgedHandler = vi.fn();
+      handler.on('escalation:acknowledged', acknowledgedHandler);
+
+      mockLifecycle.emit('escalate', 'Error', {});
+      const escalationId = handler.getAllEscalations()[0].id;
+
+      await handler.acknowledge(escalationId, 'human');
+
+      // escalation:acknowledged serves as the completion event
+      expect(acknowledgedHandler).toHaveBeenCalledWith(
+        expect.objectContaining({ id: escalationId, state: 'acknowledged' }),
+        'human',
+      );
+    });
+
+    // AC: @trait-observable ac-3 - emits completion event for fallback execution
+    it('emits completion event when fallback executed', () => {
+      const fallbackHandler = vi.fn();
+      handler.on('escalation:fallback', fallbackHandler);
+
+      mockLifecycle.emit('escalate', 'Error', {});
+      vi.advanceTimersByTime(100);
+
+      // escalation:fallback serves as the completion event for timeout handling
+      expect(fallbackHandler).toHaveBeenCalledWith(
+        expect.objectContaining({ state: 'timeout' }),
+        'retry',
+      );
+    });
   });
 
   // ==========================================================================

@@ -87,3 +87,18 @@ features:
         given: agent process crashes
         when: detected by health monitor
         then: attempts restart with backoff per AgentLifecycle behavior
+  - _ulid: 01KG4GD4PBMEWWEDEN8HPA2DV5
+    slugs:
+      - bot-cli
+    title: Bot CLI
+    type: feature
+    tags: []
+    description: CLI entry point that bootstraps the bot, handles process signals, and manages graceful
+      shutdown.
+    depends_on: []
+    implements: []
+    relates_to: []
+    tests: []
+    traits: []
+    notes: []
+    created: 2026-01-29T09:12:31.692Z

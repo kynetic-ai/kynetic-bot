@@ -160,7 +160,8 @@ features:
     tags: []
     description: Discord.js-based implementation of ChannelAdapter interface. Handles message
       normalization, sending, and Discord-specific features like threads and embeds.
-    depends_on: []
+    depends_on:
+      - "@channel-registry"
     implements: []
     relates_to: []
     tests: []

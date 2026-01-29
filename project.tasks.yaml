@@ -4991,7 +4991,7 @@
   type: task
   spec_ref: null
   meta_ref: null
-  status: pending
+  status: cancelled
   blocked_by: []
   depends_on: []
   context: []
@@ -5450,3 +5450,4 @@
       supersedes: null
   todos: []
   automation: eligible
+  closed_reason: Duplicate of @bot-integration - merged detailed notes into existing task

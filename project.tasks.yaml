@@ -4376,7 +4376,7 @@
   type: task
   spec_ref: "@mem-conversation"
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -4495,6 +4495,10 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-01-29T10:34:14.972Z
+  closed_reason: "Implemented Zod schemas for conversation metadata and turns. PR #8 merged with
+    review feedback addressed (AC-7 documented as service-layer concern, session key format
+    validation added, empty content documented). 52 tests covering all schemas."
 - _ulid: 01KG2VKNE88NR0NBSCS3Y16ZPV
   slugs:
     - session-store

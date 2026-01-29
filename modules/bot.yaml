@@ -30,3 +30,8 @@ features:
     traits: []
     notes: []
     created: 2026-01-29T09:11:31.673Z
+    acceptance_criteria:
+      - id: ac-1
+        given: environment variables set
+        when: bot starts
+        then: loads DISCORD_TOKEN, AGENT_COMMAND, KBOT_DATA_DIR with Zod validation

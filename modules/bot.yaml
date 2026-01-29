@@ -68,3 +68,7 @@ features:
         given: valid config
         when: Bot.create() called
         then: initializes ChannelRegistry, AgentLifecycle, SessionKeyRouter, KbotShadow
+      - id: ac-2
+        given: Discord message received
+        when: processed
+        then: routes to session, spawns agent if needed, gets response, sends back

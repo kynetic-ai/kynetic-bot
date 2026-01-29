@@ -4925,7 +4925,7 @@
   type: task
   spec_ref: "@mem-shadow-storage"
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on:
     - "@shadow-storage-init"
@@ -5107,6 +5107,10 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-01-29T11:10:09.974Z
+  closed_reason: Batch commit scheduler already implemented in KbotShadow class. Scheduler supports
+    interval-based commits, event thresholds, force commits, and crash recovery. 28 shadow tests
+    passing.
 - _ulid: 01KG4D9FHFD9BQD2Q9H11GBA8Z
   slugs: []
   title: Create MVP completion tasks and specs

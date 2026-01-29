@@ -191,3 +191,6 @@ features:
         given: Discord connection lost
         when: reconnect triggered
         then: attempts reconnection with exponential backoff
+    status:
+      maturity: draft
+      implementation: in_progress

@@ -43,3 +43,7 @@ features:
         given: optional variable missing
         when: config loaded
         then: uses sensible defaults (logLevel=info, healthCheckInterval=30000)
+      - id: ac-4
+        given: invalid value format
+        when: validated
+        then: returns Zod error with path and expected type

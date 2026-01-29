@@ -69,3 +69,11 @@ inbox:
       - reflection
       - dx
     added_by: "@claude"
+  - _ulid: 01KG61E2TWM4VC31KV1JGGWB2Y
+    text: Configure ESLint require-await rule to allow async methods matching interface patterns (e.g.
+      store methods). Would eliminate 6+ inline eslint-disable comments.
+    created_at: 2026-01-29T23:29:22.781Z
+    tags:
+      - reflection
+      - dx
+    added_by: "@claude"

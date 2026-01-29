@@ -5478,15 +5478,21 @@
         Discord bot.
       supersedes: null
   todos: []
-- title: "Implement: Bot Configuration"
+- _ulid: 01KG4GE0APQ0QAPCFFE3RMV5VJ
+  slugs:
+    - task-bot-configuration
+  title: "Implement: Bot Configuration"
   type: task
   spec_ref: "@bot-config"
   derivation: auto
-  priority: 3
-  slugs:
-    - task-bot-configuration
-  tags: []
+  status: pending
+  blocked_by: []
   depends_on: []
+  context: []
+  priority: 3
+  tags: []
+  vcs_refs: []
+  created_at: 2026-01-29T09:12:59.990Z
   notes:
     - _ulid: 01KG4GE0APYDHS3DACXKB3SX25
       created_at: 2026-01-29T09:12:59.990Z
@@ -5513,10 +5519,50 @@
         - ac-4: Given invalid value format, when validated, then returns Zod error with path and
         expected type
       supersedes: null
-  _ulid: 01KG4GE0APQ0QAPCFFE3RMV5VJ
+  todos: []
+- title: "Implement: Bot Orchestration"
+  type: task
+  spec_ref: "@bot-orchestration"
+  derivation: auto
+  priority: 3
+  slugs:
+    - task-bot-orchestration
+  tags: []
+  depends_on: []
+  notes:
+    - _ulid: 01KG4GE0C56PSAVK86P7XNCVY3
+      created_at: 2026-01-29T09:13:00.037Z
+      author: "@claude"
+      content: >-
+        Implementation notes (auto-generated from spec):
+
+
+        Main Bot class that wires ChannelRegistry, AgentLifecycle, SessionKeyRouter, and KbotShadow
+        together. Handles message flow from channel to agent and back.
+
+
+
+        Acceptance Criteria:
+
+        - ac-1: Given valid config, when Bot.create() called, then initializes ChannelRegistry,
+        AgentLifecycle, SessionKeyRouter, KbotShadow
+
+        - ac-2: Given Discord message received, when processed, then routes to session, spawns agent
+        if needed, gets response, sends back
+
+        - ac-3: Given agent emits escalate event, when handled, then logs error with context and
+        optionally notifies configured channel
+
+        - ac-4: Given SIGTERM/SIGINT received, when shutdown triggered, then gracefully stops agent,
+        drains messages, disconnects Discord
+
+        - ac-5: Given agent process crashes, when detected by health monitor, then attempts restart
+        with backoff per AgentLifecycle behavior
+      supersedes: null
+  _ulid: 01KG4GE0C5SBMNM64Y3DGVF6YZ
   status: pending
   blocked_by: []
   context: []
   vcs_refs: []
-  created_at: 2026-01-29T09:12:59.990Z
+  created_at: 2026-01-29T09:13:00.037Z
   todos: []

@@ -8,12 +8,13 @@
  */
 
 import * as fs from 'node:fs/promises';
-import { appendFileSync, existsSync, readFileSync } from 'node:fs';
+import { appendFileSync, existsSync, readFileSync, writeFileSync, unlinkSync } from 'node:fs';
 import * as path from 'node:path';
 import { stringify as yamlStringify, parse as yamlParse } from 'yaml';
 import { ulid } from 'ulid';
 import { EventEmitter } from 'node:events';
 import { ZodError } from 'zod';
+import { KyneticError } from '@kynetic-bot/core';
 
 import {
   AgentSessionMetadata,
@@ -21,6 +22,7 @@ import {
   AgentSessionStatus,
   SessionEvent,
   SessionEventInputSchema,
+  SessionEventSchema,
   SessionMetadataInput,
   SessionMetadataInputSchema,
   type SessionEventInput,
@@ -55,10 +57,8 @@ export interface ListSessionsOptions {
 /**
  * Error thrown when session operations fail
  */
-export class SessionStoreError extends Error {
-  readonly code: string;
+export class SessionStoreError extends KyneticError {
   readonly sessionId?: string;
-  readonly context?: Record<string, unknown>;
 
   constructor(
     message: string,
@@ -66,11 +66,8 @@ export class SessionStoreError extends Error {
     sessionId?: string,
     context?: Record<string, unknown>,
   ) {
-    super(message);
-    this.name = 'SessionStoreError';
-    this.code = code;
+    super(message, `SESSION_STORE_${code}`, { ...context, sessionId });
     this.sessionId = sessionId;
-    this.context = context;
   }
 }
 
@@ -79,14 +76,15 @@ export class SessionStoreError extends Error {
  *
  * AC: @mem-agent-sessions ac-6 - Rejects with Zod validation error
  */
-export class SessionValidationError extends Error {
-  readonly code = 'VALIDATION_ERROR';
+export class SessionValidationError extends KyneticError {
   readonly zodError: ZodError;
   readonly field?: string;
 
   constructor(message: string, zodError: ZodError, field?: string) {
-    super(message);
-    this.name = 'SessionValidationError';
+    super(message, 'SESSION_VALIDATION_ERROR', {
+      field,
+      issues: zodError.issues,
+    });
     this.zodError = zodError;
     this.field = field;
   }
@@ -175,6 +173,58 @@ export class SessionStore {
    */
   private eventsJsonlPath(sessionId: string): string {
     return path.join(this.sessionDir(sessionId), 'events.jsonl');
+  }
+
+  /**
+   * Get the path to the lock file for a session
+   */
+  private lockFilePath(sessionId: string): string {
+    return path.join(this.sessionDir(sessionId), '.lock');
+  }
+
+  // ==========================================================================
+  // Lock Helpers
+  // ==========================================================================
+
+  /**
+   * Acquire a lock for a session's event log.
+   * Uses simple file-based locking for concurrency safety.
+   */
+  private acquireLock(sessionId: string, timeout = 5000): boolean {
+    const lockPath = this.lockFilePath(sessionId);
+    const startTime = Date.now();
+
+    while (Date.now() - startTime < timeout) {
+      try {
+        // O_EXCL flag ensures atomic creation - fails if file exists
+        writeFileSync(lockPath, String(process.pid), { flag: 'wx' });
+        return true;
+      } catch (err: unknown) {
+        if ((err as NodeJS.ErrnoException).code === 'EEXIST') {
+          // Lock exists, wait and retry
+          // Simple busy-wait; in production would use proper async lock
+          const waitUntil = Date.now() + 10;
+          while (Date.now() < waitUntil) {
+            // Spin
+          }
+          continue;
+        }
+        throw err;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Release a session's lock
+   */
+  private releaseLock(sessionId: string): void {
+    const lockPath = this.lockFilePath(sessionId);
+    try {
+      unlinkSync(lockPath);
+    } catch {
+      // Ignore if lock file doesn't exist
+    }
   }
 
   // ==========================================================================
@@ -413,6 +463,8 @@ export class SessionStore {
   /**
    * Append an event to a session's event log.
    *
+   * Uses file-based locking to ensure thread-safe sequence number assignment.
+   *
    * AC: @mem-agent-sessions ac-2 - Appends events with auto-assigned ts and seq
    * AC: @mem-agent-sessions ac-3 - Supports tool.call and tool.result events
    * AC: @mem-agent-sessions ac-5 - Emits structured event for observability
@@ -420,7 +472,7 @@ export class SessionStore {
    *
    * @param input - Event input (type, session_id, and data required)
    * @returns Created event with ts and seq assigned
-   * @throws SessionStoreError if session not found
+   * @throws SessionStoreError if session not found or lock acquisition fails
    * @throws SessionValidationError if input validation fails
    */
   async appendEvent(input: SessionEventInput): Promise<SessionEvent> {
@@ -446,43 +498,58 @@ export class SessionStore {
       );
     }
 
-    // Get current event count for seq assignment
-    const eventsPath = this.eventsJsonlPath(sessionId);
-    let seq = 0;
-
-    if (existsSync(eventsPath)) {
-      const content = readFileSync(eventsPath, 'utf-8');
-      const lines = content.split('\n').filter((line) => line.trim());
-      seq = lines.length;
+    // Acquire lock for thread-safe sequence assignment
+    if (!this.acquireLock(sessionId)) {
+      throw new SessionStoreError(
+        `Failed to acquire lock for session: ${sessionId}`,
+        'LOCK_FAILED',
+        sessionId,
+      );
     }
 
-    // Build full event with auto-assigned fields
-    const event: SessionEvent = {
-      ts: validInput.ts ?? Date.now(),
-      seq: validInput.seq ?? seq,
-      type: validInput.type,
-      session_id: sessionId,
-      trace_id: validInput.trace_id,
-      data: validInput.data,
-    };
+    try {
+      // Get current event count for seq assignment (inside lock)
+      const eventsPath = this.eventsJsonlPath(sessionId);
+      let seq = 0;
 
-    // Atomic append using sync write
-    const line = JSON.stringify(event) + '\n';
-    appendFileSync(eventsPath, line, 'utf-8');
+      if (existsSync(eventsPath)) {
+        const content = readFileSync(eventsPath, 'utf-8');
+        const lines = content.split('\n').filter((line) => line.trim());
+        seq = lines.length;
+      }
 
-    // Emit event
-    this.emit('event:appended', { sessionId, event });
+      // Build full event with auto-assigned fields
+      const event: SessionEvent = {
+        ts: validInput.ts ?? Date.now(),
+        seq: validInput.seq ?? seq,
+        type: validInput.type,
+        session_id: sessionId,
+        trace_id: validInput.trace_id,
+        data: validInput.data,
+      };
 
-    return event;
+      // Atomic append using sync write
+      const line = JSON.stringify(event) + '\n';
+      appendFileSync(eventsPath, line, 'utf-8');
+
+      // Emit event
+      this.emit('event:appended', { sessionId, event });
+
+      return event;
+    } finally {
+      // Always release lock
+      this.releaseLock(sessionId);
+    }
   }
 
   /**
    * Read all events for a session.
    *
-   * Skips invalid JSON lines with a warning (for crash recovery).
+   * Skips invalid JSON lines and events that fail schema validation (for crash recovery).
+   * Emits a single summary error if any lines were skipped.
    *
    * @param sessionId - Session ID to read events for
-   * @returns Array of events sorted by seq
+   * @returns Array of valid events sorted by seq
    */
   async readEvents(sessionId: string): Promise<SessionEvent[]> {
     const eventsPath = this.eventsJsonlPath(sessionId);
@@ -495,26 +562,33 @@ export class SessionStore {
     const lines = content.split('\n').filter((line) => line.trim());
 
     const events: SessionEvent[] = [];
-    let skipped = 0;
+    let skippedJson = 0;
+    let skippedValidation = 0;
 
     for (const line of lines) {
       try {
         const parsed = JSON.parse(line);
-        events.push(parsed as SessionEvent);
+
+        // Validate against schema
+        const result = SessionEventSchema.safeParse(parsed);
+        if (result.success) {
+          events.push(result.data);
+        } else {
+          skippedValidation++;
+        }
       } catch {
-        skipped++;
-        this.emit('error', {
-          error: new Error(`Invalid JSON line skipped in events.jsonl`),
-          operation: 'readEvents',
-          sessionId,
-        });
+        skippedJson++;
       }
     }
 
-    if (skipped > 0) {
-      // Log warning about skipped lines (AC trait-recoverable)
+    // Emit single summary error if any lines were skipped
+    const totalSkipped = skippedJson + skippedValidation;
+    if (totalSkipped > 0) {
       this.emit('error', {
-        error: new Error(`Skipped ${skipped} invalid JSON lines`),
+        error: new Error(
+          `Skipped ${totalSkipped} invalid lines in events.jsonl ` +
+            `(${skippedJson} JSON errors, ${skippedValidation} schema validation failures)`,
+        ),
         operation: 'readEvents',
         sessionId,
       });

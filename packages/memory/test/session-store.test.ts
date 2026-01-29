@@ -596,8 +596,63 @@ describe('SessionStore', () => {
 
       // Should have 2 valid events
       expect(events).toHaveLength(2);
-      // Should have emitted error for skipped line
-      expect(errors.some((e) => e.error.message.includes('Invalid JSON line'))).toBe(true);
+      // Should have emitted single summary error
+      expect(errors).toHaveLength(1);
+      expect(errors[0].error.message).toMatch(/Skipped \d+ invalid lines/);
+      expect(errors[0].error.message).toContain('JSON errors');
+    });
+
+    it('skips lines that fail schema validation', async () => {
+      const sessionId = ulid();
+      await store.createSession({ id: sessionId, agent_type: 'claude' });
+
+      // Append valid event
+      await store.appendEvent({
+        type: 'session.start',
+        session_id: sessionId,
+        data: {},
+      });
+
+      // Manually append valid JSON but invalid event schema
+      const eventsPath = path.join(tempDir, 'sessions', sessionId, 'events.jsonl');
+      await fs.appendFile(eventsPath, '{"foo": "bar", "not": "an event"}\n', 'utf-8');
+
+      const errors: Array<{ error: Error }> = [];
+      emitter.on('error', (data) => errors.push(data));
+
+      const events = await store.readEvents(sessionId);
+
+      // Should only have 1 valid event
+      expect(events).toHaveLength(1);
+      expect(events[0].type).toBe('session.start');
+      // Should have emitted error mentioning schema validation
+      expect(errors).toHaveLength(1);
+      expect(errors[0].error.message).toContain('schema validation');
+    });
+
+    it('handles concurrent event appends safely', async () => {
+      const sessionId = ulid();
+      await store.createSession({ id: sessionId, agent_type: 'claude' });
+
+      // Append many events concurrently
+      const concurrentAppends = Array.from({ length: 10 }, (_, i) =>
+        store.appendEvent({
+          type: 'note',
+          session_id: sessionId,
+          data: { index: i },
+        }),
+      );
+
+      const results = await Promise.all(concurrentAppends);
+
+      // All events should have unique sequence numbers
+      const seqs = results.map((e) => e.seq);
+      const uniqueSeqs = new Set(seqs);
+      expect(uniqueSeqs.size).toBe(10);
+
+      // Read back and verify
+      const events = await store.readEvents(sessionId);
+      expect(events).toHaveLength(10);
     });
   });
 

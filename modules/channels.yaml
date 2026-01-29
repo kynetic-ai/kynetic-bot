@@ -124,7 +124,7 @@ features:
         then: only one session created
     status:
       maturity: draft
-      implementation: in_progress
+      implementation: implemented
   - _ulid: 01KG1RDB0J11H95T8TACVNS0A4
     slugs:
       - channel-media

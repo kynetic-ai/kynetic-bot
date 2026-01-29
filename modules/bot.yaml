@@ -80,7 +80,7 @@ features:
       - id: ac-2
         given: Discord message received
         when: processed
-        then: routes to session, spawns agent if needed, gets response, sends back
+        then: routes to session, spawns agent if needed, awaits response, and returns to caller
       - id: ac-3
         given: agent emits escalate event
         when: handled

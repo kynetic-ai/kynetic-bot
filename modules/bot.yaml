@@ -35,3 +35,7 @@ features:
         given: environment variables set
         when: bot starts
         then: loads DISCORD_TOKEN, AGENT_COMMAND, KBOT_DATA_DIR with Zod validation
+      - id: ac-2
+        given: required variable missing
+        when: config loaded
+        then: throws descriptive error identifying the missing variable

@@ -4993,6 +4993,7 @@
   meta_ref: null
   status: cancelled
   blocked_by: []
+  closed_reason: Duplicate of @bot-integration - merged detailed notes into existing task
   depends_on: []
   context: []
   priority: 1
@@ -5450,4 +5451,30 @@
       supersedes: null
   todos: []
   automation: eligible
-  closed_reason: Duplicate of @bot-integration - merged detailed notes into existing task
+- title: "Implement: Bot"
+  type: task
+  spec_ref: "@bot"
+  derivation: auto
+  priority: 3
+  slugs:
+    - task-bot
+  tags: []
+  depends_on: []
+  notes:
+    - _ulid: 01KG4GE08WFJ0CMG4TJDGMK70N
+      created_at: 2026-01-29T09:12:59.933Z
+      author: "@claude"
+      content: >-
+        Implementation notes (auto-generated from spec):
+
+
+        Main bot orchestration layer that wires all components together to create a functioning
+        Discord bot.
+      supersedes: null
+  _ulid: 01KG4GE08X4JBJMHMR276PR71S
+  status: pending
+  blocked_by: []
+  context: []
+  vcs_refs: []
+  created_at: 2026-01-29T09:12:59.933Z
+  todos: []

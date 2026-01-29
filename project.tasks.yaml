@@ -6250,19 +6250,28 @@
         testable."
       supersedes: null
   todos: []
-- title: Optimize ConversationStore duplicate detection performance
+- _ulid: 01KG5JNEZN743C5NJTT84CS5TM
+  slugs: []
+  title: Optimize ConversationStore duplicate detection performance
   type: task
   spec_ref: null
   meta_ref: null
-  priority: 4
-  slugs: []
-  tags: []
-  _ulid: 01KG5JNEZN743C5NJTT84CS5TM
   status: pending
   blocked_by: []
   depends_on: []
   context: []
+  priority: 4
+  tags: []
   vcs_refs: []
   created_at: 2026-01-29T19:11:15.957Z
-  notes: []
+  notes:
+    - _ulid: 01KG5JNN40CZFEH4DVG551YWPX
+      created_at: 2026-01-29T19:11:22.241Z
+      author: "@claude"
+      content: "Context from PR #10 review: Current duplicate detection does O(n) scan of all turns to
+        check message_id uniqueness. PR review suggested adding message-id index file for O(1)
+        lookup. Not blocking at current scale but will be problematic with larger conversation
+        histories. Implementation suggestion: maintain separate index file mapping message_id ->
+        turn file location."
+      supersedes: null
   todos: []

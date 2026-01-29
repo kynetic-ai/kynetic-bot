@@ -5774,7 +5774,14 @@
         **Note**: Actual Discord adapter integration is separate (@discord-adapter task).
         This task focuses on the Bot class orchestration with mockable interfaces.
       supersedes: null
+    - _ulid: 01KG4HJBYT12NA362M1J543SPV
+      created_at: 2026-01-29T09:32:51.546Z
+      author: "@claude"
+      content: "Automation status set to needs_review: Complex integration of 5 components; requires
+        careful mocking strategy"
+      supersedes: null
   todos: []
+  automation: needs_review
 - _ulid: 01KG4GE0DG8QHPJF3118HPK4KJ
   slugs:
     - task-bot-cli

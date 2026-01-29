@@ -99,7 +99,8 @@ features:
     implements: []
     relates_to: []
     tests: []
-    traits: []
+    traits:
+      - "@trait-graceful-shutdown"
     notes: []
     created: 2026-01-29T09:12:31.692Z
     acceptance_criteria:

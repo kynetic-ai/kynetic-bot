@@ -4251,6 +4251,7 @@
     - phase-1
   vcs_refs: []
   created_at: 2026-01-28T17:49:35.492Z
+  started_at: 2026-01-29T10:19:09.359Z
   notes:
     - _ulid: 01KG2VPQADTQAGVZG9ZNZTZ64X
       created_at: 2026-01-28T17:51:31.150Z
@@ -4335,9 +4336,36 @@
         ## Reference
         - /home/chapel/Projects/kynetic-spec/src/sessions/types.ts (lines 1-122)
       supersedes: null
+    - _ulid: 01KG4MBR0J6N7B6QC8DMA9D26J
+      created_at: 2026-01-29T10:21:40.242Z
+      author: "@claude"
+      content: >-
+        Implemented Zod schemas for agent session metadata and events:
+
+        - AgentSessionStatusSchema: active/completed/abandoned states
+
+        - SessionEventTypeSchema: 7 event types (session.start/end, prompt.sent, message.chunk,
+        tool.call/result, note)
+
+        - AgentSessionMetadataSchema: Full session metadata with validation
+
+        - SessionEventSchema: Base event with ts, seq, type, session_id, trace_id
+
+        - Input schemas: SessionMetadataInputSchema, SessionEventInputSchema (omit auto-assigned
+        fields)
+
+        - Typed data schemas: SessionStartData, SessionEndData, PromptSentData, MessageChunkData,
+        ToolCallData, ToolResultData, NoteData
+
+        - Fully typed event schemas combining base event with typed data
+
+        - TypedSessionEventSchema union for all event types
+
+
+        50 tests covering all schemas and AC mappings.
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-01-29T10:19:09.359Z
 - _ulid: 01KG2VK9YVD40CSKFN2T8WR585
   slugs:
     - conversation-types

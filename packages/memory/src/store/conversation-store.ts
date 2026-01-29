@@ -19,8 +19,6 @@ import { KyneticError } from '@kynetic-bot/core';
 import {
   ConversationMetadata,
   ConversationMetadataSchema,
-  ConversationMetadataInput,
-  ConversationMetadataInputSchema,
   ConversationStatus,
   ConversationTurn,
   ConversationTurnSchema,
@@ -443,7 +441,7 @@ export class ConversationStore {
 
     try {
       const content = await fs.readFile(yamlPath, 'utf-8');
-      const data = yamlParse(content);
+      const data: unknown = yamlParse(content);
 
       const result = ConversationMetadataSchema.safeParse(data);
       if (!result.success) {
@@ -487,6 +485,7 @@ export class ConversationStore {
    * @param conversationId - Conversation ID to check
    * @returns True if conversation exists
    */
+  // eslint-disable-next-line @typescript-eslint/require-await
   async conversationExists(conversationId: string): Promise<boolean> {
     return existsSync(this.conversationYamlPath(conversationId));
   }
@@ -695,20 +694,17 @@ export class ConversationStore {
     const lines = content.split('\n').filter((line) => line.trim());
 
     const turns: ConversationTurn[] = [];
-    let skippedJson = 0;
-    let skippedValidation = 0;
 
     for (const line of lines) {
       try {
-        const parsed = JSON.parse(line);
+        const parsed: unknown = JSON.parse(line);
         const result = ConversationTurnSchema.safeParse(parsed);
         if (result.success) {
           turns.push(result.data);
-        } else {
-          skippedValidation++;
         }
+        // Skip invalid entries silently in internal method
       } catch {
-        skippedJson++;
+        // Skip invalid JSON silently in internal method
       }
     }
 
@@ -739,7 +735,7 @@ export class ConversationStore {
 
     for (const line of lines) {
       try {
-        const parsed = JSON.parse(line);
+        const parsed: unknown = JSON.parse(line);
         const result = ConversationTurnSchema.safeParse(parsed);
         if (result.success) {
           turns.push(result.data);
@@ -809,6 +805,7 @@ export class ConversationStore {
    * @param conversationId - Conversation ID to count turns for
    * @returns Number of turns
    */
+  // eslint-disable-next-line @typescript-eslint/require-await
   async getTurnCount(conversationId: string): Promise<number> {
     const turnsPath = this.turnsJsonlPath(conversationId);
 

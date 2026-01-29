@@ -145,7 +145,7 @@ describe('buildSessionKey', () => {
     const parts = {
       agent: 'main',
       platform: 'whatsapp',
-      peerKind: 'invalid' as any,
+      peerKind: 'invalid' as 'user',  // Force incorrect type for testing
       peerId: '+1234567890',
     };
     expect(() => buildSessionKey(parts)).toThrow();

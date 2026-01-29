@@ -4,10 +4,9 @@
  * Routes messages to sessions based on session keys and manages session lifecycle.
  */
 
-import type { NormalizedMessage, SessionKey } from '@kynetic-bot/core';
+import type { NormalizedMessage } from '@kynetic-bot/core';
 import {
   buildSessionKey,
-  parseSessionKey,
   UnknownAgentError,
 } from '@kynetic-bot/core';
 import type { Session, SessionStore } from './types.js';

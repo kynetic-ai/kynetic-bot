@@ -325,7 +325,7 @@ export class SessionStore {
 
     try {
       const content = await fs.readFile(yamlPath, 'utf-8');
-      const data = yamlParse(content);
+      const data: unknown = yamlParse(content);
 
       // Validate loaded data
       const result = AgentSessionMetadataSchema.safeParse(data);
@@ -355,6 +355,7 @@ export class SessionStore {
    * @param sessionId - Session ID to check
    * @returns True if session exists
    */
+  // eslint-disable-next-line @typescript-eslint/require-await
   async sessionExists(sessionId: string): Promise<boolean> {
     return existsSync(this.sessionYamlPath(sessionId));
   }
@@ -475,6 +476,7 @@ export class SessionStore {
    * @throws SessionStoreError if session not found or lock acquisition fails
    * @throws SessionValidationError if input validation fails
    */
+  // eslint-disable-next-line @typescript-eslint/require-await
   async appendEvent(input: SessionEventInput): Promise<SessionEvent> {
     // Validate input
     const parseResult = SessionEventInputSchema.safeParse(input);
@@ -567,7 +569,7 @@ export class SessionStore {
 
     for (const line of lines) {
       try {
-        const parsed = JSON.parse(line);
+        const parsed: unknown = JSON.parse(line);
 
         // Validate against schema
         const result = SessionEventSchema.safeParse(parsed);
@@ -639,6 +641,7 @@ export class SessionStore {
    * @param sessionId - Session ID to count events for
    * @returns Number of events
    */
+  // eslint-disable-next-line @typescript-eslint/require-await
   async getEventCount(sessionId: string): Promise<number> {
     const eventsPath = this.eventsJsonlPath(sessionId);
 

@@ -18,7 +18,6 @@ const log = createLogger('acp');
 import type {
   AgentCapabilities,
   ClientCapabilities,
-  ContentBlock,
   CreateTerminalRequest,
   CreateTerminalResponse,
   InitializeRequest,
@@ -46,7 +45,7 @@ import type {
   WriteTextFileRequest,
   WriteTextFileResponse,
 } from './types.js';
-import { CLIENT_METHODS } from './types.js';
+import { CLIENT_METHODS, JsonRpcException } from './types.js';
 
 /**
  * Session state tracked by the client
@@ -235,7 +234,7 @@ export class ACPClient extends EventEmitter {
     for (const content of params.prompt) {
       const update: SessionUpdate = {
         sessionUpdate: 'user_message_chunk',
-        content: content as ContentBlock,
+        content,
         _meta: { source },
       };
       this.emit('update', params.sessionId, update);
@@ -354,35 +353,35 @@ export class ACPClient extends EventEmitter {
       switch (request.method) {
         case CLIENT_METHODS.fs_read_text_file:
           if (!this.handlers.readFile) {
-            throw { code: -32601, message: 'Method not supported' };
+            throw new JsonRpcException(-32601, 'Method not supported');
           }
           result = await this.handlers.readFile(request.params as ReadTextFileRequest);
           break;
 
         case CLIENT_METHODS.fs_write_text_file:
           if (!this.handlers.writeFile) {
-            throw { code: -32601, message: 'Method not supported' };
+            throw new JsonRpcException(-32601, 'Method not supported');
           }
           result = await this.handlers.writeFile(request.params as WriteTextFileRequest);
           break;
 
         case CLIENT_METHODS.terminal_create:
           if (!this.handlers.createTerminal) {
-            throw { code: -32601, message: 'Method not supported' };
+            throw new JsonRpcException(-32601, 'Method not supported');
           }
           result = await this.handlers.createTerminal(request.params as CreateTerminalRequest);
           break;
 
         case CLIENT_METHODS.terminal_output:
           if (!this.handlers.getTerminalOutput) {
-            throw { code: -32601, message: 'Method not supported' };
+            throw new JsonRpcException(-32601, 'Method not supported');
           }
           result = this.handlers.getTerminalOutput(request.params as TerminalOutputRequest);
           break;
 
         case CLIENT_METHODS.terminal_wait_for_exit:
           if (!this.handlers.waitForTerminalExit) {
-            throw { code: -32601, message: 'Method not supported' };
+            throw new JsonRpcException(-32601, 'Method not supported');
           }
           result = await this.handlers.waitForTerminalExit(
             request.params as WaitForTerminalExitRequest,
@@ -391,21 +390,21 @@ export class ACPClient extends EventEmitter {
 
         case CLIENT_METHODS.terminal_kill:
           if (!this.handlers.killTerminal) {
-            throw { code: -32601, message: 'Method not supported' };
+            throw new JsonRpcException(-32601, 'Method not supported');
           }
           result = await this.handlers.killTerminal(request.params as KillTerminalCommandRequest);
           break;
 
         case CLIENT_METHODS.terminal_release:
           if (!this.handlers.releaseTerminal) {
-            throw { code: -32601, message: 'Method not supported' };
+            throw new JsonRpcException(-32601, 'Method not supported');
           }
           result = this.handlers.releaseTerminal(request.params as ReleaseTerminalRequest);
           break;
 
         case CLIENT_METHODS.session_request_permission:
           if (!this.handlers.requestPermission) {
-            throw { code: -32601, message: 'Method not supported' };
+            throw new JsonRpcException(-32601, 'Method not supported');
           }
           result = await this.handlers.requestPermission(
             request.params as RequestPermissionRequest,
@@ -413,7 +412,7 @@ export class ACPClient extends EventEmitter {
           break;
 
         default:
-          throw { code: -32601, message: 'Method not found' };
+          throw new JsonRpcException(-32601, 'Method not found');
       }
 
       // Log response for debugging
@@ -423,9 +422,9 @@ export class ACPClient extends EventEmitter {
 
       this.framing.sendResponse(request.id, result);
     } catch (err: unknown) {
-      // Handle JSON-RPC error objects
-      if (err && typeof err === 'object' && 'code' in err && 'message' in err) {
-        const error = err as { code: number; message: string };
+      // Handle JsonRpcException
+      if (err instanceof JsonRpcException) {
+        const error = err.toErrorObject();
         // Log error response for debugging (kynetic-3pm9)
         if (isTerminalMethod || isFsMethod || isSessionMethod) {
           log.error('Outgoing error response', { method: request.method, error });

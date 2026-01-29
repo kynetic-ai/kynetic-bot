@@ -65,7 +65,8 @@ export function buildSessionKey(parts: ParsedSessionKey): SessionKey {
   }
 
   if (peerKind !== 'user' && peerKind !== 'channel') {
-    throw new Error(`Invalid peerKind: ${peerKind}. Must be 'user' or 'channel'`);
+    const invalidKind: never = peerKind;
+    throw new Error(`Invalid peerKind: ${invalidKind as string}. Must be 'user' or 'channel'`);
   }
 
   return `agent:${agent}:${platform}:${peerKind}:${peerId}` as SessionKey;

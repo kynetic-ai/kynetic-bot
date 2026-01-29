@@ -104,14 +104,14 @@ export class MediaHandler {
    * @param metadata - Attachment metadata
    * @returns Result with MediaAttachment or error
    */
-  async processIncoming(
+  processIncoming(
     data: Buffer,
     metadata: {
       type: string;
       filename: string;
       [key: string]: unknown;
     },
-  ): Promise<Result<MediaAttachment, KyneticError>> {
+  ): Result<MediaAttachment, KyneticError> {
     // AC-3: Validate size
     const sizeValidation = this.validateSize(data.length);
     if (!sizeValidation.ok) {
@@ -134,7 +134,7 @@ export class MediaHandler {
         timestamp: Date.now(),
       };
 
-      const id = await this.store(data, storageMetadata);
+      const id = this.store(data, storageMetadata);
 
       // AC-1: Return attachment with metadata
       const attachment: MediaAttachment = {
@@ -164,12 +164,12 @@ export class MediaHandler {
    * @param attachment - Media attachment to prepare
    * @returns Result with platform-specific reference or error
    */
-  async prepareOutgoing(
+  prepareOutgoing(
     attachment: MediaAttachment,
-  ): Promise<Result<{ url: string; data?: Buffer }, KyneticError>> {
+  ): Result<{ url: string; data?: Buffer }, KyneticError> {
     try {
       // AC-2: Retrieve stored media
-      const data = await this.retrieve(attachment.id);
+      const data = this.retrieve(attachment.id);
 
       // AC-2: Return reference for delivery
       return {
@@ -241,10 +241,11 @@ export class MediaHandler {
    * Store media data
    *
    * @param data - Media data buffer
-   * @param metadata - Storage metadata
+   * @param _metadata - Storage metadata (reserved for future use)
    * @returns Media identifier
    */
-  private async store(data: Buffer, metadata: MediaMetadata): Promise<string> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private store(data: Buffer, _metadata: MediaMetadata): string {
     const id = this.generateId();
 
     switch (this.config.storage) {
@@ -261,8 +262,10 @@ export class MediaHandler {
         // TODO: Implement S3 storage
         throw new Error('S3 storage not yet implemented');
 
-      default:
-        throw new Error(`Unknown storage backend: ${this.config.storage}`);
+      default: {
+        const exhaustiveCheck: never = this.config.storage;
+        throw new Error(`Unknown storage backend: ${exhaustiveCheck as string}`);
+      }
     }
 
     return id;
@@ -274,14 +277,15 @@ export class MediaHandler {
    * @param id - Media identifier
    * @returns Media data buffer
    */
-  private async retrieve(id: string): Promise<Buffer> {
+  private retrieve(id: string): Buffer {
     switch (this.config.storage) {
-      case 'memory':
+      case 'memory': {
         const data = this.storage.get(id);
         if (!data) {
           throw new Error(`Media not found: ${id}`);
         }
         return data;
+      }
 
       case 'local':
         // TODO: Implement local file system retrieval
@@ -291,8 +295,10 @@ export class MediaHandler {
         // TODO: Implement S3 retrieval
         throw new Error('S3 storage not yet implemented');
 
-      default:
-        throw new Error(`Unknown storage backend: ${this.config.storage}`);
+      default: {
+        const exhaustiveCheck: never = this.config.storage;
+        throw new Error(`Unknown storage backend: ${exhaustiveCheck as string}`);
+      }
     }
   }
 

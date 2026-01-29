@@ -118,7 +118,7 @@ export class JsonRpcFraming extends EventEmitter {
     this.stdin.setEncoding('utf8');
     this.stdin.on('data', (chunk: string) => this.handleData(chunk));
     this.stdin.on('end', () => this.handleEnd());
-    this.stdin.on('error', (err) => this.handleError(err));
+    this.stdin.on('error', (err: Error) => this.handleError(err));
   }
 
   /**
@@ -270,7 +270,7 @@ export class JsonRpcFraming extends EventEmitter {
       const json = JSON.stringify(message);
       this.stdout.write(`${json}\n`);
     } catch (err) {
-      this.stderr.write(`Error sending message: ${err}\n`);
+      this.stderr.write(`Error sending message: ${err instanceof Error ? err.message : String(err)}\n`);
     }
   }
 
@@ -298,9 +298,9 @@ export class JsonRpcFraming extends EventEmitter {
    */
   private processLine(line: string): void {
     try {
-      const message = JSON.parse(line);
+      const message: unknown = JSON.parse(line);
       this.handleMessage(message);
-    } catch (err) {
+    } catch (err: unknown) {
       // Malformed JSON - send parse error response
       this.sendError(null, {
         code: -32700,

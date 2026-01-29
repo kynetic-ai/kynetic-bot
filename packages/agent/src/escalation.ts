@@ -329,6 +329,7 @@ export class EscalationHandler extends EventEmitter {
    * @param escalationId - ID of escalation to acknowledge
    * @param humanId - Optional identifier of human acknowledging
    */
+  // eslint-disable-next-line @typescript-eslint/require-await
   async acknowledge(escalationId: string, humanId?: string): Promise<void> {
     const record = this.escalations.get(escalationId);
 

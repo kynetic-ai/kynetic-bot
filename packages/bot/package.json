@@ -17,6 +17,7 @@
     "@kynetic-bot/messaging": "workspace:*",
     "@kynetic-bot/channels": "workspace:*",
     "@kynetic-bot/memory": "workspace:*",
-    "@kynetic-bot/agent": "workspace:*"
+    "@kynetic-bot/agent": "workspace:*",
+    "zod": "^3.23"
   }
 }

@@ -5,4 +5,5 @@
  */
 
 export * from './shadow/index.js';
+export * from './store/index.js';
 export * from './types/index.js';

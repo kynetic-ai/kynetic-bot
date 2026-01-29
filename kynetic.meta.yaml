@@ -207,4 +207,13 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KG5ZCJES911K5CTJCNA2F45E
+    type: success
+    content: "Vitest mock pattern for Discord.js Client: define MockClient class inside vi.mock factory
+      extending EventEmitter, use globalThis to share instance reference with tests. Works around
+      hoisting issues."
+    created_at: 2026-01-29T22:53:36.090Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

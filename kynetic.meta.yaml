@@ -151,4 +151,13 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KG4KVNFB2XQHVHWYXFC6ZNKJ
+    type: success
+    content: Iterative review cycles with parallel verification + holistic subagents caught issues early
+      (missing traits, relates_to gaps, AC clarity). Running reviews after each fix round prevented
+      compounding errors.
+    created_at: 2026-01-29T10:12:53.355Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

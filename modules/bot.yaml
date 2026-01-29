@@ -72,3 +72,7 @@ features:
         given: Discord message received
         when: processed
         then: routes to session, spawns agent if needed, gets response, sends back
+      - id: ac-3
+        given: agent emits escalate event
+        when: handled
+        then: logs error with context and optionally notifies configured channel

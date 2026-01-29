@@ -4710,7 +4710,7 @@
   type: task
   spec_ref: "@mem-conversation"
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on:
     - "@conversation-types"
@@ -4905,6 +4905,9 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-01-29T10:50:49.526Z
+  closed_reason: "Implemented ConversationStore for turn storage. PR #10 merged with review feedback
+    addressed (index locking, duplicate detection documentation). 44 tests covering all AC."
 - _ulid: 01KG2VKW4ETZSVMHCCE2XYTV2Z
   slugs:
     - batch-commit-scheduler

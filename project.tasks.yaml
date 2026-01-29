@@ -6275,19 +6275,35 @@
         turn file location."
       supersedes: null
   todos: []
-- title: Implement 'embed' split strategy for Discord adapter
+- _ulid: 01KG5YZN1Y96ET4PPZAGF4Q2NG
+  slugs: []
+  title: Implement 'embed' split strategy for Discord adapter
+  type: task
+  spec_ref: null
+  meta_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  priority: 3
+  tags: []
+  vcs_refs: []
+  created_at: 2026-01-29T22:46:32.765Z
+  notes: []
+  todos: []
+- title: Fix pre-existing lint errors across packages
   type: task
   spec_ref: null
   meta_ref: null
   priority: 3
   slugs: []
   tags: []
-  _ulid: 01KG5YZN1Y96ET4PPZAGF4Q2NG
+  _ulid: 01KG5ZB9KHZE3EMSKMJP8VBBC8
   status: pending
   blocked_by: []
   depends_on: []
   context: []
   vcs_refs: []
-  created_at: 2026-01-29T22:46:32.765Z
+  created_at: 2026-01-29T22:52:54.257Z
   notes: []
   todos: []

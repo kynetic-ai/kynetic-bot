@@ -42,7 +42,7 @@ interface QueuedMessage {
   text: string;
   options?: Record<string, unknown>;
   attempts: number;
-  resolve: () => void;
+  resolve: (value: string | void) => void;
   reject: (error: Error) => void;
 }
 
@@ -148,14 +148,15 @@ export class ChannelLifecycle {
    * @param channel - Channel identifier
    * @param text - Message text
    * @param options - Platform-specific options
+   * @returns Optional message ID from the underlying adapter
    */
   async sendMessage(
     channel: string,
     text: string,
     options?: Record<string, unknown>,
-  ): Promise<void> {
+  ): Promise<string | void> {
     // AC-4: Queue messages when rate limited or unhealthy
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<string | void>((resolve, reject) => {
       this.messageQueue.push({
         channel,
         text,
@@ -316,15 +317,15 @@ export class ChannelLifecycle {
 
       try {
         // AC-4: Retries with backoff
-        await this.adapter.sendMessage(
+        const result = await this.adapter.sendMessage(
           message.channel,
           message.text,
           message.options,
         );
 
-        // Success - remove from queue and resolve
+        // Success - remove from queue and resolve with message ID
         this.messageQueue.shift();
-        message.resolve();
+        message.resolve(result);
       } catch (error) {
         message.attempts++;
 

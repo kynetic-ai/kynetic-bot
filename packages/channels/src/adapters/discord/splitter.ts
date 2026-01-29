@@ -1,0 +1,148 @@
+/**
+ * Discord Message Splitter
+ *
+ * Handles splitting long messages to fit Discord's 2000 character limit.
+ */
+
+/**
+ * Split a message into chunks that fit within Discord's character limit
+ *
+ * Splitting strategy (AC-3):
+ * 1. Try to split at newlines
+ * 2. Fall back to splitting at spaces
+ * 3. Last resort: hard cut with truncation marker
+ *
+ * Preserves code block fencing when splitting inside code blocks.
+ *
+ * @param text - Message text to split
+ * @param maxLength - Maximum length per chunk (default: 2000)
+ * @returns Array of message chunks
+ */
+export function splitMessage(text: string, maxLength = 2000): string[] {
+  // Handle edge cases
+  if (!text || text.length === 0) {
+    return [];
+  }
+
+  if (text.length <= maxLength) {
+    return [text];
+  }
+
+  const chunks: string[] = [];
+  let remaining = text;
+  let inCodeBlock = false;
+  let codeBlockLang = '';
+
+  while (remaining.length > 0) {
+    if (remaining.length <= maxLength) {
+      chunks.push(remaining);
+      break;
+    }
+
+    // Check if we're starting inside a code block from previous chunk
+    const prefix = inCodeBlock ? `\`\`\`${codeBlockLang}\n` : '';
+    const effectiveMaxLength = maxLength - prefix.length;
+
+    // Find a good split point
+    const splitIndex = findSplitPoint(remaining, effectiveMaxLength);
+
+    // Extract the chunk
+    let chunk = remaining.slice(0, splitIndex);
+
+    // Track code block state
+    const codeBlockState = trackCodeBlockState(
+      chunk,
+      inCodeBlock,
+      codeBlockLang,
+    );
+
+    // If we're ending mid-code-block, close it and prepare to reopen
+    let suffix = '';
+    if (codeBlockState.inCodeBlock) {
+      suffix = '\n```';
+      inCodeBlock = true;
+      codeBlockLang = codeBlockState.lang;
+    } else {
+      inCodeBlock = false;
+      codeBlockLang = '';
+    }
+
+    // Assemble final chunk
+    chunk = prefix + chunk + suffix;
+    chunks.push(chunk.trim());
+
+    // Move to remaining text
+    remaining = remaining.slice(splitIndex).trimStart();
+  }
+
+  return chunks.filter((c) => c.length > 0);
+}
+
+/**
+ * Find the best split point within the maximum length
+ *
+ * Priority: newline > space > hard cut
+ */
+function findSplitPoint(text: string, maxLength: number): number {
+  // Look for a newline within the last 20% of the allowed length
+  const searchStart = Math.floor(maxLength * 0.8);
+  const searchRegion = text.slice(searchStart, maxLength);
+
+  // Prefer splitting at blank lines (double newline)
+  const blankLineIndex = searchRegion.lastIndexOf('\n\n');
+  if (blankLineIndex !== -1) {
+    return searchStart + blankLineIndex + 1;
+  }
+
+  // Try single newline
+  const newlineIndex = searchRegion.lastIndexOf('\n');
+  if (newlineIndex !== -1) {
+    return searchStart + newlineIndex + 1;
+  }
+
+  // Try space
+  const spaceIndex = searchRegion.lastIndexOf(' ');
+  if (spaceIndex !== -1) {
+    return searchStart + spaceIndex + 1;
+  }
+
+  // Last resort: hard cut at maxLength
+  // If the entire chunk has no good split points, truncate with marker
+  if (maxLength < text.length) {
+    // Reserve space for truncation marker
+    const truncationMarker = '... [truncated]';
+    return maxLength - truncationMarker.length;
+  }
+
+  return maxLength;
+}
+
+/**
+ * Track whether we're inside a code block after processing text
+ */
+function trackCodeBlockState(
+  text: string,
+  startInCodeBlock: boolean,
+  startLang: string,
+): { inCodeBlock: boolean; lang: string } {
+  let inCodeBlock = startInCodeBlock;
+  let lang = startLang;
+
+  // Match code block markers
+  const codeBlockRegex = /```(\w*)?/g;
+  let match;
+
+  while ((match = codeBlockRegex.exec(text)) !== null) {
+    if (inCodeBlock) {
+      // Closing code block
+      inCodeBlock = false;
+      lang = '';
+    } else {
+      // Opening code block
+      inCodeBlock = true;
+      lang = match[1] || '';
+    }
+  }
+
+  return { inCodeBlock, lang };
+}

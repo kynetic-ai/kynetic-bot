@@ -33,12 +33,13 @@ export interface ChannelAdapter {
    * @param channel - Channel identifier (platform-specific)
    * @param text - Message text to send
    * @param options - Platform-specific send options
+   * @returns Optional message ID for platforms that support it
    */
   sendMessage(
     channel: string,
     text: string,
     options?: Record<string, unknown>,
-  ): Promise<void>;
+  ): Promise<string | void>;
 
   /**
    * Register a handler for incoming messages

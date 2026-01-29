@@ -16,6 +16,7 @@
     "@kynetic-bot/core": "workspace:*",
     "@kynetic-bot/memory": "workspace:*",
     "@kynetic-bot/messaging": "workspace:*",
+    "discord.js": "^14.18",
     "ulid": "^2.3",
     "yaml": "^2.8",
     "zod": "^3.23"

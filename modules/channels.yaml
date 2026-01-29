@@ -172,3 +172,7 @@ features:
         given: Discord message received
         when: parseIncoming called
         then: returns NormalizedMessage with platform='discord', channelId, authorId, content
+      - id: ac-2
+        given: NormalizedMessage to send
+        when: sendMessage called
+        then: sends to Discord channel, respects rate limits, returns message ID

@@ -1551,6 +1551,7 @@
     - phase-1
   vcs_refs: []
   created_at: 2026-01-28T08:09:49.647Z
+  started_at: 2026-01-29T05:46:42.920Z
   notes:
     - _ulid: 01KG1TKD54SA3VRSFJB7MR6C43
       created_at: 2026-01-28T08:12:59.429Z
@@ -1656,9 +1657,45 @@
       content: "Automation status set to needs_review: Critical system for process management, sets
         pattern for health monitoring and ACP integration"
       supersedes: null
+    - _ulid: 01KG458A3ZHE13YDP5XE6665KD
+      created_at: 2026-01-29T05:57:39.071Z
+      author: "@claude"
+      content: >-
+        Implemented AgentLifecycle with:
+
+        - State machine: idle -> spawning -> healthy <-> unhealthy -> stopping/terminating -> idle
+
+        - Health monitoring with configurable interval (30s default) and failure threshold (3
+        default)
+
+        - Exponential backoff for spawn retries (1s initial, 60s cap, 2x multiplier)
+
+        - Graceful shutdown with 10s timeout before force kill
+
+        - KYNETIC_* environment variable injection for spawned agents
+
+        - Spawn rate limiting with queue management
+
+        - Checkpoint save/restore for state persistence
+
+        - Full EventEmitter pattern for observability
+
+
+        Created:
+
+        - packages/agent/src/types.ts - Type definitions
+
+        - packages/agent/src/lifecycle.ts - Main implementation
+
+        - packages/agent/test/lifecycle.test.ts - 30 AC-annotated tests
+
+
+        Updated:
+
+        - packages/agent/src/index.ts - Barrel exports
+      supersedes: null
   todos: []
   automation: needs_review
-  started_at: 2026-01-29T05:46:42.920Z
 - _ulid: 01KG1TDNYQD551HSS3ZHQH81GT
   slugs:
     - discord-adapter

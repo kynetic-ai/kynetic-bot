@@ -191,3 +191,6 @@ features:
         given: crash mid-session
         when: restarted
         then: marks orphaned sessions as abandoned
+    status:
+      maturity: draft
+      implementation: in_progress

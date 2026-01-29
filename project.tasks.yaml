@@ -4899,21 +4899,468 @@
       supersedes: null
   todos: []
   automation: eligible
-- title: Create MVP completion tasks and specs
+- _ulid: 01KG4D9FHFD9BQD2Q9H11GBA8Z
+  slugs: []
+  title: Create MVP completion tasks and specs
   type: task
   spec_ref: null
   meta_ref: null
-  priority: 1
-  slugs: []
-  tags:
-    - phase-1
-  automation: eligible
-  _ulid: 01KG4D9FHFD9BQD2Q9H11GBA8Z
   status: pending
   blocked_by: []
   depends_on: []
   context: []
+  priority: 1
+  tags:
+    - phase-1
   vcs_refs: []
   created_at: 2026-01-29T08:18:05.999Z
-  notes: []
+  notes:
+    - _ulid: 01KG4DAVBP2AY9JMSCFJ3ZGTNH
+      created_at: 2026-01-29T08:18:50.870Z
+      author: "@claude"
+      content: >-
+        ## Objective
+
+
+        Create the missing tasks and specs needed to complete MVP. The core infrastructure is built
+        (86% complete), but the "glue" to run the bot end-to-end is missing.
+
+
+        ## Current State
+
+
+        **Built and tested:**
+
+        - Core types, SessionKey, errors (@kynetic-bot/core)
+
+        - SessionKeyRouter, MessageTransformer (@kynetic-bot/messaging)
+
+        - ChannelRegistry, ChannelLifecycle (@kynetic-bot/channels)
+
+        - AgentLifecycle, ACP client (@kynetic-bot/agent)
+
+        - KbotShadow persistence (@kynetic-bot/memory)
+
+
+        **Missing for MVP:**
+
+        - Discord adapter (task exists: @discord-adapter)
+
+        - Bot configuration system (NO TASK)
+
+        - Bot orchestrator (NO TASK)
+
+        - CLI entry point (NO TASK)
+
+        - E2E integration test (NO TASK)
+
+
+        **Empty files that need implementation:**
+
+        ```
+
+        packages/bot/src/index.ts  → currently empty
+
+        packages/bot/src/cli.ts    → doesn't exist
+
+        packages/bot/src/config.ts → doesn't exist
+
+        ```
+
+
+        ---
+
+
+        ## Deliverables
+
+
+        ### 1. Spec: @bot-config (NEW)
+
+
+        **Type:** feature
+
+        **Description:** Bot configuration loading and validation
+
+
+        **Acceptance Criteria:**
+
+        ```
+
+        AC-1: Given environment variables set
+              When bot starts
+              Then loads DISCORD_TOKEN, AGENT_COMMAND, KBOT_DATA_DIR with Zod validation
+
+        AC-2: Given required variable missing
+              When config loaded
+              Then throws descriptive error with variable name
+
+        AC-3: Given optional variable missing
+              When config loaded
+              Then uses sensible defaults
+
+        AC-4: Given invalid value format
+              When validated
+              Then returns Zod error with path and expected type
+        ```
+
+
+        **Implementation notes:**
+
+        ```typescript
+
+        // packages/bot/src/config.ts
+
+
+        import { z } from 'zod';
+
+
+        export const BotConfigSchema = z.object({
+          // Required
+          discordToken: z.string().min(1, 'DISCORD_TOKEN required'),
+          agentCommand: z.string().min(1, 'AGENT_COMMAND required'),
+          // Optional with defaults
+          kbotDataDir: z.string().default('.kbot'),
+          logLevel: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
+          // Agent options
+          healthCheckInterval: z.number().default(30000),
+          shutdownTimeout: z.number().default(10000),
+          // Discord options
+          discordIntents: z.array(z.string()).default(['Guilds', 'GuildMessages', 'MessageContent']),
+        });
+
+
+        export type BotConfig = z.infer<typeof BotConfigSchema>;
+
+
+        export function loadConfig(): BotConfig {
+          return BotConfigSchema.parse({
+            discordToken: process.env.DISCORD_TOKEN,
+            agentCommand: process.env.AGENT_COMMAND,
+            kbotDataDir: process.env.KBOT_DATA_DIR,
+            logLevel: process.env.LOG_LEVEL,
+            healthCheckInterval: process.env.HEALTH_CHECK_INTERVAL 
+              ? parseInt(process.env.HEALTH_CHECK_INTERVAL) : undefined,
+            shutdownTimeout: process.env.SHUTDOWN_TIMEOUT
+              ? parseInt(process.env.SHUTDOWN_TIMEOUT) : undefined,
+          });
+        }
+
+        ```
+
+
+        ---
+
+
+        ### 2. Spec: @bot-orchestration (NEW)
+
+
+        **Type:** feature  
+
+        **Description:** Main bot class that wires all components together
+
+
+        **Acceptance Criteria:**
+
+        ```
+
+        AC-1: Given valid config
+              When Bot.create() called
+              Then initializes ChannelRegistry, AgentLifecycle, SessionKeyRouter, KbotShadow
+
+        AC-2: Given Discord message received
+              When processed
+              Then routes to session → spawns agent (if needed) → gets response → sends back
+
+        AC-3: Given agent emits escalate event
+              When handled
+              Then logs error and optionally notifies configured channel
+
+        AC-4: Given SIGTERM/SIGINT received
+              When shutdown triggered
+              Then gracefully stops agent, drains messages, disconnects Discord
+
+        AC-5: Given agent process crashes
+              When detected by health monitor
+              Then attempts restart with backoff per AgentLifecycle behavior
+        ```
+
+
+        **Implementation notes:**
+
+        ```typescript
+
+        // packages/bot/src/bot.ts
+
+
+        import { ChannelRegistry } from '@kynetic-bot/channels';
+
+        import { AgentLifecycle } from '@kynetic-bot/agent';
+
+        import { SessionKeyRouter } from '@kynetic-bot/messaging';
+
+        import { KbotShadow } from '@kynetic-bot/memory';
+
+        import type { BotConfig } from './config.js';
+
+
+        export class Bot {
+          private registry: ChannelRegistry;
+          private agent: AgentLifecycle;
+          private router: SessionKeyRouter;
+          private shadow: KbotShadow;
+          private discordAdapter: DiscordAdapter;
+          private constructor(config: BotConfig) { /* ... */ }
+          static async create(config: BotConfig): Promise<Bot> {
+            const bot = new Bot(config);
+            await bot.initialize();
+            return bot;
+          }
+          private async initialize(): Promise<void> {
+            // 1. Initialize shadow storage
+            this.shadow = new KbotShadow({ projectRoot: process.cwd() });
+            await this.shadow.initialize();
+            // 2. Initialize channel registry
+            this.registry = new ChannelRegistry();
+            // 3. Create Discord adapter and register
+            this.discordAdapter = new DiscordAdapter(this.config.discordToken);
+            this.registry.register(this.discordAdapter);
+            // 4. Initialize agent lifecycle
+            this.agent = new AgentLifecycle({
+              command: this.config.agentCommand,
+              healthCheckInterval: this.config.healthCheckInterval,
+              shutdownTimeout: this.config.shutdownTimeout,
+            });
+            // 5. Initialize router
+            this.router = new SessionKeyRouter();
+            // 6. Wire up message handling
+            this.discordAdapter.on('message', (msg) => this.handleMessage(msg));
+            // 7. Wire up escalation
+            this.agent.on('escalate', (reason, ctx) => this.handleEscalation(reason, ctx));
+          }
+          async start(): Promise<void> {
+            await this.discordAdapter.connect();
+            await this.agent.spawn();
+            log.info('Bot started');
+          }
+          async stop(): Promise<void> {
+            await this.agent.stop();
+            await this.discordAdapter.disconnect();
+            await this.shadow.shutdown();
+            log.info('Bot stopped');
+          }
+          private async handleMessage(msg: NormalizedMessage): Promise<void> {
+            // Route → Agent → Response flow
+          }
+          private handleEscalation(reason: string, context: Record<string, unknown>): void {
+            log.error('Agent escalation', { reason, ...context });
+          }
+        }
+
+        ```
+
+
+        ---
+
+
+        ### 3. Spec: @bot-cli (NEW)
+
+
+        **Type:** feature
+
+        **Description:** CLI entry point to run the bot
+
+
+        **Acceptance Criteria:**
+
+        ```
+
+        AC-1: Given `pnpm start` or `node dist/cli.js`
+              When executed
+              Then loads config, creates bot, starts listening
+
+        AC-2: Given SIGINT (Ctrl+C)
+              When received
+              Then initiates graceful shutdown
+
+        AC-3: Given SIGTERM
+              When received
+              Then initiates graceful shutdown
+
+        AC-4: Given uncaught exception
+              When thrown
+              Then logs error, attempts graceful shutdown, exits with code 1
+
+        AC-5: Given --help flag
+              When passed
+              Then shows usage information
+        ```
+
+
+        **Implementation notes:**
+
+        ```typescript
+
+        // packages/bot/src/cli.ts
+
+
+        import { loadConfig } from './config.js';
+
+        import { Bot } from './bot.js';
+
+        import { createLogger } from '@kynetic-bot/core';
+
+
+        const log = createLogger('bot-cli');
+
+
+        async function main() {
+          // Load and validate config
+          const config = loadConfig();
+          // Create and start bot
+          const bot = await Bot.create(config);
+          // Graceful shutdown handlers
+          const shutdown = async (signal: string) => {
+            log.info(`Received ${signal}, shutting down...`);
+            await bot.stop();
+            process.exit(0);
+          };
+          process.on('SIGINT', () => shutdown('SIGINT'));
+          process.on('SIGTERM', () => shutdown('SIGTERM'));
+          // Uncaught error handler
+          process.on('uncaughtException', async (err) => {
+            log.error('Uncaught exception', { error: err.message });
+            await bot.stop();
+            process.exit(1);
+          });
+          // Start
+          await bot.start();
+          log.info('Bot running. Press Ctrl+C to stop.');
+        }
+
+
+        main().catch((err) => {
+          log.error('Failed to start bot', { error: err.message });
+          process.exit(1);
+        });
+
+        ```
+
+
+        ---
+
+
+        ### 4. Task: MVP E2E Integration Test
+
+
+        **Not a spec** - just a task to verify everything works together.
+
+
+        **Acceptance Criteria:**
+
+        ```
+
+        AC-1: Given mocked Discord client
+              When message sent to bot
+              Then routes through SessionKeyRouter correctly
+
+        AC-2: Given mocked agent process
+              When spawned
+              Then receives message via ACP and responds
+
+        AC-3: Given agent response
+              When received
+              Then sends back via Discord adapter
+
+        AC-4: Given shutdown signal
+              When processed
+              Then all components clean up without errors
+        ```
+
+
+        **File:** `packages/bot/test/integration.test.ts`
+
+
+        ---
+
+
+        ## Tasks to Create
+
+
+        After specs are created, derive these tasks:
+
+
+        | Task | Spec Ref | Priority | Depends On |
+
+        |------|----------|----------|------------|
+
+        | Implement bot configuration | @bot-config | P1 | None |
+
+        | Implement bot orchestrator | @bot-orchestration | P1 | @bot-config, @discord-adapter |
+
+        | Implement bot CLI | @bot-cli | P1 | @bot-orchestration |
+
+        | MVP E2E integration test | (none) | P1 | @bot-cli |
+
+
+        ---
+
+
+        ## Execution Steps
+
+
+        1. **Create specs:**
+           ```bash
+           kspec item add --under @bot --title "Bot Configuration" --type feature --slug bot-config
+           kspec item add --under @bot --title "Bot Orchestration" --type feature --slug bot-orchestration  
+           kspec item add --under @bot --title "Bot CLI" --type feature --slug bot-cli
+           ```
+
+        2. **Add acceptance criteria** (using kspec item ac add for each)
+
+
+        3. **Derive tasks:**
+           ```bash
+           kspec derive @bot-config
+           kspec derive @bot-orchestration
+           kspec derive @bot-cli
+           ```
+
+        4. **Create E2E test task** (no spec, just task):
+           ```bash
+           kspec task add --title "MVP E2E integration test" --priority 1 --tag phase-1
+           ```
+
+        5. **Set dependencies:**
+           - @bot-orchestration-task depends on @bot-config-task, @discord-adapter
+           - @bot-cli-task depends on @bot-orchestration-task
+           - E2E test depends on @bot-cli-task
+
+        ---
+
+
+        ## Verification
+
+
+        After creating specs and tasks:
+
+        ```bash
+
+        kspec session start  # Should show new tasks in ready queue
+
+        kspec validate       # Specs should pass validation
+
+        ```
+
+
+        MVP will be complete when:
+
+        - [ ] All new tasks completed
+
+        - [ ] `pnpm build` passes
+
+        - [ ] `pnpm test` passes (including new integration test)
+
+        - [ ] Can run `DISCORD_TOKEN=xxx AGENT_COMMAND=xxx pnpm start` and bot connects
+      supersedes: null
   todos: []
+  automation: eligible

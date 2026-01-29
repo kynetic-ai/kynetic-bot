@@ -1694,6 +1694,81 @@
 
         - packages/agent/src/index.ts - Barrel exports
       supersedes: null
+    - _ulid: 01KG4798RP3ATHCBRKNAQBPZND
+      created_at: 2026-01-29T06:33:07.606Z
+      author: "@claude"
+      content: >-
+        ## Implementation Complete
+
+
+        AgentLifecycle provides full agent process lifecycle management with health monitoring,
+        spawn rate limiting, and graceful shutdown.
+
+
+        ### Core Components
+
+
+        **Types (types.ts):**
+
+        - `AgentLifecycleState`: 7 states (idle, spawning, healthy, unhealthy, stopping,
+        terminating, failed)
+
+        - `AgentLifecycleOptions`: Configuration for command, args, health checks, shutdown, backoff
+
+        - `AgentLifecycleEvents`: Full event typing for state:change, agent:spawned/exited,
+        health:check/status, error, escalate, shutdown:complete
+
+
+        **Implementation (lifecycle.ts - 698 lines):**
+
+        - Spawn management with KYNETIC_* env injection and request queuing
+
+        - ACP client integration via stdio streams with JSON-RPC
+
+        - Health monitoring with configurable interval and failure threshold
+
+        - Exponential backoff (1s → 60s) on spawn failures
+
+        - Graceful shutdown: SIGTERM → timeout → SIGKILL
+
+        - State persistence via checkpoint save/restore
+
+        - Escalate event when max backoff reached
+
+
+        **Test Coverage (lifecycle.test.ts - 756 lines, 34 tests):**
+
+        - Full coverage for all spec traits: health-monitored, rate-limited, graceful-shutdown,
+        observable, recoverable
+
+        - Edge cases: rapid cycles, checkpoint roundtrip, race conditions
+
+
+        ### PR Review Fixes (PR #6)
+
+
+        1. Race condition in handleProcessExit - early return for shutdown states
+
+        2. Timeout timer cleanup in stop() - prevents memory leak
+
+        3. TOCTOU race fix - check-before-add pattern for exit listeners
+
+        4. Removed aggressive listener removal - preserves user listeners
+
+        5. restoreFromCheckpoint returns boolean for success indication
+
+        6. Defensive PID check - explicit undefined validation
+
+        7. ACP client listener cleanup before close
+
+        8-10. New tests for shutdown behavior, escalation, checkpoint restore
+
+
+        ### Merged
+
+
+        PR #6 merged to main (commit 1deef93)
+      supersedes: null
   todos: []
   automation: needs_review
 - _ulid: 01KG1TDNYQD551HSS3ZHQH81GT

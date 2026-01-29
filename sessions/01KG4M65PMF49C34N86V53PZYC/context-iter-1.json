@@ -1,0 +1,268 @@
+{
+  "generated_at": "2026-01-29T10:18:37.721Z",
+  "branch": "main",
+  "context": {
+    "focus": null,
+    "threads": [],
+    "open_questions": [],
+    "updated_at": "2026-01-29T10:18:37.721Z"
+  },
+  "active_tasks": [],
+  "pending_review_tasks": [],
+  "recent_notes": [],
+  "active_todos": [],
+  "ready_tasks": [
+    {
+      "ref": "01KG2VK6",
+      "title": "Define agent session and event Zod schemas",
+      "priority": 1,
+      "spec_ref": "@mem-agent-sessions",
+      "tags": [
+        "phase-1"
+      ]
+    },
+    {
+      "ref": "01KG2VK9",
+      "title": "Define conversation and turn Zod schemas",
+      "priority": 1,
+      "spec_ref": "@mem-conversation",
+      "tags": [
+        "phase-1"
+      ]
+    },
+    {
+      "ref": "01KG1TE5",
+      "title": "DMPolicyManager for @channel-dm-policy",
+      "priority": 2,
+      "spec_ref": "@channel-dm-policy",
+      "tags": [
+        "phase-2"
+      ]
+    },
+    {
+      "ref": "01KG1TE7",
+      "title": "ConversationStorage for @mem-conversation",
+      "priority": 2,
+      "spec_ref": "@mem-conversation",
+      "tags": [
+        "phase-2"
+      ]
+    },
+    {
+      "ref": "01KG1TEA",
+      "title": "SkillsRegistry for @agent-skills",
+      "priority": 2,
+      "spec_ref": "@agent-skills",
+      "tags": [
+        "phase-2"
+      ]
+    },
+    {
+      "ref": "01KG2VKW",
+      "title": "Implement batch commit scheduler for .kbot/",
+      "priority": 3,
+      "spec_ref": "@mem-shadow-storage",
+      "tags": [
+        "phase-1"
+      ]
+    },
+    {
+      "ref": "01KG4GE0A",
+      "title": "Implement: Bot Configuration",
+      "priority": 3,
+      "spec_ref": "@bot-config",
+      "tags": []
+    },
+    {
+      "ref": "01KG1TFB",
+      "title": "EscalationHandler for @agent-escalation",
+      "priority": 4,
+      "spec_ref": "@agent-escalation",
+      "tags": [
+        "phase-4"
+      ]
+    }
+  ],
+  "blocked_tasks": [],
+  "recently_completed": [
+    {
+      "ref": "01KG1TDK",
+      "title": "AgentLifecycle for @agent-lifecycle",
+      "completed_at": "2026-01-29T06:33:14.455Z",
+      "closed_reason": "AgentLifecycle implemented with full state machine, health monitoring, spawn rate limiting, graceful shutdown, and checkpoint persistence. PR #6 merged with all review fixes addressed. 34 tests passing."
+    },
+    {
+      "ref": "01KG1TDF",
+      "title": "Implement .kbot/ shadow branch initialization",
+      "completed_at": "2026-01-29T03:23:04.242Z",
+      "closed_reason": "Implemented shadow branch storage with auto-init, batch commits, crash recovery, and events. PR #5 merged."
+    },
+    {
+      "ref": "01KG1TF8",
+      "title": "MediaHandler for @channel-media",
+      "completed_at": "2026-01-28T14:43:37.661Z",
+      "closed_reason": "MediaHandler implemented and committed to main. Created MediaHandler class with size/type validation, memory storage, and attachment processing. Added 27 comprehensive tests covering all AC. All tests pass and project builds successfully. Changes committed to main (aae11f9)."
+    },
+    {
+      "ref": "01KG1TER",
+      "title": "ChannelLifecycle for @channel-lifecycle",
+      "completed_at": "2026-01-28T14:40:23.438Z",
+      "closed_reason": "ChannelLifecycle implemented and committed to main. Created ChannelLifecycle class with health monitoring, automatic reconnection, message queueing with retry logic, and graceful shutdown. Added 24 comprehensive tests covering all AC. All tests pass and project builds successfully. Changes committed to main (5b37c0b)."
+    },
+    {
+      "ref": "01KG1TEP",
+      "title": "StreamCoalescer for @msg-streaming",
+      "completed_at": "2026-01-28T14:32:27.260Z",
+      "closed_reason": "StreamCoalescer implemented and merged to main. Created StreamCoalescer and BufferedCoalescer classes with configurable chunking and disconnect handling. Added 15 comprehensive tests covering all AC. All tests pass. Changes committed to main (6f38440)."
+    },
+    {
+      "ref": "01KG1TE1",
+      "title": "MessageTransformer for @msg-transform",
+      "completed_at": "2026-01-28T14:29:53.090Z",
+      "closed_reason": "MessageTransformer implemented and merged to main. Created PlatformTransformer interface, MessageTransformer class with error handling. Added 12 comprehensive tests covering all AC. All tests pass. Changes committed to main (0967508)."
+    },
+    {
+      "ref": "01KG2ESG",
+      "title": "Add coverage/ to .gitignore",
+      "completed_at": "2026-01-28T14:27:22.727Z",
+      "closed_reason": "Added coverage/ to .gitignore. Changes committed to main (5dbb18d)."
+    },
+    {
+      "ref": "01KG1TDC",
+      "title": "ChannelRegistry for @channel-registry",
+      "completed_at": "2026-01-28T14:26:46.466Z",
+      "closed_reason": "ChannelRegistry implemented and merged to main. Created ValidationError and ChannelRegistry with interface validation. Added 18 comprehensive tests covering all AC. All tests pass. Changes committed to main (c48381d)."
+    },
+    {
+      "ref": "01KG1TDA",
+      "title": "SessionKeyRouter for @msg-routing",
+      "completed_at": "2026-01-28T14:23:55.026Z",
+      "closed_reason": "SessionKeyRouter implemented and merged to main. Created Session/SessionStore types, implemented routing with idempotency, added 15 comprehensive tests covering all AC. All tests pass. Changes committed to main (d6138cd)."
+    },
+    {
+      "ref": "01KG1TD8",
+      "title": "Core types, session keys, error utilities",
+      "completed_at": "2026-01-28T14:18:59.429Z",
+      "closed_reason": "Core types and utilities implemented. Created NormalizedMessage, SessionKey types, ChannelAdapter interface. Implemented session-key parsing/building utilities with comprehensive error handling. Added 23 unit tests covering all edge cases. All tests pass. Changes committed to main (58cbe1d)."
+    }
+  ],
+  "recent_commits": [
+    {
+      "hash": "1deef93",
+      "full_hash": "1deef93ca659fb73261aeb33cf6051fad03e6a09",
+      "date": "2026-01-29T06:30:02.000Z",
+      "message": "feat: implement AgentLifecycle for agent process management (#6)",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "10cb2b6",
+      "full_hash": "10cb2b62a61a7acb4db47d6c9e5e37d31475e18d",
+      "date": "2026-01-29T03:22:54.000Z",
+      "message": "Merge pull request #5 from kynetic-ai/feat/kspec-sync",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "8932fd7",
+      "full_hash": "8932fd7694a1a41bb44bdaa9b668cd7a792380d0",
+      "date": "2026-01-29T03:17:28.000Z",
+      "message": "fix: address PR review feedback",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "ef0a7f9",
+      "full_hash": "ef0a7f97971d2a37805ac080316ccd35603a47c8",
+      "date": "2026-01-29T03:02:35.000Z",
+      "message": "feat: implement shadow branch storage for persistent memory",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "17fe283",
+      "full_hash": "17fe283f05a23d2c4db8543b5342b58aaf5946d1",
+      "date": "2026-01-28T14:52:25.000Z",
+      "message": "chore: remove package node_modules symlinks from tracking",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "e7c5587",
+      "full_hash": "e7c5587cfeecfc36ce1ac1fe76a3d5326eeb4bd8",
+      "date": "2026-01-28T14:50:50.000Z",
+      "message": "chore: remove coverage/ from version control",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "a9c8a36",
+      "full_hash": "a9c8a36ed6ea7497d82f1d767dedf31fbffae129",
+      "date": "2026-01-28T14:49:00.000Z",
+      "message": "chore: ignore TypeScript build cache files",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "b8b6639",
+      "full_hash": "b8b66393541ab02ba18db45128f213cca680845d",
+      "date": "2026-01-28T14:48:45.000Z",
+      "message": "chore: add node_modules and dist to .gitignore",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "aae11f9",
+      "full_hash": "aae11f9c6dfaa0eb98e44debeaab76121078d3d7",
+      "date": "2026-01-28T14:43:26.000Z",
+      "message": "feat: implement MediaHandler for attachment processing",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "5b37c0b",
+      "full_hash": "5b37c0b86074f106ffff5780593faef4ab1e35e4",
+      "date": "2026-01-28T14:40:10.000Z",
+      "message": "feat: implement ChannelLifecycle for adapter management",
+      "author": "Jacob Chapel"
+    }
+  ],
+  "working_tree": {
+    "clean": true,
+    "staged": [],
+    "unstaged": [],
+    "untracked": []
+  },
+  "inbox_items": [
+    {
+      "ref": "01KG4KV8",
+      "text": "Spec review workflow/skill that runs verification + holistic review after spec changes. Would automate the repeated 'run two subagents to check plan vs implementation and find gaps' pattern.",
+      "created_at": "2026-01-29T10:12:40.090Z",
+      "tags": [
+        "reflection",
+        "workflow"
+      ],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG4KVB",
+      "text": "Allow kspec item trait add to accept multiple traits: kspec item trait add @spec @trait1 @trait2 @trait3 instead of requiring separate commands for each trait.",
+      "created_at": "2026-01-29T10:12:43.363Z",
+      "tags": [
+        "reflection",
+        "kspec-cli"
+      ],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG4KVD",
+      "text": "Display relates_to and depends_on fields in kspec item get output. Currently these fields are only visible by reading the YAML directly.",
+      "created_at": "2026-01-29T10:12:45.470Z",
+      "tags": [
+        "reflection",
+        "kspec-cli"
+      ],
+      "added_by": "@claude"
+    }
+  ],
+  "stats": {
+    "total_tasks": 40,
+    "in_progress": 0,
+    "pending_review": 0,
+    "ready": 11,
+    "blocked": 0,
+    "completed": 17,
+    "inbox_items": 3
+  }
+}

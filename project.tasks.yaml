@@ -3704,6 +3704,7 @@
     - phase-4
   vcs_refs: []
   created_at: 2026-01-28T08:10:46.737Z
+  started_at: 2026-01-29T11:13:07.608Z
   notes:
     - _ulid: 01KG1TRF549N9E0EEVKEYYAR91
       created_at: 2026-01-28T08:15:45.317Z
@@ -3868,9 +3869,53 @@
 
         Task ready for automation.
       supersedes: null
+    - _ulid: 01KG4QJ8W2HNF7Z4E0G4363N81
+      created_at: 2026-01-29T11:17:39.843Z
+      author: "@claude"
+      content: |-
+        Implemented EscalationHandler class for human escalation paths:
+
+        ## Implementation
+        - EscalationHandler class extends EventEmitter for typed event emission
+        - Attaches to AgentLifecycle to listen for 'escalate' events
+        - Creates EscalationRecord with unique ID, reason, context, checkpoint
+        - Manages timeout timers per escalation (default 5 min)
+        - Executes fallback on timeout: 'retry', 'pause', or 'fail'
+
+        ## AC Coverage
+        - AC-1: Notifies configured channels (console MVP) with context including checkpoint
+        - AC-2: acknowledge() pauses agent and provides handoff context via getHandoffContext()
+        - AC-3: Timeout handler executes configured fallback behavior
+
+        ## Files
+        - packages/agent/src/escalation.ts - Main implementation (450 lines)
+        - packages/agent/test/escalation.test.ts - 42 tests
+        - packages/agent/src/index.ts - Export updates
+
+        ## Error Classes
+        - EscalationError (base)
+        - EscalationNotFoundError
+        - EscalationAlreadyAcknowledgedError
+
+        ## Types Exported
+        - EscalationState, EscalationFallback, EscalationConfig
+        - EscalationRecord, EscalationHandlerEvents, EscalationHandlerOptions
+
+        ## Tests
+        42 tests covering:
+        - Error classes
+        - Lifecycle integration (attach/detach)
+        - AC-1: Escalation notification
+        - AC-2: Human acknowledgment and handoff
+        - AC-3: Timeout fallback execution
+        - Observable trait events
+        - State queries
+        - Configuration defaults
+        - Cleanup and disposal
+        - Multiple concurrent escalations
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-01-29T11:13:07.608Z
 - _ulid: 01KG1TFDZ926K9T6TGVDCBWBFH
   slugs:
     - e2e-tests

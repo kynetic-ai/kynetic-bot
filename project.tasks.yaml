@@ -4925,7 +4925,7 @@
   type: task
   spec_ref: "@mem-shadow-storage"
   meta_ref: null
-  status: in_progress
+  status: pending_review
   blocked_by: []
   depends_on:
     - "@shadow-storage-init"

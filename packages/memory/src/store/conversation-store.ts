@@ -202,6 +202,13 @@ export class ConversationStore {
     return path.join(this.conversationsDir, 'session-key-index.json');
   }
 
+  /**
+   * Get the path to the session key index lock file
+   */
+  private sessionKeyIndexLockPath(): string {
+    return path.join(this.conversationsDir, '.session-key-index.lock');
+  }
+
   // ==========================================================================
   // Lock Helpers
   // ==========================================================================
@@ -237,6 +244,48 @@ export class ConversationStore {
    */
   private releaseLock(conversationId: string): void {
     const lockPath = this.lockFilePath(conversationId);
+    try {
+      unlinkSync(lockPath);
+    } catch {
+      // Ignore if lock file doesn't exist
+    }
+  }
+
+  /**
+   * Acquire lock for session key index operations
+   */
+  private acquireIndexLock(timeout = 5000): boolean {
+    const lockPath = this.sessionKeyIndexLockPath();
+    const startTime = Date.now();
+
+    // Ensure conversations directory exists
+    if (!existsSync(this.conversationsDir)) {
+      return true; // First operation will create directory
+    }
+
+    while (Date.now() - startTime < timeout) {
+      try {
+        writeFileSync(lockPath, String(process.pid), { flag: 'wx' });
+        return true;
+      } catch (err: unknown) {
+        if ((err as NodeJS.ErrnoException).code === 'EEXIST') {
+          const waitUntil = Date.now() + 10;
+          while (Date.now() < waitUntil) {
+            // Spin
+          }
+          continue;
+        }
+        throw err;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Release session key index lock
+   */
+  private releaseIndexLock(): void {
+    const lockPath = this.sessionKeyIndexLockPath();
     try {
       unlinkSync(lockPath);
     } catch {
@@ -291,12 +340,24 @@ export class ConversationStore {
   }
 
   /**
-   * Add a session key to the index
+   * Add a session key to the index.
+   * Uses locking to prevent race conditions with concurrent createConversation calls.
    */
   private async addToSessionKeyIndex(sessionKey: string, conversationId: string): Promise<void> {
-    const index = await this.readSessionKeyIndex();
-    index[sessionKey] = conversationId;
-    await this.writeSessionKeyIndex(index);
+    if (!this.acquireIndexLock()) {
+      throw new ConversationStoreError(
+        'Failed to acquire lock for session key index',
+        'INDEX_LOCK_FAILED',
+      );
+    }
+
+    try {
+      const index = await this.readSessionKeyIndex();
+      index[sessionKey] = conversationId;
+      await this.writeSessionKeyIndex(index);
+    } finally {
+      this.releaseIndexLock();
+    }
   }
 
   // ==========================================================================
@@ -573,6 +634,9 @@ export class ConversationStore {
       const turnsPath = this.turnsJsonlPath(conversationId);
 
       // Check for duplicate message_id (AC-4 idempotency)
+      // Note: Duplicates return early without updating turn_count since no new turn was added.
+      // This reads all turns which is O(n) but ensures correctness for idempotency.
+      // Future optimization: maintain a separate message-id index file.
       if (validInput.message_id) {
         const existingTurns = await this.readTurnsInternal(conversationId);
         const duplicate = existingTurns.find((t) => t.message_id === validInput.message_id);

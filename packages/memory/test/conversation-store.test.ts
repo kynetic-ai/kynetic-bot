@@ -471,6 +471,10 @@ describe('ConversationStore', () => {
       const updated = await store.getConversation(conversation.id);
       expect(updated?.turn_count).toBe(5);
     });
+
+    // Note: File locking behavior is validated in SessionStore tests.
+    // Concurrent append testing with spin locks is timing-sensitive and
+    // may cause flaky tests due to lock timeout in fast environments.
   });
 
   describe('readTurns', () => {

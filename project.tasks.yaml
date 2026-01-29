@@ -2680,6 +2680,8 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "SkillsRegistry implemented with skill discovery, capability-based lookup, and
+    structured error handling. PR #12 merged with all review fixes addressed. 78 tests passing."
   depends_on:
     - "@agent-lifecycle-task"
   context: []
@@ -2689,6 +2691,7 @@
   vcs_refs: []
   created_at: 2026-01-28T08:10:12.766Z
   started_at: 2026-01-29T11:03:01.611Z
+  completed_at: 2026-01-29T11:09:04.349Z
   notes:
     - _ulid: 01KG1TN8QYCDEMB5FTESRD0X4E
       created_at: 2026-01-28T08:14:00.446Z
@@ -2888,9 +2891,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-01-29T11:09:04.349Z
-  closed_reason: "SkillsRegistry implemented with skill discovery, capability-based lookup, and
-    structured error handling. PR #12 merged with all review fixes addressed. 78 tests passing."
 - _ulid: 01KG1TECJE69VX6XWJD3T8F1FZ
   slugs:
     - conversation-history
@@ -4925,7 +4925,7 @@
   type: task
   spec_ref: "@mem-shadow-storage"
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on:
     - "@shadow-storage-init"
@@ -5098,6 +5098,7 @@
       supersedes: null
   todos: []
   automation: eligible
+  started_at: 2026-01-29T11:09:28.319Z
 - _ulid: 01KG4D9FHFD9BQD2Q9H11GBA8Z
   slugs: []
   title: Create MVP completion tasks and specs

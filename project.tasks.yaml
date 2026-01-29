@@ -4517,6 +4517,7 @@
     - phase-1
   vcs_refs: []
   created_at: 2026-01-28T17:49:50.919Z
+  started_at: 2026-01-29T10:34:35.773Z
   notes:
     - _ulid: 01KG2VQWFY4BPGG5XRXS8Y2E1Q
       created_at: 2026-01-28T17:52:09.215Z
@@ -4680,9 +4681,24 @@
 
         - /home/chapel/Projects/kynetic-spec/src/sessions/store.ts (lines 1-436)
       supersedes: null
+    - _ulid: 01KG4N92X3SHSD6YNZGGX78E0E
+      created_at: 2026-01-29T10:37:41.668Z
+      author: "@claude"
+      content: |-
+        Implemented SessionStore class for JSONL event storage:
+        - createSession: Creates session directory with session.yaml and events.jsonl
+        - getSession, sessionExists, listSessions: Session retrieval with filtering
+        - updateSessionStatus: Updates status, sets ended_at for terminal states
+        - appendEvent: Atomic JSONL append with auto-assigned ts/seq
+        - readEvents, readEventsSince, getLastEvent, getEventCount: Event queries
+        - recoverOrphanedSessions: Marks active sessions as abandoned (AC-7)
+        - Event emitter integration for observability (AC-5)
+        - SessionValidationError with ZodError details (AC-6)
+
+        43 tests covering all 7 spec AC.
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-01-29T10:34:35.773Z
 - _ulid: 01KG2VKRMYD4MVASZHEBREDK18
   slugs:
     - conversation-store

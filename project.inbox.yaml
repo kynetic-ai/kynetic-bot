@@ -44,3 +44,8 @@ inbox:
     created_at: 2026-01-29T22:47:31.618Z
     tags: []
     added_by: "@claude"
+  - _ulid: 01KG5Z1HHGNK5WYFXBW4FRQENV
+    text: "Discord adapter: log rate limit events for observability (Discord.js emits rateLimit events)"
+    created_at: 2026-01-29T22:47:34.704Z
+    tags: []
+    added_by: "@claude"

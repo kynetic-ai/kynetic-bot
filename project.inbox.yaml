@@ -55,3 +55,9 @@ inbox:
     created_at: 2026-01-29T22:47:36.999Z
     tags: []
     added_by: "@claude"
+  - _ulid: 01KG5Z1PKTSJEJ9RDMTWEHXVM7
+    text: "Discord adapter: expand DiscordSendOptions for ephemeral messages, thread options, slash
+      command support"
+    created_at: 2026-01-29T22:47:39.899Z
+    tags: []
+    added_by: "@claude"

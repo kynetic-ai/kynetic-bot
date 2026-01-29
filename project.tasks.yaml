@@ -4935,6 +4935,7 @@
     - phase-1
   vcs_refs: []
   created_at: 2026-01-28T17:49:57.774Z
+  started_at: 2026-01-29T11:09:28.319Z
   notes:
     - _ulid: 01KG2VS438PHJ12AACCDKF61E9
       created_at: 2026-01-28T17:52:49.768Z
@@ -5096,9 +5097,16 @@
 
         - /home/chapel/Projects/kynetic-spec/src/parser/shadow.ts (commit patterns)
       supersedes: null
+    - _ulid: 01KG4Q4EW27ZEWJKGHQH7WR8Z4
+      created_at: 2026-01-29T11:10:07.235Z
+      author: "@claude"
+      content: Work already completed in packages/memory/src/shadow/shadow.ts as part of KbotShadow class.
+        Scheduler is integrated into the class with interval-based commits (maxInterval), event
+        threshold commits (maxEvents), force commits (forceCommit), and crash recovery
+        (recoverFromCrash). All tests pass.
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-01-29T11:09:28.319Z
 - _ulid: 01KG4D9FHFD9BQD2Q9H11GBA8Z
   slugs: []
   title: Create MVP completion tasks and specs

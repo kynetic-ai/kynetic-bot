@@ -5592,6 +5592,7 @@
         **Dependencies**: zod (already in monorepo)
       supersedes: null
   todos: []
+  automation: eligible
 - _ulid: 01KG4GE0C5SBMNM64Y3DGVF6YZ
   slugs:
     - task-bot-orchestration

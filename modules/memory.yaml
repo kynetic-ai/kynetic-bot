@@ -57,6 +57,9 @@ features:
         given: crash during batch commit
         when: restarted
         then: recovers from last successful commit
+    status:
+      maturity: draft
+      implementation: in_progress
   - _ulid: 01KG1RDM4NVZVQP8XZ9DY2CSRY
     slugs:
       - mem-conversation

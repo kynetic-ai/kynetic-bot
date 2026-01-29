@@ -5666,7 +5666,7 @@
   type: task
   spec_ref: "@bot-config"
   derivation: auto
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -5832,6 +5832,9 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-01-29T11:29:19.370Z
+  closed_reason: "BotConfigSchema implemented with Zod validation. 33 tests covering all AC. PR #14
+    merged with review feedback addressed (fail-fast on invalid numeric formats)."
 - _ulid: 01KG4GE0C5SBMNM64Y3DGVF6YZ
   slugs:
     - task-bot-orchestration

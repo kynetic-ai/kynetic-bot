@@ -107,6 +107,9 @@ features:
         given: agent_session_id reference
         when: validated
         then: verifies session exists or rejects with clear error
+    status:
+      maturity: draft
+      implementation: in_progress
   - _ulid: 01KG1RDP884TBCZV7QH03CV53M
     slugs:
       - mem-context-window

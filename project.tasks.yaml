@@ -4242,7 +4242,7 @@
   type: task
   spec_ref: "@mem-agent-sessions"
   meta_ref: null
-  status: in_progress
+  status: pending_review
   blocked_by: []
   depends_on: []
   context: []

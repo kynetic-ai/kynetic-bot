@@ -5810,4 +5810,112 @@
         - ac-4: Given uncaught exception, when thrown, then logs error, attempts graceful shutdown,
         exits with code 1
       supersedes: null
+    - _ulid: 01KG4GFB2XEF9DCH3T1856K429
+      created_at: 2026-01-29T09:13:43.773Z
+      author: "@claude"
+      content: |-
+        ## Implementation
+
+        **File**: `packages/bot/src/cli.ts`
+
+        ```typescript
+        import { loadConfig } from './config.js';
+        import { Bot } from './bot.js';
+        import { createLogger } from '@kynetic-bot/core';
+
+        const log = createLogger('cli');
+
+        let bot: Bot | null = null;
+        let isShuttingDown = false;
+
+        async function shutdown(signal: string): Promise<void> {
+          if (isShuttingDown) {
+            log.warn('Shutdown already in progress');
+            return;
+          }
+          isShuttingDown = true;
+
+          log.info(\`Received \${signal}, shutting down...\`);
+
+          try {
+            if (bot) {
+              await bot.stop();
+            }
+            process.exit(0);
+          } catch (err) {
+            log.error('Error during shutdown', { error: err });
+            process.exit(1);
+          }
+        }
+
+        async function main(): Promise<void> {
+          try {
+            // Load and validate config
+            const config = loadConfig();
+            log.info('Configuration loaded');
+
+            // Create bot
+            bot = await Bot.create(config);
+
+            // Register signal handlers
+            process.on('SIGINT', () => shutdown('SIGINT'));
+            process.on('SIGTERM', () => shutdown('SIGTERM'));
+
+            // Uncaught exception handler
+            process.on('uncaughtException', async (err) => {
+              log.error('Uncaught exception', { error: err.message, stack: err.stack });
+              await shutdown('uncaughtException');
+            });
+
+            process.on('unhandledRejection', (reason) => {
+              log.error('Unhandled rejection', { reason });
+            });
+
+            // Start bot
+            await bot.start();
+            log.info('Bot running. Press Ctrl+C to stop.');
+
+          } catch (err) {
+            log.error('Failed to start bot', { error: err });
+            process.exit(1);
+          }
+        }
+
+        main();
+        ```
+
+        **Update package.json**:
+        ```json
+        {
+          "main": "dist/index.js",
+          "bin": {
+            "kynetic-bot": "dist/cli.js"
+          },
+          "scripts": {
+            "start": "node dist/cli.js"
+          }
+        }
+        ```
+
+        **Update index.ts exports**:
+        ```typescript
+        // packages/bot/src/index.ts
+        export { Bot } from './bot.js';
+        export { loadConfig, BotConfigSchema, type BotConfig } from './config.js';
+        ```
+
+        **Test file**: `packages/bot/test/cli.test.ts`
+
+        **Test coverage**:
+        - AC-1: Mock loadConfig and Bot.create, verify startup sequence
+        - AC-2: Emit SIGINT, verify shutdown called
+        - AC-3: Emit SIGTERM, verify shutdown called
+        - AC-4: Throw uncaught exception, verify graceful shutdown attempted
+
+        **Manual verification**:
+        ```bash
+        DISCORD_TOKEN=test AGENT_COMMAND='echo test' pnpm start
+        # Then Ctrl+C to verify graceful shutdown
+        ```
+      supersedes: null
   todos: []

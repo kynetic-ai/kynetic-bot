@@ -1782,7 +1782,7 @@
   type: task
   spec_ref: "@discord-channel-adapter"
   meta_ref: null
-  status: in_progress
+  status: pending_review
   blocked_by: []
   depends_on:
     - "@channel-registry-task"
@@ -1792,6 +1792,7 @@
     - phase-1
   vcs_refs: []
   created_at: 2026-01-28T08:09:51.830Z
+  started_at: 2026-01-29T22:53:17.209Z
   notes:
     - _ulid: 01KG1TKGTVBMVC0JR5YY2JABC9
       created_at: 2026-01-28T08:13:03.195Z
@@ -1945,7 +1946,6 @@
       supersedes: null
   todos: []
   automation: manual_only
-  started_at: 2026-01-29T22:53:17.209Z
 - _ulid: 01KG1TDRB07CBH2J4K25G786ET
   slugs:
     - bot-integration

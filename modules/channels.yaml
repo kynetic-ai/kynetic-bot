@@ -167,3 +167,8 @@ features:
     traits: []
     notes: []
     created: 2026-01-29T09:59:44.199Z
+    acceptance_criteria:
+      - id: ac-1
+        given: Discord message received
+        when: parseIncoming called
+        then: returns NormalizedMessage with platform='discord', channelId, authorId, content

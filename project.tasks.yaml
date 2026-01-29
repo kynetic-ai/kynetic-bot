@@ -6275,3 +6275,19 @@
         turn file location."
       supersedes: null
   todos: []
+- title: Implement 'embed' split strategy for Discord adapter
+  type: task
+  spec_ref: null
+  meta_ref: null
+  priority: 3
+  slugs: []
+  tags: []
+  _ulid: 01KG5YZN1Y96ET4PPZAGF4Q2NG
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  vcs_refs: []
+  created_at: 2026-01-29T22:46:32.765Z
+  notes: []
+  todos: []

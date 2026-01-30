@@ -7355,6 +7355,8 @@
   spec_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "Merged in PR #30. Added memoization to getGitRoot() in bot.ts with module-level
+    cache and _resetGitRootCache() for test isolation."
   depends_on: []
   context: []
   priority: 3
@@ -7364,6 +7366,7 @@
   vcs_refs: []
   created_at: 2026-01-30T09:27:38.786Z
   started_at: 2026-01-30T11:46:23.669Z
+  completed_at: 2026-01-30T11:50:06.992Z
   notes:
     - _ulid: 01KG7BPDT60JDS49F7RPRM2JQT
       created_at: 2026-01-30T11:47:56.358Z
@@ -7375,9 +7378,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-01-30T11:50:06.992Z
-  closed_reason: "Merged in PR #30. Added memoization to getGitRoot() in bot.ts with module-level
-    cache and _resetGitRootCache() for test isolation."
 - _ulid: 01KG73NKNH0VEPBRE24VXNXX35
   slugs: []
   title: Fix Discord splitter truncation marker on hard-cut
@@ -7385,7 +7385,7 @@
   description: "Discord splitter: actually append truncation marker when hard-cutting long content
     without word boundaries"
   spec_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -7396,6 +7396,7 @@
   notes: []
   todos: []
   automation: eligible
+  started_at: 2026-01-30T11:51:08.868Z
 - _ulid: 01KG73NPG9RG46W2MY8YGFJW5Q
   slugs: []
   title: Add Discord typing indicator during processing

@@ -7491,7 +7491,7 @@
        - requestPermission: null values, missing required fields
   spec_ref: null
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -7502,6 +7502,7 @@
   notes: []
   todos: []
   automation: eligible
+  started_at: 2026-01-30T12:21:46.819Z
 - _ulid: 01KG740T4ZS75452EADRJ18GGC
   slugs: []
   title: Extract InMemorySessionStore to shared location

@@ -8361,6 +8361,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-01-30T22:22:54.504Z
+  started_at: 2026-01-30T23:38:33.156Z
   notes:
     - _ulid: 01KG8G1G1ZAT0D634FACHQHASZ
       created_at: 2026-01-30T22:23:07.839Z
@@ -8401,9 +8402,33 @@
       author: "@claude"
       content: "Spec updated: references @mem-context-usage AC-1 (stderr capture infrastructure)"
       supersedes: null
+    - _ulid: 01KG8MFMSF7546K4QDDHSEKJQ9
+      created_at: 2026-01-30T23:40:45.743Z
+      author: "@claude"
+      content: >-
+        Implemented stderr capture in AgentLifecycle:
+
+
+        1. Changed stdio config from ['pipe', 'pipe', 'inherit'] to ['pipe', 'pipe', 'pipe'] to
+        capture stderr programmatically instead of inheriting to parent
+
+        2. Added stderr event handler that emits 'stderr' events when process writes to stderr
+
+        3. Added onStderr(callback) convenience method for consumers to subscribe/unsubscribe from
+        stderr events
+
+        4. Added 5 tests for AC-1 coverage:
+           - should emit stderr events when process writes to stderr
+           - should emit multiple stderr chunks as separate events
+           - should provide onStderr convenience method for subscribing
+           - should handle binary data converted to string
+           - should not inherit stderr to parent process
+
+        All tests (973) pass. This provides the infrastructure needed for AC-2/AC-3/AC-4 (usage
+        parsing) in the next task.
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-01-30T23:38:33.156Z
 - _ulid: 01KG8G14T6H6Q6KJHQQ8J6AZQM
   slugs:
     - task-context-usage-tracker

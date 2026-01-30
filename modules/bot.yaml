@@ -223,3 +223,7 @@ features:
         when: creating ACP session
         then: prepends kbot base identity to system prompt (persistent general assistant, full system
           access)
+      - id: ac-2
+        given: .kbot/identity.yaml exists
+        when: creating system prompt
+        then: includes custom identity (name, role, boundaries) after base identity

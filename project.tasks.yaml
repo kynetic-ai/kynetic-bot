@@ -7113,20 +7113,36 @@
   notes: []
   todos: []
   automation: eligible
-- title: Extract InMemorySessionStore to shared location
+- _ulid: 01KG740T4ZS75452EADRJ18GGC
+  slugs: []
+  title: Extract InMemorySessionStore to shared location
+  type: task
+  description: "Bot: Extract InMemorySessionStore to shared location - currently duplicated in bot.ts
+    and tests, should be reusable"
+  spec_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  priority: 3
+  tags: []
+  vcs_refs: []
+  created_at: 2026-01-30T09:33:48.063Z
+  notes: []
+  todos: []
+- title: Enrich error contexts with messageId
   type: task
   priority: 3
   spec_ref: null
   tags: []
-  description: "Bot: Extract InMemorySessionStore to shared location - currently duplicated in bot.ts
-    and tests, should be reusable"
-  _ulid: 01KG740T4ZS75452EADRJ18GGC
+  description: "Bot: Enrich error contexts with messageId for easier debugging correlation"
+  _ulid: 01KG740WT6BC0ZFMN3R0W31ZP6
   slugs: []
   status: pending
   blocked_by: []
   depends_on: []
   context: []
   vcs_refs: []
-  created_at: 2026-01-30T09:33:48.063Z
+  created_at: 2026-01-30T09:33:50.789Z
   notes: []
   todos: []

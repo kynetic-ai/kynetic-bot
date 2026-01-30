@@ -154,6 +154,23 @@ features:
     status:
       maturity: draft
       implementation: implemented
+    features:
+      - _ulid: 01KG8FY59KRCBWY1RBRDBRMMEN
+        slugs:
+          - mem-context-restore
+        title: Context Restoration
+        type: feature
+        tags: []
+        description: Generate context restoration prompt when rotating sessions - combines summary of old
+          turns, verbatim recent turns (up to 30% token budget), and file reference for full history
+          access.
+        depends_on: []
+        implements: []
+        relates_to: []
+        tests: []
+        traits: []
+        notes: []
+        created: 2026-01-30T22:21:18.516Z
   - _ulid: 01KG2VD4BPPHV4QP9H5XNA87HR
     slugs:
       - mem-agent-sessions

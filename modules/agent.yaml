@@ -55,6 +55,11 @@ features:
         given: agent sends fs/read_text_file request via ACP
         when: handler invoked
         then: reads file from filesystem and returns content, respecting optional line and limit parameters
+      - id: ac-6
+        given: agent sends session/request_permission request via ACP
+        when: handler invoked
+        then: auto-selects first 'allow_once' or 'allow_always' option, or cancels if no options available
+          (MVP behavior)
     status:
       maturity: draft
       implementation: implemented

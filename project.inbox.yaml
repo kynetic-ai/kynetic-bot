@@ -167,3 +167,10 @@ inbox:
     created_at: 2026-01-30T07:57:42.012Z
     tags: []
     added_by: "@claude"
+  - _ulid: 01KG6YGX7W784AG6J8P0BJJ0SG
+    text: Discord typing indicator - show bot is 'typing' during all processing (tool calls, thinking,
+      responding). Create TypingController that calls sendTyping() with 9-second refresh interval.
+      Hook into Bot.handleMessage() start/finally. Greenfield implementation.
+    created_at: 2026-01-30T07:57:44.060Z
+    tags: []
+    added_by: "@claude"

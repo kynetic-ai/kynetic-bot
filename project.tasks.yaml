@@ -6694,6 +6694,9 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "Merged in PR #29. Implemented embed split strategy for Discord adapter as AC-3
+    alternative - uses 4096 char embed description limit with 'Part X of Y' footers for multi-part
+    messages."
   depends_on: []
   context: []
   priority: 3
@@ -6701,6 +6704,7 @@
   vcs_refs: []
   created_at: 2026-01-29T22:46:32.765Z
   started_at: 2026-01-30T11:40:33.217Z
+  completed_at: 2026-01-30T11:45:23.246Z
   notes:
     - _ulid: 01KG69T0ZM6BVHC3JT7J7T4JH0
       created_at: 2026-01-30T01:55:42.709Z
@@ -6738,10 +6742,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-01-30T11:45:23.246Z
-  closed_reason: "Merged in PR #29. Implemented embed split strategy for Discord adapter as AC-3
-    alternative - uses 4096 char embed description limit with 'Part X of Y' footers for multi-part
-    messages."
 - _ulid: 01KG5ZB9KHZE3EMSKMJP8VBBC8
   slugs: []
   title: Fix pre-existing lint errors across packages
@@ -7353,7 +7353,7 @@
     stores), should cache result since git root doesn't change during bot lifetime. Small change,
     avoids redundant execSync calls.
   spec_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -7366,6 +7366,7 @@
   notes: []
   todos: []
   automation: eligible
+  started_at: 2026-01-30T11:46:23.669Z
 - _ulid: 01KG73NKNH0VEPBRE24VXNXX35
   slugs: []
   title: Fix Discord splitter truncation marker on hard-cut

@@ -3349,7 +3349,7 @@
   status: pending
   blocked_by: []
   depends_on:
-    - "@conversation-storage"
+    - "@conversation-store"
     - "@conversation-history"
   context: []
   priority: 3

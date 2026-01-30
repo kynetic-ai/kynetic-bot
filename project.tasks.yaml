@@ -6863,4 +6863,88 @@
         cat .kbot/conversations/*/turns.jsonl
         ```
       supersedes: null
+    - _ulid: 01KG6Z3TSTA00QGWMTHTBAQQQV
+      created_at: 2026-01-30T08:08:04.154Z
+      author: "@claude"
+      content: |-
+        ## Review Corrections (CRITICAL FIXES)
+
+        ### API Mismatches Fixed:
+
+        1. **Use `getOrCreateConversation()` instead of `getBySessionKey()`**:
+           - `getBySessionKey()` doesn't exist
+           - `getOrCreateConversation(sessionKey)` handles both get and create
+
+        2. **`createConversation()` takes only sessionKey string**, not an object
+
+        3. **Add missing import**: `import path from 'node:path';`
+
+        ### Corrected handleMessage() Integration:
+
+        ```typescript
+        async handleMessage(msg: NormalizedMessage): Promise<void> {
+          // ... existing code up to routing ...
+
+          const sessionKey = sessionResult.value.key;
+          let conversation: ConversationMetadata | undefined;
+
+          // AC-2: Get or create conversation, append user turn
+          try {
+            conversation = await this.conversationStore.getOrCreateConversation(sessionKey);
+            await this.conversationStore.appendTurn(conversation.id, {
+              role: 'user',
+              content: msg.text,
+              message_id: msg.id,
+            });
+          } catch (err) {
+            const error = err instanceof Error ? err : new Error(String(err));
+            this.log.error('Failed to persist user turn', { error: error.message });
+            // Continue processing - don't fail on storage errors
+          }
+
+          // ... existing agent ready check ...
+
+          // Get or create ACP session
+          let sessionId = this.agent.getSessionId();
+          if (\!sessionId) {
+            sessionId = await client.newSession({ cwd: process.cwd(), mcpServers: [] });
+            // AC-3: Create session record for new ACP session
+            if (conversation) {
+              try {
+                await this.sessionStore.createSession({
+                  id: sessionId,
+                  agent_type: 'claude',
+                  conversation_id: conversation.id,
+                  session_key: sessionKey,
+                });
+              } catch (err) {
+                const error = err instanceof Error ? err : new Error(String(err));
+                this.log.error('Failed to create session record', { error: error.message });
+              }
+            }
+          }
+
+          // ... existing response collection ...
+
+          // AC-4: Append assistant turn
+          if (responseText && conversation) {
+            try {
+              await this.conversationStore.appendTurn(conversation.id, {
+                role: 'assistant',
+                content: responseText,
+                agent_session_id: sessionId,
+              });
+            } catch (err) {
+              const error = err instanceof Error ? err : new Error(String(err));
+              this.log.error('Failed to persist assistant turn', { error: error.message });
+            }
+          }
+        }
+        ```
+
+        ### Key Principles:
+        1. **Storage failures shouldn't break message processing** - wrap in try-catch
+        2. **Use defensive coding** - check `conversation` exists before using
+        3. **Shadow commits are automatic** - KbotShadow batch scheduler handles this
+      supersedes: null
   todos: []

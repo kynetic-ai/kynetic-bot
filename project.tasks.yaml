@@ -6573,6 +6573,12 @@
         - Mock KbotShadow constructor to verify correct params
         - Test default value '.kbot' is passed correctly
       supersedes: null
+    - _ulid: 01KG6MG3V1PZ6M4E9Q9QWC0FQ5
+      created_at: 2026-01-30T05:02:32.289Z
+      author: "@claude"
+      content: "Added tests for kbotDataDir passed as worktreeDir to KbotShadow. Tests verify: custom dir
+        passed correctly, default .kbot value, relative dir interpretation."
+      supersedes: null
   todos: []
 - _ulid: 01KG6J0QX14RRYBS1S51448F6J
   slugs: []
@@ -6641,6 +6647,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-01-30T04:19:14.986Z
+  started_at: 2026-01-30T04:58:44.737Z
   notes:
     - _ulid: 01KG6J7QJR8004MW0BPNQ2G00F
       created_at: 2026-01-30T04:23:00.441Z
@@ -6653,4 +6660,3 @@
         - Test returns cancelled when options array is empty
       supersedes: null
   todos: []
-  started_at: 2026-01-30T04:58:44.737Z

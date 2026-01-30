@@ -8837,7 +8837,7 @@
     - Human reviewers can't see what was validated
   spec_ref: "@bot-pr-review"
   meta_ref: null
-  status: pending
+  status: cancelled
   blocked_by: []
   depends_on:
     - "@01KG8JJ0"
@@ -8849,6 +8849,8 @@
   notes: []
   todos: []
   automation: eligible
+  closed_reason: "Work already completed in PR #40 along with /local-review skill. Both skills were
+    ported together."
 - _ulid: 01KG8JPE9RPPWVDQRKE68ZGYAR
   slugs: []
   title: Port GitHub Actions workflows from kynetic-spec
@@ -8908,6 +8910,10 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "PR #41 merged. Added GitHub Actions workflows: test.yml (build + tests),
+    claude-code-review.yml (automated code review), pr-review-resolution-check.yml (unresolved
+    thread enforcement). Implements AC-6 of @bot-pr-review. Note: CI billing limit issue needs
+    resolution separately."
   depends_on: []
   context: []
   priority: 2
@@ -8915,6 +8921,7 @@
   vcs_refs: []
   created_at: 2026-01-30T23:09:31.320Z
   started_at: 2026-01-30T23:26:23.060Z
+  completed_at: 2026-01-30T23:32:40.660Z
   notes:
     - _ulid: 01KG8JPVA2D04TJ5YRFWKAV3Y8
       created_at: 2026-01-30T23:09:44.642Z
@@ -8999,8 +9006,3 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-01-30T23:32:40.660Z
-  closed_reason: "PR #41 merged. Added GitHub Actions workflows: test.yml (build + tests),
-    claude-code-review.yml (automated code review), pr-review-resolution-check.yml (unresolved
-    thread enforcement). Implements AC-6 of @bot-pr-review. Note: CI billing limit issue needs
-    resolution separately."

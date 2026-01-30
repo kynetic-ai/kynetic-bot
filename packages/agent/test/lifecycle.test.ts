@@ -23,6 +23,13 @@ let mockACPClientInstance: {
   on: ReturnType<typeof vi.fn>;
   emit: ReturnType<typeof vi.fn>;
   removeAllListeners: ReturnType<typeof vi.fn>;
+  _handlers?: {
+    readFile?: (params: { path: string; line?: number; limit?: number }) => Promise<{ content: string }>;
+    requestPermission?: (params: {
+      toolCall?: { title?: string };
+      options: Array<{ optionId: string; name: string; kind: string }>;
+    }) => Promise<{ outcome: { outcome: string; optionId?: string } }>;
+  };
 } | null = null;
 
 // Mock ACPClient with a proper class (must be defined before vi.mock)
@@ -33,9 +40,12 @@ vi.mock('../src/acp/index.js', () => {
       getSession = vi.fn().mockReturnValue({ id: 'test-session', status: 'idle' });
       getAllSessions = vi.fn().mockReturnValue([]);
       close = vi.fn();
+      _handlers?: unknown;
 
-      constructor(_options?: unknown) {
+      constructor(options?: { handlers?: unknown }) {
         super();
+        // Capture handlers for testing
+        this._handlers = options?.handlers;
         mockACPClientInstance = this as unknown as typeof mockACPClientInstance;
       }
     },
@@ -751,6 +761,208 @@ describe('AgentLifecycle', () => {
       expect(result).toBe(true);
       expect(lifecycle.getCheckpoint().consecutiveFailures).toBe(5);
       expect(lifecycle.getCheckpoint().currentBackoffMs).toBe(2000);
+    });
+  });
+
+  // AC: @agent-lifecycle ac-5
+  describe('AC-5: ACP readFile handler', () => {
+    it('should read file content and return it', async () => {
+      await lifecycle.spawn();
+
+      // Get the handlers that were passed to ACPClient
+      const handlers = mockACPClientInstance?._handlers;
+      expect(handlers).toBeDefined();
+      expect(handlers?.readFile).toBeDefined();
+
+      // Create a test file
+      const testFilePath = '/tmp/test-read-file.txt';
+      const testContent = 'line 1\nline 2\nline 3\nline 4\nline 5';
+      const fs = await import('node:fs/promises');
+      await fs.writeFile(testFilePath, testContent);
+
+      try {
+        // Act - call the readFile handler
+        const result = await handlers!.readFile!({ path: testFilePath });
+
+        // Assert
+        expect(result.content).toBe(testContent);
+      } finally {
+        // Cleanup
+        await fs.unlink(testFilePath);
+        await lifecycle.kill();
+      }
+    });
+
+    it('should respect line parameter (1-indexed offset)', async () => {
+      await lifecycle.spawn();
+
+      const handlers = mockACPClientInstance?._handlers;
+      const testFilePath = '/tmp/test-read-line-offset.txt';
+      const testContent = 'line 1\nline 2\nline 3\nline 4\nline 5';
+      const fs = await import('node:fs/promises');
+      await fs.writeFile(testFilePath, testContent);
+
+      try {
+        // Act - start from line 3 (1-indexed, so index 2)
+        const result = await handlers!.readFile!({ path: testFilePath, line: 3 });
+
+        // Assert - should get lines 3, 4, 5
+        expect(result.content).toBe('line 3\nline 4\nline 5');
+      } finally {
+        await fs.unlink(testFilePath);
+        await lifecycle.kill();
+      }
+    });
+
+    it('should respect limit parameter', async () => {
+      await lifecycle.spawn();
+
+      const handlers = mockACPClientInstance?._handlers;
+      const testFilePath = '/tmp/test-read-limit.txt';
+      const testContent = 'line 1\nline 2\nline 3\nline 4\nline 5';
+      const fs = await import('node:fs/promises');
+      await fs.writeFile(testFilePath, testContent);
+
+      try {
+        // Act - limit to 2 lines
+        const result = await handlers!.readFile!({ path: testFilePath, limit: 2 });
+
+        // Assert - should get only first 2 lines
+        expect(result.content).toBe('line 1\nline 2');
+      } finally {
+        await fs.unlink(testFilePath);
+        await lifecycle.kill();
+      }
+    });
+
+    it('should handle line and limit together', async () => {
+      await lifecycle.spawn();
+
+      const handlers = mockACPClientInstance?._handlers;
+      const testFilePath = '/tmp/test-read-line-limit.txt';
+      const testContent = 'line 1\nline 2\nline 3\nline 4\nline 5';
+      const fs = await import('node:fs/promises');
+      await fs.writeFile(testFilePath, testContent);
+
+      try {
+        // Act - start from line 2, limit 2 lines
+        const result = await handlers!.readFile!({ path: testFilePath, line: 2, limit: 2 });
+
+        // Assert - should get lines 2 and 3
+        expect(result.content).toBe('line 2\nline 3');
+      } finally {
+        await fs.unlink(testFilePath);
+        await lifecycle.kill();
+      }
+    });
+
+    it('should throw error when file does not exist', async () => {
+      await lifecycle.spawn();
+
+      const handlers = mockACPClientInstance?._handlers;
+
+      try {
+        // Act & Assert - should throw
+        await expect(
+          handlers!.readFile!({ path: '/tmp/nonexistent-file-xyz.txt' }),
+        ).rejects.toThrow();
+      } finally {
+        await lifecycle.kill();
+      }
+    });
+  });
+
+  // AC: @agent-lifecycle ac-6
+  describe('AC-6: ACP requestPermission handler', () => {
+    it('should select first allow_once option when available', async () => {
+      await lifecycle.spawn();
+
+      const handlers = mockACPClientInstance?._handlers;
+      expect(handlers?.requestPermission).toBeDefined();
+
+      try {
+        // Act
+        const result = await handlers!.requestPermission!({
+          toolCall: { title: 'read_file' },
+          options: [
+            { optionId: 'opt-1', name: 'Deny', kind: 'deny' },
+            { optionId: 'opt-2', name: 'Allow Once', kind: 'allow_once' },
+            { optionId: 'opt-3', name: 'Allow Always', kind: 'allow_always' },
+          ],
+        });
+
+        // Assert - should select first 'allow' option (allow_once)
+        expect(result.outcome.outcome).toBe('selected');
+        expect(result.outcome.optionId).toBe('opt-2');
+      } finally {
+        await lifecycle.kill();
+      }
+    });
+
+    it('should select allow_always when no allow_once available', async () => {
+      await lifecycle.spawn();
+
+      const handlers = mockACPClientInstance?._handlers;
+
+      try {
+        // Act
+        const result = await handlers!.requestPermission!({
+          toolCall: { title: 'write_file' },
+          options: [
+            { optionId: 'opt-1', name: 'Deny', kind: 'deny' },
+            { optionId: 'opt-2', name: 'Allow Always', kind: 'allow_always' },
+          ],
+        });
+
+        // Assert - should select allow_always
+        expect(result.outcome.outcome).toBe('selected');
+        expect(result.outcome.optionId).toBe('opt-2');
+      } finally {
+        await lifecycle.kill();
+      }
+    });
+
+    it('should fall back to first option when no allow options exist', async () => {
+      await lifecycle.spawn();
+
+      const handlers = mockACPClientInstance?._handlers;
+
+      try {
+        // Act - only deny options available
+        const result = await handlers!.requestPermission!({
+          toolCall: { title: 'dangerous_operation' },
+          options: [
+            { optionId: 'opt-1', name: 'Deny Once', kind: 'deny_once' },
+            { optionId: 'opt-2', name: 'Deny Always', kind: 'deny_always' },
+          ],
+        });
+
+        // Assert - falls back to first option
+        expect(result.outcome.outcome).toBe('selected');
+        expect(result.outcome.optionId).toBe('opt-1');
+      } finally {
+        await lifecycle.kill();
+      }
+    });
+
+    it('should return cancelled when options array is empty', async () => {
+      await lifecycle.spawn();
+
+      const handlers = mockACPClientInstance?._handlers;
+
+      try {
+        // Act - no options
+        const result = await handlers!.requestPermission!({
+          toolCall: { title: 'some_operation' },
+          options: [],
+        });
+
+        // Assert - should cancel
+        expect(result.outcome.outcome).toBe('cancelled');
+        expect(result.outcome.optionId).toBeUndefined();
+      } finally {
+        await lifecycle.kill();
+      }
     });
   });
 });

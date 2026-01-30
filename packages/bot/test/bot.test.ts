@@ -14,10 +14,46 @@
  */
 
 import { EventEmitter } from 'node:events';
+import { execSync } from 'node:child_process';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { NormalizedMessage } from '@kynetic-bot/core';
 import type { BotConfig } from '../src/config.js';
 import { Bot, type BotState, type EscalationContext } from '../src/bot.js';
+
+// Track KbotShadow constructor args for AC-7 and AC-6 tests
+let capturedShadowOptions: { projectRoot?: string; worktreeDir?: string } | null = null;
+
+// Mock child_process execSync for git root tests
+vi.mock('node:child_process', async () => {
+  const actual = await vi.importActual('node:child_process');
+  return {
+    ...actual,
+    execSync: vi.fn().mockReturnValue('/test/git/root\n'),
+  };
+});
+
+// Mock KbotShadow with a proper class constructor to capture constructor args
+vi.mock('@kynetic-bot/memory', () => {
+  // Use a class to properly support `new KbotShadow()`
+  class MockKbotShadow {
+    constructor(options: { projectRoot?: string; worktreeDir?: string }) {
+      capturedShadowOptions = options;
+    }
+    initialize = vi.fn().mockResolvedValue(undefined);
+    shutdown = vi.fn().mockResolvedValue(undefined);
+    getState = vi.fn().mockReturnValue('ready');
+    isReady = vi.fn().mockReturnValue(true);
+    forceCommit = vi.fn().mockResolvedValue(true);
+    recordEvent = vi.fn();
+    on = vi.fn();
+    emit = vi.fn();
+  }
+  return {
+    KbotShadow: MockKbotShadow,
+  };
+});
+
+const mockExecSync = vi.mocked(execSync);
 
 /**
  * Delay helper for async tests
@@ -730,6 +766,135 @@ describe('Bot', () => {
       // Assert - still transitions to stopped
       expect(bot.getState()).toBe('stopped');
       expect(errorListener).toHaveBeenCalled();
+    });
+  });
+
+  // AC: @bot-orchestration ac-7
+  describe('AC-7: Git root discovery', () => {
+    beforeEach(() => {
+      vi.clearAllMocks();
+      capturedShadowOptions = null;
+    });
+
+    it('uses git rev-parse --show-toplevel to find git root', () => {
+      // Arrange
+      const expectedGitRoot = '/home/user/my-project';
+      mockExecSync.mockReturnValue(`${expectedGitRoot}\n`);
+
+      // Act - create bot WITHOUT injected shadow to trigger real KbotShadow construction
+      const testBot = Bot.createWithDependencies({
+        config,
+        agent: mockAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
+        router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
+        registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
+        // Note: NOT providing shadow, so getGitRoot() is called
+      });
+
+      // Assert - execSync was called with git command
+      expect(mockExecSync).toHaveBeenCalledWith(
+        'git rev-parse --show-toplevel',
+        { encoding: 'utf8' },
+      );
+
+      // Assert - KbotShadow received the git root as projectRoot
+      expect(capturedShadowOptions).toBeDefined();
+      expect(capturedShadowOptions?.projectRoot).toBe(expectedGitRoot);
+    });
+
+    it('falls back to process.cwd() when git command fails', () => {
+      // Arrange
+      const expectedCwd = process.cwd();
+      mockExecSync.mockImplementation(() => {
+        throw new Error('fatal: not a git repository');
+      });
+
+      // Act - create bot WITHOUT injected shadow
+      const testBot = Bot.createWithDependencies({
+        config,
+        agent: mockAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
+        router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
+        registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
+        // Note: NOT providing shadow, so getGitRoot() is called
+      });
+
+      // Assert - execSync was attempted
+      expect(mockExecSync).toHaveBeenCalledWith(
+        'git rev-parse --show-toplevel',
+        { encoding: 'utf8' },
+      );
+
+      // Assert - KbotShadow received cwd as fallback projectRoot
+      expect(capturedShadowOptions).toBeDefined();
+      expect(capturedShadowOptions?.projectRoot).toBe(expectedCwd);
+      expect(testBot).toBeInstanceOf(Bot);
+    });
+  });
+
+  // AC: @bot-config ac-6
+  describe('AC-6: kbotDataDir as worktreeDir', () => {
+    beforeEach(() => {
+      vi.clearAllMocks();
+      capturedShadowOptions = null;
+      // Default: git root returns a valid path
+      mockExecSync.mockReturnValue('/home/user/project\n');
+    });
+
+    it('passes kbotDataDir as worktreeDir to KbotShadow (not projectRoot)', () => {
+      // Arrange
+      const customDataDir = '.custom-kbot';
+      const customConfig = createMockConfig({ kbotDataDir: customDataDir });
+
+      // Act - create bot WITHOUT injected shadow to capture KbotShadow args
+      const testBot = Bot.createWithDependencies({
+        config: customConfig,
+        agent: mockAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
+        router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
+        registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
+        // Note: NOT providing shadow, so KbotShadow is constructed with our args
+      });
+
+      // Assert - KbotShadow received kbotDataDir as worktreeDir
+      expect(capturedShadowOptions).toBeDefined();
+      expect(capturedShadowOptions?.worktreeDir).toBe(customDataDir);
+      // projectRoot should be git root (not kbotDataDir)
+      expect(capturedShadowOptions?.projectRoot).toBe('/home/user/project');
+    });
+
+    it('uses default .kbot value when KBOT_DATA_DIR not specified', () => {
+      // Arrange - config without explicit kbotDataDir uses default
+      const defaultConfig = createMockConfig();
+
+      // Act - create bot WITHOUT injected shadow
+      const testBot = Bot.createWithDependencies({
+        config: defaultConfig,
+        agent: mockAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
+        router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
+        registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
+      });
+
+      // Assert - KbotShadow received default '.kbot' as worktreeDir
+      expect(capturedShadowOptions).toBeDefined();
+      expect(capturedShadowOptions?.worktreeDir).toBe('.kbot');
+    });
+
+    it('kbotDataDir is interpreted as relative dir name, not absolute path', () => {
+      // Arrange
+      const relativeDir = '.kbot-data';
+      const configWithRelative = createMockConfig({ kbotDataDir: relativeDir });
+
+      // Act - create bot WITHOUT injected shadow
+      Bot.createWithDependencies({
+        config: configWithRelative,
+        agent: mockAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
+        router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
+        registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
+      });
+
+      // Assert - worktreeDir is relative (no leading /), projectRoot is absolute
+      expect(capturedShadowOptions).toBeDefined();
+      expect(capturedShadowOptions?.worktreeDir).not.toMatch(/^\//);
+      expect(capturedShadowOptions?.worktreeDir).toBe(relativeDir);
+      expect(capturedShadowOptions?.projectRoot).toMatch(/^\//); // absolute path
     });
   });
 });

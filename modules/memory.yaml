@@ -222,6 +222,11 @@ features:
               - "@trait-validated"
             notes: []
             created: 2026-01-30T22:22:02.178Z
+            acceptance_criteria:
+              - id: ac-1
+                given: Turns exist for replay
+                when: Selection runs with token budget
+                then: Most recent turns fitting within 30% budget selected
   - _ulid: 01KG2VD4BPPHV4QP9H5XNA87HR
     slugs:
       - mem-agent-sessions

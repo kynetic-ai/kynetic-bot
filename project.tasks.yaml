@@ -7258,7 +7258,44 @@
     - dx
   vcs_refs: []
   created_at: 2026-01-30T09:33:56.618Z
-  notes: []
+  notes:
+    - _ulid: 01KG742SJHQ0R1BEDAQD8W5KR3
+      created_at: 2026-01-30T09:34:53.009Z
+      author: "@claude"
+      content: >-
+        ## Implementation
+
+
+        **File:** eslint.config.js
+
+
+        **Problem:** Async methods required by interfaces (e.g., SessionStore.get()) trigger
+        require-await even when implementation is sync.
+
+
+        **Solution:** Add rule config to allow async without await for specific patterns:
+
+        ```typescript
+
+        {
+          rules: {
+            '@typescript-eslint/require-await': 'off',
+            // OR more targeted:
+            '@typescript-eslint/require-await': ['error', {
+              // Allow async methods that match interface contracts
+            }],
+          },
+        }
+
+        ```
+
+
+        **Alternative:** Use `// eslint-disable-next-line` is current approach but adds noise.
+
+
+        **Preference:** Turning off require-await entirely is common - the rule catches few real
+        bugs and async-without-await is often intentional for interface compatibility.
+      supersedes: null
   todos: []
 - _ulid: 01KG7414V60ZE4RVTKGNDVC7N8
   slugs: []

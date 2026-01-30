@@ -7363,10 +7363,18 @@
     - bot
   vcs_refs: []
   created_at: 2026-01-30T09:27:38.786Z
-  notes: []
+  started_at: 2026-01-30T11:46:23.669Z
+  notes:
+    - _ulid: 01KG7BPDT60JDS49F7RPRM2JQT
+      created_at: 2026-01-30T11:47:56.358Z
+      author: "@claude"
+      content: Implemented memoization for getGitRoot() in bot.ts. The function was being called twice
+        during Bot construction (lines 164 and 169) and once in start() (line 224). Each call
+        spawned a shell process via execSync. Added module-level cache with _resetGitRootCache()
+        export for test isolation. Updated 4 test beforeEach blocks to reset cache between tests.
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-01-30T11:46:23.669Z
 - _ulid: 01KG73NKNH0VEPBRE24VXNXX35
   slugs: []
   title: Fix Discord splitter truncation marker on hard-cut

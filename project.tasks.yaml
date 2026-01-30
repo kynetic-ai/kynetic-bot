@@ -5663,7 +5663,7 @@
   type: task
   spec_ref: "@bot"
   derivation: auto
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -5690,6 +5690,9 @@
       supersedes: null
   todos: []
   automation: needs_review
+  completed_at: 2026-01-30T09:08:21.508Z
+  closed_reason: "All child tasks completed: bot-configuration, bot-orchestration, bot-cli,
+    bot-storage-integration"
 - _ulid: 01KG4GE0APQ0QAPCFFE3RMV5VJ
   slugs:
     - task-bot-configuration

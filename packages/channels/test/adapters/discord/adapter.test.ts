@@ -350,6 +350,41 @@ describe('DiscordAdapter', () => {
     });
   });
 
+  describe('sendTyping()', () => {
+    beforeEach(async () => {
+      const startPromise = adapter.start();
+      setImmediate(() => {
+        const client = getMockClient();
+        client?.emit(Events.ClientReady, client);
+      });
+      await startPromise;
+    });
+
+    it('should call sendTyping on the channel', async () => {
+      const sendTyping = vi.fn().mockResolvedValue(undefined);
+      const channel = {
+        ...createMockChannel(),
+        sendTyping,
+      };
+      getMockClient().channels.fetch = vi.fn().mockResolvedValue(channel);
+
+      await adapter.sendTyping('channel-123');
+
+      expect(sendTyping).toHaveBeenCalled();
+    });
+
+    it('should not throw on typing indicator failure', async () => {
+      const channel = {
+        ...createMockChannel(),
+        sendTyping: vi.fn().mockRejectedValue(new Error('Rate limited')),
+      };
+      getMockClient().channels.fetch = vi.fn().mockResolvedValue(channel);
+
+      // Should not throw
+      await expect(adapter.sendTyping('channel-123')).resolves.not.toThrow();
+    });
+  });
+
   // AC-4: Reconnection logging
   describe('connection events', () => {
     it('should log shard reconnecting events', async () => {

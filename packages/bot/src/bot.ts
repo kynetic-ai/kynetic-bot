@@ -330,6 +330,12 @@ export class Bot extends EventEmitter {
     this.emit('message:received', msg);
     const startTime = Date.now();
 
+    // Send typing indicator while processing
+    // This shows the user that the bot is working on their message
+    if (this.channelLifecycle) {
+      await this.channelLifecycle.sendTyping(msg.channel);
+    }
+
     try {
       // 1. Route to session
       const sessionResult = this.router.resolveSession(msg, 'main');

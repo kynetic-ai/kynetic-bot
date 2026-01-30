@@ -241,6 +241,7 @@ function createMockChannelLifecycle() {
     start: vi.fn().mockResolvedValue(undefined),
     stop: vi.fn().mockResolvedValue(undefined),
     sendMessage: vi.fn().mockResolvedValue('sent-msg-id'),
+    sendTyping: vi.fn().mockResolvedValue(undefined),
     getState: vi.fn().mockReturnValue('healthy'),
     isHealthy: vi.fn().mockReturnValue(true),
   };
@@ -407,6 +408,54 @@ describe('Bot', () => {
       // Assert
       expect(mockAgent._mockClient.prompt).not.toHaveBeenCalled();
       expect(errorListener).toHaveBeenCalled();
+    });
+
+    it('sends typing indicator before processing message', async () => {
+      // Arrange
+      const msg = createMockMessage();
+      const lifecycle = createMockChannelLifecycle();
+      bot.setChannelLifecycle(lifecycle as unknown as Parameters<typeof bot.setChannelLifecycle>[0]);
+
+      // Act
+      await bot.handleMessage(msg);
+
+      // Assert - typing indicator sent to the message channel
+      expect(lifecycle.sendTyping).toHaveBeenCalledWith(msg.channel);
+    });
+
+    it('sends typing indicator before routing session', async () => {
+      // Arrange
+      const msg = createMockMessage();
+      const lifecycle = createMockChannelLifecycle();
+      bot.setChannelLifecycle(lifecycle as unknown as Parameters<typeof bot.setChannelLifecycle>[0]);
+
+      const callOrder: string[] = [];
+      lifecycle.sendTyping.mockImplementation(async () => {
+        callOrder.push('typing');
+      });
+      mockRouter.resolveSession.mockImplementation(() => {
+        callOrder.push('route');
+        return {
+          ok: true,
+          value: {
+            key: 'session-key',
+            agent: 'main',
+            platform: 'discord',
+            peerId: 'user-456',
+            peerKind: 'user' as const,
+            context: [],
+            createdAt: new Date(),
+            lastActivity: new Date(),
+          },
+        };
+      });
+
+      // Act
+      await bot.handleMessage(msg);
+
+      // Assert - typing sent before routing
+      expect(callOrder[0]).toBe('typing');
+      expect(callOrder[1]).toBe('route');
     });
 
     it('emits message:received and message:processed events', async () => {
@@ -1598,6 +1647,7 @@ describe('Bot', () => {
         start: vi.fn().mockResolvedValue(undefined),
         stop: vi.fn().mockResolvedValue(undefined),
         sendMessage: vi.fn().mockResolvedValue({ messageId: 'sent-msg-id' }),
+        sendTyping: vi.fn().mockResolvedValue(undefined),
         editMessage: vi.fn().mockResolvedValue('sent-msg-id'),
         getState: vi.fn().mockReturnValue('healthy'),
         isHealthy: vi.fn().mockReturnValue(true),

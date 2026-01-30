@@ -307,6 +307,31 @@ export class DiscordAdapter implements ChannelAdapter {
   }
 
   /**
+   * Send a typing indicator to a Discord channel
+   *
+   * Shows the "Bot is typing..." indicator to users while processing.
+   * The indicator automatically expires after ~10 seconds or when a
+   * message is sent, so this is safe to call at the start of processing.
+   *
+   * @param channel - Discord channel ID
+   * @throws DiscordChannelNotFoundError if channel doesn't exist
+   * @throws DiscordPermissionError if missing permissions
+   */
+  async sendTyping(channel: string): Promise<void> {
+    const discordChannel = await this.fetchChannel(channel);
+
+    try {
+      await discordChannel.sendTyping();
+    } catch (error) {
+      // Log but don't throw - typing indicator failure shouldn't block message processing
+      this.logger.warn('Failed to send typing indicator', {
+        channel,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
+  /**
    * Set up Discord.js event handlers
    */
   private setupEventHandlers(): void {

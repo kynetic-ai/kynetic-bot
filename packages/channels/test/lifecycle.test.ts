@@ -396,6 +396,53 @@ describe('ChannelLifecycle', () => {
     });
   });
 
+  describe('Typing Indicator', () => {
+    it('should call sendTyping on adapter when supported', async () => {
+      const sendTyping = vi.fn().mockResolvedValue(undefined);
+      adapter = createMockAdapter({ sendTyping });
+      lifecycle = new ChannelLifecycle(adapter);
+
+      await lifecycle.start();
+      await lifecycle.sendTyping('channel-123');
+
+      expect(sendTyping).toHaveBeenCalledWith('channel-123');
+      await lifecycle.stop();
+    });
+
+    it('should do nothing when adapter does not support sendTyping', async () => {
+      adapter = createMockAdapter();
+      // adapter.sendTyping is undefined
+      lifecycle = new ChannelLifecycle(adapter);
+
+      await lifecycle.start();
+      // Should not throw
+      await expect(lifecycle.sendTyping('channel-123')).resolves.not.toThrow();
+      await lifecycle.stop();
+    });
+
+    it('should not send typing when channel is unhealthy', async () => {
+      const sendTyping = vi.fn().mockResolvedValue(undefined);
+      adapter = createMockAdapter({ sendTyping });
+      lifecycle = new ChannelLifecycle(adapter);
+
+      // Don't start - stays in idle state
+      await lifecycle.sendTyping('channel-123');
+
+      expect(sendTyping).not.toHaveBeenCalled();
+    });
+
+    it('should swallow typing errors silently', async () => {
+      const sendTyping = vi.fn().mockRejectedValue(new Error('Rate limited'));
+      adapter = createMockAdapter({ sendTyping });
+      lifecycle = new ChannelLifecycle(adapter);
+
+      await lifecycle.start();
+      // Should not throw
+      await expect(lifecycle.sendTyping('channel-123')).resolves.not.toThrow();
+      await lifecycle.stop();
+    });
+  });
+
   describe('Edge Cases', () => {
     it('should handle rapid start/stop cycles', async () => {
       await lifecycle.start();

@@ -64,4 +64,15 @@ export interface ChannelAdapter {
    * @param handler - Callback to invoke when messages are received
    */
   onMessage(handler: (message: NormalizedMessage) => void | Promise<void>): void;
+
+  /**
+   * Send a typing indicator to the channel (optional)
+   *
+   * Used to show the user that the bot is processing their message.
+   * Not all platforms support this - adapters that don't support it
+   * simply don't implement this method.
+   *
+   * @param channel - Channel identifier (platform-specific)
+   */
+  sendTyping?(channel: string): Promise<void>;
 }

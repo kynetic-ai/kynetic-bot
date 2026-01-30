@@ -8340,6 +8340,7 @@
         - Verify: Token count reduced by >80%
       supersedes: null
   todos: []
+  automation: eligible
 - _ulid: 01KG8G1318V7WSE74WVFRJJ6FZ
   slugs:
     - task-capture-stderr

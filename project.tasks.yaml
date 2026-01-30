@@ -6504,7 +6504,7 @@
   type: task
   spec_ref: "@agent-lifecycle"
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -6521,6 +6521,8 @@
         file with line/limit support. Tests needed."
       supersedes: null
   todos: []
+  completed_at: 2026-01-30T04:08:11.311Z
+  closed_reason: Already implemented in lifecycle.ts - createACPHandlers().readFile
 - _ulid: 01KG6HB39PPR5JG0YKZ8FPN64F
   slugs: []
   title: Implement ACP requestPermission handler

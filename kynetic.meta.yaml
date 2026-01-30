@@ -305,4 +305,14 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KG7A628XR3KKSWGGEF9H2J2E
+    type: friction
+    content: "Testing async loops with vitest fake timers - vi.advanceTimersByTimeAsync() interacts
+      poorly with async/await in continuous loops. Tests would time out or not trigger expected
+      errors. Workaround: use real timers with short intervals OR test via checkpoint/restore for
+      state verification."
+    created_at: 2026-01-30T11:21:31.677Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

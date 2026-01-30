@@ -205,6 +205,22 @@ features:
             given: Single turn exceeds 30% token budget
             when: Turn selected for replay
             then: Turn truncated with [truncated] marker to fit budget
+        features:
+          - _ulid: 01KG8FZFY22TQ2WVM307GY4SH3
+            slugs:
+              - mem-turn-selection
+            title: Token-Based Turn Selection
+            type: feature
+            tags: []
+            description: Select turns for verbatim replay based on token budget (30% of context window), not
+              turn count. Tool calls use summarized form for token estimation.
+            depends_on: []
+            implements: []
+            relates_to: []
+            tests: []
+            traits: []
+            notes: []
+            created: 2026-01-30T22:22:02.178Z
   - _ulid: 01KG2VD4BPPHV4QP9H5XNA87HR
     slugs:
       - mem-agent-sessions

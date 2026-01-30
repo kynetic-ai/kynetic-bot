@@ -6605,6 +6605,12 @@
         - Mock execSync to throw (non-git dir), verify fallback to process.cwd()
         - Test getGitRoot() function directly if exported, or test via Bot constructor
       supersedes: null
+    - _ulid: 01KG6MG54JENMA3FZ0EEMV3P7Q
+      created_at: 2026-01-30T05:02:33.619Z
+      author: "@claude"
+      content: "Added tests for getGitRoot() discovery. Tests verify: execSync called with git rev-parse,
+        fallback to process.cwd() on git failure."
+      supersedes: null
   todos: []
 - _ulid: 01KG6J0SJRVPXYH9CWQXAPAR9M
   slugs: []

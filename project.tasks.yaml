@@ -8462,7 +8462,9 @@
   meta_ref: null
   status: pending
   blocked_by: []
-  depends_on: []
+  depends_on:
+    - "@task-context-restoration"
+    - "@task-session-lifecycle-management"
   context: []
   priority: 4
   tags: []

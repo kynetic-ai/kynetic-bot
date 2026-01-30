@@ -95,3 +95,8 @@ inbox:
     created_at: 2026-01-30T00:25:47.325Z
     tags: []
     added_by: "@claude"
+  - _ulid: 01KG64NHCKJ6GVXQGSA8PC88E3
+    text: "Bot: Enrich error contexts with messageId for easier debugging correlation"
+    created_at: 2026-01-30T00:25:52.787Z
+    tags: []
+    added_by: "@claude"

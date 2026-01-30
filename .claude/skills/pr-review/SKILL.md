@@ -73,6 +73,7 @@ it('should error when no PR exists', () => { ... });
 ```
 
 **Check for gaps:**
+
 - Read spec ACs from `kspec task get @task-ref`
 - Search test files for `// AC: @spec-ref ac-N` annotations
 - Flag any ACs without test coverage
@@ -97,6 +98,7 @@ kspec workflow start @pr-review-loop
 ```
 
 The workflow handles:
+
 1. Run local review (`/local-review`)
 2. Verify AC coverage (all spec ACs have tests)
 3. Verify spec alignment (implementation matches spec)
@@ -110,6 +112,7 @@ The workflow handles:
 **After ANY push, you MUST re-verify CI from the beginning.** Prior CI checks are invalidated by new commits. Never merge without fresh CI verification on the current HEAD.
 
 If you push fixes during review:
+
 1. Wait for CI to complete on the new commits
 2. Verify CI status shows current HEAD (not stale)
 3. Only then proceed to merge
@@ -117,6 +120,7 @@ If you push fixes during review:
 ## Subagent Context
 
 This skill runs in **ACP subagent context**:
+
 - Spawned by ralph for PR review
 - Runs sequentially (ralph waits for completion)
 - No human interaction expected
@@ -160,13 +164,16 @@ If issues found:
 ## PR Review Summary
 
 ### AC Coverage
+
 - [x] ac-1: Covered
 - [ ] ac-2: MISSING
 
 ### Issues Found
+
 1. **MUST-FIX**: Missing test coverage for ac-2
 
 ### Verdict
+
 Not ready to merge - see issues above.
 ```
 
@@ -181,6 +188,7 @@ kspec task complete @task-ref --reason "Merged in PR #N. <summary>"
 ```
 
 Include in the reason:
+
 - PR number
 - Summary of what was implemented
 - Any notable changes or deviations

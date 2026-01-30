@@ -38,6 +38,7 @@ kspec workflow next --input spec_ref="@spec-slug"
 Every acceptance criterion MUST have at least one test that validates it.
 
 **How to check:**
+
 ```bash
 # Find AC annotations in tests
 grep -r "// AC: @spec-ref" tests/
@@ -47,6 +48,7 @@ kspec item get @spec-ref
 ```
 
 **Annotation format:**
+
 ```typescript
 // AC: @spec-ref ac-1
 it('should validate input when given invalid data', () => {
@@ -61,11 +63,13 @@ Missing AC coverage is a **blocking issue**, not a suggestion.
 All tests must properly validate their intended purpose.
 
 **Valid tests:**
+
 - AC-specific tests that validate acceptance criteria
 - Edge case tests that catch real bugs
 - Integration tests that verify components work together
 
 **Fluff tests to reject:**
+
 - Tests that always pass regardless of implementation
 - Tests that only verify implementation details
 - Tests that mock everything and verify nothing
@@ -77,11 +81,13 @@ All tests must properly validate their intended purpose.
 All tests MUST be properly isolated:
 
 **Why this matters:**
+
 - Prevents test pollution (one test affecting another)
 - Ensures tests are reproducible
 - Prevents data corruption in actual application state
 
 **Correct patterns:**
+
 ```typescript
 let mockStore: ConversationStore;
 
@@ -96,6 +102,7 @@ afterEach(() => {
 ```
 
 **Wrong patterns:**
+
 ```typescript
 // NEVER do this - shared state across tests
 const globalStore = new ConversationStore();
@@ -107,11 +114,11 @@ it('should work', () => {
 
 ## Issue Severity
 
-| Issue | Severity | Action |
-|-------|----------|--------|
-| Missing AC coverage | MUST-FIX | Add tests before PR |
-| Fluff test | MUST-FIX | Rewrite or remove |
-| Tests not isolated | MUST-FIX | Fix isolation issues |
+| Issue               | Severity | Action               |
+| ------------------- | -------- | -------------------- |
+| Missing AC coverage | MUST-FIX | Add tests before PR  |
+| Fluff test          | MUST-FIX | Rewrite or remove    |
+| Tests not isolated  | MUST-FIX | Fix isolation issues |
 
 ## Report Format
 
@@ -121,15 +128,18 @@ Generate a summary with:
 ## Local Review Summary
 
 ### AC Coverage
+
 - [x] ac-1: Covered by test X
 - [ ] ac-2: MISSING - no test found
 - [x] ac-3: Covered by test Y
 
 ### Issues Found
+
 1. **MUST-FIX**: Missing coverage for ac-2
 2. **MUST-FIX**: Test Z is fluff (always passes)
 
 ### Verdict
+
 - [ ] Ready for PR (all checks pass)
 - [x] Needs fixes (MUST-FIX issues above)
 ```

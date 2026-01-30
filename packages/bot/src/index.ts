@@ -15,6 +15,14 @@ export {
   type EscalationContext,
 } from './bot.js';
 
+// Re-export transformer types for convenience
+export {
+  MessageTransformer,
+  type PlatformTransformer,
+  UnsupportedTypeError,
+  MissingTransformerError,
+} from '@kynetic-bot/messaging';
+
 // Identity
 export {
   buildIdentityPrompt,

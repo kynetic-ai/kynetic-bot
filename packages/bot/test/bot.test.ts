@@ -17,6 +17,13 @@ import { EventEmitter } from 'node:events';
 import { execSync } from 'node:child_process';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { NormalizedMessage } from '@kynetic-bot/core';
+import { KyneticError } from '@kynetic-bot/core';
+import {
+  MessageTransformer,
+  UnsupportedTypeError,
+  MissingTransformerError,
+  type PlatformTransformer,
+} from '@kynetic-bot/messaging';
 import type { BotConfig } from '../src/config.js';
 import { Bot, type BotState, type EscalationContext } from '../src/bot.js';
 
@@ -1383,6 +1390,175 @@ describe('Bot', () => {
         );
 
         await testBot.stop();
+      });
+    });
+  });
+
+  // AC: @transform-integration
+  describe('Transform Integration', () => {
+    /**
+     * Create a mock platform transformer for testing
+     */
+    function createMockPlatformTransformer(platform: string): PlatformTransformer {
+      return {
+        platform,
+        normalize: vi.fn().mockImplementation((raw: { text?: string; id?: string }) => ({
+          ok: true as const,
+          value: createMockMessage({
+            id: raw.id ?? 'normalized-msg',
+            text: raw.text ?? 'normalized text',
+            sender: {
+              id: 'user-from-platform',
+              platform,
+              displayName: 'Platform User',
+            },
+          }),
+        })),
+        denormalize: vi.fn().mockImplementation((msg: NormalizedMessage) => ({
+          ok: true as const,
+          value: { platformSpecific: true, text: msg.text },
+        })),
+      };
+    }
+
+    // AC: @transform-integration ac-1
+    describe('AC-1: Incoming messages normalized before routing', () => {
+      beforeEach(async () => {
+        await bot.start();
+      });
+
+      it('normalizes raw platform message and routes to handleMessage', async () => {
+        // Arrange
+        const mockTransformer = createMockPlatformTransformer('test-platform');
+        bot.registerTransformer(mockTransformer);
+
+        const rawMessage = { id: 'raw-123', text: 'Hello from platform' };
+        const lifecycle = createMockChannelLifecycle();
+        bot.setChannelLifecycle(lifecycle as unknown as Parameters<typeof bot.setChannelLifecycle>[0]);
+
+        // Act
+        await bot.handleRawMessage('test-platform', rawMessage);
+
+        // Assert
+        expect(mockTransformer.normalize).toHaveBeenCalledWith(rawMessage);
+        expect(mockRouter.resolveSession).toHaveBeenCalled();
+        expect(mockAgent._mockClient.prompt).toHaveBeenCalled();
+      });
+
+      it('uses transformer normalize to convert raw message', async () => {
+        // Arrange
+        const mockTransformer = createMockPlatformTransformer('discord');
+        const normalizedMsg = createMockMessage({ id: 'disc-123', text: 'Discord message' });
+        mockTransformer.normalize = vi.fn().mockReturnValue({
+          ok: true,
+          value: normalizedMsg,
+        });
+        bot.registerTransformer(mockTransformer);
+
+        const rawDiscordMessage = { content: 'Discord message', author: { id: '123' } };
+        const lifecycle = createMockChannelLifecycle();
+        bot.setChannelLifecycle(lifecycle as unknown as Parameters<typeof bot.setChannelLifecycle>[0]);
+
+        // Act
+        await bot.handleRawMessage('discord', rawDiscordMessage);
+
+        // Assert
+        expect(mockTransformer.normalize).toHaveBeenCalledWith(rawDiscordMessage);
+      });
+    });
+
+    // AC: @transform-integration ac-3
+    describe('AC-3: Unknown content types logged and skipped', () => {
+      beforeEach(async () => {
+        await bot.start();
+      });
+
+      it('logs and skips when unsupported content type', async () => {
+        // Arrange
+        const mockTransformer = createMockPlatformTransformer('test-platform');
+        mockTransformer.normalize = vi.fn().mockReturnValue({
+          ok: false,
+          error: new UnsupportedTypeError('sticker', 'test-platform'),
+        });
+        bot.registerTransformer(mockTransformer);
+
+        // Act
+        await bot.handleRawMessage('test-platform', { type: 'sticker' });
+
+        // Assert - should not throw, should not route message
+        expect(mockRouter.resolveSession).not.toHaveBeenCalled();
+        expect(mockAgent._mockClient.prompt).not.toHaveBeenCalled();
+      });
+
+      it('logs and skips when transformer not registered', async () => {
+        // Arrange - no transformer registered for platform
+
+        // Act
+        await bot.handleRawMessage('unknown-platform', { text: 'hello' });
+
+        // Assert - should not throw, should not route message
+        expect(mockRouter.resolveSession).not.toHaveBeenCalled();
+        expect(mockAgent._mockClient.prompt).not.toHaveBeenCalled();
+      });
+
+      it('logs and skips on general normalization error', async () => {
+        // Arrange
+        const mockTransformer = createMockPlatformTransformer('test-platform');
+        mockTransformer.normalize = vi.fn().mockReturnValue({
+          ok: false,
+          error: new KyneticError('Parsing failed', 'PARSE_ERROR'),
+        });
+        bot.registerTransformer(mockTransformer);
+
+        // Act
+        await bot.handleRawMessage('test-platform', { malformed: true });
+
+        // Assert - should not throw, should not route message
+        expect(mockRouter.resolveSession).not.toHaveBeenCalled();
+        expect(mockAgent._mockClient.prompt).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('Transformer registration', () => {
+      it('can register a platform transformer', () => {
+        // Arrange
+        const mockTransformer = createMockPlatformTransformer('slack');
+
+        // Act
+        bot.registerTransformer(mockTransformer);
+
+        // Assert
+        const transformer = bot.getTransformer();
+        expect(transformer.hasTransformer('slack')).toBe(true);
+      });
+
+      it('getTransformer returns the transformer instance', () => {
+        // Act
+        const transformer = bot.getTransformer();
+
+        // Assert
+        expect(transformer).toBeInstanceOf(MessageTransformer);
+      });
+
+      it('allows injecting transformer via options', () => {
+        // Arrange
+        const customTransformer = new MessageTransformer();
+        const mockPlatformTransformer = createMockPlatformTransformer('custom');
+        customTransformer.registerTransformer(mockPlatformTransformer);
+
+        // Act
+        const customBot = Bot.createWithDependencies({
+          config,
+          agent: mockAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
+          router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
+          shadow: mockShadow as unknown as Parameters<typeof Bot.createWithDependencies>[0]['shadow'],
+          registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
+          transformer: customTransformer,
+        });
+
+        // Assert
+        expect(customBot.getTransformer()).toBe(customTransformer);
+        expect(customBot.getTransformer().hasTransformer('custom')).toBe(true);
       });
     });
   });

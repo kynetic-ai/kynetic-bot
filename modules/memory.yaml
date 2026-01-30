@@ -227,6 +227,10 @@ features:
                 given: Turns exist for replay
                 when: Selection runs with token budget
                 then: Most recent turns fitting within 30% budget selected
+              - id: ac-2
+                given: Turn is a tool call
+                when: Token estimation runs
+                then: Summarized form tokens used, not original verbose output
   - _ulid: 01KG2VD4BPPHV4QP9H5XNA87HR
     slugs:
       - mem-agent-sessions

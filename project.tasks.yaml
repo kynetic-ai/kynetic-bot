@@ -8579,4 +8579,12 @@
 
         - Restart bot → first message restores context from persisted turns
       supersedes: null
+    - _ulid: 01KG8GR3R4QFQTQP6PVWHSRKKA
+      created_at: 2026-01-30T22:35:28.900Z
+      author: "@claude"
+      content: "Automation status set to needs_review: Integration task that wires components into Bot.
+        Uses parent spec ACs but is a wiring/orchestration task - consider if it needs its own
+        integration-focused ACs or if parent ACs suffice for verification."
+      supersedes: null
   todos: []
+  automation: needs_review

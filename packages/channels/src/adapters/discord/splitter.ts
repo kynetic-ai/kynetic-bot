@@ -12,6 +12,15 @@ import type { APIEmbed } from 'discord.js';
 /** Maximum length for embed description */
 export const EMBED_DESCRIPTION_MAX = 4096;
 
+/** Truncation marker appended when hard-cutting */
+const TRUNCATION_MARKER = '... [truncated]';
+
+/** Result of finding a split point */
+interface SplitPointResult {
+  index: number;
+  hardCut: boolean;
+}
+
 /**
  * Split a message into chunks that fit within Discord's character limit
  *
@@ -52,14 +61,20 @@ export function splitMessage(text: string, maxLength = 2000): string[] {
     const effectiveMaxLength = maxLength - prefix.length;
 
     // Find a good split point
-    const splitIndex = findSplitPoint(remaining, effectiveMaxLength);
+    const splitResult = findSplitPoint(remaining, effectiveMaxLength);
+    const splitIndex = splitResult.index;
 
     // Extract the chunk
     let chunk = remaining.slice(0, splitIndex);
 
-    // Track code block state
+    // Append truncation marker if hard-cutting
+    if (splitResult.hardCut) {
+      chunk += TRUNCATION_MARKER;
+    }
+
+    // Track code block state (before adding truncation marker)
     const codeBlockState = trackCodeBlockState(
-      chunk,
+      remaining.slice(0, splitIndex),
       inCodeBlock,
       codeBlockLang,
     );
@@ -91,7 +106,7 @@ export function splitMessage(text: string, maxLength = 2000): string[] {
  *
  * Priority: newline > space > hard cut
  */
-function findSplitPoint(text: string, maxLength: number): number {
+function findSplitPoint(text: string, maxLength: number): SplitPointResult {
   // Look for a newline within the last 20% of the allowed length
   const searchStart = Math.floor(maxLength * 0.8);
   const searchRegion = text.slice(searchStart, maxLength);
@@ -99,30 +114,29 @@ function findSplitPoint(text: string, maxLength: number): number {
   // Prefer splitting at blank lines (double newline)
   const blankLineIndex = searchRegion.lastIndexOf('\n\n');
   if (blankLineIndex !== -1) {
-    return searchStart + blankLineIndex + 1;
+    return { index: searchStart + blankLineIndex + 1, hardCut: false };
   }
 
   // Try single newline
   const newlineIndex = searchRegion.lastIndexOf('\n');
   if (newlineIndex !== -1) {
-    return searchStart + newlineIndex + 1;
+    return { index: searchStart + newlineIndex + 1, hardCut: false };
   }
 
   // Try space
   const spaceIndex = searchRegion.lastIndexOf(' ');
   if (spaceIndex !== -1) {
-    return searchStart + spaceIndex + 1;
+    return { index: searchStart + spaceIndex + 1, hardCut: false };
   }
 
   // Last resort: hard cut at maxLength
   // If the entire chunk has no good split points, truncate with marker
   if (maxLength < text.length) {
     // Reserve space for truncation marker
-    const truncationMarker = '... [truncated]';
-    return maxLength - truncationMarker.length;
+    return { index: maxLength - TRUNCATION_MARKER.length, hardCut: true };
   }
 
-  return maxLength;
+  return { index: maxLength, hardCut: false };
 }
 
 /**
@@ -199,14 +213,20 @@ export function splitMessageToEmbeds(
     const effectiveMaxLength = maxLength - prefix.length;
 
     // Find a good split point
-    const splitIndex = findSplitPoint(remaining, effectiveMaxLength);
+    const splitResult = findSplitPoint(remaining, effectiveMaxLength);
+    const splitIndex = splitResult.index;
 
     // Extract the chunk
     let chunk = remaining.slice(0, splitIndex);
 
-    // Track code block state
+    // Append truncation marker if hard-cutting
+    if (splitResult.hardCut) {
+      chunk += TRUNCATION_MARKER;
+    }
+
+    // Track code block state (before adding truncation marker)
     const codeBlockState = trackCodeBlockState(
-      chunk,
+      remaining.slice(0, splitIndex),
       inCodeBlock,
       codeBlockLang,
     );

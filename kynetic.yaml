@@ -81,7 +81,8 @@ traits:
       - id: ac-3
         given: unrecoverable state
         when: detected
-        then: escalates with context
+        then: emits error event with context (error details, operation state, recovery attempts);
+          orchestrator determines escalation policy
   - _ulid: 01KG1VAZX8MRXFSHWD67YEE4DZ
     slugs:
       - trait-observable

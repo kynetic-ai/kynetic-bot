@@ -207,6 +207,14 @@ export class ConversationStore {
     return path.join(this.conversationsDir, '.session-key-index.lock');
   }
 
+  /**
+   * Get the path to the message ID index for a conversation.
+   * Maps message_id -> seq for O(1) duplicate detection.
+   */
+  private messageIdIndexPath(conversationId: string): string {
+    return path.join(this.conversationDir(conversationId), 'message-id-index.json');
+  }
+
   // ==========================================================================
   // Lock Helpers
   // ==========================================================================
@@ -303,6 +311,98 @@ export class ConversationStore {
     if (this.emitter) {
       this.emitter.emit(event, data);
     }
+  }
+
+  // ==========================================================================
+  // Message ID Index Operations (O(1) duplicate detection)
+  // ==========================================================================
+
+  /**
+   * Message ID index maps message_id -> seq for fast duplicate lookups
+   */
+  private messageIdIndexCache = new Map<string, Map<string, number>>();
+
+  /**
+   * Read the message ID index for a conversation.
+   * Uses in-memory cache with file fallback.
+   */
+  private readMessageIdIndex(conversationId: string): Map<string, number> {
+    // Check cache first
+    const cached = this.messageIdIndexCache.get(conversationId);
+    if (cached) {
+      return cached;
+    }
+
+    // Read from file
+    const indexPath = this.messageIdIndexPath(conversationId);
+    if (!existsSync(indexPath)) {
+      const emptyIndex = new Map<string, number>();
+      this.messageIdIndexCache.set(conversationId, emptyIndex);
+      return emptyIndex;
+    }
+
+    try {
+      const content = readFileSync(indexPath, 'utf-8');
+      const data = JSON.parse(content) as Record<string, number>;
+      const index = new Map<string, number>(Object.entries(data));
+      this.messageIdIndexCache.set(conversationId, index);
+      return index;
+    } catch {
+      // If index is corrupted, return empty and it will be rebuilt on next write
+      const emptyIndex = new Map<string, number>();
+      this.messageIdIndexCache.set(conversationId, emptyIndex);
+      return emptyIndex;
+    }
+  }
+
+  /**
+   * Write the message ID index for a conversation.
+   * Updates both cache and file.
+   */
+  private writeMessageIdIndex(conversationId: string, index: Map<string, number>): void {
+    // Update cache
+    this.messageIdIndexCache.set(conversationId, index);
+
+    // Write to file
+    const indexPath = this.messageIdIndexPath(conversationId);
+    const data = Object.fromEntries(index);
+    writeFileSync(indexPath, JSON.stringify(data), 'utf-8');
+  }
+
+  /**
+   * Add a message ID to the index.
+   * Called after successfully appending a turn.
+   */
+  private addToMessageIdIndex(conversationId: string, messageId: string, seq: number): void {
+    const index = this.readMessageIdIndex(conversationId);
+    index.set(messageId, seq);
+    this.writeMessageIdIndex(conversationId, index);
+  }
+
+  /**
+   * Check if a message ID exists in the index.
+   * Returns the seq number if found, undefined otherwise.
+   */
+  private checkMessageIdIndex(conversationId: string, messageId: string): number | undefined {
+    const index = this.readMessageIdIndex(conversationId);
+    return index.get(messageId);
+  }
+
+  /**
+   * Rebuild the message ID index from turns.jsonl.
+   * Used during recovery or when index is missing/corrupted.
+   */
+  private async rebuildMessageIdIndex(conversationId: string): Promise<void> {
+    const turns = await this.readTurnsInternal(conversationId);
+    const index = new Map<string, number>();
+
+    for (const turn of turns) {
+      if (turn.message_id) {
+        index.set(turn.message_id, turn.seq);
+      }
+    }
+
+    this.writeMessageIdIndex(conversationId, index);
   }
 
   // ==========================================================================
@@ -629,16 +729,18 @@ export class ConversationStore {
     try {
       const turnsPath = this.turnsJsonlPath(conversationId);
 
-      // Check for duplicate message_id (AC-4 idempotency)
-      // Note: Duplicates return early without updating turn_count since no new turn was added.
-      // This reads all turns which is O(n) but ensures correctness for idempotency.
-      // Future optimization: maintain a separate message-id index file.
+      // Check for duplicate message_id using O(1) index lookup (AC-4 idempotency)
       if (validInput.message_id) {
-        const existingTurns = await this.readTurnsInternal(conversationId);
-        const duplicate = existingTurns.find((t) => t.message_id === validInput.message_id);
-        if (duplicate) {
-          this.emit('turn:appended', { conversationId, turn: duplicate, wasDuplicate: true });
-          return duplicate;
+        const existingSeq = this.checkMessageIdIndex(conversationId, validInput.message_id);
+        if (existingSeq !== undefined) {
+          // Duplicate found - read the actual turn to return it
+          const existingTurns = await this.readTurnsInternal(conversationId);
+          const duplicate = existingTurns.find((t) => t.seq === existingSeq);
+          if (duplicate) {
+            this.emit('turn:appended', { conversationId, turn: duplicate, wasDuplicate: true });
+            return duplicate;
+          }
+          // Index was stale - fall through to append
         }
       }
 
@@ -664,6 +766,11 @@ export class ConversationStore {
       // Atomic append
       const line = JSON.stringify(turn) + '\n';
       appendFileSync(turnsPath, line, 'utf-8');
+
+      // Update message ID index if message_id is present
+      if (turn.message_id) {
+        this.addToMessageIdIndex(conversationId, turn.message_id, turn.seq);
+      }
 
       // Update conversation turn count
       await this.updateConversationTurnCount(conversationId, seq + 1);
@@ -713,6 +820,8 @@ export class ConversationStore {
    *
    * AC: @mem-conversation ac-3 - Skips invalid JSON lines with warning
    *
+   * Also rebuilds the message ID index if missing (recovery scenario).
+   *
    * @param conversationId - Conversation ID to read turns for
    * @returns Array of valid turns sorted by seq
    */
@@ -759,6 +868,18 @@ export class ConversationStore {
 
     // Sort by seq
     turns.sort((a, b) => a.seq - b.seq);
+
+    // Rebuild message ID index if missing (recovery scenario)
+    const indexPath = this.messageIdIndexPath(conversationId);
+    if (!existsSync(indexPath) && turns.length > 0) {
+      const index = new Map<string, number>();
+      for (const turn of turns) {
+        if (turn.message_id) {
+          index.set(turn.message_id, turn.seq);
+        }
+      }
+      this.writeMessageIdIndex(conversationId, index);
+    }
 
     return turns;
   }

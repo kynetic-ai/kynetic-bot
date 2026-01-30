@@ -8607,3 +8607,44 @@
       supersedes: null
   todos: []
   automation: eligible
+- title: Port /local-review skill and workflow from kynetic-spec
+  description: |-
+    Port the local-review skill and workflow from kynetic-spec to kynetic-bot.
+
+    ## Source Files
+    - kynetic-spec/.claude/skills/local-review/SKILL.md
+    - kynetic-spec/.kspec/kynetic.meta.yaml (workflow: @local-review)
+
+    ## Destination
+    - .claude/skills/local-review/SKILL.md
+    - .kspec/kynetic-bot.meta.yaml (add workflow)
+
+    ## What local-review Does
+    Pre-PR quality review that checks:
+    1. AC coverage - all spec ACs have test annotations (`// AC: @spec-ref ac-N`)
+    2. Test quality - no fluff tests, proper assertions
+    3. Test strategy - prefer E2E over unit tests
+    4. Test isolation - tests run in temp dirs
+
+    ## Adaptation Notes
+    - Update any kynetic-spec-specific paths or references
+    - Ensure workflow can be invoked via `kspec workflow start @local-review`
+    - Keep MUST-FIX vs advisory distinction for issues
+
+    ## Covers
+    - Prerequisite for pr-review skill (pr-review invokes local-review)
+  type: task
+  spec_ref: "@bot-pr-review"
+  meta_ref: null
+  priority: 2
+  slugs: []
+  tags: []
+  _ulid: 01KG8JJ0TGBMHE9XMPDKMDCWZ4
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  vcs_refs: []
+  created_at: 2026-01-30T23:07:06.448Z
+  notes: []
+  todos: []

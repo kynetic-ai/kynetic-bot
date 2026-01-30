@@ -142,3 +142,55 @@ inbox:
       - architecture
       - tech-debt
     added_by: "@claude"
+  - _ulid: 01KG7579T4KVDRP3G84GBG05FV
+    text: >-
+      Bot Personality System Design (from triage discussion):
+
+
+      **System prompt injection (always included):**
+
+      - Core identity (name, role, boundaries)
+
+      - Recent important events/info
+
+
+      **Storage (via kspec primitives in .kbot/):**
+
+      - identity section in kbot.meta.yaml
+
+      - observations for learned patterns
+
+      - session context for ephemeral state
+
+
+      **Communication preferences to track:**
+
+      - Verbosity (concise/detailed)
+
+      - Formality (casual/professional)  
+
+      - Structure (bullets/prose)
+
+      - Expertise level assumption
+
+
+      **Evolution:**
+
+      - Explicit: User tells bot directly
+
+      - Reflection: Automatic + collaborative with user
+
+      - Implicit: Derived from reflection
+
+
+      **Blocked on:** kspec library integration (01KG756X) - should use kspec observations/meta
+      rather than custom implementation
+
+
+      **Research captured:** See personalization research from triage session - memory taxonomies,
+      what to track, anti-patterns
+    created_at: 2026-01-30T09:54:49.284Z
+    tags:
+      - personality
+      - design
+    added_by: "@claude"

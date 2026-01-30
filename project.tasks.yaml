@@ -7357,3 +7357,4 @@
         4. Add to package.json scripts: `"prepare": "lefthook install"`
       supersedes: null
   todos: []
+  automation: eligible

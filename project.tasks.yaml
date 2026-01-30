@@ -8186,7 +8186,34 @@
   tags: []
   vcs_refs: []
   created_at: 2026-01-30T22:22:54.504Z
-  notes: []
+  notes:
+    - _ulid: 01KG8G1G1ZAT0D634FACHQHASZ
+      created_at: 2026-01-30T22:23:07.839Z
+      author: "@claude"
+      content: |-
+        ## Implementation Details
+
+        **File**: packages/agent/src/lifecycle.ts
+
+        **Current State**:
+        - Line ~359: stdio: ['pipe', 'pipe', 'inherit'] - stderr goes to parent, not captured
+
+        **Implementation**:
+        1. Change stdio to ['pipe', 'pipe', 'pipe'] to capture stderr
+        2. Add stderr event handler on spawned process:
+           ```typescript
+           if (proc.stderr) {
+             proc.stderr.on('data', (chunk: Buffer) => {
+               this.emit('stderr', chunk.toString());
+             });
+           }
+           ```
+        3. Add onStderr(callback) method to AgentLifecycle for consumers
+        4. Buffer stderr output and emit structured events
+
+        **Acceptance Test**:
+        - Spawn agent, send /usage command, verify stderr content is captured programmatically
+      supersedes: null
   todos: []
 - _ulid: 01KG8G14T6H6Q6KJHQQ8J6AZQM
   slugs: []
@@ -8207,20 +8234,20 @@
   created_at: 2026-01-30T22:22:56.326Z
   notes: []
   todos: []
-- title: Wire Session Lifecycle into Bot
+- _ulid: 01KG8G16R2T9C0EYDPEHSWZRXA
+  slugs: []
+  title: Wire Session Lifecycle into Bot
+  type: task
   description: Integrate SessionLifecycleManager and ContextRestorer into Bot.handleMessage(). Replace
     direct client.newSession() calls, add per-key locking, wire context restoration on rotation.
-  type: task
   spec_ref: "@mem-session-lifecycle"
   meta_ref: null
-  priority: 4
-  slugs: []
-  tags: []
-  _ulid: 01KG8G16R2T9C0EYDPEHSWZRXA
   status: pending
   blocked_by: []
   depends_on: []
   context: []
+  priority: 4
+  tags: []
   vcs_refs: []
   created_at: 2026-01-30T22:22:58.306Z
   notes: []

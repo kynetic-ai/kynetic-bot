@@ -62,7 +62,7 @@ features:
           (MVP behavior)
     status:
       maturity: draft
-      implementation: in_progress
+      implementation: implemented
   - _ulid: 01KG1RE068887DHMQXFSCSTXZ6
     slugs:
       - agent-autonomous

@@ -370,6 +370,10 @@ features:
                 given: Agent process spawned
                 when: Process writes to stderr
                 then: Stderr output is captured programmatically (not inherited to parent)
+              - id: ac-2
+                given: Agent response completes
+                when: Usage check triggered
+                then: /usage command sent to agent and response awaited
   - _ulid: 01KG73AT8E8H2K6CAY3QTF8EQN
     slugs:
       - session-search

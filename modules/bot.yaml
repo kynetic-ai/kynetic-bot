@@ -185,3 +185,7 @@ features:
         given: user message received
         when: handleMessage() processes it
         then: conversation is retrieved or created, user turn appended with message_id for idempotency
+      - id: ac-3
+        given: new ACP session created
+        when: agent prompt sent
+        then: agent session record created in SessionStore with link to conversation

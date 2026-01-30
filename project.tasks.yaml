@@ -8802,3 +8802,70 @@
   notes: []
   todos: []
   automation: eligible
+- title: Port GitHub Actions workflows from kynetic-spec
+  description: |-
+    Port CI/CD workflows from kynetic-spec to kynetic-bot for automated testing and PR review.
+
+    ## Source Files (kynetic-spec/.github/workflows/)
+
+    ### 1. test.yml - Test Runner
+    Runs on PR and push to main:
+    - Checkout with full history
+    - Setup Node.js 18 with npm cache
+    - Install dependencies (npm ci)
+    - Run typecheck
+    - Build
+    - Run tests
+
+    **Adaptation needed**: 
+    - Change to pnpm (kynetic-bot uses pnpm monorepo)
+    - Add `pnpm install`, `pnpm typecheck`, `pnpm build`, `pnpm test`
+
+    ### 2. claude-code-review.yml - Claude Code Review
+    Runs on PR events (opened, synchronize, ready_for_review, reopened):
+    - Uses anthropics/claude-code-action@v1
+    - Requires CLAUDE_CODE_OAUTH_TOKEN secret
+    - Invokes /code-review plugin
+
+    **Adaptation needed**:
+    - Ensure CLAUDE_CODE_OAUTH_TOKEN secret is set in repo
+    - May need to adjust plugin config for monorepo
+
+    ### 3. pr-review-resolution-check.yml - Unresolved Thread Check
+    Runs on PR and review events:
+    - Uses GraphQL to query review threads
+    - Fails if any unresolved, non-outdated threads exist
+    - Prevents merge with unresolved comments
+
+    **Adaptation needed**: Minimal - mostly generic GitHub API usage
+
+    ## Destination
+    - .github/workflows/test.yml
+    - .github/workflows/claude-code-review.yml
+    - .github/workflows/pr-review-resolution-check.yml
+
+    ## Why This Matters
+    Currently kynetic-bot has NO GitHub Actions:
+    - No automated tests on PR
+    - No Claude code review integration
+    - No check for unresolved review threads
+
+    This leaves quality gates entirely dependent on ralph loop, with no CI safety net.
+
+    ## Dependencies
+    None - can be done independently of skill porting tasks
+  type: task
+  spec_ref: "@bot-pr-review"
+  meta_ref: null
+  priority: 2
+  slugs: []
+  tags: []
+  _ulid: 01KG8JPE9RPPWVDQRKE68ZGYAR
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  vcs_refs: []
+  created_at: 2026-01-30T23:09:31.320Z
+  notes: []
+  todos: []

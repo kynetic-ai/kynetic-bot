@@ -242,6 +242,10 @@ features:
             given: Agent response completes
             when: Usage check runs
             then: /usage command invoked and context usage captured from stderr
+          - id: ac-6
+            given: Context usage captured
+            when: Update processed
+            then: SessionLifecycleManager receives ContextUsageUpdate with token counts
   - _ulid: 01KG73AT8E8H2K6CAY3QTF8EQN
     slugs:
       - session-search

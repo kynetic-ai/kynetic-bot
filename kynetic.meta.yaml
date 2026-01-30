@@ -241,4 +241,15 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KG6WP6CDRKEYP8V6YY37BV7T
+    type: success
+    content: "Class mock with constructor arg capture: When testing internal wiring (e.g., what args Bot
+      passes to KbotShadow), mock the dependency as a class that captures constructor options to a
+      module-level variable. Allows asserting internal behavior without exposing internals or
+      modifying source. Pattern: vi.mock('module', () => ({ Class: class { constructor(opts) {
+      capturedOpts = opts; } } })). Used in bot.test.ts for AC-7/AC-6 tests."
+    created_at: 2026-01-30T07:25:40.109Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

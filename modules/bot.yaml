@@ -173,7 +173,8 @@ features:
     implements: []
     relates_to: []
     tests: []
-    traits: []
+    traits:
+      - "@trait-observable"
     notes: []
     created: 2026-01-30T08:05:03.299Z
     acceptance_criteria:

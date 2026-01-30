@@ -8607,7 +8607,10 @@
       supersedes: null
   todos: []
   automation: eligible
-- title: Port /local-review skill and workflow from kynetic-spec
+- _ulid: 01KG8JJ0TGBMHE9XMPDKMDCWZ4
+  slugs: []
+  title: Port /local-review skill and workflow from kynetic-spec
+  type: task
   description: |-
     Port the local-review skill and workflow from kynetic-spec to kynetic-bot.
 
@@ -8633,18 +8636,137 @@
 
     ## Covers
     - Prerequisite for pr-review skill (pr-review invokes local-review)
+  spec_ref: "@bot-pr-review"
+  meta_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  priority: 2
+  tags: []
+  vcs_refs: []
+  created_at: 2026-01-30T23:07:06.448Z
+  notes: []
+  todos: []
+- title: Port /pr-review skill and workflow with PR comment posting
+  description: >-
+    Port the pr-review skill and pr-review-loop workflow from kynetic-spec, adding the missing PR
+    comment posting step.
+
+
+    ## Source Files
+
+    - kynetic-spec/.claude/skills/pr-review/SKILL.md
+
+    - kynetic-spec/.kspec/kynetic.meta.yaml (workflow: @pr-review-loop)
+
+
+    ## Destination
+
+    - .claude/skills/pr-review/SKILL.md
+
+    - .kspec/kynetic-bot.meta.yaml (add workflow)
+
+
+    ## What pr-review Does
+
+    1. Validate task exists and has linked PR
+
+    2. Run /local-review for quality checks
+
+    3. Verify AC coverage (all spec ACs have tests)
+
+    4. Verify spec alignment (implementation matches spec intent)
+
+    5. **NEW: Post review summary as PR comment** ← KEY ADDITION
+
+    6. Wait for CI to pass
+
+    7. Follow pr-review-merge gates
+
+    8. Merge PR
+
+    9. Complete task with summary
+
+
+    ## PR Comment Format (AC-3)
+
+    ```markdown
+
+    ## Automated Review Summary
+
+
+    ### AC Coverage
+
+    - [x] ac-1: Has test coverage (test-file.ts:42)
+
+    - [x] ac-2: Has test coverage (test-file.ts:78)
+
+    - [ ] ac-3: **Missing test coverage** ← MUST-FIX
+
+
+    ### Spec Alignment
+
+    ✓ Implementation matches spec @spec-ref
+
+
+    ### Issues Found
+
+    - MUST-FIX: ac-3 missing test coverage
+
+    - Advisory: Consider E2E test for integration
+
+
+    ### Quality Gates
+
+    - [ ] CI passing
+
+    - [ ] All MUST-FIX resolved
+
+    - [ ] Ready to merge
+
+    ```
+
+
+    ## Implementation
+
+    Add workflow step after local-review and before CI wait:
+
+    ```yaml
+
+    - type: action
+      content: |
+        Post review summary as PR comment for visibility.
+        Use: gh pr comment <number> --body "$(cat <<'EOF'
+        ## Automated Review Summary
+        ...
+        EOF
+        )"
+        This creates an audit trail and helps human reviewers.
+    ```
+
+
+    ## Why This Matters
+
+    - PRs currently merged without any review comments
+
+    - No visibility into what automated review checked
+
+    - No audit trail of AC coverage verification
+
+    - Human reviewers can't see what was validated
   type: task
   spec_ref: "@bot-pr-review"
   meta_ref: null
   priority: 2
   slugs: []
   tags: []
-  _ulid: 01KG8JJ0TGBMHE9XMPDKMDCWZ4
+  _ulid: 01KG8JJGA627HR3FG5X6EGJKDF
   status: pending
   blocked_by: []
   depends_on: []
   context: []
   vcs_refs: []
-  created_at: 2026-01-30T23:07:06.448Z
+  created_at: 2026-01-30T23:07:22.310Z
   notes: []
   todos: []

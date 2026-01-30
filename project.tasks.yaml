@@ -3451,6 +3451,7 @@
     - phase-3
   vcs_refs: []
   created_at: 2026-01-28T08:10:29.699Z
+  started_at: 2026-01-30T10:53:24.968Z
   notes:
     - _ulid: 01KG1TQ1FN0ECNT890Y5JN7TR4
       created_at: 2026-01-28T08:14:58.549Z
@@ -3558,9 +3559,66 @@
 
         Spec updated with AC-4 (Haiku summary) and AC-3 clarified (file reference).
       supersedes: null
+    - _ulid: 01KG790Z14TH442HE2R7BTKJ9K
+      created_at: 2026-01-30T11:01:15.940Z
+      author: "@claude"
+      content: >-
+        ## Implementation Complete
+
+
+        ### What was done:
+
+        - Implemented ContextWindowManager class in @kynetic-bot/messaging package
+
+        - Token estimation using configurable chars-per-token (~4 chars default)
+
+        - Two-tier compaction: soft threshold (70%), hard threshold (85%)
+
+        - Semantic boundary preservation during compaction (AC-2)
+
+        - Session file reference for agent access (AC-3)
+
+        - SummaryProvider interface for Haiku summarization (AC-4)
+
+
+        ### Files created:
+
+        - packages/messaging/src/context/context-window.ts - Main ContextWindowManager
+
+        - packages/messaging/src/context/haiku-summary-provider.ts - ACP provider +
+        MockSummaryProvider
+
+        - packages/messaging/src/context/index.ts - Module exports
+
+        - packages/messaging/test/context-window.test.ts - 22 unit tests with AC annotations
+
+
+        ### Design decisions:
+
+        1. Located in messaging package (not memory) to avoid circular dependency with
+        ConversationHistory
+
+        2. Summaries cached in-memory per session; not persisted to storage
+
+        3. Compaction filters turns by timestamp when summaries exist
+
+        4. HaikuSummaryProvider interface allows injection of ACP client
+
+        5. MockSummaryProvider for testing without live ACP calls
+
+
+        ### Trait coverage:
+
+        - @trait-observable: Events for compaction:started, compaction:completed, context:retrieved,
+        error
+
+        - @trait-recoverable: Error handling with event emission and graceful degradation
+
+
+        All 22 tests pass with AC annotations.
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-01-30T10:53:24.968Z
 - _ulid: 01KG1TEX0F7HVTTAGH9EBRC1DT
   slugs:
     - autonomous-loop

@@ -7693,6 +7693,7 @@
     - dx
   vcs_refs: []
   created_at: 2026-01-30T09:33:56.618Z
+  started_at: 2026-01-30T12:13:45.514Z
   notes:
     - _ulid: 01KG742SJHQ0R1BEDAQD8W5KR3
       created_at: 2026-01-30T09:34:53.009Z
@@ -7731,9 +7732,15 @@
         **Preference:** Turning off require-await entirely is common - the rule catches few real
         bugs and async-without-await is often intentional for interface compatibility.
       supersedes: null
+    - _ulid: 01KG7D8EXS2TW5XMANPYYP42K1
+      created_at: 2026-01-30T12:15:15.897Z
+      author: "@claude"
+      content: Disabled @typescript-eslint/require-await globally in eslint.config.js. Removed 7 inline
+        eslint-disable comments across escalation.ts, haiku-summary-provider.ts, session-store.ts,
+        and conversation-store.ts. All 886 tests pass.
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-01-30T12:13:45.514Z
 - _ulid: 01KG7414V60ZE4RVTKGNDVC7N8
   slugs: []
   title: Add lefthook for pre-commit/pre-push hooks

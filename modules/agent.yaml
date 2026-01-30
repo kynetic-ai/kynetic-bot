@@ -51,6 +51,10 @@ features:
         given: spawn rate limit
         when: multiple spawns requested
         then: queues excess requests
+      - id: ac-5
+        given: agent sends fs/read_text_file request via ACP
+        when: handler invoked
+        then: reads file from filesystem and returns content, respecting optional line and limit parameters
     status:
       maturity: draft
       implementation: implemented

@@ -8464,7 +8464,15 @@
 
         **Reference**: Port parsing from ../kynetic/packages/lifeline/src/agents/stderr-parser.ts
       supersedes: null
+    - _ulid: 01KG8GR147DC1TVFE2BQJ8N9JW
+      created_at: 2026-01-30T22:35:26.215Z
+      author: "@claude"
+      content: "Automation status set to needs_review: Task shares parent spec @mem-session-lifecycle ACs
+        but implements specific subset (usage parsing/tracking). Consider creating child spec for
+        ContextUsageTracker with its own ACs."
+      supersedes: null
   todos: []
+  automation: needs_review
 - _ulid: 01KG8G16R2T9C0EYDPEHSWZRXA
   slugs:
     - task-wire-session-lifecycle

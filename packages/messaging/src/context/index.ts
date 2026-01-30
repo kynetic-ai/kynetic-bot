@@ -20,3 +20,14 @@ export {
   type ACPPromptClient,
   type HaikuSummaryProviderOptions,
 } from './haiku-summary-provider.js';
+
+export {
+  ContextUsageTracker,
+  parseUsageOutput,
+  type ContextCategory,
+  type ContextUsageUpdate,
+  type ContextUsageTrackerOptions,
+  type ContextUsageTrackerEvents,
+  type UsagePromptClient,
+  type StderrProvider,
+} from './context-usage-tracker.js';

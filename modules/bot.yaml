@@ -58,6 +58,11 @@ features:
         given: ESCALATION_CHANNEL environment variable set
         when: config loaded
         then: includes escalationChannel in config for dedicated escalation notifications
+      - id: ac-6
+        given: KBOT_DATA_DIR environment variable set
+        when: config loaded
+        then: interprets value as relative worktree directory name (e.g., '.kbot') to be combined with git
+          root, not an absolute path
     status:
       maturity: draft
       implementation: implemented

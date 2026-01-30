@@ -259,3 +259,8 @@ features:
         given: PR review workflow runs local review step
         when: AC coverage check completes
         then: Findings include list of spec ACs and their test coverage status (covered/missing)
+      - id: ac-3
+        given: PR review workflow completes review checks
+        when: Review findings are ready
+        then: Summary is posted as PR comment via gh pr comment with AC coverage, spec alignment, and issues
+          found

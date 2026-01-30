@@ -8638,7 +8638,7 @@
     - Prerequisite for pr-review skill (pr-review invokes local-review)
   spec_ref: "@bot-pr-review"
   meta_ref: null
-  status: in_progress
+  status: pending_review
   blocked_by: []
   depends_on: []
   context: []

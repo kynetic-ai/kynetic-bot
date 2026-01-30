@@ -233,4 +233,12 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KG6H8JJN21WXPQ8BM5WQF2MF
+    type: idea
+    content: ACP requestPermission handler should escalate to user instead of auto-allowing - current
+      MVP auto-allows
+    created_at: 2026-01-30T04:05:59.510Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

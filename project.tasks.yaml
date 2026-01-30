@@ -7509,7 +7509,7 @@
   description: "Bot: Extract InMemorySessionStore to shared location - currently duplicated in bot.ts
     and tests, should be reusable"
   spec_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -7549,6 +7549,10 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-01-30T12:04:32.270Z
+  closed_reason: "Merged in PR #33. Extracted InMemorySessionStore to
+    packages/messaging/src/session-store.ts, eliminating duplicate implementations from bot.ts and
+    router.test.ts. Added clear() method and size getter for enhanced utility."
 - _ulid: 01KG740WT6BC0ZFMN3R0W31ZP6
   slugs: []
   title: Enrich error contexts with messageId

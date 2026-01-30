@@ -105,16 +105,6 @@ inbox:
       - reflection
       - workflow
     added_by: "@claude"
-  - _ulid: 01KG6N5JEE1K2VK4XB4000DZ91
-    text: "Mock fs.readFile in AC-5 tests instead of using real /tmp/ files. Current tests create actual
-      files which: (1) depends on filesystem availability, (2) leaves orphan files if tests crash,
-      (3) slower than mocking, (4) not reproducible on systems without /tmp/. Use
-      vi.mock('node:fs/promises') to define mock implementation returning test data."
-    created_at: 2026-01-30T05:14:15.375Z
-    tags:
-      - test-quality
-      - agent-lifecycle
-    added_by: "@claude"
   - _ulid: 01KG6N5MFCF6S5V5MEKCK9JYVY
     text: "Add edge case tests for readFile handler (AC-5): empty files, files with only newlines, line
       number beyond EOF (line: 999 on 5-line file), limit=0, negative line number. Current

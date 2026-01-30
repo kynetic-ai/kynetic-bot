@@ -146,6 +146,11 @@ features:
         given: user references earlier topic
         when: context assembled
         then: retrieves relevant archived context
+      - id: ac-4
+        given: compaction triggered
+        when: summarizing older turns
+        then: "uses Haiku via ACP to generate short summary capturing: topics discussed, key user
+          instructions/notes, and session file reference"
     status:
       maturity: deferred
   - _ulid: 01KG2VD4BPPHV4QP9H5XNA87HR

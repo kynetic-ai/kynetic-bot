@@ -6668,6 +6668,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-01-29T19:11:15.957Z
+  started_at: 2026-01-30T12:26:09.737Z
   notes:
     - _ulid: 01KG5JNN40CZFEH4DVG551YWPX
       created_at: 2026-01-29T19:11:22.241Z
@@ -6684,9 +6685,20 @@
       content: "Automation: eligible - Optimizes existing @mem-conversation ac-4 idempotency behavior.
         Spec already defines 'only one turn appended' - this makes lookup O(1) via index file."
       supersedes: null
+    - _ulid: 01KG7E1F6GP3CFWVSWE3DJ5DR2
+      created_at: 2026-01-30T12:28:55.376Z
+      author: "@claude"
+      content: |-
+        Implemented O(1) duplicate detection via message-id-index.json:
+        - Added message ID index file per conversation (maps message_id -> seq)
+        - Index uses in-memory cache with file persistence
+        - appendTurn now checks index first (O(1)) instead of scanning all turns (O(n))
+        - readTurns rebuilds index if missing (recovery scenario)
+        - Added 2 new tests for index rebuild and O(1) performance
+        - All 888 tests pass
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-01-30T12:26:09.737Z
 - _ulid: 01KG5YZN1Y96ET4PPZAGF4Q2NG
   slugs: []
   title: Implement 'embed' split strategy for Discord adapter

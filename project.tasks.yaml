@@ -2928,7 +2928,7 @@
   type: task
   spec_ref: "@msg-history"
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on:
     - "@conversation-store"
@@ -3020,6 +3020,7 @@
       supersedes: null
   todos: []
   automation: eligible
+  started_at: 2026-01-30T10:25:26.917Z
 - _ulid: 01KG1TEEK47KKFMSE6Z3RNZXMP
   slugs:
     - transform-integration

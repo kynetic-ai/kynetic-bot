@@ -8351,7 +8351,7 @@
   description: Modify AgentLifecycle to capture stderr output from the ACP process for programmatic
     parsing. Currently stderr uses 'inherit' and goes to parent. Need to change to 'pipe' and add
     event handler.
-  spec_ref: "@mem-session-lifecycle"
+  spec_ref: "@mem-context-usage"
   meta_ref: null
   status: pending
   blocked_by: []

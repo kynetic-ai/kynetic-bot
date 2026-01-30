@@ -4232,7 +4232,7 @@
   type: task
   spec_ref: null
   meta_ref: null
-  status: in_progress
+  status: cancelled
   blocked_by: []
   depends_on:
     - "@task-bot-orchestration"
@@ -4349,6 +4349,9 @@
       supersedes: null
   todos: []
   automation: eligible
+  closed_reason: "Existing bot.test.ts (86 tests, 968 total) already covers all 6 ACs. Creating
+    separate integration directory would be duplicative. Coverage verified: message flow, session
+    persistence, streaming, escalation, shutdown all have comprehensive tests."
 - _ulid: 01KG1TFGK356NFMMZ0GST2A6XA
   slugs:
     - additional-adapters
@@ -7823,6 +7826,8 @@
   spec_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "Merged in PR #37. Added lefthook with pre-commit hooks (lint:fix, prettier on staged
+    files in parallel) and pre-push hooks (build, test). Auto-installs via prepare script."
   depends_on: []
   context: []
   priority: 4
@@ -7832,6 +7837,7 @@
   vcs_refs: []
   created_at: 2026-01-30T09:33:59.014Z
   started_at: 2026-01-30T12:17:57.471Z
+  completed_at: 2026-01-30T12:37:19.860Z
   notes:
     - _ulid: 01KG742XBEDZRRTV9NNJNNGEG7
       created_at: 2026-01-30T09:34:56.878Z
@@ -7879,9 +7885,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-01-30T12:37:19.860Z
-  closed_reason: "Merged in PR #37. Added lefthook with pre-commit hooks (lint:fix, prettier on staged
-    files in parallel) and pre-push hooks (build, test). Auto-installs via prepare script."
 - _ulid: 01KG75SZZ82PBTD0611Q73NQEJ
   slugs:
     - task-system-prompt-identity-injection

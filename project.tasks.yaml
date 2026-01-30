@@ -4234,6 +4234,9 @@
   meta_ref: null
   status: cancelled
   blocked_by: []
+  closed_reason: "Existing bot.test.ts (86 tests, 968 total) already covers all 6 ACs. Creating
+    separate integration directory would be duplicative. Coverage verified: message flow, session
+    persistence, streaming, escalation, shutdown all have comprehensive tests."
   depends_on:
     - "@task-bot-orchestration"
   context: []
@@ -4349,9 +4352,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  closed_reason: "Existing bot.test.ts (86 tests, 968 total) already covers all 6 ACs. Creating
-    separate integration directory would be duplicative. Coverage verified: message flow, session
-    persistence, streaming, escalation, shutdown all have comprehensive tests."
 - _ulid: 01KG1TFGK356NFMMZ0GST2A6XA
   slugs:
     - additional-adapters
@@ -8012,3 +8012,62 @@
       supersedes: null
   todos: []
   automation: eligible
+- title: "Implement: Session Lifecycle Management"
+  type: task
+  spec_ref: "@mem-session-lifecycle"
+  derivation: auto
+  priority: 1
+  slugs:
+    - task-session-lifecycle-management
+  tags: []
+  depends_on: []
+  notes:
+    - _ulid: 01KG8G0MCZCKTESQDEMW887FVX
+      created_at: 2026-01-30T22:22:39.519Z
+      author: "@claude"
+      content: >-
+        Implementation notes (auto-generated from spec):
+
+
+        Manage ACP session lifecycle per conversation - reuse sessions until context limit (70%),
+        then rotate with context restoration. Track context usage via /usage command with stderr
+        parsing.
+
+
+
+        Acceptance Criteria:
+
+        - ac-1: Given Bot running with active ACP session for session key, when New message arrives,
+        then Existing session reused if within 70% context limit
+
+        - ac-2: Given ACP session context exceeds 70% threshold, when New message arrives, then New
+        session created with context restoration
+
+        - ac-3: Given Bot restarts, when Message arrives for known session key, then New session
+        created with context restoration from persisted history
+
+        - ac-4: Given Session rotation occurs, when New session created, then Previous session
+        marked completed in SessionStore
+
+        - ac-5: Given Agent response completes, when Usage check runs, then /usage command invoked
+        and context usage captured from stderr
+
+        - ac-6: Given Context usage captured, when Update processed, then SessionLifecycleManager
+        receives ContextUsageUpdate with token counts
+
+        - ac-7: Given /usage command fails or times out, when Error caught, then Session continues
+        with stale usage data; warning logged
+
+        - ac-8: Given Multiple messages arrive for same session key, when Processing starts, then
+        Messages serialized via per-key lock; share same session
+
+        - ac-9: Given Bot restarts with recent conversation (< 30 min), when First message arrives,
+        then Rebuild state from ConversationStore; context restoration injected
+      supersedes: null
+  _ulid: 01KG8G0MCZXPMANCJ9096K24SB
+  status: pending
+  blocked_by: []
+  context: []
+  vcs_refs: []
+  created_at: 2026-01-30T22:22:39.519Z
+  todos: []

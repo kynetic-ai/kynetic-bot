@@ -93,15 +93,18 @@ describe('splitMessage (@discord-channel-adapter)', () => {
       expect(chunks[0].length).toBeLessThanOrEqual(2000);
     });
 
-    it('should hard-cut when no good split points', () => {
+    it('should hard-cut with truncation marker when no good split points', () => {
       const text = 'a'.repeat(2500); // No spaces or newlines
       const chunks = splitMessage(text, 2000);
 
       expect(chunks.length).toBeGreaterThan(1);
-      // All content should be preserved
-      const total = chunks.reduce((sum, c) => sum + c.length, 0);
-      // May be slightly less due to truncation marker but should contain most
-      expect(total).toBeGreaterThan(2400);
+      // First chunk should end with truncation marker
+      expect(chunks[0]).toContain('... [truncated]');
+      expect(chunks[0]).toMatch(/\.\.\. \[truncated\]$/);
+      // All chunks should be under limit
+      chunks.forEach((chunk) => {
+        expect(chunk.length).toBeLessThanOrEqual(2000);
+      });
     });
   });
 
@@ -299,6 +302,20 @@ describe('splitMessageToEmbeds (@discord-channel-adapter)', () => {
       const embeds = splitMessageToEmbeds(text);
 
       expect(embeds.length).toBeGreaterThan(1);
+      embeds.forEach((embed) => {
+        expect(embed.description!.length).toBeLessThanOrEqual(EMBED_DESCRIPTION_MAX);
+      });
+    });
+
+    it('should hard-cut with truncation marker when no good split points', () => {
+      const text = 'a'.repeat(5000); // No spaces or newlines
+      const embeds = splitMessageToEmbeds(text);
+
+      expect(embeds.length).toBeGreaterThan(1);
+      // First embed should end with truncation marker
+      expect(embeds[0].description).toContain('... [truncated]');
+      expect(embeds[0].description).toMatch(/\.\.\. \[truncated\]$/);
+      // All embeds should be under limit
       embeds.forEach((embed) => {
         expect(embed.description!.length).toBeLessThanOrEqual(EMBED_DESCRIPTION_MAX);
       });

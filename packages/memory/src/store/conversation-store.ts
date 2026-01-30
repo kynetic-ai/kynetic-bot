@@ -214,8 +214,9 @@ export class ConversationStore {
   /**
    * Acquire a lock for a conversation's turn log.
    * Uses simple file-based locking for concurrency safety.
+   * Async to yield event loop during wait, preventing starvation.
    */
-  private acquireLock(conversationId: string, timeout = 5000): boolean {
+  private async acquireLock(conversationId: string, timeout = 5000): Promise<boolean> {
     const lockPath = this.lockFilePath(conversationId);
     const startTime = Date.now();
 
@@ -225,10 +226,8 @@ export class ConversationStore {
         return true;
       } catch (err: unknown) {
         if ((err as NodeJS.ErrnoException).code === 'EEXIST') {
-          const waitUntil = Date.now() + 10;
-          while (Date.now() < waitUntil) {
-            // Spin
-          }
+          // Yield to event loop to allow lock holder to complete
+          await new Promise((resolve) => setTimeout(resolve, 10));
           continue;
         }
         throw err;
@@ -251,8 +250,9 @@ export class ConversationStore {
 
   /**
    * Acquire lock for session key index operations
+   * Async to yield event loop during wait, preventing starvation.
    */
-  private acquireIndexLock(timeout = 5000): boolean {
+  private async acquireIndexLock(timeout = 5000): Promise<boolean> {
     const lockPath = this.sessionKeyIndexLockPath();
     const startTime = Date.now();
 
@@ -267,10 +267,8 @@ export class ConversationStore {
         return true;
       } catch (err: unknown) {
         if ((err as NodeJS.ErrnoException).code === 'EEXIST') {
-          const waitUntil = Date.now() + 10;
-          while (Date.now() < waitUntil) {
-            // Spin
-          }
+          // Yield to event loop to allow lock holder to complete
+          await new Promise((resolve) => setTimeout(resolve, 10));
           continue;
         }
         throw err;
@@ -342,7 +340,7 @@ export class ConversationStore {
    * Uses locking to prevent race conditions with concurrent createConversation calls.
    */
   private async addToSessionKeyIndex(sessionKey: string, conversationId: string): Promise<void> {
-    if (!this.acquireIndexLock()) {
+    if (!(await this.acquireIndexLock())) {
       throw new ConversationStoreError(
         'Failed to acquire lock for session key index',
         'INDEX_LOCK_FAILED',
@@ -621,7 +619,7 @@ export class ConversationStore {
     }
 
     // Acquire lock for thread-safe operations
-    if (!this.acquireLock(conversationId)) {
+    if (!(await this.acquireLock(conversationId))) {
       throw new ConversationStoreError(
         `Failed to acquire lock for conversation: ${conversationId}`,
         'LOCK_FAILED',

@@ -189,8 +189,9 @@ export class SessionStore {
   /**
    * Acquire a lock for a session's event log.
    * Uses simple file-based locking for concurrency safety.
+   * Async to yield event loop during wait, preventing starvation.
    */
-  private acquireLock(sessionId: string, timeout = 5000): boolean {
+  private async acquireLock(sessionId: string, timeout = 5000): Promise<boolean> {
     const lockPath = this.lockFilePath(sessionId);
     const startTime = Date.now();
 
@@ -201,12 +202,8 @@ export class SessionStore {
         return true;
       } catch (err: unknown) {
         if ((err as NodeJS.ErrnoException).code === 'EEXIST') {
-          // Lock exists, wait and retry
-          // Simple busy-wait; in production would use proper async lock
-          const waitUntil = Date.now() + 10;
-          while (Date.now() < waitUntil) {
-            // Spin
-          }
+          // Yield to event loop to allow lock holder to complete
+          await new Promise((resolve) => setTimeout(resolve, 10));
           continue;
         }
         throw err;
@@ -501,7 +498,7 @@ export class SessionStore {
     }
 
     // Acquire lock for thread-safe sequence assignment
-    if (!this.acquireLock(sessionId)) {
+    if (!(await this.acquireLock(sessionId))) {
       throw new SessionStoreError(
         `Failed to acquire lock for session: ${sessionId}`,
         'LOCK_FAILED',

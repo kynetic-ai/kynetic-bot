@@ -7192,6 +7192,7 @@
         - Any other error paths that have message context available
       supersedes: null
   todos: []
+  automation: eligible
 - _ulid: 01KG740ZMPVJ5TQHG4519PSW4Y
   slugs: []
   title: Log Discord rate limit events

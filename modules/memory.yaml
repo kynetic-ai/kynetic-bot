@@ -193,6 +193,10 @@ features:
             given: Context restoration prompt generated
             when: Agent receives prompt
             then: "Format has sections: Summary, Recent History, Archived History reference"
+          - id: ac-6
+            given: HaikuSummaryProvider unavailable
+            when: Context restoration runs
+            then: Falls back to recent turns only; warning logged
   - _ulid: 01KG2VD4BPPHV4QP9H5XNA87HR
     slugs:
       - mem-agent-sessions

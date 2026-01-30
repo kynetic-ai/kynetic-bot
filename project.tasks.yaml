@@ -7358,15 +7358,21 @@
       supersedes: null
   todos: []
   automation: eligible
-- title: "Implement: System Prompt Identity Injection"
+- _ulid: 01KG75SZZ82PBTD0611Q73NQEJ
+  slugs:
+    - task-system-prompt-identity-injection
+  title: "Implement: System Prompt Identity Injection"
   type: task
   spec_ref: "@bot-identity"
   derivation: auto
-  priority: 2
-  slugs:
-    - task-system-prompt-identity-injection
-  tags: []
+  status: pending
+  blocked_by: []
   depends_on: []
+  context: []
+  priority: 2
+  tags: []
+  vcs_refs: []
+  created_at: 2026-01-30T10:05:01.800Z
   notes:
     - _ulid: 01KG75SZZ8E5V4NW8XCZRMQ1WY
       created_at: 2026-01-30T10:05:01.800Z
@@ -7392,10 +7398,52 @@
         - ac-3: Given identity file missing, when creating system prompt, then uses base identity
         only without error
       supersedes: null
-  _ulid: 01KG75SZZ82PBTD0611Q73NQEJ
-  status: pending
-  blocked_by: []
-  context: []
-  vcs_refs: []
-  created_at: 2026-01-30T10:05:01.800Z
+    - _ulid: 01KG75TAKSDT0V5NSQ2FXYP42E
+      created_at: 2026-01-30T10:05:12.698Z
+      author: "@claude"
+      content: |-
+        ## Implementation
+
+        **Files:**
+        - packages/bot/src/bot.ts - modify ACP session creation
+        - packages/bot/src/identity.ts (NEW) - identity loading
+        - packages/memory/src/store/ - could use existing file utils
+
+        **Base identity (hardcoded):**
+        ```
+        You are kynetic-bot, a persistent general assistant.
+
+        Key traits:
+        - You maintain memory and context across sessions
+        - You have full system access via Claude Code tools
+        - You are helpful, direct, and remember past conversations
+        ```
+
+        **Custom identity format (.kbot/identity.yaml):**
+        ```yaml
+        name: kynetic-bot          # Optional override
+        role: "Development partner"  # Optional role description
+        boundaries:                 # Optional list
+          - "Ask before destructive operations"
+        traits:                     # Optional personality traits
+          - concise
+          - proactive
+        ```
+
+        **Integration point:**
+        In AgentLifecycle or Bot, when creating ACP session, build system prompt:
+        1. Load base identity string
+        2. If .kbot/identity.yaml exists, parse and append
+        3. Pass combined string to ACP session
+
+        **Zod schema for identity.yaml:**
+        ```typescript
+        const IdentitySchema = z.object({
+          name: z.string().optional(),
+          role: z.string().optional(),
+          boundaries: z.array(z.string()).optional(),
+          traits: z.array(z.string()).optional(),
+        }).partial();
+        ```
+      supersedes: null
   todos: []

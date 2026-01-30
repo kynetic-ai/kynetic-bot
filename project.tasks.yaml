@@ -8597,5 +8597,13 @@
         Uses parent spec ACs but is a wiring/orchestration task - consider if it needs its own
         integration-focused ACs or if parent ACs suffice for verification."
       supersedes: null
+    - _ulid: 01KG8HH63KCW16VATR48EMQ3XY
+      created_at: 2026-01-30T22:49:10.515Z
+      author: "@claude"
+      content: "Integration task: wires SessionLifecycleManager, ContextRestorer, and ContextUsageTracker
+        into Bot. Validates parent @mem-session-lifecycle AC-1,2,3,4,8,9 end-to-end. AC-5,6,7
+        coverage delegated to child @mem-context-usage via @task-capture-stderr and
+        @task-context-usage-tracker."
+      supersedes: null
   todos: []
   automation: needs_review

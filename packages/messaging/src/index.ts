@@ -18,3 +18,11 @@ export {
   BufferedCoalescer,
   type StreamOptions,
 } from './streaming.js';
+
+// History
+export {
+  ConversationHistory,
+  type HistoryEntry,
+  type HistoryOptions,
+  type CleanupResult,
+} from './history.js';

@@ -121,6 +121,9 @@ importers:
       '@kynetic-bot/core':
         specifier: workspace:*
         version: link:../core
+      '@kynetic-bot/memory':
+        specifier: workspace:^
+        version: link:../memory
 
 packages:
 

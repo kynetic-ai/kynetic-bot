@@ -8388,7 +8388,8 @@
       supersedes: null
   todos: []
 - _ulid: 01KG8G14T6H6Q6KJHQQ8J6AZQM
-  slugs: []
+  slugs:
+    - task-context-usage-tracker
   title: Implement ContextUsageTracker
   type: task
   description: Create ContextUsageTracker class that invokes /usage on ACP sessions and parses the

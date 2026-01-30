@@ -340,3 +340,6 @@ features:
         given: PR created or updated
         when: GitHub Actions run
         then: Tests, typecheck, and build pass; Claude code review runs; unresolved thread check enforced
+    status:
+      maturity: draft
+      implementation: in_progress

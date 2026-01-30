@@ -22,6 +22,7 @@ import {
   type ConversationMetadata,
 } from '@kynetic-bot/memory';
 import type { BotConfig } from './config.js';
+import { buildIdentityPrompt } from './identity.js';
 
 const DEFAULT_AGENT_READY_TIMEOUT = 30000;
 const INFLIGHT_POLL_INTERVAL = 100;
@@ -133,6 +134,7 @@ export class Bot extends EventEmitter {
 
   private lastActiveChannel: string | null = null;
   private inflightCount = 0;
+  private identityPrompt: string | null = null;
   private readonly log = createLogger('bot');
 
   /**
@@ -203,6 +205,11 @@ export class Bot extends EventEmitter {
     this.log.info('Bot starting');
 
     try {
+      // AC: @bot-identity ac-1 - Load identity prompt at startup
+      const baseDir = path.join(getGitRoot(), this.config.kbotDataDir);
+      this.identityPrompt = await buildIdentityPrompt(baseDir);
+      this.log.info('Identity prompt loaded');
+
       // Spawn the agent
       await this.agent.spawn();
 
@@ -329,6 +336,7 @@ export class Bot extends EventEmitter {
 
       // 4. Create session if needed, then prompt
       let sessionId = this.agent.getSessionId();
+      const isNewSession = !sessionId;
       if (!sessionId) {
         sessionId = await client.newSession({
           cwd: process.cwd(),
@@ -348,6 +356,16 @@ export class Bot extends EventEmitter {
             const error = err instanceof Error ? err : new Error(String(err));
             this.log.error('Failed to create session record', { error: error.message });
           }
+        }
+
+        // AC: @bot-identity ac-1, ac-2 - Send identity as system prompt for new sessions
+        if (this.identityPrompt) {
+          this.log.debug('Sending identity prompt to new session');
+          await client.prompt({
+            sessionId,
+            prompt: [{ type: 'text', text: this.identityPrompt }],
+            promptSource: 'system',
+          });
         }
       }
 

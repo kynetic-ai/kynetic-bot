@@ -198,3 +198,6 @@ features:
         given: bot restarts
         when: conversation resumed by same session key
         then: previous turns are available via ConversationStore.readTurns()
+    status:
+      maturity: draft
+      implementation: in_progress

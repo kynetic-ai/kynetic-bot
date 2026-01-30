@@ -7373,6 +7373,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-01-30T10:05:01.800Z
+  started_at: 2026-01-30T10:20:08.125Z
   notes:
     - _ulid: 01KG75SZZ8E5V4NW8XCZRMQ1WY
       created_at: 2026-01-30T10:05:01.800Z
@@ -7446,6 +7447,32 @@
         }).partial();
         ```
       supersedes: null
+    - _ulid: 01KG76X3K9DJ1DH4H6PWQ494RY
+      created_at: 2026-01-30T10:24:12.394Z
+      author: "@claude"
+      content: |-
+        Implemented system prompt identity injection:
+
+        **Files created/modified:**
+        - packages/bot/src/identity.ts (NEW) - Identity loading and formatting
+        - packages/bot/src/bot.ts - Integrated identity into ACP session creation
+        - packages/bot/src/index.ts - Exported identity module
+        - packages/bot/package.json - Added yaml dependency
+        - packages/bot/test/identity.test.ts (NEW) - Unit tests for identity module
+        - packages/bot/test/bot.test.ts - Integration tests for identity injection
+
+        **Implementation:**
+        1. Base identity loaded during Bot.start()
+        2. Custom identity loaded from .kbot/identity.yaml if exists
+        3. Identity prompt sent as system message on new ACP session creation
+        4. On existing sessions, no identity prompt sent (already established)
+
+        **All 3 ACs covered:**
+        - ac-1: Base identity prepended on new session
+        - ac-2: Custom identity from .kbot/identity.yaml included after base
+        - ac-3: Missing identity file uses base identity only without error
+
+        Tests: 109 total in bot package (16 new for identity)
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-01-30T10:20:08.125Z

@@ -7039,20 +7039,38 @@
   created_at: 2026-01-30T09:27:38.786Z
   notes: []
   todos: []
-- title: Fix Discord splitter truncation marker on hard-cut
+- _ulid: 01KG73NKNH0VEPBRE24VXNXX35
+  slugs: []
+  title: Fix Discord splitter truncation marker on hard-cut
+  type: task
+  description: "Discord splitter: actually append truncation marker when hard-cutting long content
+    without word boundaries"
+  spec_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  priority: 3
+  tags: []
+  vcs_refs: []
+  created_at: 2026-01-30T09:27:40.977Z
+  notes: []
+  todos: []
+- title: Add Discord typing indicator during processing
   type: task
   priority: 3
   spec_ref: null
   tags: []
-  description: "Discord splitter: actually append truncation marker when hard-cutting long content
-    without word boundaries"
-  _ulid: 01KG73NKNH0VEPBRE24VXNXX35
+  description: Discord typing indicator - show bot is 'typing' during all processing (tool calls,
+    thinking, responding). Create TypingController that calls sendTyping() with 9-second refresh
+    interval. Hook into Bot.handleMessage() start/finally. Greenfield implementation.
+  _ulid: 01KG73NPG9RG46W2MY8YGFJW5Q
   slugs: []
   status: pending
   blocked_by: []
   depends_on: []
   context: []
   vcs_refs: []
-  created_at: 2026-01-30T09:27:40.977Z
+  created_at: 2026-01-30T09:27:43.880Z
   notes: []
   todos: []

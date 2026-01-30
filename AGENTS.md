@@ -250,14 +250,26 @@ Workflows are advisory - they guide the process but don't enforce it.
 
 ## The Task Lifecycle Loop
 
+### Implementation Iteration
+
 1. `kspec session start` - get context, check for existing work
 2. **Inherit existing work** - pending_review or in_progress tasks take priority
 3. `kspec task start @task` - mark in_progress
 4. Implement, add notes as you go
 5. `kspec task submit @task` - mark pending_review when code done
 6. `/pr` - create pull request
-7. After PR merged: `kspec task complete @task`
-8. Check for newly unblocked tasks, repeat
+7. **EXIT** - iteration ends after PR creation
+
+### PR Review (Separate Subagent)
+
+Ralph spawns a PR review subagent for holistic review:
+- Review changes broadly, not just task acceptance criteria
+- Check for unintended side effects or scope creep
+- Verify AC coverage: each criterion should have test with `// AC: @spec-item ac-N` annotation
+- Check for inline AC comments linking code to acceptance criteria
+- Verify code quality, maintainability, consistency
+- After PR merged: `kspec task complete @task`
+- Check for newly unblocked tasks to queue for next iteration
 
 ## Environment
 

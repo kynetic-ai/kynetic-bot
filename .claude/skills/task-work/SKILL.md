@@ -47,9 +47,21 @@ pending -> in_progress -> pending_review -> completed
 5. **Work & Note** - Add notes during work
 6. **Commit** - Ensure changes committed with trailers
 7. **Submit Task** - Mark pending_review
-8. **Create PR** - Use /pr skill
-9. **PR Merged** - Wait for review and merge
-10. **Complete Task** - Mark completed after merge
+8. **Create PR** - Use /pr skill, then **EXIT**
+
+After PR creation, this iteration ends. Ralph spawns a PR review subagent for holistic review.
+
+### PR Review (Separate Session)
+
+PR review is handled externally with broader focus than task completion:
+- Review changes holistically, not just against acceptance criteria
+- Check for unintended side effects or scope creep
+- **Verify AC coverage**: each acceptance criterion should have a test with AC annotation
+- **Check for inline AC comments**: `// AC: @spec-item ac-N` linking code/tests to criteria
+- Verify tests cover actual behavior
+- Consider code quality, maintainability, consistency
+
+After PR merged: `kspec task complete @task --reason "Summary"`
 
 ## Key Commands
 
@@ -154,10 +166,19 @@ Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 - Use only after PR is merged to main
 - Task moves to `completed`
 
-## After Completion
+## After PR Creation (End of Iteration)
 
-After completing a task:
+This iteration ends after creating the PR. Do NOT grab another task.
+
+Ralph spawns a PR review subagent that:
+1. Reviews the PR with holistic focus (not just task checklist)
+2. Completes the task after PR is merged
+3. Checks for unblocked tasks to queue for next iteration
+
+## After Task Completion (PR Review Session)
+
+After completing a task in the PR review session:
 
 1. Check if other tasks were unblocked: `kspec tasks ready`
-2. Consider starting the next task
+2. Queue next task for the next iteration (don't start immediately)
 3. If work revealed new tasks/issues, add to inbox

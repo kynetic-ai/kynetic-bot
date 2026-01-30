@@ -79,15 +79,18 @@ workflows:
         content: |
           Create PR.
           Use: /pr skill or gh pr create
-          Then follow @pr-review-merge workflow for merge.
-      - type: check
-        content: PR merged to main
-        on_fail: Wait for PR review and merge before completing task.
-      - type: action
-        content: |
-          Complete task after PR merged.
-          Use: kspec task complete @task --reason "Summary of what was done"
-          This marks the task completed.
+          After PR created, EXIT this iteration.
+          Ralph spawns a PR review subagent for holistic review of the session's work.
+        exit: true
+        exit_note: |
+          PR review is a separate session with broader focus:
+          - Review the PR changes holistically, not just task checklist
+          - Check for unintended side effects or scope creep
+          - Verify AC coverage: each acceptance criterion should have test with AC annotation
+          - Check for inline AC comments (// AC: @spec-item ac-N) linking code to criteria
+          - Verify tests cover the actual behavior, not just acceptance criteria
+          - Consider code quality, maintainability, and consistency
+          After PR merged: kspec task complete @task --reason "Summary"
 
   - _ulid: 01KG2002000000000000000000
     id: session-reflect

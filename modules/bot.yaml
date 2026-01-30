@@ -217,3 +217,9 @@ features:
     traits: []
     notes: []
     created: 2026-01-30T10:04:44.508Z
+    acceptance_criteria:
+      - id: ac-1
+        given: bot starts
+        when: creating ACP session
+        then: prepends kbot base identity to system prompt (persistent general assistant, full system
+          access)

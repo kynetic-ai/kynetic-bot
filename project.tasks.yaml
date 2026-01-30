@@ -3533,7 +3533,7 @@
         autonomous operation"
       supersedes: null
   todos: []
-  automation: needs_review
+  automation: eligible
 - _ulid: 01KG1TEZG2CMJ3CKE1HMSJZQHA
   slugs:
     - streaming-integration
@@ -6695,6 +6695,8 @@
   derivation: auto
   status: completed
   blocked_by: []
+  closed_reason: "Implemented storage integration - wired ConversationStore and SessionStore into Bot,
+    all 5 ACs covered with tests, PR #20 merged"
   depends_on: []
   context: []
   priority: 3
@@ -6702,6 +6704,7 @@
   vcs_refs: []
   created_at: 2026-01-30T08:05:32.734Z
   started_at: 2026-01-30T08:43:27.062Z
+  completed_at: 2026-01-30T08:56:00.601Z
   notes:
     - _ulid: 01KG6YZ6XS0BD2BQP2PR6F25ND
       created_at: 2026-01-30T08:05:32.734Z
@@ -6976,6 +6979,3 @@
         - Pre-existing lint error in packages/agent/src/lifecycle.ts (unrelated to this change)
       supersedes: null
   todos: []
-  completed_at: 2026-01-30T08:56:00.601Z
-  closed_reason: "Implemented storage integration - wired ConversationStore and SessionStore into Bot,
-    all 5 ACs covered with tests, PR #20 merged"

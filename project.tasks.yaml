@@ -8232,7 +8232,53 @@
   tags: []
   vcs_refs: []
   created_at: 2026-01-30T22:22:56.326Z
-  notes: []
+  notes:
+    - _ulid: 01KG8G1YQT9AV9R9XSPQR38WZC
+      created_at: 2026-01-30T22:23:22.874Z
+      author: "@claude"
+      content: |-
+        ## Implementation Details
+
+        **File**: packages/messaging/src/session/context-usage-tracker.ts
+
+        **Input Format** (from stderr):
+        ```xml
+        <local-command-stdout>
+        ## Context Usage
+        **Model:** claude-opus-4-5-20251101
+        **Tokens:** 69.0k / 200.0k (34%)
+
+        ### Categories
+        | Category | Tokens | Percentage |
+        | System prompt | 3.1k | 1.5% |
+        | Messages | 136 | 0.1% |
+        ...
+        </local-command-stdout>
+        ```
+
+        **Output Type**:
+        ```typescript
+        interface ContextUsageUpdate {
+          model: string;
+          tokens: { current: number; max: number; percentage: number };
+          categories: { name: string; tokens: number; percentage: number }[];
+          timestamp: number;
+        }
+        ```
+
+        **Parsing Logic**:
+        - Extract XML block: /<local-command-stdout>([\s\S]*?)<\/local-command-stdout>/
+        - Parse Tokens line: /\*\*Tokens:\*\*\s*([\d.]+)k?\s*\/\s*([\d.]+)k?\s*\((\d+)%\)/
+        - Parse category table rows: /\|\s*([^|]+)\s*\|\s*([\d.]+)k?\s*\|\s*([\d.]+)%\s*\|/g
+
+        **Invocation Strategy**:
+        - checkUsage(sessionId, client) - sends /usage prompt, parses response
+        - Debounce: skip if last check < 30 seconds ago
+        - Timeout: 10 seconds, fall back to last known value
+        - Async: don't block response delivery
+
+        **Reference**: Port parsing from ../kynetic/packages/lifeline/src/agents/stderr-parser.ts
+      supersedes: null
   todos: []
 - _ulid: 01KG8G16R2T9C0EYDPEHSWZRXA
   slugs: []

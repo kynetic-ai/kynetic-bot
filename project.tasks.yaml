@@ -6659,6 +6659,7 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "PR #19 merged"
   depends_on: []
   context: []
   priority: 2
@@ -6666,6 +6667,7 @@
   vcs_refs: []
   created_at: 2026-01-30T04:19:14.986Z
   started_at: 2026-01-30T04:58:44.737Z
+  completed_at: 2026-01-30T05:17:32.775Z
   notes:
     - _ulid: 01KG6J7QJR8004MW0BPNQ2G00F
       created_at: 2026-01-30T04:23:00.441Z
@@ -6684,5 +6686,50 @@
         allow_always fallback, first option fallback, empty options cancellation."
       supersedes: null
   todos: []
-  completed_at: 2026-01-30T05:17:32.775Z
-  closed_reason: "PR #19 merged"
+- title: "Implement: Bot Storage Integration"
+  type: task
+  spec_ref: "@bot-storage-integration"
+  derivation: auto
+  priority: 3
+  slugs:
+    - task-bot-storage-integration
+  tags: []
+  depends_on: []
+  notes:
+    - _ulid: 01KG6YZ6XS0BD2BQP2PR6F25ND
+      created_at: 2026-01-30T08:05:32.734Z
+      author: "@claude"
+      content: >-
+        Implementation notes (auto-generated from spec):
+
+
+        Wire ConversationStore and SessionStore into Bot class to persist conversation turns and
+        agent session events. The storage layer is implemented but not connected to message handling
+        flow.
+
+
+
+        Acceptance Criteria:
+
+        - ac-1: Given Bot.create() called, when initialization completes, then ConversationStore and
+        SessionStore are instantiated with shadow worktree path
+
+        - ac-2: Given user message received, when handleMessage() processes it, then conversation is
+        retrieved or created, user turn appended with message_id for idempotency
+
+        - ac-3: Given new ACP session created, when agent prompt sent, then agent session record
+        created in SessionStore with link to conversation
+
+        - ac-4: Given agent response completed, when response sent to channel, then assistant turn
+        appended with agent_session_id reference
+
+        - ac-5: Given bot restarts, when conversation resumed by same session key, then previous
+        turns are available via ConversationStore.readTurns()
+      supersedes: null
+  _ulid: 01KG6YZ6XY90E1JM3C6EC2PJ0E
+  status: pending
+  blocked_by: []
+  context: []
+  vcs_refs: []
+  created_at: 2026-01-30T08:05:32.734Z
+  todos: []

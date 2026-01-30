@@ -8070,6 +8070,62 @@
         - ac-9: Given Bot restarts with recent conversation (< 30 min), when First message arrives,
         then Rebuild state from ConversationStore; context restoration injected
       supersedes: null
+    - _ulid: 01KG8G3D7N0HT71PWJJ5G7EB0M
+      created_at: 2026-01-30T22:24:10.485Z
+      author: "@claude"
+      content: |-
+        ## Implementation Details
+
+        **File**: packages/messaging/src/session/session-lifecycle.ts
+
+        **State**:
+        ```typescript
+        interface SessionState {
+          acpSessionId: string;
+          sessionKey: string;
+          conversationId: string;
+          createdAt: Date;
+          lastUsage?: ContextUsageUpdate;
+        }
+
+        // In-memory map: sessionKey -> SessionState
+        private sessions: Map<string, SessionState> = new Map();
+        ```
+
+        **Key Concepts**:
+        - Session Key: Routing identifier (discord:dm:user123) - persistent, identifies conversation
+        - ACP Session ID: Agent session UUID - transient, created per spawn
+
+        **Per-Key Locking** (prevent concurrent message races):
+        ```typescript
+        private locks: Map<string, Promise<void>> = new Map();
+
+        async withLock<T>(sessionKey: string, fn: () => Promise<T>): Promise<T> {
+          const existing = this.locks.get(sessionKey) ?? Promise.resolve();
+          const release = createDeferred<void>();
+          this.locks.set(sessionKey, release.promise);
+          await existing;
+          try { return await fn(); } finally { release.resolve(); }
+        }
+        ```
+
+        **Public API**:
+        - getOrCreateSession(sessionKey, client): Promise<{ state, isNew }>
+        - shouldRotateSession(sessionKey): boolean
+        - rotateSession(sessionKey, client): Promise<SessionState>
+        - updateContextUsage(sessionKey, usage): void
+        - withLock<T>(sessionKey, fn): Promise<T>
+        - endSession(sessionKey): Promise<void>
+
+        **Restart Recovery Logic** (in getOrCreateSession when no in-memory state):
+        1. Query ConversationStore.getConversationBySessionKey(sessionKey)
+        2. If conversation exists with recent turns (< 30 min old):
+           - Create new ACP session via client.newSession()
+           - Return { state, isNew: true } - caller should inject context restoration
+        3. If conversation stale or missing:
+           - Create new ACP session
+           - Return { state, isNew: true } - caller injects identity only
+      supersedes: null
   todos: []
 - _ulid: 01KG8G0Q251NCJCPN6ED8S3ZN1
   slugs:

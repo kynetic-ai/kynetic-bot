@@ -6693,7 +6693,7 @@
   type: task
   spec_ref: "@bot-storage-integration"
   derivation: auto
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -6976,3 +6976,6 @@
         - Pre-existing lint error in packages/agent/src/lifecycle.ts (unrelated to this change)
       supersedes: null
   todos: []
+  completed_at: 2026-01-30T08:56:00.601Z
+  closed_reason: "Implemented storage integration - wired ConversationStore and SessionStore into Bot,
+    all 5 ACs covered with tests, PR #20 merged"

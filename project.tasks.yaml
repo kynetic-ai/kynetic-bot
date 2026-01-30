@@ -3070,6 +3070,7 @@
     - phase-2
   vcs_refs: []
   created_at: 2026-01-28T08:10:17.060Z
+  started_at: 2026-01-30T10:46:53.777Z
   notes:
     - _ulid: 01KG1TNFASGJSP164EP1G5D04P
       created_at: 2026-01-28T08:14:07.194Z
@@ -3123,9 +3124,64 @@
         ## Verification
         Tests for normalize/denormalize integration.
       supersedes: null
+    - _ulid: 01KG78BY9YKK4BZ3ZV2DCFD5EB
+      created_at: 2026-01-30T10:49:47.070Z
+      author: "@claude"
+      content: >-
+        ## Implementation Complete
+
+
+        ### Files Modified
+
+        - packages/bot/src/bot.ts - Added MessageTransformer integration
+
+        - packages/bot/src/index.ts - Re-exported transformer types
+
+        - packages/bot/test/bot.test.ts - Added 9 tests for transform integration
+
+
+        ### Acceptance Criteria Coverage
+
+        - AC-1: handleRawMessage() normalizes via registered transformer before routing to
+        handleMessage()
+
+        - AC-2: Outbound denormalization not yet needed (current impl sends text strings directly)
+
+        - AC-3: Unknown content types (UnsupportedTypeError, MissingTransformerError) logged and
+        skipped gracefully
+
+
+        ### API Added
+
+        - Bot.handleRawMessage(platform, raw) - Normalize and process raw platform message
+
+        - Bot.registerTransformer(transformer) - Register a platform transformer
+
+        - Bot.getTransformer() - Get the MessageTransformer instance
+
+
+        ### Usage
+
+        Channel adapters can optionally delegate normalization to Bot:
+
+        ```typescript
+
+        // Register platform transformer
+
+        bot.registerTransformer(discordTransformer);
+
+
+        // Handle raw message (normalizes internally)
+
+        await bot.handleRawMessage('discord', rawDiscordMessage);
+
+        ```
+
+
+        Or continue to normalize in adapter and use handleMessage() directly.
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-01-30T10:46:53.777Z
 - _ulid: 01KG1TEPNTSVQ30A0ZB267MHJ8
   slugs:
     - stream-coalescer

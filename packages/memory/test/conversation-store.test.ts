@@ -472,9 +472,32 @@ describe('ConversationStore', () => {
       expect(updated?.turn_count).toBe(5);
     });
 
-    // Note: File locking behavior is validated in SessionStore tests.
-    // Concurrent append testing with spin locks is timing-sensitive and
-    // may cause flaky tests due to lock timeout in fast environments.
+    it('handles concurrent turn appends safely', async () => {
+      const conversation = await store.createConversation('discord:dm:user123');
+
+      // Append many turns concurrently
+      const concurrentAppends = Array.from({ length: 10 }, (_, i) =>
+        store.appendTurn(conversation.id, {
+          role: 'user',
+          content: `Concurrent message ${i}`,
+        }),
+      );
+
+      const results = await Promise.all(concurrentAppends);
+
+      // All turns should have unique sequence numbers
+      const seqs = results.map((t) => t.seq);
+      const uniqueSeqs = new Set(seqs);
+      expect(uniqueSeqs.size).toBe(10);
+
+      // Read back and verify
+      const turns = await store.readTurns(conversation.id);
+      expect(turns).toHaveLength(10);
+
+      // Verify turn count
+      const updated = await store.getConversation(conversation.id);
+      expect(updated?.turn_count).toBe(10);
+    });
   });
 
   describe('readTurns', () => {

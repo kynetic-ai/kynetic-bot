@@ -201,3 +201,19 @@ features:
     status:
       maturity: draft
       implementation: implemented
+  - _ulid: 01KG75SF2WVAPV5P3DXBS91QP4
+    slugs:
+      - bot-identity
+    title: System Prompt Identity Injection
+    type: feature
+    tags: []
+    description: Prepends kbot identity context to ACP system prompt. Establishes kbot as a persistent
+      general assistant with full system access, distinct from ad-hoc Claude Code sessions. Supports
+      user-customizable identity via .kbot/identity.yaml.
+    depends_on: []
+    implements: []
+    relates_to: []
+    tests: []
+    traits: []
+    notes: []
+    created: 2026-01-30T10:04:44.508Z

@@ -1,0 +1,308 @@
+{
+  "generated_at": "2026-01-30T12:11:48.043Z",
+  "branch": "main",
+  "context": {
+    "focus": null,
+    "threads": [],
+    "open_questions": [],
+    "updated_at": "2026-01-30T12:11:48.043Z"
+  },
+  "active_tasks": [],
+  "pending_review_tasks": [
+    {
+      "ref": "01KG740Z",
+      "title": "Log Discord rate limit events",
+      "started_at": "2026-01-30T12:08:21.533Z",
+      "priority": 3,
+      "spec_ref": null,
+      "note_count": 2,
+      "last_note_at": "2026-01-30T12:10:39.743Z",
+      "todo_count": 0,
+      "incomplete_todos": 0
+    }
+  ],
+  "recent_notes": [],
+  "active_todos": [],
+  "ready_tasks": [
+    {
+      "ref": "01KG1TFD",
+      "title": "E2E integration test suite",
+      "priority": 4,
+      "spec_ref": null,
+      "tags": [
+        "phase-4"
+      ]
+    },
+    {
+      "ref": "01KG5JNE",
+      "title": "Optimize ConversationStore duplicate detection performance",
+      "priority": 4,
+      "spec_ref": "@mem-conversation",
+      "tags": []
+    },
+    {
+      "ref": "01KG73SX",
+      "title": "Improve ACP handler test coverage and quality",
+      "priority": 4,
+      "spec_ref": null,
+      "tags": []
+    },
+    {
+      "ref": "01KG7412",
+      "title": "Configure ESLint require-await rule",
+      "priority": 4,
+      "spec_ref": null,
+      "tags": [
+        "reflection",
+        "dx"
+      ]
+    },
+    {
+      "ref": "01KG7414",
+      "title": "Add lefthook for pre-commit/pre-push hooks",
+      "priority": 4,
+      "spec_ref": null,
+      "tags": [
+        "reflection",
+        "dx"
+      ]
+    }
+  ],
+  "blocked_tasks": [],
+  "recently_completed": [
+    {
+      "ref": "01KG740W",
+      "title": "Enrich error contexts with messageId",
+      "completed_at": "2026-01-30T12:07:44.796Z",
+      "closed_reason": "Merged in PR #34. Added messageId to 4 error log contexts in handleMessage() for better debugging correlation."
+    },
+    {
+      "ref": "01KG740T",
+      "title": "Extract InMemorySessionStore to shared location",
+      "completed_at": "2026-01-30T12:04:32.270Z",
+      "closed_reason": "Merged in PR #33. Extracted InMemorySessionStore to packages/messaging/src/session-store.ts, eliminating duplicate implementations from bot.ts and router.test.ts. Added clear() method and size getter for enhanced utility."
+    },
+    {
+      "ref": "01KG73NP",
+      "title": "Add Discord typing indicator during processing",
+      "completed_at": "2026-01-30T12:00:28.629Z",
+      "closed_reason": "Merged in PR #32. Added Discord typing indicator that shows 'Bot is typing...' while processing messages. Implementation includes: sendTyping() on ChannelAdapter interface (optional), DiscordAdapter implementation with error swallowing, ChannelLifecycle proxy with health checks, and integration in Bot.handleMessage() before session routing."
+    },
+    {
+      "ref": "01KG73NK",
+      "title": "Fix Discord splitter truncation marker on hard-cut",
+      "completed_at": "2026-01-30T11:54:58.656Z",
+      "closed_reason": "Merged in PR #31. Fixed truncation marker bug where findSplitPoint() reserved space but never appended the marker. Now returns { index, hardCut } so callers properly append '... [truncated]' on hard-cuts."
+    },
+    {
+      "ref": "01KG73NH",
+      "title": "Memoize getGitRoot() in bot.ts",
+      "completed_at": "2026-01-30T11:50:06.992Z",
+      "closed_reason": "Merged in PR #30. Added memoization to getGitRoot() in bot.ts with module-level cache and _resetGitRootCache() for test isolation."
+    },
+    {
+      "ref": "01KG5YZN",
+      "title": "Implement 'embed' split strategy for Discord adapter",
+      "completed_at": "2026-01-30T11:45:23.246Z",
+      "closed_reason": "Merged in PR #29. Implemented embed split strategy for Discord adapter as AC-3 alternative - uses 4096 char embed description limit with 'Part X of Y' footers for multi-part messages."
+    },
+    {
+      "ref": "01KG5JN4",
+      "title": "Fix flaky ConversationStore concurrent access test",
+      "completed_at": "2026-01-30T11:39:48.680Z",
+      "closed_reason": "Merged in PR #28. Fixed flaky concurrent test by converting spin locks to async. Busy-wait loops blocked the event loop causing lock starvation; now yields with setTimeout. Applied to both ConversationStore and SessionStore."
+    },
+    {
+      "ref": "01KG1TEZ",
+      "title": "Streaming integration into bot",
+      "completed_at": "2026-01-30T11:32:30.582Z",
+      "closed_reason": "Merged in PR #27 (204daa3). Integrated StreamCoalescer for streaming responses: Discord gets incremental message edits, other platforms receive buffered complete responses. Added editMessage to ChannelAdapter interface with Discord implementation. All 4 ACs verified with 11 new tests."
+    },
+    {
+      "ref": "01KG1TEX",
+      "title": "AutonomousLoop for @agent-autonomous",
+      "completed_at": "2026-01-30T11:23:23.812Z",
+      "closed_reason": "Merged in PR #26. Implemented AutonomousLoop with circuit breaker pattern (closed/open/half-open states), configurable error threshold and cooldown, TaskSource interface for pluggable task sources, checkpoint/restore for crash recovery, and event-driven observability. All 3 ACs covered with 32 unit tests."
+    },
+    {
+      "ref": "01KG1TET",
+      "title": "ContextWindowManager for @mem-context-window",
+      "completed_at": "2026-01-30T11:04:23.869Z",
+      "closed_reason": "Merged in PR #25. ContextWindowManager implements token-based compaction with two-tier thresholds (70% soft, 85% hard), semantic boundary preservation, SummaryProvider interface for Haiku summarization via ACP, and session file references for agent access. All 4 ACs verified with 22 unit tests."
+    }
+  ],
+  "recent_commits": [
+    {
+      "hash": "843e5b9",
+      "full_hash": "843e5b9e3f6eae6b29fc770768ab36afb43fa2b7",
+      "date": "2026-01-30T12:07:35.000Z",
+      "message": "Merge pull request #34 from kynetic-ai/fix/enrich-error-messageid",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "8b40816",
+      "full_hash": "8b40816b831586e99914a75d99353189772fcb34",
+      "date": "2026-01-30T12:06:19.000Z",
+      "message": "fix: enrich error contexts with messageId in bot.ts",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "33f63a5",
+      "full_hash": "33f63a54c4988d99b4722ca9928b460670ead021",
+      "date": "2026-01-30T12:04:21.000Z",
+      "message": "Merge pull request #33 from kynetic-ai/refactor/extract-inmemory-session-store",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "95c6b50",
+      "full_hash": "95c6b50dc598a5322bda5e0661b2381c87793a1b",
+      "date": "2026-01-30T12:03:04.000Z",
+      "message": "refactor: extract InMemorySessionStore to shared location",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "0206cf6",
+      "full_hash": "0206cf67d6994b97e0dcce58868de8deda0de04b",
+      "date": "2026-01-30T12:00:20.000Z",
+      "message": "Merge pull request #32 from kynetic-ai/feat/discord-typing-indicator",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "edadbad",
+      "full_hash": "edadbad3c7a99fbfe50f1884ad793b1383302f6f",
+      "date": "2026-01-30T11:58:47.000Z",
+      "message": "feat: add Discord typing indicator during message processing",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "27a5c47",
+      "full_hash": "27a5c47a18d9e0407c89943bbe61ad12bf62bca4",
+      "date": "2026-01-30T11:54:51.000Z",
+      "message": "Merge pull request #31 from kynetic-ai/fix/discord-splitter-truncation",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "5d252ad",
+      "full_hash": "5d252adf351050b2493dbec2c98baaacfa14634b",
+      "date": "2026-01-30T11:53:24.000Z",
+      "message": "fix: append truncation marker when hard-cutting Discord messages",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "f4c8e63",
+      "full_hash": "f4c8e63496e5e54c7f13db57ab552c540fc5bd36",
+      "date": "2026-01-30T11:49:55.000Z",
+      "message": "Merge pull request #30 from kynetic-ai/fix/memoize-getgitroot",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "f06e729",
+      "full_hash": "f06e72997a76fca7994d1c50798dd525b4d35098",
+      "date": "2026-01-30T11:48:09.000Z",
+      "message": "fix: memoize getGitRoot() to avoid repeated shell spawns",
+      "author": "Jacob Chapel"
+    }
+  ],
+  "working_tree": {
+    "clean": true,
+    "staged": [],
+    "unstaged": [],
+    "untracked": []
+  },
+  "inbox_items": [
+    {
+      "ref": "01KG4KV8",
+      "text": "Spec review workflow/skill that runs verification + holistic review after spec changes. Would automate the repeated 'run two subagents to check plan vs implementation and find gaps' pattern.",
+      "created_at": "2026-01-29T10:12:40.090Z",
+      "tags": [
+        "reflection",
+        "workflow"
+      ],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG4KVB",
+      "text": "Allow kspec item trait add to accept multiple traits: kspec item trait add @spec @trait1 @trait2 @trait3 instead of requiring separate commands for each trait.",
+      "created_at": "2026-01-29T10:12:43.363Z",
+      "tags": [
+        "reflection",
+        "kspec-cli"
+      ],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG4KVD",
+      "text": "Display relates_to and depends_on fields in kspec item get output. Currently these fields are only visible by reading the YAML directly.",
+      "created_at": "2026-01-29T10:12:45.470Z",
+      "tags": [
+        "reflection",
+        "kspec-cli"
+      ],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG5Z1E",
+      "text": "Discord adapter: add health check support using client.ws.ping for latency monitoring",
+      "created_at": "2026-01-29T22:47:31.618Z",
+      "tags": [],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG5Z1K",
+      "text": "Discord adapter: make bot message filtering configurable (currently filters all bots, not just self)",
+      "created_at": "2026-01-29T22:47:36.999Z",
+      "tags": [],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG5Z1P",
+      "text": "Discord adapter: expand DiscordSendOptions for ephemeral messages, thread options, slash command support",
+      "created_at": "2026-01-29T22:47:39.899Z",
+      "tags": [],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG64MZ",
+      "text": "Bot: Consider using TypedEventEmitter pattern for type-safe event names and payloads instead of base EventEmitter",
+      "created_at": "2026-01-30T00:25:34.748Z",
+      "tags": [],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG64NC",
+      "text": "Bot: Forward ChannelLifecycle events (health, reconnection) for completeness - currently only AgentLifecycle events are forwarded",
+      "created_at": "2026-01-30T00:25:47.325Z",
+      "tags": [],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG6503",
+      "text": "CLI tool to inspect types from dependencies - e.g. 'pnpm types @agentclientprotocol/sdk NewSessionRequest' to show type definition from .d.ts files. Could support --expand to follow type references. Helps with SDK integration without digging through node_modules/.pnpm/",
+      "created_at": "2026-01-30T00:31:39.008Z",
+      "tags": [
+        "reflection",
+        "dx"
+      ],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG65AG",
+      "text": "Ensure task workflow is followed when implementing plans in new context - problem: plans focus on what to build, not the kspec workflow (task start/notes/submit/complete). Agent jumps to implementation without starting task. Potential fixes: (1) plan template includes 'kspec task start @slug' as first step, (2) CLAUDE.md implementation checklist, (3) session start detects pending tasks with ready plans, (4) hook on plan approval.",
+      "created_at": "2026-01-30T00:37:20.098Z",
+      "tags": [
+        "reflection",
+        "workflow"
+      ],
+      "added_by": "@claude"
+    }
+  ],
+  "stats": {
+    "total_tasks": 63,
+    "in_progress": 0,
+    "pending_review": 1,
+    "ready": 6,
+    "blocked": 0,
+    "completed": 53,
+    "inbox_items": 20
+  }
+}

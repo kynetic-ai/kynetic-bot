@@ -224,4 +224,13 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KG65095CTJVMXS8W8FVB2EHC
+    type: success
+    content: "Review subagent as quality gate before PR: caught 3 TypeScript compilation errors that
+      tests with mocks didn't catch. Pattern: spawn review agent to check AC coverage + run tsc
+      --noEmit after implementation."
+    created_at: 2026-01-30T00:31:44.812Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

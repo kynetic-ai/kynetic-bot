@@ -8136,7 +8136,8 @@
   derivation: auto
   status: pending
   blocked_by: []
-  depends_on: []
+  depends_on:
+    - "@task-token-based-turn-selection"
   context: []
   priority: 2
   tags: []

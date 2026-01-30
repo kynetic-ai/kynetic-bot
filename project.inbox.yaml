@@ -130,3 +130,13 @@ inbox:
       - test-quality
       - agent-lifecycle
     added_by: "@claude"
+  - _ulid: 01KG6N5MFCF6S5V5MEKCK9JYVY
+    text: "Add edge case tests for readFile handler (AC-5): empty files, files with only newlines, line
+      number beyond EOF (line: 999 on 5-line file), limit=0, negative line number. Current
+      implementation uses split('\\n') which produces trailing empty element on 'a\\nb\\n' -
+      behavior on edge cases is implicit not tested."
+    created_at: 2026-01-30T05:14:17.452Z
+    tags:
+      - test-coverage
+      - agent-lifecycle
+    added_by: "@claude"

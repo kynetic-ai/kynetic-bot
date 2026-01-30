@@ -7416,7 +7416,7 @@
     thinking, responding). Create TypingController that calls sendTyping() with 9-second refresh
     interval. Hook into Bot.handleMessage() start/finally. Greenfield implementation.
   spec_ref: null
-  status: in_progress
+  status: pending_review
   blocked_by: []
   depends_on: []
   context: []

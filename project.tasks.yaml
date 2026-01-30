@@ -7076,6 +7076,7 @@
   created_at: 2026-01-30T09:27:43.880Z
   notes: []
   todos: []
+  automation: eligible
 - _ulid: 01KG73SXE9P6M1ARE311M9FPA0
   slugs: []
   title: Improve ACP handler test coverage and quality

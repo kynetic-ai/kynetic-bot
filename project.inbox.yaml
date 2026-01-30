@@ -105,15 +105,6 @@ inbox:
       - reflection
       - workflow
     added_by: "@claude"
-  - _ulid: 01KG6N5R495R3857S4JRZKFJXP
-    text: "Add error scenario tests for ACP handlers: readFile - permission denied (EACCES), file is
-      directory (EISDIR), symlink dead link; requestPermission - null values in options array,
-      missing required fields (optionId, name, kind). Currently only happy paths tested."
-    created_at: 2026-01-30T05:14:21.193Z
-    tags:
-      - test-coverage
-      - agent-lifecycle
-    added_by: "@claude"
   - _ulid: 01KG6YGV7WNKPBHRRYFDGJ7E1A
     text: Session context not persisting - investigate why session/conversation files aren't being
       written to .kbot, then implement replay of recent turns on new ACP session to restore context.

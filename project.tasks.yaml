@@ -6529,7 +6529,7 @@
   type: task
   spec_ref: "@agent-lifecycle"
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -6546,3 +6546,5 @@
         auto-selects first allow option. Tests needed."
       supersedes: null
   todos: []
+  completed_at: 2026-01-30T04:08:18.233Z
+  closed_reason: Already implemented in lifecycle.ts - createACPHandlers().requestPermission

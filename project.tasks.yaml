@@ -6686,15 +6686,21 @@
         allow_always fallback, first option fallback, empty options cancellation."
       supersedes: null
   todos: []
-- title: "Implement: Bot Storage Integration"
+- _ulid: 01KG6YZ6XY90E1JM3C6EC2PJ0E
+  slugs:
+    - task-bot-storage-integration
+  title: "Implement: Bot Storage Integration"
   type: task
   spec_ref: "@bot-storage-integration"
   derivation: auto
-  priority: 3
-  slugs:
-    - task-bot-storage-integration
-  tags: []
+  status: pending
+  blocked_by: []
   depends_on: []
+  context: []
+  priority: 3
+  tags: []
+  vcs_refs: []
+  created_at: 2026-01-30T08:05:32.734Z
   notes:
     - _ulid: 01KG6YZ6XS0BD2BQP2PR6F25ND
       created_at: 2026-01-30T08:05:32.734Z
@@ -6726,10 +6732,68 @@
         - ac-5: Given bot restarts, when conversation resumed by same session key, then previous
         turns are available via ConversationStore.readTurns()
       supersedes: null
-  _ulid: 01KG6YZ6XY90E1JM3C6EC2PJ0E
-  status: pending
-  blocked_by: []
-  context: []
-  vcs_refs: []
-  created_at: 2026-01-30T08:05:32.734Z
+    - _ulid: 01KG6YZKJJWJ82KNTMH56RXTCP
+      created_at: 2026-01-30T08:05:45.682Z
+      author: "@claude"
+      content: >-
+        ## Investigation Summary
+
+
+        Root cause: ConversationStore and SessionStore are fully implemented and tested, but never
+        wired into Bot class.
+
+
+        **Current state:**
+
+        - No store fields in Bot class (bot.ts:115-119)
+
+        - No store instantiation in constructor (bot.ts:129-143)
+
+        - No store calls in handleMessage() (bot.ts:262-341)
+
+        - KbotShadow creates .kbot/ but stores need baseDir passed explicitly
+
+
+        **Cancelled task:** @bot-integration was supposed to do this wiring but was cancelled.
+
+
+        ## Files to Modify
+
+
+        ### packages/bot/src/bot.ts
+
+
+        1. **Add imports** (top of file):
+           ```typescript
+           import { ConversationStore, SessionStore } from '@kynetic-bot/memory';
+           ```
+
+        2. **Add store fields** (after line 119):
+           ```typescript
+           private readonly sessionStore: SessionStore;
+           private readonly conversationStore: ConversationStore;
+           ```
+
+        3. **Update BotOptions interface** (lines 54-61):
+           ```typescript
+           sessionStore?: SessionStore;
+           conversationStore?: ConversationStore;
+           ```
+
+        4. **Instantiate stores in constructor** (after line 140):
+           ```typescript
+           const baseDir = path.join(getGitRoot(), this.config.kbotDataDir);
+           this.sessionStore = options.sessionStore ?? new SessionStore({ baseDir });
+           this.conversationStore = options.conversationStore ?? new ConversationStore({ 
+             baseDir,
+             sessionStore: this.sessionStore 
+           });
+           ```
+
+        5. **Wire into handleMessage()** (around line 277):
+           - Get/create conversation by session key
+           - Append user turn before agent prompt
+           - Create session record on new ACP session
+           - Append assistant turn after response
+      supersedes: null
   todos: []

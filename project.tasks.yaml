@@ -7619,7 +7619,7 @@
   type: task
   description: "Discord adapter: log rate limit events for observability (Discord.js emits rateLimit events)"
   spec_ref: null
-  status: in_progress
+  status: pending_review
   blocked_by: []
   depends_on: []
   context: []

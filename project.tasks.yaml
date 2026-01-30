@@ -6448,19 +6448,35 @@
         All 62 errors fixed, tests passing (671/672, 1 skipped).
       supersedes: null
   todos: []
-- title: Implement kbotDataDir as relative worktree dir
+- _ulid: 01KG6HAX07Y54JHMDZNBT1Z5HF
+  slugs: []
+  title: Implement kbotDataDir as relative worktree dir
   type: task
   spec_ref: "@bot-config"
+  meta_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  priority: 2
+  tags: []
+  vcs_refs: []
+  created_at: 2026-01-30T04:07:15.718Z
+  notes: []
+  todos: []
+- title: Implement git root discovery
+  type: task
+  spec_ref: "@bot-orchestration"
   meta_ref: null
   priority: 2
   slugs: []
   tags: []
-  _ulid: 01KG6HAX07Y54JHMDZNBT1Z5HF
+  _ulid: 01KG6HAZ543KQVJEPRJ34QXPTR
   status: pending
   blocked_by: []
   depends_on: []
   context: []
   vcs_refs: []
-  created_at: 2026-01-30T04:07:15.718Z
+  created_at: 2026-01-30T04:07:17.923Z
   notes: []
   todos: []

@@ -6554,7 +6554,7 @@
   type: task
   spec_ref: "@bot-config"
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -6573,6 +6573,7 @@
         - Test default value '.kbot' is passed correctly
       supersedes: null
   todos: []
+  started_at: 2026-01-30T04:58:40.596Z
 - _ulid: 01KG6J0QX14RRYBS1S51448F6J
   slugs: []
   title: Add tests for getGitRoot() discovery (ac-7)

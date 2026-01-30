@@ -8406,7 +8406,7 @@
   description: Create ContextUsageTracker class that invokes /usage on ACP sessions and parses the
     stderr output into structured ContextUsageUpdate data. Includes debouncing, timeout handling,
     and async invocation.
-  spec_ref: "@mem-session-lifecycle"
+  spec_ref: "@mem-context-usage"
   meta_ref: null
   status: pending
   blocked_by: []

@@ -6115,7 +6115,7 @@
   type: task
   spec_ref: "@bot-cli"
   derivation: auto
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on:
     - "@task-bot-orchestration"
@@ -6259,6 +6259,7 @@
       supersedes: null
   todos: []
   automation: eligible
+  started_at: 2026-01-30T02:41:32.720Z
 - _ulid: 01KG5JN4DH1WAWA7YC9RF1433C
   slugs: []
   title: Fix flaky ConversationStore concurrent access test

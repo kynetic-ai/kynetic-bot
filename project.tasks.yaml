@@ -6487,9 +6487,15 @@
   tags: []
   vcs_refs: []
   created_at: 2026-01-30T04:07:17.923Z
-  notes: []
-  todos: []
   started_at: 2026-01-30T04:07:58.692Z
+  notes:
+    - _ulid: 01KG6HC8WEV5P66A2XMM7AQGMP
+      created_at: 2026-01-30T04:08:00.655Z
+      author: "@claude"
+      content: "Implementation in packages/bot/src/bot.ts lines 27-33: getGitRoot() uses git rev-parse
+        --show-toplevel, falls back to process.cwd(). Tests needed."
+      supersedes: null
+  todos: []
 - _ulid: 01KG6HB14FN2NHJ555MW3AZM7K
   slugs: []
   title: Implement ACP readFile handler

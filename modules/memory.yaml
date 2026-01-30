@@ -189,6 +189,10 @@ features:
             given: Context restoration prompt generated
             when: Prompt injected to session
             then: Includes session file reference .kbot/conversations/{id}/turns.jsonl
+          - id: ac-5
+            given: Context restoration prompt generated
+            when: Agent receives prompt
+            then: "Format has sections: Summary, Recent History, Archived History reference"
   - _ulid: 01KG2VD4BPPHV4QP9H5XNA87HR
     slugs:
       - mem-agent-sessions

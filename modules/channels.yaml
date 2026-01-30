@@ -193,4 +193,4 @@ features:
         then: attempts reconnection with exponential backoff
     status:
       maturity: draft
-      implementation: in_progress
+      implementation: implemented

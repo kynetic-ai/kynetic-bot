@@ -388,6 +388,9 @@ features:
                 given: /usage command fails or times out
                 when: Error caught
                 then: Session continues with stale usage data; warning logged
+            status:
+              maturity: draft
+              implementation: in_progress
   - _ulid: 01KG73AT8E8H2K6CAY3QTF8EQN
     slugs:
       - session-search

@@ -178,7 +178,6 @@ Provide a concise summary (max ~${this.maxSummaryTokens} tokens) following the f
 export class MockSummaryProvider implements SummaryProvider {
   private summaryCalls: Array<{ turns: ConversationTurn[]; sessionFileRef: string }> = [];
 
-  // eslint-disable-next-line @typescript-eslint/require-await
   async summarize(turns: ConversationTurn[], sessionFileRef: string): Promise<string> {
     this.summaryCalls.push({ turns, sessionFileRef });
 

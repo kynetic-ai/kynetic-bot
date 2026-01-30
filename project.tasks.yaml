@@ -7567,6 +7567,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-01-30T09:33:50.789Z
+  started_at: 2026-01-30T12:05:15.439Z
   notes:
     - _ulid: 01KG742D3XJFX0EVSEE4GWKVFB
       created_at: 2026-01-30T09:34:40.253Z
@@ -7593,9 +7594,22 @@
         - Agent response error handling
         - Any other error paths that have message context available
       supersedes: null
+    - _ulid: 01KG7CQGBXS2C68AGE1YTY040K
+      created_at: 2026-01-30T12:06:00.317Z
+      author: "@claude"
+      content: |-
+        Added messageId to 4 error log locations in handleMessage():
+        - Routing failed (line 309)
+        - Failed to persist user turn (line 327)  
+        - Failed to create session record (line 358)
+        - Failed to persist assistant turn (line 472)
+
+        The other error logs already had messageId:
+        - Stream error (line 409)
+        - Message handling failed (line 480)
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-01-30T12:05:15.439Z
 - _ulid: 01KG740ZMPVJ5TQHG4519PSW4Y
   slugs: []
   title: Log Discord rate limit events

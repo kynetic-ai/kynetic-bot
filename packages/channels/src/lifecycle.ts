@@ -154,20 +154,61 @@ export class ChannelLifecycle {
     channel: string,
     text: string,
     options?: Record<string, unknown>,
-  ): Promise<string | void> {
+  ): Promise<{ messageId?: string } | void> {
     // AC-4: Queue messages when rate limited or unhealthy
-    return new Promise<string | void>((resolve, reject) => {
+    return new Promise<{ messageId?: string } | void>((resolve, reject) => {
       this.messageQueue.push({
         channel,
         text,
         options,
         attempts: 0,
-        resolve,
+        resolve: (value) => {
+          if (typeof value === 'string') {
+            resolve({ messageId: value });
+          } else {
+            resolve(value);
+          }
+        },
         reject,
       });
 
       void this.processMessageQueue();
     });
+  }
+
+  /**
+   * Edit an existing message
+   *
+   * Used for streaming responses where messages are updated incrementally.
+   * Only works if the underlying adapter supports editMessage.
+   *
+   * @param channel - Channel identifier
+   * @param messageId - ID of the message to edit
+   * @param newText - New message text
+   * @returns Optional message ID from the underlying adapter
+   */
+  async editMessage(
+    channel: string,
+    messageId: string,
+    newText: string,
+  ): Promise<string | void> {
+    // Check if adapter supports editMessage
+    if (!this.adapter.editMessage) {
+      return;
+    }
+
+    // Don't queue edits - they need to be fast for streaming
+    // If the channel is unhealthy, the edit will fail gracefully
+    if (this.state !== 'healthy') {
+      return;
+    }
+
+    try {
+      return await this.adapter.editMessage(channel, messageId, newText);
+    } catch {
+      // Swallow edit errors for streaming - missing edit is not fatal
+      return;
+    }
   }
 
   /**

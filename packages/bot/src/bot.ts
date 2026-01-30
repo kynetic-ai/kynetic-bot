@@ -17,6 +17,8 @@ import { AgentLifecycle } from '@kynetic-bot/agent';
 import {
   SessionKeyRouter,
   MessageTransformer,
+  StreamCoalescer,
+  BufferedCoalescer,
   UnsupportedTypeError,
   MissingTransformerError,
   type SessionStore,
@@ -349,7 +351,6 @@ export class Bot extends EventEmitter {
 
       // 4. Create session if needed, then prompt
       let sessionId = this.agent.getSessionId();
-      const isNewSession = !sessionId;
       if (!sessionId) {
         sessionId = await client.newSession({
           cwd: process.cwd(),
@@ -382,32 +383,93 @@ export class Bot extends EventEmitter {
         }
       }
 
-      // 5. Collect response chunks from streaming updates
-      const responseChunks: string[] = [];
+      // 5. Set up streaming response delivery
+      // AC: @streaming-integration ac-1, ac-2, ac-3
+      const isStreamingPlatform = this.supportsStreaming(msg.sender.platform);
+      let responseText = '';
+      let streamingMessageId: string | undefined;
+      let cumulativeText = ''; // Track cumulative text for edit-based streaming
+      let coalescer: StreamCoalescer | BufferedCoalescer;
+
+      if (isStreamingPlatform && this.channelLifecycle) {
+        // AC-2: Streaming platform - use StreamCoalescer for incremental delivery
+        coalescer = new StreamCoalescer({
+          minChars: 1500,
+          idleMs: 1000,
+          onChunk: async (chunk) => {
+            if (!this.channelLifecycle) return;
+            // Accumulate text for edit-based streaming (Discord edits full message)
+            cumulativeText += chunk;
+            if (!streamingMessageId) {
+              // First chunk - send initial message and capture ID for edits
+              const result = await this.channelLifecycle.sendMessage(msg.channel, cumulativeText, {
+                replyTo: msg.id,
+              });
+              streamingMessageId = result?.messageId;
+            } else {
+              // Subsequent chunks - edit existing message with accumulated text
+              await this.channelLifecycle.editMessage?.(msg.channel, streamingMessageId, cumulativeText);
+            }
+          },
+          onComplete: async (fullText) => {
+            responseText = fullText;
+            // Final edit to ensure complete message is displayed
+            if (this.channelLifecycle && streamingMessageId && fullText) {
+              await this.channelLifecycle.editMessage?.(msg.channel, streamingMessageId, fullText);
+            }
+          },
+          onError: (error) => {
+            this.log.error('Stream error', { error: error.message, messageId: msg.id });
+            return Promise.resolve();
+          },
+          logger: this.log,
+        });
+      } else {
+        // AC-3: Non-streaming platform - buffer complete response
+        coalescer = new BufferedCoalescer(async (fullText) => {
+          responseText = fullText;
+          if (this.channelLifecycle && fullText) {
+            await this.channelLifecycle.sendMessage(msg.channel, fullText, {
+              replyTo: msg.id,
+            });
+          }
+        }, this.log);
+      }
+
+      // 6. Set up update handler to feed chunks through coalescer
       const updateHandler = (_sid: string, update: { sessionUpdate?: string; content?: { type?: string; text?: string } }) => {
         if (update.sessionUpdate === 'agent_message_chunk' && update.content?.type === 'text') {
-          responseChunks.push(update.content.text ?? '');
+          const text = update.content.text ?? '';
+          if (coalescer instanceof StreamCoalescer) {
+            // AC-1: Pass through coalescer for streaming
+            coalescer.push(text).catch((err: unknown) => {
+              this.log.error('Error pushing to coalescer', { error: err });
+            });
+          } else {
+            coalescer.push(text);
+          }
         }
       };
       client.on('update', updateHandler);
 
       try {
-        // 6. Send prompt to agent and wait for completion
+        // 7. Send prompt to agent and wait for completion
         await client.prompt({
           sessionId,
           prompt: [{ type: 'text', text: msg.text }],
           promptSource: 'user',
         });
+
+        // 8. Complete the coalescer to flush any remaining buffered content
+        await coalescer.complete();
+      } catch (err) {
+        // AC-4: Abort coalescer on error/disconnect
+        if (coalescer instanceof StreamCoalescer) {
+          coalescer.abort();
+        }
+        throw err;
       } finally {
         client.off('update', updateHandler);
-      }
-
-      // 7. Send collected response via channel
-      const responseText = responseChunks.join('');
-      if (responseText && this.channelLifecycle) {
-        await this.channelLifecycle.sendMessage(msg.channel, responseText, {
-          replyTo: msg.id,
-        });
       }
 
       // AC: @bot-storage-integration ac-4 - Append assistant turn
@@ -497,6 +559,23 @@ export class Bot extends EventEmitter {
    */
   getTransformer(): MessageTransformer {
     return this.transformer;
+  }
+
+  /**
+   * Check if a platform supports streaming responses
+   *
+   * AC: @streaming-integration ac-2 - Platform streaming capability detection
+   *
+   * Discord supports streaming via message edits.
+   * Other platforms may have limited or no streaming support.
+   *
+   * @param platform - Platform identifier
+   * @returns true if platform supports streaming
+   */
+  supportsStreaming(platform: string): boolean {
+    // Discord supports streaming (can edit messages)
+    // Other platforms typically don't support incremental updates
+    return platform === 'discord';
   }
 
   /**

@@ -176,3 +176,8 @@ features:
     traits: []
     notes: []
     created: 2026-01-30T08:05:03.299Z
+    acceptance_criteria:
+      - id: ac-1
+        given: Bot.create() called
+        when: initialization completes
+        then: ConversationStore and SessionStore are instantiated with shadow worktree path

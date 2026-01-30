@@ -8638,7 +8638,7 @@
     - Prerequisite for pr-review skill (pr-review invokes local-review)
   spec_ref: "@bot-pr-review"
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -8678,6 +8678,7 @@
       supersedes: null
   todos: []
   automation: eligible
+  started_at: 2026-01-30T23:17:23.067Z
 - _ulid: 01KG8JJGA627HR3FG5X6EGJKDF
   slugs: []
   title: Port /pr-review skill and workflow with PR comment posting

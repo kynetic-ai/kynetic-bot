@@ -8256,6 +8256,7 @@
         - Single turn exceeds budget → truncate with [truncated] marker
       supersedes: null
   todos: []
+  automation: eligible
 - _ulid: 01KG8G0S5RXPQ79N4YC1F3EBA4
   slugs:
     - task-token-based-turn-selection

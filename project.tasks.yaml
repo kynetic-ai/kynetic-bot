@@ -6574,7 +6574,7 @@
   type: task
   spec_ref: null
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -6650,6 +6650,10 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-01-30T11:39:48.680Z
+  closed_reason: "Merged in PR #28. Fixed flaky concurrent test by converting spin locks to async.
+    Busy-wait loops blocked the event loop causing lock starvation; now yields with setTimeout.
+    Applied to both ConversationStore and SessionStore."
 - _ulid: 01KG5JNEZN743C5NJTT84CS5TM
   slugs: []
   title: Optimize ConversationStore duplicate detection performance

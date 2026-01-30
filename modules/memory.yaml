@@ -181,6 +181,10 @@ features:
             given: Conversation has turns beyond recent window
             when: Context restoration runs
             then: Older turns summarized via HaikuSummaryProvider
+          - id: ac-3
+            given: Turn contains tool call
+            when: Turn formatted for replay
+            then: "Tool call summarized to [Tool: {name}] {brief_result} format"
   - _ulid: 01KG2VD4BPPHV4QP9H5XNA87HR
     slugs:
       - mem-agent-sessions

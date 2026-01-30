@@ -3633,6 +3633,10 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "Merged in PR #26. Implemented AutonomousLoop with circuit breaker pattern
+    (closed/open/half-open states), configurable error threshold and cooldown, TaskSource interface
+    for pluggable task sources, checkpoint/restore for crash recovery, and event-driven
+    observability. All 3 ACs covered with 32 unit tests."
   depends_on:
     - "@agent-lifecycle-task"
     - "@skills-registry"
@@ -3643,6 +3647,7 @@
   vcs_refs: []
   created_at: 2026-01-28T08:10:31.823Z
   started_at: 2026-01-30T11:05:06.033Z
+  completed_at: 2026-01-30T11:23:23.812Z
   notes:
     - _ulid: 01KG1TQ46HF08ZFHC7705ESTAB
       created_at: 2026-01-28T08:15:01.329Z
@@ -3756,11 +3761,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-01-30T11:23:23.812Z
-  closed_reason: "Merged in PR #26. Implemented AutonomousLoop with circuit breaker pattern
-    (closed/open/half-open states), configurable error threshold and cooldown, TaskSource interface
-    for pluggable task sources, checkpoint/restore for crash recovery, and event-driven
-    observability. All 3 ACs covered with 32 unit tests."
 - _ulid: 01KG1TEZG2CMJ3CKE1HMSJZQHA
   slugs:
     - streaming-integration
@@ -3768,7 +3768,7 @@
   type: task
   spec_ref: null
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on:
     - "@task-bot-orchestration"
@@ -3850,6 +3850,7 @@
       supersedes: null
   todos: []
   automation: eligible
+  started_at: 2026-01-30T11:24:23.736Z
 - _ulid: 01KG1TF89D2BAD47YYTG6AXTPE
   slugs:
     - media-handler

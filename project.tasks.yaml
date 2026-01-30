@@ -8648,7 +8648,10 @@
   created_at: 2026-01-30T23:07:06.448Z
   notes: []
   todos: []
-- title: Port /pr-review skill and workflow with PR comment posting
+- _ulid: 01KG8JJGA627HR3FG5X6EGJKDF
+  slugs: []
+  title: Port /pr-review skill and workflow with PR comment posting
+  type: task
   description: >-
     Port the pr-review skill and pr-review-loop workflow from kynetic-spec, adding the missing PR
     comment posting step.
@@ -8755,17 +8758,15 @@
     - No audit trail of AC coverage verification
 
     - Human reviewers can't see what was validated
-  type: task
   spec_ref: "@bot-pr-review"
   meta_ref: null
-  priority: 2
-  slugs: []
-  tags: []
-  _ulid: 01KG8JJGA627HR3FG5X6EGJKDF
   status: pending
   blocked_by: []
-  depends_on: []
+  depends_on:
+    - "@01KG8JJ0"
   context: []
+  priority: 2
+  tags: []
   vcs_refs: []
   created_at: 2026-01-30T23:07:22.310Z
   notes: []

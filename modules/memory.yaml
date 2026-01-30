@@ -172,6 +172,11 @@ features:
           - "@trait-recoverable"
         notes: []
         created: 2026-01-30T22:21:18.516Z
+        acceptance_criteria:
+          - id: ac-1
+            given: New session created for existing conversation
+            when: Context restoration runs
+            then: Recent turns replayed verbatim up to 30% token budget
   - _ulid: 01KG2VD4BPPHV4QP9H5XNA87HR
     slugs:
       - mem-agent-sessions

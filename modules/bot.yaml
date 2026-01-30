@@ -234,3 +234,19 @@ features:
     status:
       maturity: draft
       implementation: implemented
+  - _ulid: 01KG8JGJFSV84D6HFB5J98G1W9
+    slugs:
+      - bot-pr-review
+    title: PR Review Automation
+    type: feature
+    tags: []
+    description: Automated PR review capability for ralph loop subagents. Includes local review (AC
+      coverage, test quality), spec alignment verification, review comment posting to PR, and merge
+      workflow. Required for ralph loop to properly review PRs in this project.
+    depends_on: []
+    implements: []
+    relates_to: []
+    tests: []
+    traits: []
+    notes: []
+    created: 2026-01-30T23:06:19.001Z

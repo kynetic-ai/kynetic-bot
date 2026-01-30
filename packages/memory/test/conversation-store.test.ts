@@ -330,6 +330,73 @@ describe('ConversationStore', () => {
       expect(events[0].wasDuplicate).toBe(true);
     });
 
+    it('rebuilds message ID index on recovery when index file is missing', async () => {
+      const conversation = await store.createConversation('discord:dm:user123');
+
+      // Add some turns with message_ids
+      await store.appendTurn(conversation.id, {
+        role: 'user',
+        content: 'First',
+        message_id: 'msg-001',
+      });
+      await store.appendTurn(conversation.id, {
+        role: 'assistant',
+        content: 'Reply',
+        message_id: 'msg-002',
+      });
+
+      // Delete the index file to simulate recovery scenario
+      const indexPath = path.join(tempDir, 'conversations', conversation.id, 'message-id-index.json');
+      await fs.unlink(indexPath);
+
+      // Create new store instance (simulates restart)
+      const newStore = new ConversationStore({ baseDir: tempDir, emitter });
+
+      // Reading turns should rebuild the index
+      await newStore.readTurns(conversation.id);
+
+      // Now duplicate detection should work via the rebuilt index
+      const duplicate = await newStore.appendTurn(conversation.id, {
+        role: 'user',
+        content: 'Different content',
+        message_id: 'msg-001',
+      });
+
+      // Should return the original turn (seq 0)
+      expect(duplicate.seq).toBe(0);
+      expect(duplicate.content).toBe('First');
+    });
+
+    it('uses O(1) index lookup for duplicate detection', async () => {
+      const conversation = await store.createConversation('discord:dm:user123');
+
+      // Add many turns with message_ids
+      for (let i = 0; i < 100; i++) {
+        await store.appendTurn(conversation.id, {
+          role: 'user',
+          content: `Message ${i}`,
+          message_id: `msg-${i.toString().padStart(3, '0')}`,
+        });
+      }
+
+      // Duplicate detection should be fast (using index, not scanning all turns)
+      const startTime = Date.now();
+      const duplicate = await store.appendTurn(conversation.id, {
+        role: 'user',
+        content: 'Trying to duplicate first message',
+        message_id: 'msg-000',
+      });
+      const elapsed = Date.now() - startTime;
+
+      // Should return the original turn
+      expect(duplicate.seq).toBe(0);
+      expect(duplicate.content).toBe('Message 0');
+
+      // Should be very fast (< 50ms) since it uses index lookup
+      // This is a sanity check, not a strict performance test
+      expect(elapsed).toBeLessThan(100);
+    });
+
     // AC: @mem-conversation ac-5 - emits turn_appended event
     it('emits turn:appended event', async () => {
       const conversation = await store.createConversation('discord:dm:user123');

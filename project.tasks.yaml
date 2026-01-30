@@ -8353,7 +8353,7 @@
     event handler.
   spec_ref: "@mem-context-usage"
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -8403,6 +8403,7 @@
       supersedes: null
   todos: []
   automation: eligible
+  started_at: 2026-01-30T23:38:33.156Z
 - _ulid: 01KG8G14T6H6Q6KJHQQ8J6AZQM
   slugs:
     - task-context-usage-tracker
@@ -8839,6 +8840,8 @@
   meta_ref: null
   status: cancelled
   blocked_by: []
+  closed_reason: "Work already completed in PR #40 along with /local-review skill. Both skills were
+    ported together."
   depends_on:
     - "@01KG8JJ0"
   context: []
@@ -8849,8 +8852,6 @@
   notes: []
   todos: []
   automation: eligible
-  closed_reason: "Work already completed in PR #40 along with /local-review skill. Both skills were
-    ported together."
 - _ulid: 01KG8JPE9RPPWVDQRKE68ZGYAR
   slugs: []
   title: Port GitHub Actions workflows from kynetic-spec

@@ -6548,19 +6548,35 @@
         auto-selects first allow option. Tests needed."
       supersedes: null
   todos: []
-- title: Add tests for kbotDataDir as worktreeDir (ac-6)
+- _ulid: 01KG6J0P2WKK1M4WJB2KMC5ZPX
+  slugs: []
+  title: Add tests for kbotDataDir as worktreeDir (ac-6)
   type: task
   spec_ref: "@bot-config"
+  meta_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  priority: 2
+  tags: []
+  vcs_refs: []
+  created_at: 2026-01-30T04:19:09.532Z
+  notes: []
+  todos: []
+- title: Add tests for getGitRoot() discovery (ac-7)
+  type: task
+  spec_ref: "@bot-orchestration"
   meta_ref: null
   priority: 2
   slugs: []
   tags: []
-  _ulid: 01KG6J0P2WKK1M4WJB2KMC5ZPX
+  _ulid: 01KG6J0QX14RRYBS1S51448F6J
   status: pending
   blocked_by: []
   depends_on: []
   context: []
   vcs_refs: []
-  created_at: 2026-01-30T04:19:09.532Z
+  created_at: 2026-01-30T04:19:11.393Z
   notes: []
   todos: []

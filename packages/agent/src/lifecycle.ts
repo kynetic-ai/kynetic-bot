@@ -7,9 +7,14 @@
 
 import { spawn, type ChildProcess } from 'node:child_process';
 import { EventEmitter } from 'node:events';
+import * as fs from 'node:fs/promises';
 import { PassThrough } from 'node:stream';
 import { createLogger } from '@kynetic-bot/core';
-import { ACPClient } from './acp/index.js';
+import {
+  ACPClient,
+  type ACPClientHandlers,
+  type RequestPermissionResponse,
+} from './acp/index.js';
 import type {
   AgentCheckpoint,
   AgentLifecycleOptions,
@@ -384,6 +389,7 @@ export class AgentLifecycle extends EventEmitter {
           name: 'kynetic-bot',
           version: '0.0.0',
         },
+        handlers: this.createACPHandlers(),
       });
 
       // Wire up ACP events
@@ -694,5 +700,54 @@ export class AgentLifecycle extends EventEmitter {
     this.sessionId = undefined;
 
     // Don't remove user-attached listeners - instance remains usable
+  }
+
+  /**
+   * Create ACP handlers for file operations and permissions
+   */
+  /**
+   * Create ACP handlers for file operations and permissions
+   */
+  private createACPHandlers(): ACPClientHandlers {
+    return {
+      // AC: @agent-lifecycle ac-5 - Handle file read requests from agent
+      readFile: async (params) => {
+        log.debug('Reading file for agent', { path: params.path });
+        try {
+          const content = await fs.readFile(params.path, 'utf8');
+          const lines = content.split('\n');
+          const start = (params.line ?? 1) - 1;
+          const limit = params.limit ?? lines.length;
+          const selectedLines = lines.slice(start, start + limit);
+          return { content: selectedLines.join('\n') };
+        } catch (err) {
+          const error = err instanceof Error ? err : new Error(String(err));
+          log.warn('Failed to read file', { path: params.path, error: error.message });
+          throw error;
+        }
+      },
+
+      // AC: @agent-lifecycle ac-6 - Handle permission requests (MVP: auto-allow)
+      requestPermission: async (params): Promise<RequestPermissionResponse> => {
+        log.debug('Permission requested', { toolCall: params.toolCall?.title });
+        // Find the first "allow" option, or just use the first option
+        const allowOption = params.options.find(
+          (opt) => opt.kind === 'allow_once' || opt.kind === 'allow_always'
+        );
+        const selectedOption = allowOption ?? params.options[0];
+        if (selectedOption) {
+          log.info('Auto-allowing permission', {
+            tool: params.toolCall?.title,
+            option: selectedOption.name,
+          });
+          return {
+            outcome: { outcome: 'selected', optionId: selectedOption.optionId },
+          };
+        }
+        // No options available, cancel
+        log.warn('No permission options available, cancelling');
+        return { outcome: { outcome: 'cancelled' } };
+      },
+    };
   }
 }

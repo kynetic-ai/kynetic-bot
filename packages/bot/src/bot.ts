@@ -9,6 +9,7 @@
  */
 
 import { EventEmitter } from 'node:events';
+import { execSync } from 'node:child_process';
 import { createLogger, type NormalizedMessage, type SessionKey } from '@kynetic-bot/core';
 import { ChannelRegistry, ChannelLifecycle } from '@kynetic-bot/channels';
 import { AgentLifecycle } from '@kynetic-bot/agent';
@@ -18,6 +19,20 @@ import type { BotConfig } from './config.js';
 
 const DEFAULT_AGENT_READY_TIMEOUT = 30000;
 const INFLIGHT_POLL_INTERVAL = 100;
+
+/**
+ * Get the git repository root directory
+ * Falls back to cwd if not in a git repo
+ *
+ * AC: @bot-orchestration ac-7
+ */
+function getGitRoot(): string {
+  try {
+    return execSync('git rev-parse --show-toplevel', { encoding: 'utf8' }).trim();
+  } catch {
+    return process.cwd();
+  }
+}
 
 /**
  * Bot lifecycle state
@@ -117,7 +132,12 @@ export class Bot extends EventEmitter {
     this.registry = options.registry ?? new ChannelRegistry();
     this.agent = options.agent ?? this.createAgentLifecycle();
     this.router = options.router ?? this.createRouter();
-    this.shadow = options.shadow ?? new KbotShadow({ projectRoot: this.config.kbotDataDir });
+    // AC: @bot-orchestration ac-7 - uses git root for projectRoot
+    // AC: @bot-config ac-6 - kbotDataDir is relative worktree dir name
+    this.shadow = options.shadow ?? new KbotShadow({
+      projectRoot: getGitRoot(),
+      worktreeDir: this.config.kbotDataDir,
+    });
 
     this.setupAgentEventHandlers();
   }

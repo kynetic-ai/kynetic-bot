@@ -372,4 +372,12 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KG8MM4P62XQ756WFA77E71GD
+    type: success
+    content: Task notes with specific implementation details (file, line number, code pattern) enable
+      immediate implementation without exploration phase
+    created_at: 2026-01-30T23:43:13.094Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

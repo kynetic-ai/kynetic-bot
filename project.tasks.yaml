@@ -8444,7 +8444,7 @@
     and async invocation.
   spec_ref: "@mem-context-usage"
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on:
     - "@01KG8G13"
@@ -8543,6 +8543,11 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-01-30T23:57:45.895Z
+  closed_reason: "Merged in PR #43. Implemented ContextUsageTracker class that parses /usage command
+    stderr output into structured ContextUsageUpdate data. Includes debouncing (30s), timeout
+    handling (10s), and stale data fallback. All 4 ACs covered by tests: AC-1 (stderr capture) in
+    agent package, AC-2/3/4 (usage command, parsing, error handling) in messaging package."
 - _ulid: 01KG8G16R2T9C0EYDPEHSWZRXA
   slugs:
     - task-wire-session-lifecycle

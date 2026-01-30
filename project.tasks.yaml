@@ -7243,6 +7243,7 @@
         **Test:** Mock client.rest and verify logger.warn called with rate limit info
       supersedes: null
   todos: []
+  automation: eligible
 - _ulid: 01KG7412GA28DBP1NB8GZYS5MF
   slugs: []
   title: Configure ESLint require-await rule

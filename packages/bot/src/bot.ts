@@ -10,11 +10,17 @@
 
 import { EventEmitter } from 'node:events';
 import { execSync } from 'node:child_process';
+import path from 'node:path';
 import { createLogger, type NormalizedMessage, type SessionKey } from '@kynetic-bot/core';
 import { ChannelRegistry, ChannelLifecycle } from '@kynetic-bot/channels';
 import { AgentLifecycle } from '@kynetic-bot/agent';
 import { SessionKeyRouter, type SessionStore, type Session } from '@kynetic-bot/messaging';
-import { KbotShadow } from '@kynetic-bot/memory';
+import {
+  KbotShadow,
+  ConversationStore,
+  SessionStore as MemorySessionStore,
+  type ConversationMetadata,
+} from '@kynetic-bot/memory';
 import type { BotConfig } from './config.js';
 
 const DEFAULT_AGENT_READY_TIMEOUT = 30000;
@@ -58,6 +64,10 @@ export interface BotOptions {
   agent?: AgentLifecycle;
   router?: SessionKeyRouter;
   shadow?: KbotShadow;
+  /** SessionStore for agent session persistence (optional, auto-created if not provided) */
+  memorySessionStore?: MemorySessionStore;
+  /** ConversationStore for conversation persistence (optional, auto-created if not provided) */
+  conversationStore?: ConversationStore;
 }
 
 /**
@@ -117,6 +127,8 @@ export class Bot extends EventEmitter {
   private readonly agent: AgentLifecycle;
   private readonly router: SessionKeyRouter;
   private readonly shadow: KbotShadow;
+  private readonly memorySessionStore: MemorySessionStore;
+  private readonly conversationStore: ConversationStore;
   private channelLifecycle: ChannelLifecycle | null = null;
 
   private lastActiveChannel: string | null = null;
@@ -137,6 +149,14 @@ export class Bot extends EventEmitter {
     this.shadow = options.shadow ?? new KbotShadow({
       projectRoot: getGitRoot(),
       worktreeDir: this.config.kbotDataDir,
+    });
+
+    // AC: @bot-storage-integration ac-1 - Instantiate memory stores
+    const baseDir = path.join(getGitRoot(), this.config.kbotDataDir);
+    this.memorySessionStore = options.memorySessionStore ?? new MemorySessionStore({ baseDir });
+    this.conversationStore = options.conversationStore ?? new ConversationStore({
+      baseDir,
+      sessionStore: this.memorySessionStore,
     });
 
     this.setupAgentEventHandlers();
@@ -282,6 +302,22 @@ export class Bot extends EventEmitter {
         return;
       }
 
+      const sessionKey = sessionResult.value.key;
+      let conversation: ConversationMetadata | undefined;
+
+      // AC: @bot-storage-integration ac-2 - Get or create conversation, append user turn
+      try {
+        conversation = await this.conversationStore.getOrCreateConversation(sessionKey);
+        await this.conversationStore.appendTurn(conversation.id, {
+          role: 'user',
+          content: msg.text,
+          message_id: msg.id,
+        });
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error(String(err));
+        this.log.error('Failed to persist user turn', { error: error.message });
+      }
+
       // 2. Ensure agent is healthy
       await this.ensureAgentReady();
 
@@ -298,6 +334,21 @@ export class Bot extends EventEmitter {
           cwd: process.cwd(),
           mcpServers: [],
         });
+
+        // AC: @bot-storage-integration ac-3 - Create session record
+        if (conversation) {
+          try {
+            await this.memorySessionStore.createSession({
+              id: sessionId,
+              agent_type: 'claude',
+              conversation_id: conversation.id,
+              session_key: sessionKey,
+            });
+          } catch (err) {
+            const error = err instanceof Error ? err : new Error(String(err));
+            this.log.error('Failed to create session record', { error: error.message });
+          }
+        }
       }
 
       // 5. Collect response chunks from streaming updates
@@ -326,6 +377,20 @@ export class Bot extends EventEmitter {
         await this.channelLifecycle.sendMessage(msg.channel, responseText, {
           replyTo: msg.id,
         });
+      }
+
+      // AC: @bot-storage-integration ac-4 - Append assistant turn
+      if (responseText && conversation) {
+        try {
+          await this.conversationStore.appendTurn(conversation.id, {
+            role: 'assistant',
+            content: responseText,
+            agent_session_id: sessionId,
+          });
+        } catch (err) {
+          const error = err instanceof Error ? err : new Error(String(err));
+          this.log.error('Failed to persist assistant turn', { error: error.message });
+        }
       }
 
       // @trait-observable: Emit message:processed event

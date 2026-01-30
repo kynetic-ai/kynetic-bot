@@ -6638,5 +6638,15 @@
   tags: []
   vcs_refs: []
   created_at: 2026-01-30T04:19:14.986Z
-  notes: []
+  notes:
+    - _ulid: 01KG6J7QJR8004MW0BPNQ2G00F
+      created_at: 2026-01-30T04:23:00.441Z
+      author: "@claude"
+      content: |-
+        Test in packages/agent/test/lifecycle.test.ts:
+        - Test selects first 'allow_once' option when available
+        - Test selects first 'allow_always' option when no allow_once
+        - Test falls back to first option if no allow options
+        - Test returns cancelled when options array is empty
+      supersedes: null
   todos: []

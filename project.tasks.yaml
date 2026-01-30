@@ -8677,6 +8677,7 @@
         → agent improvises → PR merged but no comments posted
       supersedes: null
   todos: []
+  automation: eligible
 - _ulid: 01KG8JJGA627HR3FG5X6EGJKDF
   slugs: []
   title: Port /pr-review skill and workflow with PR comment posting

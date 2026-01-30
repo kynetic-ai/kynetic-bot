@@ -6796,4 +6796,71 @@
            - Create session record on new ACP session
            - Append assistant turn after response
       supersedes: null
+    - _ulid: 01KG6YZYHZR2HE7H7HVKJC8Y1N
+      created_at: 2026-01-30T08:05:56.927Z
+      author: "@claude"
+      content: |-
+        ## handleMessage() Integration Points
+
+        ### Before agent prompt (around line 277):
+        ```typescript
+        // Get or create conversation for this session
+        const sessionKey = sessionResult.value.key;
+        let conversation = await this.conversationStore.getBySessionKey(sessionKey);
+        if (!conversation) {
+          conversation = await this.conversationStore.createConversation({
+            session_key: sessionKey,
+            platform: msg.platform ?? 'discord',
+            metadata: { channel: msg.channel }
+          });
+        }
+
+        // Append user turn (idempotent by message_id)
+        await this.conversationStore.appendTurn(conversation.id, {
+          role: 'user',
+          content: msg.text,
+          message_id: msg.id,
+          metadata: { author: msg.author }
+        });
+        ```
+
+        ### After new ACP session created (around line 301):
+        ```typescript
+        // Create agent session record
+        await this.sessionStore.createSession({
+          id: sessionId,
+          agent_type: 'claude',
+          conversation_id: conversation.id,
+          session_key: sessionKey,
+        });
+        ```
+
+        ### After response sent (around line 329):
+        ```typescript
+        // Append assistant turn with session link
+        await this.conversationStore.appendTurn(conversation.id, {
+          role: 'assistant',
+          content: responseText,
+          agent_session_id: sessionId,
+        });
+        ```
+
+        ## Testing Strategy
+
+        1. Update existing bot tests to verify store calls
+        2. Add integration test that:
+           - Sends message
+           - Verifies conversation created in .kbot/conversations/
+           - Verifies turns.jsonl has user and assistant turns
+           - Restarts bot, sends another message
+           - Verifies conversation persists with previous turns
+
+        ## Verification
+
+        ```bash
+        # After implementation, verify files are created:
+        ls -la .kbot/conversations/
+        cat .kbot/conversations/*/turns.jsonl
+        ```
+      supersedes: null
   todos: []

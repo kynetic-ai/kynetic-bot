@@ -7424,10 +7424,43 @@
   tags: []
   vcs_refs: []
   created_at: 2026-01-30T09:27:43.880Z
-  notes: []
+  started_at: 2026-01-30T11:55:27.500Z
+  notes:
+    - _ulid: 01KG7C9NZPEA9T0NYZ8ACVQ7FB
+      created_at: 2026-01-30T11:58:27.318Z
+      author: "@claude"
+      content: >-
+        Implemented Discord typing indicator:
+
+
+        1. Added sendTyping() to ChannelAdapter interface (core/types/channel-adapter.ts)
+
+        2. Implemented sendTyping in DiscordAdapter using channel.sendTyping() - errors are logged
+        but swallowed since typing is non-critical
+
+        3. Added sendTyping() to ChannelLifecycle as proxy method - checks adapter support and
+        health state before calling
+
+        4. Integrated into Bot.handleMessage() - typing indicator sent after message:received event,
+        before routing to session
+
+        5. Added tests: 2 in adapter.test.ts (successful call, error swallowing), 4 in
+        lifecycle.test.ts (adapter support, health check, error handling), 2 in bot.test.ts (typing
+        sent, order verification)
+
+
+        Design decisions:
+
+        - Typing indicator is optional (method may not exist on adapter)
+
+        - Errors are swallowed - typing failure should never block message processing
+
+        - Sent before session routing to show immediate feedback
+
+        - Discord typing auto-expires after ~10 seconds or when message is sent
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-01-30T11:55:27.500Z
 - _ulid: 01KG73SXE9P6M1ARE311M9FPA0
   slugs: []
   title: Improve ACP handler test coverage and quality

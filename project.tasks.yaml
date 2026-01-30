@@ -6564,19 +6564,35 @@
   created_at: 2026-01-30T04:19:09.532Z
   notes: []
   todos: []
-- title: Add tests for getGitRoot() discovery (ac-7)
+- _ulid: 01KG6J0QX14RRYBS1S51448F6J
+  slugs: []
+  title: Add tests for getGitRoot() discovery (ac-7)
   type: task
   spec_ref: "@bot-orchestration"
+  meta_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  priority: 2
+  tags: []
+  vcs_refs: []
+  created_at: 2026-01-30T04:19:11.393Z
+  notes: []
+  todos: []
+- title: Add tests for ACP readFile handler (ac-5)
+  type: task
+  spec_ref: "@agent-lifecycle"
   meta_ref: null
   priority: 2
   slugs: []
   tags: []
-  _ulid: 01KG6J0QX14RRYBS1S51448F6J
+  _ulid: 01KG6J0SJRVPXYH9CWQXAPAR9M
   status: pending
   blocked_by: []
   depends_on: []
   context: []
   vcs_refs: []
-  created_at: 2026-01-30T04:19:11.393Z
+  created_at: 2026-01-30T04:19:13.112Z
   notes: []
   todos: []

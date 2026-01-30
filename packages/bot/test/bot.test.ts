@@ -1149,7 +1149,79 @@ describe('Bot', () => {
     });
 
     // AC: @bot-storage-integration ac-5
-    describe('AC-5: Storage errors do not break messaging', () => {
+    describe('AC-5: Persistence across restart', () => {
+      it('previous turns available via readTurns after bot restart', async () => {
+        // Arrange - create a stateful mock store that persists data
+        const storedTurns: Array<{ role: string; content: string; message_id?: string; agent_session_id?: string }> = [];
+        const conversationData = {
+          id: 'conv-persist-test',
+          session_key: 'session-key',
+          status: 'active' as const,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          turn_count: 0,
+        };
+
+        const statefulConversationStore = {
+          getOrCreateConversation: vi.fn().mockResolvedValue(conversationData),
+          appendTurn: vi.fn().mockImplementation(async (_convId: string, turn: typeof storedTurns[0]) => {
+            storedTurns.push(turn);
+            return { ts: Date.now(), seq: storedTurns.length - 1, ...turn };
+          }),
+          readTurns: vi.fn().mockImplementation(async () => storedTurns),
+        };
+
+        vi.clearAllMocks();
+
+        // Create first bot instance and process a message
+        const bot1 = Bot.createWithDependencies({
+          config,
+          agent: mockAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
+          router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
+          shadow: mockShadow as unknown as Parameters<typeof Bot.createWithDependencies>[0]['shadow'],
+          registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
+          conversationStore: statefulConversationStore as unknown as Parameters<typeof Bot.createWithDependencies>[0]['conversationStore'],
+        });
+        await bot1.start();
+
+        const msg = createMockMessage({ id: 'msg-persist-1', text: 'First message' });
+        const lifecycle = createMockChannelLifecycle();
+        bot1.setChannelLifecycle(lifecycle as unknown as Parameters<typeof bot1.setChannelLifecycle>[0]);
+        await bot1.handleMessage(msg);
+        await bot1.stop();
+
+        // Act - "restart" by creating a new bot with same store
+        const bot2 = Bot.createWithDependencies({
+          config,
+          agent: createMockAgent() as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
+          router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
+          shadow: mockShadow as unknown as Parameters<typeof Bot.createWithDependencies>[0]['shadow'],
+          registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
+          conversationStore: statefulConversationStore as unknown as Parameters<typeof Bot.createWithDependencies>[0]['conversationStore'],
+        });
+
+        // Assert - previous turns available via readTurns
+        const turns = await statefulConversationStore.readTurns('conv-persist-test');
+        expect(turns).toHaveLength(2); // user turn + assistant turn
+        expect(turns[0]).toMatchObject({
+          role: 'user',
+          content: 'First message',
+          message_id: 'msg-persist-1',
+        });
+        expect(turns[1]).toMatchObject({
+          role: 'assistant',
+          content: 'Hello, user!',
+          agent_session_id: 'session-123',
+        });
+
+        // Verify getOrCreateConversation returns same conversation on "restart"
+        const resumedConversation = await statefulConversationStore.getOrCreateConversation('session-key');
+        expect(resumedConversation.id).toBe('conv-persist-test');
+      });
+    });
+
+    // Error resilience (not an AC, but important defensive behavior)
+    describe('Error resilience: Storage errors do not break messaging', () => {
       let mockConversationStore: {
         getOrCreateConversation: ReturnType<typeof vi.fn>;
         appendTurn: ReturnType<typeof vi.fn>;

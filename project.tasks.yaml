@@ -7752,7 +7752,7 @@
   description: "Add lefthook for pre-commit/pre-push hooks - pre-commit: lint staged files, pre-push:
     typecheck + test. See kynetic-internal's lefthook.yml for pattern."
   spec_ref: null
-  status: in_progress
+  status: pending_review
   blocked_by: []
   depends_on: []
   context: []

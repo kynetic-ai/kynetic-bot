@@ -235,6 +235,10 @@ features:
                 given: Token budget calculated
                 when: Selection complete
                 then: Selected turns fit within budget with 5% margin
+              - id: ac-4
+                given: Turn content contains tool markers
+                when: Tool detection runs
+                then: Correctly identifies tool name and extracts brief result
   - _ulid: 01KG2VD4BPPHV4QP9H5XNA87HR
     slugs:
       - mem-agent-sessions

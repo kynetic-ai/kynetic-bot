@@ -4232,7 +4232,7 @@
   type: task
   spec_ref: null
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on:
     - "@task-bot-orchestration"
@@ -4318,6 +4318,7 @@
       supersedes: null
   todos: []
   automation: eligible
+  started_at: 2026-01-30T12:30:03.763Z
 - _ulid: 01KG1TFGK356NFMMZ0GST2A6XA
   slugs:
     - additional-adapters

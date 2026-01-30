@@ -310,7 +310,12 @@ features:
         traits:
           - "@trait-recoverable"
           - "@trait-observable"
-        notes: []
+        notes:
+          - _ulid: 01KG8HGNGH7CCJAXJ9HT3SF9GJ
+            created_at: 2026-01-30T22:48:53.521Z
+            author: "@claude"
+            content: AC-5, AC-6, AC-7 implementation delegated to child spec @mem-context-usage
+            supersedes: null
         created: 2026-01-30T22:20:19.268Z
         acceptance_criteria:
           - id: ac-1

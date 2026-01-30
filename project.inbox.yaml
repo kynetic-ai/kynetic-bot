@@ -41,14 +41,6 @@ inbox:
     created_at: 2026-01-29T22:47:39.899Z
     tags: []
     added_by: "@claude"
-  - _ulid: 01KG61E090E97YEN5M93M464FY
-    text: "Add lefthook for pre-commit/pre-push hooks - pre-commit: lint staged files, pre-push:
-      typecheck + test. See kynetic-internal's lefthook.yml for pattern."
-    created_at: 2026-01-29T23:29:20.161Z
-    tags:
-      - reflection
-      - dx
-    added_by: "@claude"
   - _ulid: 01KG64MZRWM8MDBAC0WENA5YN9
     text: "Bot: Consider using TypedEventEmitter pattern for type-safe event names and payloads instead
       of base EventEmitter"

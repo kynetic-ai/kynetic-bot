@@ -3059,7 +3059,7 @@
   type: task
   spec_ref: null
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on:
     - "@msg-transformer"
@@ -3182,6 +3182,11 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-01-30T10:52:02.454Z
+  closed_reason: "Merged in PR #24. Integrated MessageTransformer into Bot with handleRawMessage()
+    method for platform-agnostic message normalization. AC-1 (incoming message normalization) and
+    AC-3 (graceful handling of unknown content types) covered. AC-2 (outbound denormalization)
+    deferred as current implementation sends text directly."
 - _ulid: 01KG1TEPNTSVQ30A0ZB267MHJ8
   slugs:
     - stream-coalescer

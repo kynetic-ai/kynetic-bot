@@ -268,3 +268,7 @@ features:
         given: Review finds MUST-FIX issues (missing AC coverage, spec misalignment)
         when: Issues cannot be auto-fixed
         then: Task marked needs_review with explanation; PR not merged
+      - id: ac-5
+        given: All quality gates pass (AC coverage, spec alignment, CI green)
+        when: Merge step executes
+        then: PR merged and task completed with summary

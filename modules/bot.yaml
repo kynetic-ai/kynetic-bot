@@ -5,7 +5,7 @@ title: Bot
 type: module
 status:
   maturity: draft
-  implementation: in_progress
+  implementation: implemented
 description: Main bot orchestration layer that wires all components together to create a functioning
   Discord bot.
 tags: []

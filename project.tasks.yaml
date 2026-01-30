@@ -7113,3 +7113,20 @@
   notes: []
   todos: []
   automation: eligible
+- title: Extract InMemorySessionStore to shared location
+  type: task
+  priority: 3
+  spec_ref: null
+  tags: []
+  description: "Bot: Extract InMemorySessionStore to shared location - currently duplicated in bot.ts
+    and tests, should be reusable"
+  _ulid: 01KG740T4ZS75452EADRJ18GGC
+  slugs: []
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  vcs_refs: []
+  created_at: 2026-01-30T09:33:48.063Z
+  notes: []
+  todos: []

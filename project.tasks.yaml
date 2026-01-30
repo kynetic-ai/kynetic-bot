@@ -7385,7 +7385,7 @@
   description: "Discord splitter: actually append truncation marker when hard-cutting long content
     without word boundaries"
   spec_ref: null
-  status: in_progress
+  status: pending_review
   blocked_by: []
   depends_on: []
   context: []

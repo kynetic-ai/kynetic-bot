@@ -3860,6 +3860,38 @@
         4. Add abort handling for client disconnects
         5. Write comprehensive tests
       supersedes: null
+    - _ulid: 01KG7AM0XZQ33681EXTA2SAX9J
+      created_at: 2026-01-30T11:29:09.055Z
+      author: "@claude"
+      content: |-
+        ## Implementation Complete
+
+        ### What was done:
+        - Added StreamCoalescer and BufferedCoalescer imports to bot.ts
+        - Added supportsStreaming() method for platform detection (Discord=true, others=false)
+        - Refactored handleMessage() to use streaming:
+          - Discord: Uses StreamCoalescer with incremental edits
+          - Other platforms: Uses BufferedCoalescer for single complete message
+        - Added abort handling for disconnect/error scenarios
+        - Added editMessage() to ChannelAdapter interface (optional method)
+        - Implemented editMessage() in DiscordAdapter with proper error handling
+        - Added editMessage() to ChannelLifecycle (non-queued for streaming speed)
+
+        ### Acceptance Criteria Coverage:
+        - AC-1: Agent streaming response passes through coalescer
+        - AC-2: Discord gets incremental chunk delivery via message edits
+        - AC-3: Non-streaming platforms receive buffered complete response
+        - AC-4: Disconnect mid-stream triggers abort and cleanup
+
+        ### Files modified:
+        - packages/core/src/types/channel-adapter.ts - Added optional editMessage method
+        - packages/channels/src/adapters/discord/adapter.ts - Implemented editMessage
+        - packages/channels/src/lifecycle.ts - Added editMessage passthrough
+        - packages/bot/src/bot.ts - Streaming integration
+
+        ### Tests added:
+        - 11 new tests in bot.test.ts covering streaming scenarios
+      supersedes: null
   todos: []
   automation: eligible
 - _ulid: 01KG1TF89D2BAD47YYTG6AXTPE

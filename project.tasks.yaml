@@ -3465,7 +3465,7 @@
         Spec updated with AC-4 (Haiku summary) and AC-3 clarified (file reference).
       supersedes: null
   todos: []
-  automation: needs_review
+  automation: eligible
 - _ulid: 01KG1TEX0F7HVTTAGH9EBRC1DT
   slugs:
     - autonomous-loop

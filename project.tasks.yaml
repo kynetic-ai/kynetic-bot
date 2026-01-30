@@ -7150,6 +7150,7 @@
         **Interface already exists:** SessionStore in packages/messaging/src/types.ts
       supersedes: null
   todos: []
+  automation: eligible
 - _ulid: 01KG740WT6BC0ZFMN3R0W31ZP6
   slugs: []
   title: Enrich error contexts with messageId

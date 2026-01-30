@@ -6691,7 +6691,7 @@
   type: task
   spec_ref: "@mem-conversation"
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -6730,6 +6730,10 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-01-30T12:34:40.045Z
+  closed_reason: "Merged in PR #39. Implemented O(1) duplicate detection via message-id-index.json per
+    conversation. Index uses in-memory cache with file persistence. Recovery rebuilds index from
+    turns.jsonl if missing. All 886 tests pass."
 - _ulid: 01KG5YZN1Y96ET4PPZAGF4Q2NG
   slugs: []
   title: Implement 'embed' split strategy for Discord adapter

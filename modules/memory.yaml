@@ -365,6 +365,11 @@ features:
             traits: []
             notes: []
             created: 2026-01-30T22:48:32.491Z
+            acceptance_criteria:
+              - id: ac-1
+                given: Agent process spawned
+                when: Process writes to stderr
+                then: Stderr output is captured programmatically (not inherited to parent)
   - _ulid: 01KG73AT8E8H2K6CAY3QTF8EQN
     slugs:
       - session-search

@@ -6263,6 +6263,27 @@
       author: "@claude"
       content: Starting implementation per approved plan
       supersedes: null
+    - _ulid: 01KG6CPW7ZWPD8BV6QWH6AT8AJ
+      created_at: 2026-01-30T02:46:25.280Z
+      author: "@claude"
+      content: >-
+        Implementation complete:
+
+        - Created packages/bot/src/cli.ts with:
+          - Main entry point that loads config, creates Bot, sets up DiscordAdapter and ChannelLifecycle
+          - Signal handlers for SIGINT (ac-2) and SIGTERM (ac-3)
+          - Error handlers for uncaughtException (ac-4) and unhandledRejection (ac-5)
+          - Double-shutdown prevention with isShuttingDown flag and shutdownPromise
+          - Force exit timeout (30s) as defensive backstop
+          - Partial initialization cleanup in main().catch()
+        - Updated packages/bot/package.json with bin and start script
+
+        - Created packages/bot/test/cli.test.ts with 11 tests covering shutdown logic patterns
+
+        - All 78 bot package tests passing
+
+        - Build and lint passing
+      supersedes: null
   todos: []
   automation: eligible
 - _ulid: 01KG5JN4DH1WAWA7YC9RF1433C

@@ -8341,7 +8341,8 @@
       supersedes: null
   todos: []
 - _ulid: 01KG8G1318V7WSE74WVFRJJ6FZ
-  slugs: []
+  slugs:
+    - task-capture-stderr
   title: Capture Agent Stderr for Usage Parsing
   type: task
   description: Modify AgentLifecycle to capture stderr output from the ACP process for programmatic

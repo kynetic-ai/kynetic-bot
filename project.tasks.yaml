@@ -2928,7 +2928,7 @@
   type: task
   spec_ref: "@msg-history"
   meta_ref: null
-  status: in_progress
+  status: pending_review
   blocked_by: []
   depends_on:
     - "@conversation-store"

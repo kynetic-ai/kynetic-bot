@@ -197,3 +197,18 @@ features:
     status:
       maturity: draft
       implementation: implemented
+  - _ulid: 01KG73AT8E8H2K6CAY3QTF8EQN
+    slugs:
+      - session-search
+    title: Programmatic Session Search
+    type: feature
+    tags: []
+    description: API for agents to programmatically search and parse archived sessions by ID. Enables
+      selective retrieval of historical context without loading full session files.
+    depends_on: []
+    implements: []
+    relates_to: []
+    tests: []
+    traits: []
+    notes: []
+    created: 2026-01-30T09:21:47.278Z

@@ -3428,6 +3428,42 @@
       content: "Automation status set to needs_review: Token-based compaction strategy requires
         architectural review for summarization approach"
       supersedes: null
+    - _ulid: 01KG73BW8H0DCST8VWT3JN21KN
+      created_at: 2026-01-30T09:22:22.097Z
+      author: "@claude"
+      content: >-
+        ## Compaction Approach Clarified
+
+
+        **Summary generation:** Use Haiku via ACP for simple summaries - not trying to capture
+        everything, just:
+
+        - What was discussed (topics)
+
+        - Key user instructions or notes
+
+        - Session file reference for deeper retrieval
+
+
+        **Archived context retrieval (v1):** Provide session file path in summary. Agent can read
+        file directly if needed. Programmatic search API is deferred (@session-search spec).
+
+
+        **Flow:**
+
+        1. Context approaches limit → trigger compaction
+
+        2. Summarize old turns via Haiku ACP call
+
+        3. Summary includes session ID/file reference
+
+        4. Keep recent turns verbatim + summary
+
+        5. Agent can readFile archived session if it needs detail
+
+
+        Spec updated with AC-4 (Haiku summary) and AC-3 clarified (file reference).
+      supersedes: null
   todos: []
   automation: needs_review
 - _ulid: 01KG1TEX0F7HVTTAGH9EBRC1DT

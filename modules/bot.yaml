@@ -106,6 +106,9 @@ features:
         given: agent emits escalate event
         when: escalation handler processes event
         then: sends notification to escalationChannel if configured, otherwise to lastActiveChannel
+    status:
+      maturity: draft
+      implementation: in_progress
   - _ulid: 01KG4GD4PBMEWWEDEN8HPA2DV5
     slugs:
       - bot-cli

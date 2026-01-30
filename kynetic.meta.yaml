@@ -296,4 +296,13 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KG7A5WW0VMZ3VWVVNZJ8CT7Y
+    type: success
+    content: Checkpoint-based testing for circuit breaker states - testing state transitions via
+      restoreFromCheckpoint() proved more reliable than attempting to trigger async loop behavior
+      with fake timers. Use this pattern for testing stateful async components.
+    created_at: 2026-01-30T11:21:26.144Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

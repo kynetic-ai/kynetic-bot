@@ -7418,6 +7418,10 @@
   spec_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "Merged in PR #32. Added Discord typing indicator that shows 'Bot is typing...' while
+    processing messages. Implementation includes: sendTyping() on ChannelAdapter interface
+    (optional), DiscordAdapter implementation with error swallowing, ChannelLifecycle proxy with
+    health checks, and integration in Bot.handleMessage() before session routing."
   depends_on: []
   context: []
   priority: 3
@@ -7425,6 +7429,7 @@
   vcs_refs: []
   created_at: 2026-01-30T09:27:43.880Z
   started_at: 2026-01-30T11:55:27.500Z
+  completed_at: 2026-01-30T12:00:28.629Z
   notes:
     - _ulid: 01KG7C9NZPEA9T0NYZ8ACVQ7FB
       created_at: 2026-01-30T11:58:27.318Z
@@ -7461,11 +7466,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-01-30T12:00:28.629Z
-  closed_reason: "Merged in PR #32. Added Discord typing indicator that shows 'Bot is typing...' while
-    processing messages. Implementation includes: sendTyping() on ChannelAdapter interface
-    (optional), DiscordAdapter implementation with error swallowing, ChannelLifecycle proxy with
-    health checks, and integration in Bot.handleMessage() before session routing."
 - _ulid: 01KG73SXE9P6M1ARE311M9FPA0
   slugs: []
   title: Improve ACP handler test coverage and quality
@@ -7509,7 +7509,7 @@
   description: "Bot: Extract InMemorySessionStore to shared location - currently duplicated in bot.ts
     and tests, should be reusable"
   spec_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -7540,6 +7540,7 @@
       supersedes: null
   todos: []
   automation: eligible
+  started_at: 2026-01-30T12:01:33.753Z
 - _ulid: 01KG740WT6BC0ZFMN3R0W31ZP6
   slugs: []
   title: Enrich error contexts with messageId

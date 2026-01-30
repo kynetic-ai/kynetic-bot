@@ -6576,6 +6576,9 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "Merged in PR #28. Fixed flaky concurrent test by converting spin locks to async.
+    Busy-wait loops blocked the event loop causing lock starvation; now yields with setTimeout.
+    Applied to both ConversationStore and SessionStore."
   depends_on: []
   context: []
   priority: 3
@@ -6583,6 +6586,7 @@
   vcs_refs: []
   created_at: 2026-01-29T19:11:05.137Z
   started_at: 2026-01-30T11:34:16.376Z
+  completed_at: 2026-01-30T11:39:48.680Z
   notes:
     - _ulid: 01KG5JNCV2QBH1MXR9YWXHZ9E5
       created_at: 2026-01-29T19:11:13.762Z
@@ -6650,10 +6654,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-01-30T11:39:48.680Z
-  closed_reason: "Merged in PR #28. Fixed flaky concurrent test by converting spin locks to async.
-    Busy-wait loops blocked the event loop causing lock starvation; now yields with setTimeout.
-    Applied to both ConversationStore and SessionStore."
 - _ulid: 01KG5JNEZN743C5NJTT84CS5TM
   slugs: []
   title: Optimize ConversationStore duplicate detection performance
@@ -6692,7 +6692,7 @@
   type: task
   spec_ref: "@discord-channel-adapter"
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -6710,6 +6710,7 @@
       supersedes: null
   todos: []
   automation: eligible
+  started_at: 2026-01-30T11:40:33.217Z
 - _ulid: 01KG5ZB9KHZE3EMSKMJP8VBBC8
   slugs: []
   title: Fix pre-existing lint errors across packages

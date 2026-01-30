@@ -252,4 +252,13 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KG729K6CV305R6MPNAW90WS3
+    type: success
+    content: Subagent holistic review after implementation caught AC-5 test mislabeling - test was
+      labeled AC-5 but tested error resilience instead of persistence. Review found spec-test
+      mismatch before PR merge.
+    created_at: 2026-01-30T09:03:38.701Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

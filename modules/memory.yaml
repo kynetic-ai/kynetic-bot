@@ -250,6 +250,10 @@ features:
             given: /usage command fails or times out
             when: Error caught
             then: Session continues with stale usage data; warning logged
+          - id: ac-8
+            given: Multiple messages arrive for same session key
+            when: Processing starts
+            then: Messages serialized via per-key lock; share same session
   - _ulid: 01KG73AT8E8H2K6CAY3QTF8EQN
     slugs:
       - session-search

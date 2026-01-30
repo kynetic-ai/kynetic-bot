@@ -200,6 +200,37 @@ export class DiscordAdapter implements ChannelAdapter {
   }
 
   /**
+   * Edit an existing message
+   *
+   * Used for streaming responses where the bot edits its message
+   * as more content becomes available.
+   *
+   * @param channel - Discord channel ID
+   * @param messageId - ID of the message to edit
+   * @param newText - New message text
+   * @returns The message ID of the edited message
+   * @throws DiscordSendError for edit failures
+   */
+  async editMessage(
+    channel: string,
+    messageId: string,
+    newText: string,
+  ): Promise<string> {
+    const discordChannel = await this.fetchChannel(channel);
+
+    try {
+      // Fetch the message first
+      const message = await discordChannel.messages.fetch(messageId);
+
+      // Edit the message
+      const editedMessage = await message.edit(newText);
+      return editedMessage.id;
+    } catch (error) {
+      this.handleEditError(error, channel, messageId);
+    }
+  }
+
+  /**
    * Register a handler for incoming messages
    *
    * @param handler - Callback invoked when messages are received
@@ -366,6 +397,44 @@ export class DiscordAdapter implements ChannelAdapter {
 
     throw new DiscordSendError('Failed to send message', {
       channelId,
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+
+  /**
+   * Handle Discord API errors when editing messages
+   */
+  private handleEditError(error: unknown, channelId: string, messageId: string): never {
+    if (error instanceof DiscordAPIError) {
+      // 10008: Unknown Message
+      if (error.code === 10008) {
+        throw new DiscordSendError('Message not found for edit', {
+          channelId,
+          messageId,
+          discordError: error.message,
+        });
+      }
+
+      // 50001: Missing Access, 50013: Missing Permissions
+      if (error.code === 50001 || error.code === 50013) {
+        throw new DiscordPermissionError(
+          `Missing permission to edit message in channel: ${channelId}`,
+          { channelId, messageId, discordError: error.message },
+        );
+      }
+
+      // 50005: Cannot edit a message authored by another user
+      if (error.code === 50005) {
+        throw new DiscordPermissionError(
+          'Cannot edit message authored by another user',
+          { channelId, messageId, discordError: error.message },
+        );
+      }
+    }
+
+    throw new DiscordSendError('Failed to edit message', {
+      channelId,
+      messageId,
       error: error instanceof Error ? error.message : String(error),
     });
   }

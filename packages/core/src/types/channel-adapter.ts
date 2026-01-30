@@ -42,6 +42,23 @@ export interface ChannelAdapter {
   ): Promise<string | void>;
 
   /**
+   * Edit an existing message (optional)
+   *
+   * Used for streaming responses on platforms that support message editing.
+   * Not all platforms support this - check supportsEditing() or handle gracefully.
+   *
+   * @param channel - Channel identifier (platform-specific)
+   * @param messageId - ID of the message to edit
+   * @param newText - New message text
+   * @returns Optional updated message ID
+   */
+  editMessage?(
+    channel: string,
+    messageId: string,
+    newText: string,
+  ): Promise<string | void>;
+
+  /**
    * Register a handler for incoming messages
    *
    * @param handler - Callback to invoke when messages are received

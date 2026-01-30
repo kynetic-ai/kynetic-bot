@@ -8012,15 +8012,21 @@
       supersedes: null
   todos: []
   automation: eligible
-- title: "Implement: Session Lifecycle Management"
+- _ulid: 01KG8G0MCZXPMANCJ9096K24SB
+  slugs:
+    - task-session-lifecycle-management
+  title: "Implement: Session Lifecycle Management"
   type: task
   spec_ref: "@mem-session-lifecycle"
   derivation: auto
-  priority: 1
-  slugs:
-    - task-session-lifecycle-management
-  tags: []
+  status: pending
+  blocked_by: []
   depends_on: []
+  context: []
+  priority: 1
+  tags: []
+  vcs_refs: []
+  created_at: 2026-01-30T22:22:39.519Z
   notes:
     - _ulid: 01KG8G0MCZCKTESQDEMW887FVX
       created_at: 2026-01-30T22:22:39.519Z
@@ -8064,10 +8070,59 @@
         - ac-9: Given Bot restarts with recent conversation (< 30 min), when First message arrives,
         then Rebuild state from ConversationStore; context restoration injected
       supersedes: null
-  _ulid: 01KG8G0MCZXPMANCJ9096K24SB
+  todos: []
+- title: "Implement: Context Restoration"
+  type: task
+  spec_ref: "@mem-context-restore"
+  derivation: auto
+  priority: 2
+  slugs:
+    - task-context-restoration
+  tags: []
+  depends_on: []
+  notes:
+    - _ulid: 01KG8G0Q255ZH0YDVYNVTYFMYA
+      created_at: 2026-01-30T22:22:42.245Z
+      author: "@claude"
+      content: >-
+        Implementation notes (auto-generated from spec):
+
+
+        Generate context restoration prompt when rotating sessions - combines summary of old turns,
+        verbatim recent turns (up to 30% token budget), and file reference for full history access.
+
+
+
+        Acceptance Criteria:
+
+        - ac-1: Given New session created for existing conversation, when Context restoration runs,
+        then Recent turns replayed verbatim up to 30% token budget
+
+        - ac-2: Given Conversation has turns beyond recent window, when Context restoration runs,
+        then Older turns summarized via HaikuSummaryProvider
+
+        - ac-3: Given Turn contains tool call, when Turn formatted for replay, then Tool call
+        summarized to [Tool: {name}] {brief_result} format
+
+        - ac-4: Given Context restoration prompt generated, when Prompt injected to session, then
+        Includes session file reference .kbot/conversations/{id}/turns.jsonl
+
+        - ac-5: Given Context restoration prompt generated, when Agent receives prompt, then Format
+        has sections: Summary, Recent History, Archived History reference
+
+        - ac-6: Given HaikuSummaryProvider unavailable, when Context restoration runs, then Falls
+        back to recent turns only; warning logged
+
+        - ac-7: Given Conversation has no prior turns, when New session created, then Identity
+        prompt injected; no context restoration attempted
+
+        - ac-8: Given Single turn exceeds 30% token budget, when Turn selected for replay, then Turn
+        truncated with [truncated] marker to fit budget
+      supersedes: null
+  _ulid: 01KG8G0Q251NCJCPN6ED8S3ZN1
   status: pending
   blocked_by: []
   context: []
   vcs_refs: []
-  created_at: 2026-01-30T22:22:39.519Z
+  created_at: 2026-01-30T22:22:42.245Z
   todos: []

@@ -7300,6 +7300,7 @@
         bugs and async-without-await is often intentional for interface compatibility.
       supersedes: null
   todos: []
+  automation: eligible
 - _ulid: 01KG7414V60ZE4RVTKGNDVC7N8
   slugs: []
   title: Add lefthook for pre-commit/pre-push hooks

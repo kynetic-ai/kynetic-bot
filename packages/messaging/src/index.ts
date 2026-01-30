@@ -26,3 +26,18 @@ export {
   type HistoryOptions,
   type CleanupResult,
 } from './history.js';
+
+// Context Window Management
+export {
+  ContextWindowManager,
+  HaikuSummaryProvider,
+  MockSummaryProvider,
+  type ContextWindowOptions,
+  type CompactedSummary,
+  type ContextEntry,
+  type ContextResult,
+  type SummaryProvider,
+  type ContextWindowEvents,
+  type ACPPromptClient,
+  type HaikuSummaryProviderOptions,
+} from './context/index.js';

@@ -7164,7 +7164,32 @@
   tags: []
   vcs_refs: []
   created_at: 2026-01-30T09:33:50.789Z
-  notes: []
+  notes:
+    - _ulid: 01KG742D3XJFX0EVSEE4GWKVFB
+      created_at: 2026-01-30T09:34:40.253Z
+      author: "@claude"
+      content: |-
+        ## Implementation
+
+        **Files:**
+        - packages/bot/src/bot.ts - handleMessage(), error handlers
+
+        **Pattern:**
+        Add messageId to error context wherever errors are logged/thrown during message handling.
+
+        ```typescript
+        // Before
+        this.logger.error('Failed to process message', { error });
+
+        // After  
+        this.logger.error('Failed to process message', { error, messageId: message.id });
+        ```
+
+        **Locations to update:**
+        - handleMessage() catch block
+        - Agent response error handling
+        - Any other error paths that have message context available
+      supersedes: null
   todos: []
 - _ulid: 01KG740ZMPVJ5TQHG4519PSW4Y
   slugs: []

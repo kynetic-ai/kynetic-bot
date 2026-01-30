@@ -378,6 +378,10 @@ features:
                 given: /usage response captured from stderr
                 when: Parsing completes
                 then: ContextUsageUpdate emitted with model, token counts, and category breakdown
+              - id: ac-4
+                given: /usage command fails or times out
+                when: Error caught
+                then: Session continues with stale usage data; warning logged
   - _ulid: 01KG73AT8E8H2K6CAY3QTF8EQN
     slugs:
       - session-search

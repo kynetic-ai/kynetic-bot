@@ -6701,6 +6701,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-01-30T08:05:32.734Z
+  started_at: 2026-01-30T08:43:27.062Z
   notes:
     - _ulid: 01KG6YZ6XS0BD2BQP2PR6F25ND
       created_at: 2026-01-30T08:05:32.734Z
@@ -6947,5 +6948,31 @@
         2. **Use defensive coding** - check `conversation` exists before using
         3. **Shadow commits are automatic** - KbotShadow batch scheduler handles this
       supersedes: null
+    - _ulid: 01KG71B5NHES7JWADKGMZPA3ZN
+      created_at: 2026-01-30T08:47:01.809Z
+      author: "@claude"
+      content: >-
+        Implementation complete:
+
+        - Added imports for ConversationStore, SessionStore, ConversationMetadata from
+        @kynetic-bot/memory
+
+        - Added memorySessionStore and conversationStore fields to BotOptions interface
+
+        - Added private store fields to Bot class
+
+        - Instantiated stores in constructor with baseDir = path.join(getGitRoot(), kbotDataDir)
+
+        - Wired into handleMessage():
+          - AC-2: After routing, call getOrCreateConversation(sessionKey) and appendTurn with user role and message_id
+          - AC-3: After new ACP session creation, call createSession with conversation_id link
+          - AC-4: After response sent, appendTurn with assistant role and agent_session_id
+        - All storage calls wrapped in try-catch so failures don't break messaging
+
+        - Added 7 tests covering AC-1 through AC-5
+
+        - All 737 tests pass, build succeeds
+
+        - Pre-existing lint error in packages/agent/src/lifecycle.ts (unrelated to this change)
+      supersedes: null
   todos: []
-  started_at: 2026-01-30T08:43:27.062Z

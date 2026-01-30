@@ -352,4 +352,14 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KG7E9AN83PF442TZ6EM1P201
+    type: success
+    content: "Type guard test pattern: test each guard with valid inputs, invalid inputs (wrong version,
+      missing fields, wrong types), and cross-guard exclusivity (ensure a request isn't detected as
+      response/error/notification). Applied to ACP JSON-RPC type guards with 48 comprehensive
+      tests."
+    created_at: 2026-01-30T12:33:12.872Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

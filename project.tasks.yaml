@@ -8125,6 +8125,78 @@
         - ac-8: Given Single turn exceeds 30% token budget, when Turn selected for replay, then Turn
         truncated with [truncated] marker to fit budget
       supersedes: null
+    - _ulid: 01KG8G2YXJMA8BTX6K2RS6MTHS
+      created_at: 2026-01-30T22:23:55.826Z
+      author: "@claude"
+      content: |-
+        ## Implementation Details
+
+        **File**: packages/messaging/src/context/context-restorer.ts
+
+        **Dependencies**:
+        - ContextWindowManager (existing) - for getContext() and token estimation
+        - ToolSummarizer (task @task-token-based-turn-selection) - for tool call summarization
+        - ConversationStore (existing) - for reading turns
+
+        **Constructor**:
+        ```typescript
+        constructor(
+          contextWindow: ContextWindowManager,
+          toolSummarizer: ToolSummarizer,
+          options?: {
+            recentTurnsBudget?: number;  // Default: 0.3 (30% of context)
+            summaryBudget?: number;       // Default: 2000 tokens
+            charsPerToken?: number;       // Default: 4
+          }
+        )
+        ```
+
+        **Main Method**:
+        ```typescript
+        async generateRestorationPrompt(sessionKey: string): Promise<{
+          prompt: string;
+          stats: { recentTurns: number; summarizedTurns: number; totalTokens: number };
+        }>
+        ```
+
+        **Prompt Format**:
+        ```markdown
+        ## Session Context
+
+        You are resuming a conversation. Here is the relevant context:
+
+        ### Summary of Earlier Conversation
+        {summary from ContextWindowManager compacted summaries}
+
+        ### Recent Conversation History
+        ---
+        [User]: {message}
+        [Assistant]: {response}
+        [Tool: bash] Executed: ls -la
+        Result: (3 files listed)
+        ---
+
+        ### Archived History
+        Full conversation history: .kbot/conversations/{id}/turns.jsonl
+        Read this file if you need earlier context not included above.
+
+        ---
+        Continue naturally. The user doesn't know the session rotated.
+        ```
+
+        **Logic**:
+        1. Get context from ContextWindowManager.getContext(sessionKey)
+        2. Separate entries into summaries and recent turns
+        3. Apply ToolSummarizer to recent turns with tool calls
+        4. Calculate token budget: recentTurnsBudget * contextWindowMax
+        5. Select most recent turns that fit within budget
+        6. Format into prompt sections
+
+        **Edge Cases**:
+        - No prior turns → return empty (caller injects identity only)
+        - HaikuSummaryProvider fails → skip summary section, include more recent turns
+        - Single turn exceeds budget → truncate with [truncated] marker
+      supersedes: null
   todos: []
 - _ulid: 01KG8G0S5RXPQ79N4YC1F3EBA4
   slugs:

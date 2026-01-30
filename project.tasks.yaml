@@ -7056,21 +7056,56 @@
   created_at: 2026-01-30T09:27:40.977Z
   notes: []
   todos: []
-- title: Add Discord typing indicator during processing
+- _ulid: 01KG73NPG9RG46W2MY8YGFJW5Q
+  slugs: []
+  title: Add Discord typing indicator during processing
   type: task
-  priority: 3
-  spec_ref: null
-  tags: []
   description: Discord typing indicator - show bot is 'typing' during all processing (tool calls,
     thinking, responding). Create TypingController that calls sendTyping() with 9-second refresh
     interval. Hook into Bot.handleMessage() start/finally. Greenfield implementation.
-  _ulid: 01KG73NPG9RG46W2MY8YGFJW5Q
+  spec_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  priority: 3
+  tags: []
+  vcs_refs: []
+  created_at: 2026-01-30T09:27:43.880Z
+  notes: []
+  todos: []
+- title: Improve ACP handler test coverage and quality
+  description: |-
+    Batch of test improvements for AgentLifecycle ACP handlers:
+
+    1. Mock fs.readFile instead of real /tmp/ files (01KG6N5J)
+       - Use vi.mock('node:fs/promises') instead of actual filesystem
+       - Avoids orphan files, faster, more reproducible
+
+    2. Edge case tests for readFile handler (01KG6N5M)
+       - Empty files, files with only newlines
+       - Line number beyond EOF
+       - limit=0, negative line number
+
+    3. Edge case tests for requestPermission handler (01KG6N5P)
+       - Multiple allow_once/allow_always options
+       - Mixed option orders
+
+    4. Error scenario tests for ACP handlers (01KG6N5R)
+       - readFile: EACCES, EISDIR, dead symlink
+       - requestPermission: null values, missing required fields
+  type: task
+  spec_ref: null
+  meta_ref: null
+  priority: 4
   slugs: []
+  tags: []
+  _ulid: 01KG73SXE9P6M1ARE311M9FPA0
   status: pending
   blocked_by: []
   depends_on: []
   context: []
   vcs_refs: []
-  created_at: 2026-01-30T09:27:43.880Z
+  created_at: 2026-01-30T09:30:02.057Z
   notes: []
   todos: []

@@ -7314,5 +7314,42 @@
     - dx
   vcs_refs: []
   created_at: 2026-01-30T09:33:59.014Z
-  notes: []
+  notes:
+    - _ulid: 01KG742XBEDZRRTV9NNJNNGEG7
+      created_at: 2026-01-30T09:34:56.878Z
+      author: "@claude"
+      content: |-
+        ## Implementation
+
+        **Reference:** kynetic-internal/lefthook.yml
+
+        **Files to create:**
+        - lefthook.yml (root)
+
+        **Config pattern:**
+        ```yaml
+        pre-commit:
+          parallel: true
+          commands:
+            lint:
+              glob: '*.{ts,tsx,js,jsx}'
+              run: pnpm lint --fix {staged_files}
+            format:
+              glob: '*.{ts,tsx,js,jsx,json,md}'  
+              run: pnpm prettier --write {staged_files}
+
+        pre-push:
+          commands:
+            typecheck:
+              run: pnpm typecheck
+            test:
+              run: pnpm test
+        ```
+
+        **Setup:**
+        1. `pnpm add -D lefthook`
+        2. Create lefthook.yml
+        3. `pnpm lefthook install`
+        4. Add to package.json scripts: `"prepare": "lefthook install"`
+      supersedes: null
   todos: []

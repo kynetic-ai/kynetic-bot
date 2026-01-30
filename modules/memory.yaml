@@ -201,6 +201,10 @@ features:
             given: Conversation has no prior turns
             when: New session created
             then: Identity prompt injected; no context restoration attempted
+          - id: ac-8
+            given: Single turn exceeds 30% token budget
+            when: Turn selected for replay
+            then: Turn truncated with [truncated] marker to fit budget
   - _ulid: 01KG2VD4BPPHV4QP9H5XNA87HR
     slugs:
       - mem-agent-sessions

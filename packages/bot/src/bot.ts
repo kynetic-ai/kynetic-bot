@@ -306,7 +306,7 @@ export class Bot extends EventEmitter {
       // 1. Route to session
       const sessionResult = this.router.resolveSession(msg, 'main');
       if (!sessionResult.ok) {
-        this.log.error('Routing failed', { error: sessionResult.error.message });
+        this.log.error('Routing failed', { error: sessionResult.error.message, messageId: msg.id });
         this.emit('error', sessionResult.error, { messageId: msg.id });
         return;
       }
@@ -324,7 +324,7 @@ export class Bot extends EventEmitter {
         });
       } catch (err) {
         const error = err instanceof Error ? err : new Error(String(err));
-        this.log.error('Failed to persist user turn', { error: error.message });
+        this.log.error('Failed to persist user turn', { error: error.message, messageId: msg.id });
       }
 
       // 2. Ensure agent is healthy
@@ -355,7 +355,7 @@ export class Bot extends EventEmitter {
             });
           } catch (err) {
             const error = err instanceof Error ? err : new Error(String(err));
-            this.log.error('Failed to create session record', { error: error.message });
+            this.log.error('Failed to create session record', { error: error.message, messageId: msg.id });
           }
         }
 
@@ -469,7 +469,7 @@ export class Bot extends EventEmitter {
           });
         } catch (err) {
           const error = err instanceof Error ? err : new Error(String(err));
-          this.log.error('Failed to persist assistant turn', { error: error.message });
+          this.log.error('Failed to persist assistant turn', { error: error.message, messageId: msg.id });
         }
       }
 

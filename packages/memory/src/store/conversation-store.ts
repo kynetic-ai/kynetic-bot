@@ -483,7 +483,6 @@ export class ConversationStore {
    * @param conversationId - Conversation ID to check
    * @returns True if conversation exists
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
   async conversationExists(conversationId: string): Promise<boolean> {
     return existsSync(this.conversationYamlPath(conversationId));
   }
@@ -803,7 +802,6 @@ export class ConversationStore {
    * @param conversationId - Conversation ID to count turns for
    * @returns Number of turns
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
   async getTurnCount(conversationId: string): Promise<number> {
     const turnsPath = this.turnsJsonlPath(conversationId);
 

@@ -93,6 +93,9 @@ features:
         given: circuit breaker in open state
         when: cooldown period expires
         then: transitions to half-open and attempts recovery
+    status:
+      maturity: draft
+      implementation: in_progress
   - _ulid: 01KG1RE3WCZG5R9NMR9N1Z1A01
     slugs:
       - agent-skills

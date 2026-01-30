@@ -181,3 +181,7 @@ features:
         given: Bot.create() called
         when: initialization completes
         then: ConversationStore and SessionStore are instantiated with shadow worktree path
+      - id: ac-2
+        given: user message received
+        when: handleMessage() processes it
+        then: conversation is retrieved or created, user turn appended with message_id for idempotency

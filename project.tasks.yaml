@@ -8465,5 +8465,91 @@
   tags: []
   vcs_refs: []
   created_at: 2026-01-30T22:22:58.306Z
-  notes: []
+  notes:
+    - _ulid: 01KG8G3SWRKETJGSGHSRCFW6Z0
+      created_at: 2026-01-30T22:24:23.448Z
+      author: "@claude"
+      content: >-
+        ## Implementation Details
+
+
+        **File**: packages/bot/src/bot.ts
+
+
+        **New Imports**:
+
+        ```typescript
+
+        import {
+          SessionLifecycleManager,
+          ContextRestorer,
+          ContextUsageTracker,
+          ToolSummarizer,
+        } from '@kynetic-bot/messaging';
+
+        ```
+
+
+        **New Instance Variables** (in Bot class):
+
+        ```typescript
+
+        private sessionLifecycle: SessionLifecycleManager;
+
+        private contextRestorer: ContextRestorer;
+
+        private usageTracker: ContextUsageTracker;
+
+        ```
+
+
+        **Constructor Changes** (after line ~155):
+
+        ```typescript
+
+        this.usageTracker = new ContextUsageTracker();
+
+        this.sessionLifecycle = new SessionLifecycleManager(
+          this.memorySessionStore,
+          this.conversationStore,
+          this.usageTracker,
+        );
+
+        this.contextRestorer = new ContextRestorer(
+          new ContextWindowManager(this.conversationStore, ...),
+          new ToolSummarizer(),
+        );
+
+        ```
+
+
+        **handleMessage Changes** (replace lines ~340-371):
+
+        1. Wrap entire message handling in per-key lock: sessionLifecycle.withLock(sessionKey, ...)
+
+        2. Get or create session via sessionLifecycle.getOrCreateSession()
+
+        3. Check rotation needed: if (!isNew && shouldRotateSession()) → rotateSession() + inject
+        context
+
+        4. If brand new (isNew):
+           - Check if conversation has prior turns
+           - No turns → identity only
+           - Has turns → identity + context restoration
+        5. Send user message
+
+        6. After response, async check usage: usageTracker.checkUsage().then(usage =>
+        updateContextUsage())
+
+
+        **Acceptance Tests**:
+
+        - Send message to new conversation → identity injected
+
+        - Send multiple messages → same session reused
+
+        - Simulate 75% usage → next message triggers rotation with context restoration
+
+        - Restart bot → first message restores context from persisted turns
+      supersedes: null
   todos: []

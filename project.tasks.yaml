@@ -6462,9 +6462,15 @@
   tags: []
   vcs_refs: []
   created_at: 2026-01-30T04:07:15.718Z
-  notes: []
-  todos: []
   started_at: 2026-01-30T04:07:44.421Z
+  notes:
+    - _ulid: 01KG6HBTSN35HHPVB2YYJ39K11
+      created_at: 2026-01-30T04:07:46.229Z
+      author: "@claude"
+      content: "Implementation in packages/bot/src/bot.ts line 134: passes kbotDataDir as worktreeDir to
+        KbotShadow, separate from projectRoot. Tests needed."
+      supersedes: null
+  todos: []
 - _ulid: 01KG6HAZ543KQVJEPRJ34QXPTR
   slugs: []
   title: Implement git root discovery

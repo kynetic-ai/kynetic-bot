@@ -298,7 +298,9 @@ features:
         description: Manage ACP session lifecycle per conversation - reuse sessions until context limit
           (70%), then rotate with context restoration. Track context usage via /usage command with
           stderr parsing.
-        depends_on: []
+        depends_on:
+          - "@mem-conversation"
+          - "@mem-agent-sessions"
         implements: []
         relates_to: []
         tests: []

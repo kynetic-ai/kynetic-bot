@@ -6587,7 +6587,16 @@
   tags: []
   vcs_refs: []
   created_at: 2026-01-30T04:19:11.393Z
-  notes: []
+  notes:
+    - _ulid: 01KG6J7KYMZSMBGT3A4EN2R745
+      created_at: 2026-01-30T04:22:56.725Z
+      author: "@claude"
+      content: |-
+        Test in packages/bot/test/bot.test.ts:
+        - Mock execSync to return a git root path, verify it's used as projectRoot
+        - Mock execSync to throw (non-git dir), verify fallback to process.cwd()
+        - Test getGitRoot() function directly if exported, or test via Bot constructor
+      supersedes: null
   todos: []
 - _ulid: 01KG6J0SJRVPXYH9CWQXAPAR9M
   slugs: []

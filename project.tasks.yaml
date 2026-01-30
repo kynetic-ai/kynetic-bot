@@ -6624,6 +6624,7 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "PR #19 merged"
   depends_on: []
   context: []
   priority: 2
@@ -6631,6 +6632,7 @@
   vcs_refs: []
   created_at: 2026-01-30T04:19:13.112Z
   started_at: 2026-01-30T04:58:43.322Z
+  completed_at: 2026-01-30T05:17:31.437Z
   notes:
     - _ulid: 01KG6J7NPSDDKKEFDQV18PDV3V
       created_at: 2026-01-30T04:22:58.522Z
@@ -6649,15 +6651,13 @@
         offset (1-indexed), limit param, combined line+limit, error on missing file."
       supersedes: null
   todos: []
-  completed_at: 2026-01-30T05:17:31.437Z
-  closed_reason: "PR #19 merged"
 - _ulid: 01KG6J0VDBF39HMMGXHMY46XZQ
   slugs: []
   title: Add tests for ACP requestPermission handler (ac-6)
   type: task
   spec_ref: "@agent-lifecycle"
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -6684,3 +6684,5 @@
         allow_always fallback, first option fallback, empty options cancellation."
       supersedes: null
   todos: []
+  completed_at: 2026-01-30T05:17:32.775Z
+  closed_reason: "PR #19 merged"

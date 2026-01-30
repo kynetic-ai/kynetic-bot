@@ -8389,7 +8389,15 @@
         **Acceptance Test**:
         - Spawn agent, send /usage command, verify stderr content is captured programmatically
       supersedes: null
+    - _ulid: 01KG8GQYR5R5P7VPEPH0Y6664F
+      created_at: 2026-01-30T22:35:23.781Z
+      author: "@claude"
+      content: "Automation status set to needs_review: Task shares parent spec @mem-session-lifecycle ACs
+        but only implements AC-5/AC-6/AC-7 subset (stderr capture + usage parsing). Consider
+        breaking out a child spec for stderr capture or document which ACs apply."
+      supersedes: null
   todos: []
+  automation: needs_review
 - _ulid: 01KG8G14T6H6Q6KJHQQ8J6AZQM
   slugs:
     - task-context-usage-tracker

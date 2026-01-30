@@ -160,3 +160,19 @@ features:
     status:
       maturity: draft
       implementation: implemented
+  - _ulid: 01KG6YYA622KH258S8TKGC51NC
+    slugs:
+      - bot-storage-integration
+    title: Bot Storage Integration
+    type: feature
+    tags: []
+    description: Wire ConversationStore and SessionStore into Bot class to persist conversation turns
+      and agent session events. The storage layer is implemented but not connected to message
+      handling flow.
+    depends_on: []
+    implements: []
+    relates_to: []
+    tests: []
+    traits: []
+    notes: []
+    created: 2026-01-30T08:05:03.299Z

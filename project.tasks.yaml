@@ -7619,7 +7619,7 @@
   type: task
   description: "Discord adapter: log rate limit events for observability (Discord.js emits rateLimit events)"
   spec_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -7672,6 +7672,10 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-01-30T12:13:05.455Z
+  closed_reason: "Merged in PR #35. Added rate limit event logging to DiscordAdapter - listens for
+    'rateLimited' events on client.rest and logs route, method, limit, retryAfter, and global flag
+    at warn level for observability."
 - _ulid: 01KG7412GA28DBP1NB8GZYS5MF
   slugs: []
   title: Configure ESLint require-await rule

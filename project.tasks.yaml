@@ -7365,7 +7365,7 @@
   type: task
   spec_ref: "@bot-identity"
   derivation: auto
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -7448,3 +7448,4 @@
       supersedes: null
   todos: []
   automation: eligible
+  started_at: 2026-01-30T10:20:08.125Z

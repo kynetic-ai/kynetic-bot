@@ -7019,23 +7019,40 @@
         - Pre-existing lint error in packages/agent/src/lifecycle.ts (unrelated to this change)
       supersedes: null
   todos: []
-- title: Memoize getGitRoot() in bot.ts
+- _ulid: 01KG73NHH35AVMG25NV2EZ8WZ7
+  slugs: []
+  title: Memoize getGitRoot() in bot.ts
   type: task
-  priority: 3
-  spec_ref: null
-  tags:
-    - reflection
-    - bot
   description: Memoize getGitRoot() in bot.ts - currently called twice in constructor (KbotShadow and
     stores), should cache result since git root doesn't change during bot lifetime. Small change,
     avoids redundant execSync calls.
-  _ulid: 01KG73NHH35AVMG25NV2EZ8WZ7
+  spec_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  priority: 3
+  tags:
+    - reflection
+    - bot
+  vcs_refs: []
+  created_at: 2026-01-30T09:27:38.786Z
+  notes: []
+  todos: []
+- title: Fix Discord splitter truncation marker on hard-cut
+  type: task
+  priority: 3
+  spec_ref: null
+  tags: []
+  description: "Discord splitter: actually append truncation marker when hard-cutting long content
+    without word boundaries"
+  _ulid: 01KG73NKNH0VEPBRE24VXNXX35
   slugs: []
   status: pending
   blocked_by: []
   depends_on: []
   context: []
   vcs_refs: []
-  created_at: 2026-01-30T09:27:38.786Z
+  created_at: 2026-01-30T09:27:40.977Z
   notes: []
   todos: []

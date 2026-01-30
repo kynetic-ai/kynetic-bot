@@ -5663,7 +5663,7 @@
   type: task
   spec_ref: "@bot"
   derivation: auto
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -5689,6 +5689,7 @@
       supersedes: null
   todos: []
   automation: needs_review
+  started_at: 2026-01-30T09:08:18.520Z
 - _ulid: 01KG4GE0APQ0QAPCFFE3RMV5VJ
   slugs:
     - task-bot-configuration

@@ -4,8 +4,12 @@
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "bin": {
+    "kbot": "./dist/cli.js"
+  },
   "scripts": {
     "build": "tsc",
+    "start": "node dist/cli.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint src",

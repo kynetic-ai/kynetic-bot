@@ -6554,7 +6554,7 @@
   type: task
   spec_ref: "@bot-config"
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -6580,6 +6580,8 @@
         passed correctly, default .kbot value, relative dir interpretation."
       supersedes: null
   todos: []
+  completed_at: 2026-01-30T05:17:28.639Z
+  closed_reason: "PR #19 merged"
 - _ulid: 01KG6J0QX14RRYBS1S51448F6J
   slugs: []
   title: Add tests for getGitRoot() discovery (ac-7)

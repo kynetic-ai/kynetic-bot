@@ -143,6 +143,10 @@ features:
         given: uncaught exception
         when: thrown
         then: logs error, attempts graceful shutdown, exits with code 1
+      - id: ac-5
+        given: unhandled promise rejection
+        when: detected
+        then: logs error, attempts graceful shutdown, exits with code 1
     status:
       maturity: draft
       implementation: in_progress

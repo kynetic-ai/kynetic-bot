@@ -38,6 +38,7 @@ vi.mock('discord.js', async (importOriginal) => {
       login = vi.fn().mockResolvedValue('token');
       destroy = vi.fn();
       channels = { fetch: vi.fn() };
+      rest = new EventEmitter();
 
       constructor(_options: unknown) {
         super();
@@ -63,6 +64,7 @@ function getMockClient() {
     login: ReturnType<typeof vi.fn>;
     destroy: ReturnType<typeof vi.fn>;
     channels: { fetch: ReturnType<typeof vi.fn> };
+    rest: EventEmitter;
   };
 }
 
@@ -433,6 +435,24 @@ describe('DiscordAdapter', () => {
 
       // Emit error event (should not throw)
       getMockClient()?.emit(Events.Error, new Error('Test error'));
+    });
+
+    it('should log rate limit events from REST client', async () => {
+      const startPromise = adapter.start();
+      setImmediate(() => {
+        const client = getMockClient();
+        client?.emit(Events.ClientReady, client);
+      });
+      await startPromise;
+
+      // Emit rate limit event on the REST client (should not throw)
+      getMockClient()?.rest.emit('rateLimited', {
+        route: '/channels/123/messages',
+        method: 'POST',
+        limit: 5,
+        retryAfter: 1000,
+        global: false,
+      });
     });
   });
 });

@@ -8646,7 +8646,36 @@
   tags: []
   vcs_refs: []
   created_at: 2026-01-30T23:07:06.448Z
-  notes: []
+  notes:
+    - _ulid: 01KG8JK0VYK7P99JS6PF8W9AN6
+      created_at: 2026-01-30T23:07:39.262Z
+      author: "@claude"
+      content: >-
+        ## Context
+
+
+        This task is part of fixing the ralph loop PR review subagent issue.
+
+
+        **Discovery**: During `/triage automation`, we found 3 tasks marked needs_review.
+        Investigating why PR reviews weren't posting comments led to discovering that kynetic-bot
+        lacks the /pr-review and /local-review skills entirely.
+
+
+        **Evidence from session 01KG77VGW5EHA549G9573037E7**:
+
+        - pending_review_tasks existed (e.g., task 01KG73NK)
+
+        - Zero `gh pr comment` or `gh pr review` commands executed
+
+        - Only phases: task-work, reflect (no pr-review phase)
+
+        - PRs 37-39 have empty comments[] and reviews[] arrays
+
+
+        **Flow**: Ralph spawns subagent → subagent told to run `/pr-review @task` → skill not found
+        → agent improvises → PR merged but no comments posted
+      supersedes: null
   todos: []
 - _ulid: 01KG8JJGA627HR3FG5X6EGJKDF
   slugs: []

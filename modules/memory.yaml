@@ -374,6 +374,10 @@ features:
                 given: Agent response completes
                 when: Usage check triggered
                 then: /usage command sent to agent and response awaited
+              - id: ac-3
+                given: /usage response captured from stderr
+                when: Parsing completes
+                then: ContextUsageUpdate emitted with model, token counts, and category breakdown
   - _ulid: 01KG73AT8E8H2K6CAY3QTF8EQN
     slugs:
       - session-search

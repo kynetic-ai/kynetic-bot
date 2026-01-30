@@ -7039,6 +7039,7 @@
   created_at: 2026-01-30T09:27:38.786Z
   notes: []
   todos: []
+  automation: eligible
 - _ulid: 01KG73NKNH0VEPBRE24VXNXX35
   slugs: []
   title: Fix Discord splitter truncation marker on hard-cut
@@ -7074,7 +7075,10 @@
   created_at: 2026-01-30T09:27:43.880Z
   notes: []
   todos: []
-- title: Improve ACP handler test coverage and quality
+- _ulid: 01KG73SXE9P6M1ARE311M9FPA0
+  slugs: []
+  title: Improve ACP handler test coverage and quality
+  type: task
   description: |-
     Batch of test improvements for AgentLifecycle ACP handlers:
 
@@ -7094,17 +7098,14 @@
     4. Error scenario tests for ACP handlers (01KG6N5R)
        - readFile: EACCES, EISDIR, dead symlink
        - requestPermission: null values, missing required fields
-  type: task
   spec_ref: null
   meta_ref: null
-  priority: 4
-  slugs: []
-  tags: []
-  _ulid: 01KG73SXE9P6M1ARE311M9FPA0
   status: pending
   blocked_by: []
   depends_on: []
   context: []
+  priority: 4
+  tags: []
   vcs_refs: []
   created_at: 2026-01-30T09:30:02.057Z
   notes: []

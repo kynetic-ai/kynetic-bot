@@ -8168,6 +8168,47 @@
         - ac-4: Given Turn content contains tool markers, when Tool detection runs, then Correctly
         identifies tool name and extracts brief result
       supersedes: null
+    - _ulid: 01KG8G2EPGT6G3GH6P074AB32M
+      created_at: 2026-01-30T22:23:39.216Z
+      author: "@claude"
+      content: |-
+        ## Implementation Details
+
+        **File**: packages/messaging/src/context/tool-summarizer.ts
+
+        **Tool Call Detection**:
+        Tool calls in turns appear as structured content. Detect via:
+        - JSON blocks with tool_use or tool_result markers
+        - Claude's tool call format: <function_calls> blocks
+        - Content starting with tool invocation patterns
+
+        **Summarization Format**:
+        ```
+        [Tool: {tool_name}] {action_summary}
+        Result: {brief_result_or_status}
+        ```
+
+        **Examples**:
+        - [Tool: bash] Executed: ls -la /home/user → Result: (12 files listed)
+        - [Tool: Read] Read: /path/to/file.ts (450 lines) → Result: File content loaded
+        - [Tool: Grep] Searched: "pattern" in src/ → Result: 5 matches found
+
+        **Interface**:
+        ```typescript
+        class ToolSummarizer {
+          isToolCall(content: string): boolean;
+          summarize(content: string): string;
+          estimateTokenSavings(original: string, summarized: string): number;
+        }
+        ```
+
+        **Token Savings Target**: 80%+ reduction for verbose tool outputs
+
+        **Acceptance Test**:
+        - Input: Full Read tool output with 500 lines of code
+        - Output: [Tool: Read] Read: file.ts (500 lines)\nResult: File content loaded
+        - Verify: Token count reduced by >80%
+      supersedes: null
   todos: []
 - _ulid: 01KG8G1318V7WSE74WVFRJJ6FZ
   slugs: []

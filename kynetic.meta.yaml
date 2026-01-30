@@ -286,4 +286,14 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KG793HXBGTVXMF3TZFV4SDQC
+    type: success
+    content: "Provider interface + Mock pattern: Creating SummaryProvider interface with
+      HaikuSummaryProvider (production) and MockSummaryProvider (test) side-by-side enabled
+      comprehensive testing without external dependencies. Pattern reusable for other ACP-dependent
+      features."
+    created_at: 2026-01-30T11:02:40.811Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

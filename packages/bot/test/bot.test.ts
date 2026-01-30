@@ -60,17 +60,31 @@ function createMockConfig(overrides?: Partial<BotConfig>): BotConfig {
 }
 
 /**
+ * Create a mock ACP Client (EventEmitter-based for streaming updates)
+ */
+function createMockACPClient() {
+  const clientEmitter = new EventEmitter();
+  const mockClient = Object.assign(clientEmitter, {
+    newSession: vi.fn().mockResolvedValue('session-123'),
+    prompt: vi.fn().mockImplementation(async () => {
+      // Emit streaming update with response content
+      clientEmitter.emit('update', 'session-123', {
+        sessionUpdate: 'agent_message_chunk',
+        content: { type: 'text', text: 'Hello, user!' },
+      });
+      return { stopReason: 'end_turn' };
+    }),
+    getSession: vi.fn().mockReturnValue({ id: 'session-123', status: 'idle' }),
+  });
+  return mockClient;
+}
+
+/**
  * Create a mock AgentLifecycle
  */
 function createMockAgent() {
   const emitter = new EventEmitter();
-  const mockClient = {
-    newSession: vi.fn().mockResolvedValue('session-123'),
-    prompt: vi.fn().mockResolvedValue({
-      result: [{ type: 'text', text: 'Hello, user!' }],
-    }),
-    getSession: vi.fn().mockReturnValue({ id: 'session-123', status: 'idle' }),
-  };
+  const mockClient = createMockACPClient();
 
   return Object.assign(emitter, {
     getState: vi.fn().mockReturnValue('healthy' as const),

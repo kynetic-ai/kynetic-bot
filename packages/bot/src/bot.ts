@@ -9,7 +9,7 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { createLogger, type NormalizedMessage } from '@kynetic-bot/core';
+import { createLogger, type NormalizedMessage, type SessionKey } from '@kynetic-bot/core';
 import { ChannelRegistry, ChannelLifecycle } from '@kynetic-bot/channels';
 import { AgentLifecycle } from '@kynetic-bot/agent';
 import { SessionKeyRouter, type SessionStore, type Session } from '@kynetic-bot/messaging';
@@ -63,7 +63,7 @@ class InMemorySessionStore implements SessionStore {
     peerKind: 'user' | 'channel',
   ): Session {
     const session: Session = {
-      key,
+      key: key as SessionKey,
       agent,
       platform,
       peerId,
@@ -274,18 +274,34 @@ export class Bot extends EventEmitter {
       // 4. Create session if needed, then prompt
       let sessionId = this.agent.getSessionId();
       if (!sessionId) {
-        sessionId = await client.newSession({});
+        sessionId = await client.newSession({
+          cwd: process.cwd(),
+          mcpServers: [],
+        });
       }
 
-      // 5. Send prompt to agent
-      const response = await client.prompt({
-        sessionId,
-        prompt: [{ type: 'text', text: msg.text }],
-        promptSource: 'user',
-      });
+      // 5. Collect response chunks from streaming updates
+      const responseChunks: string[] = [];
+      const updateHandler = (_sid: string, update: { sessionUpdate?: string; content?: { type?: string; text?: string } }) => {
+        if (update.sessionUpdate === 'agent_message_chunk' && update.content?.type === 'text') {
+          responseChunks.push(update.content.text ?? '');
+        }
+      };
+      client.on('update', updateHandler);
 
-      // 6. Extract and send response via channel
-      const responseText = this.extractResponseText(response);
+      try {
+        // 6. Send prompt to agent and wait for completion
+        await client.prompt({
+          sessionId,
+          prompt: [{ type: 'text', text: msg.text }],
+          promptSource: 'user',
+        });
+      } finally {
+        client.off('update', updateHandler);
+      }
+
+      // 7. Send collected response via channel
+      const responseText = responseChunks.join('');
       if (responseText && this.channelLifecycle) {
         await this.channelLifecycle.sendMessage(msg.channel, responseText, {
           replyTo: msg.id,
@@ -479,21 +495,4 @@ export class Bot extends EventEmitter {
     this.emit('state:change', oldState, newState);
   }
 
-  /**
-   * Extract text from prompt response
-   */
-  private extractResponseText(response: { result?: unknown[] }): string | null {
-    if (!response.result || !Array.isArray(response.result)) {
-      return null;
-    }
-
-    const textParts: string[] = [];
-    for (const item of response.result) {
-      if (typeof item === 'object' && item !== null && 'text' in item) {
-        textParts.push(String((item as { text: unknown }).text));
-      }
-    }
-
-    return textParts.length > 0 ? textParts.join('') : null;
-  }
 }

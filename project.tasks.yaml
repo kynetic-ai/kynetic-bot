@@ -8402,7 +8402,7 @@
       content: "Spec updated: references @mem-context-usage AC-1 (stderr capture infrastructure)"
       supersedes: null
   todos: []
-  automation: needs_review
+  automation: eligible
 - _ulid: 01KG8G14T6H6Q6KJHQQ8J6AZQM
   slugs:
     - task-context-usage-tracker

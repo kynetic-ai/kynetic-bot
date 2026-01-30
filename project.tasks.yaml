@@ -8265,7 +8265,7 @@
   type: task
   spec_ref: "@mem-turn-selection"
   derivation: auto
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -8343,6 +8343,7 @@
       supersedes: null
   todos: []
   automation: eligible
+  started_at: 2026-01-30T23:59:08.421Z
 - _ulid: 01KG8G1318V7WSE74WVFRJJ6FZ
   slugs:
     - task-capture-stderr
@@ -8446,6 +8447,10 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "Merged in PR #43. Implemented ContextUsageTracker class that parses /usage command
+    stderr output into structured ContextUsageUpdate data. Includes debouncing (30s), timeout
+    handling (10s), and stale data fallback. All 4 ACs covered by tests: AC-1 (stderr capture) in
+    agent package, AC-2/3/4 (usage command, parsing, error handling) in messaging package."
   depends_on:
     - "@01KG8G13"
   context: []
@@ -8454,6 +8459,7 @@
   vcs_refs: []
   created_at: 2026-01-30T22:22:56.326Z
   started_at: 2026-01-30T23:45:47.979Z
+  completed_at: 2026-01-30T23:57:45.895Z
   notes:
     - _ulid: 01KG8G1YQT9AV9R9XSPQR38WZC
       created_at: 2026-01-30T22:23:22.874Z
@@ -8543,11 +8549,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-01-30T23:57:45.895Z
-  closed_reason: "Merged in PR #43. Implemented ContextUsageTracker class that parses /usage command
-    stderr output into structured ContextUsageUpdate data. Includes debouncing (30s), timeout
-    handling (10s), and stale data fallback. All 4 ACs covered by tests: AC-1 (stderr capture) in
-    agent package, AC-2/3/4 (usage command, parsing, error handling) in messaging package."
 - _ulid: 01KG8G16R2T9C0EYDPEHSWZRXA
   slugs:
     - task-wire-session-lifecycle

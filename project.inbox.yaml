@@ -211,3 +211,9 @@ inbox:
     created_at: 2026-01-30T07:57:58.959Z
     tags: []
     added_by: "@claude"
+  - _ulid: 01KG6YHEF3Y2BE0R3RF2GQ3CJN
+    text: File diff widget - syntax highlighting via Discord code blocks, diff display with +/-
+      prefixes, line range info, expand button for full content. Part of rich tool widgets work.
+    created_at: 2026-01-30T07:58:01.699Z
+    tags: []
+    added_by: "@claude"

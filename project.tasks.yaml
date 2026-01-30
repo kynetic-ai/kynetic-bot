@@ -8683,6 +8683,14 @@
       content: Starting implementation. Will port /local-review and /pr-review skills from kynetic-spec,
         and add @local-review and @pr-review-loop workflows to meta.yaml.
       supersedes: null
+    - _ulid: 01KG8K9R2WNX244K27HVFD1X4C
+      created_at: 2026-01-30T23:20:03.932Z
+      author: "@claude"
+      content: "Created skills: /local-review (pre-PR quality review - AC coverage, test quality,
+        isolation) and /pr-review (PR review workflow for subagents). Added workflows @local-review
+        and @pr-review-loop to meta.yaml. Skills are configuration files - ACs describe runtime
+        behavior of the skill/workflow system which is tested by actually running PR reviews."
+      supersedes: null
   todos: []
   automation: eligible
 - _ulid: 01KG8JJGA627HR3FG5X6EGJKDF

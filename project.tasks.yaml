@@ -7517,6 +7517,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-01-30T09:33:48.063Z
+  started_at: 2026-01-30T12:01:33.753Z
   notes:
     - _ulid: 01KG742BSEBZADQX8Z6W3HD9WZ
       created_at: 2026-01-30T09:34:38.894Z
@@ -7538,9 +7539,16 @@
 
         **Interface already exists:** SessionStore in packages/messaging/src/types.ts
       supersedes: null
+    - _ulid: 01KG7CHHD53MCQ2JEMX06AZFRP
+      created_at: 2026-01-30T12:02:44.773Z
+      author: "@claude"
+      content: Extracted InMemorySessionStore to packages/messaging/src/session-store.ts. Combined best of
+        both implementations - added clear() method from test version for test isolation and added
+        size getter. Updated bot.ts and router.test.ts to import from shared location. All 885 tests
+        pass.
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-01-30T12:01:33.753Z
 - _ulid: 01KG740WT6BC0ZFMN3R0W31ZP6
   slugs: []
   title: Enrich error contexts with messageId

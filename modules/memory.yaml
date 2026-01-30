@@ -177,6 +177,10 @@ features:
             given: New session created for existing conversation
             when: Context restoration runs
             then: Recent turns replayed verbatim up to 30% token budget
+          - id: ac-2
+            given: Conversation has turns beyond recent window
+            when: Context restoration runs
+            then: Older turns summarized via HaikuSummaryProvider
   - _ulid: 01KG2VD4BPPHV4QP9H5XNA87HR
     slugs:
       - mem-agent-sessions

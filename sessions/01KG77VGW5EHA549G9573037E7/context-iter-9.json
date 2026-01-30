@@ -1,0 +1,343 @@
+{
+  "generated_at": "2026-01-30T11:48:50.138Z",
+  "branch": "fix/memoize-getgitroot",
+  "context": {
+    "focus": null,
+    "threads": [],
+    "open_questions": [],
+    "updated_at": "2026-01-30T11:48:50.138Z"
+  },
+  "active_tasks": [],
+  "pending_review_tasks": [
+    {
+      "ref": "01KG73NH",
+      "title": "Memoize getGitRoot() in bot.ts",
+      "started_at": "2026-01-30T11:46:23.669Z",
+      "priority": 3,
+      "spec_ref": null,
+      "note_count": 1,
+      "last_note_at": "2026-01-30T11:47:56.358Z",
+      "todo_count": 0,
+      "incomplete_todos": 0
+    }
+  ],
+  "recent_notes": [],
+  "active_todos": [],
+  "ready_tasks": [
+    {
+      "ref": "01KG73NK",
+      "title": "Fix Discord splitter truncation marker on hard-cut",
+      "priority": 3,
+      "spec_ref": null,
+      "tags": []
+    },
+    {
+      "ref": "01KG73NP",
+      "title": "Add Discord typing indicator during processing",
+      "priority": 3,
+      "spec_ref": null,
+      "tags": []
+    },
+    {
+      "ref": "01KG740T",
+      "title": "Extract InMemorySessionStore to shared location",
+      "priority": 3,
+      "spec_ref": null,
+      "tags": []
+    },
+    {
+      "ref": "01KG740W",
+      "title": "Enrich error contexts with messageId",
+      "priority": 3,
+      "spec_ref": null,
+      "tags": []
+    },
+    {
+      "ref": "01KG740Z",
+      "title": "Log Discord rate limit events",
+      "priority": 3,
+      "spec_ref": null,
+      "tags": []
+    },
+    {
+      "ref": "01KG1TFD",
+      "title": "E2E integration test suite",
+      "priority": 4,
+      "spec_ref": null,
+      "tags": [
+        "phase-4"
+      ]
+    },
+    {
+      "ref": "01KG5JNE",
+      "title": "Optimize ConversationStore duplicate detection performance",
+      "priority": 4,
+      "spec_ref": "@mem-conversation",
+      "tags": []
+    },
+    {
+      "ref": "01KG73SX",
+      "title": "Improve ACP handler test coverage and quality",
+      "priority": 4,
+      "spec_ref": null,
+      "tags": []
+    },
+    {
+      "ref": "01KG7412",
+      "title": "Configure ESLint require-await rule",
+      "priority": 4,
+      "spec_ref": null,
+      "tags": [
+        "reflection",
+        "dx"
+      ]
+    },
+    {
+      "ref": "01KG7414",
+      "title": "Add lefthook for pre-commit/pre-push hooks",
+      "priority": 4,
+      "spec_ref": null,
+      "tags": [
+        "reflection",
+        "dx"
+      ]
+    }
+  ],
+  "blocked_tasks": [],
+  "recently_completed": [
+    {
+      "ref": "01KG5YZN",
+      "title": "Implement 'embed' split strategy for Discord adapter",
+      "completed_at": "2026-01-30T11:45:23.246Z",
+      "closed_reason": "Merged in PR #29. Implemented embed split strategy for Discord adapter as AC-3 alternative - uses 4096 char embed description limit with 'Part X of Y' footers for multi-part messages."
+    },
+    {
+      "ref": "01KG5JN4",
+      "title": "Fix flaky ConversationStore concurrent access test",
+      "completed_at": "2026-01-30T11:39:48.680Z",
+      "closed_reason": "Merged in PR #28. Fixed flaky concurrent test by converting spin locks to async. Busy-wait loops blocked the event loop causing lock starvation; now yields with setTimeout. Applied to both ConversationStore and SessionStore."
+    },
+    {
+      "ref": "01KG1TEZ",
+      "title": "Streaming integration into bot",
+      "completed_at": "2026-01-30T11:32:30.582Z",
+      "closed_reason": "Merged in PR #27 (204daa3). Integrated StreamCoalescer for streaming responses: Discord gets incremental message edits, other platforms receive buffered complete responses. Added editMessage to ChannelAdapter interface with Discord implementation. All 4 ACs verified with 11 new tests."
+    },
+    {
+      "ref": "01KG1TEX",
+      "title": "AutonomousLoop for @agent-autonomous",
+      "completed_at": "2026-01-30T11:23:23.812Z",
+      "closed_reason": "Merged in PR #26. Implemented AutonomousLoop with circuit breaker pattern (closed/open/half-open states), configurable error threshold and cooldown, TaskSource interface for pluggable task sources, checkpoint/restore for crash recovery, and event-driven observability. All 3 ACs covered with 32 unit tests."
+    },
+    {
+      "ref": "01KG1TET",
+      "title": "ContextWindowManager for @mem-context-window",
+      "completed_at": "2026-01-30T11:04:23.869Z",
+      "closed_reason": "Merged in PR #25. ContextWindowManager implements token-based compaction with two-tier thresholds (70% soft, 85% hard), semantic boundary preservation, SummaryProvider interface for Haiku summarization via ACP, and session file references for agent access. All 4 ACs verified with 22 unit tests."
+    },
+    {
+      "ref": "01KG1TEE",
+      "title": "Transform integration into bot",
+      "completed_at": "2026-01-30T10:52:02.454Z",
+      "closed_reason": "Merged in PR #24. Integrated MessageTransformer into Bot with handleRawMessage() method for platform-agnostic message normalization. AC-1 (incoming message normalization) and AC-3 (graceful handling of unknown content types) covered. AC-2 (outbound denormalization) deferred as current implementation sends text directly."
+    },
+    {
+      "ref": "01KG1TEC",
+      "title": "ConversationHistory for @msg-history",
+      "completed_at": "2026-01-30T10:46:24.086Z",
+      "closed_reason": "Merged in PR #23. Implemented ConversationHistory class with semantic boundary detection (pause threshold, topic patterns, Q&A breaks), chronological message retrieval with timestamps, and session cleanup/archival. 35 unit tests with AC annotations covering all 3 acceptance criteria."
+    },
+    {
+      "ref": "01KG75SZ",
+      "title": "Implement: System Prompt Identity Injection",
+      "completed_at": "2026-01-30T10:40:13.684Z",
+      "closed_reason": "PR #21 merged. Implemented identity.ts module with base identity and custom identity loading from .kbot/identity.yaml. All 3 ACs covered with tests and AC annotations. 16 new tests total."
+    },
+    {
+      "ref": "01KG4GE08",
+      "title": "Implement: Bot",
+      "completed_at": "2026-01-30T09:08:21.508Z",
+      "closed_reason": "All child tasks completed: bot-configuration, bot-orchestration, bot-cli, bot-storage-integration"
+    },
+    {
+      "ref": "01KG6YZ6",
+      "title": "Implement: Bot Storage Integration",
+      "completed_at": "2026-01-30T08:56:00.601Z",
+      "closed_reason": "Implemented storage integration - wired ConversationStore and SessionStore into Bot, all 5 ACs covered with tests, PR #20 merged"
+    }
+  ],
+  "recent_commits": [
+    {
+      "hash": "f06e729",
+      "full_hash": "f06e72997a76fca7994d1c50798dd525b4d35098",
+      "date": "2026-01-30T11:48:09.000Z",
+      "message": "fix: memoize getGitRoot() to avoid repeated shell spawns",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "918b627",
+      "full_hash": "918b6277cdf12fb5e01422f2a4892ea1bc1db64e",
+      "date": "2026-01-30T11:45:15.000Z",
+      "message": "Merge pull request #29 from kynetic-ai/feat/embed-split-strategy",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "f90857c",
+      "full_hash": "f90857c7564093029b3ad5503946cfa9472ee4e5",
+      "date": "2026-01-30T11:43:32.000Z",
+      "message": "feat: implement 'embed' split strategy for Discord adapter",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "3842a4d",
+      "full_hash": "3842a4d64bf22f783e2cb1ad694837c69b678f0a",
+      "date": "2026-01-30T11:39:42.000Z",
+      "message": "Merge pull request #28 from kynetic-ai/fix/flaky-concurrent-test",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "2000f3b",
+      "full_hash": "2000f3b9ee9bd8a00c52c282ff6dc1e73ff4fc08",
+      "date": "2026-01-30T11:37:52.000Z",
+      "message": "fix: convert spin locks to async to prevent starvation",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "204daa3",
+      "full_hash": "204daa3eedcdf5e1a733c8cb7849d05aaad50072",
+      "date": "2026-01-30T11:32:19.000Z",
+      "message": "Merge pull request #27 from kynetic-ai/feat/streaming-integration",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "8fd6225",
+      "full_hash": "8fd6225ac26643e5c3fee037c4d456d9dc80f585",
+      "date": "2026-01-30T11:29:44.000Z",
+      "message": "feat: integrate StreamCoalescer into Bot for streaming responses",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "093888f",
+      "full_hash": "093888fa8b0a06757d292732e43168ce5e003c7e",
+      "date": "2026-01-30T11:23:15.000Z",
+      "message": "Merge pull request #26 from kynetic-ai/feat/autonomous-loop",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "6115866",
+      "full_hash": "61158660257ff384256fe3d22bb98ca48e1ff2d2",
+      "date": "2026-01-30T11:22:48.000Z",
+      "message": "fix: remove unused Result import from autonomous.ts",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "a830387",
+      "full_hash": "a83038736e214522cf417212869a67b9b5ce94e4",
+      "date": "2026-01-30T11:20:35.000Z",
+      "message": "feat: implement AutonomousLoop for autonomous task processing",
+      "author": "Jacob Chapel"
+    }
+  ],
+  "working_tree": {
+    "clean": true,
+    "staged": [],
+    "unstaged": [],
+    "untracked": []
+  },
+  "inbox_items": [
+    {
+      "ref": "01KG4KV8",
+      "text": "Spec review workflow/skill that runs verification + holistic review after spec changes. Would automate the repeated 'run two subagents to check plan vs implementation and find gaps' pattern.",
+      "created_at": "2026-01-29T10:12:40.090Z",
+      "tags": [
+        "reflection",
+        "workflow"
+      ],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG4KVB",
+      "text": "Allow kspec item trait add to accept multiple traits: kspec item trait add @spec @trait1 @trait2 @trait3 instead of requiring separate commands for each trait.",
+      "created_at": "2026-01-29T10:12:43.363Z",
+      "tags": [
+        "reflection",
+        "kspec-cli"
+      ],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG4KVD",
+      "text": "Display relates_to and depends_on fields in kspec item get output. Currently these fields are only visible by reading the YAML directly.",
+      "created_at": "2026-01-29T10:12:45.470Z",
+      "tags": [
+        "reflection",
+        "kspec-cli"
+      ],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG5Z1E",
+      "text": "Discord adapter: add health check support using client.ws.ping for latency monitoring",
+      "created_at": "2026-01-29T22:47:31.618Z",
+      "tags": [],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG5Z1K",
+      "text": "Discord adapter: make bot message filtering configurable (currently filters all bots, not just self)",
+      "created_at": "2026-01-29T22:47:36.999Z",
+      "tags": [],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG5Z1P",
+      "text": "Discord adapter: expand DiscordSendOptions for ephemeral messages, thread options, slash command support",
+      "created_at": "2026-01-29T22:47:39.899Z",
+      "tags": [],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG64MZ",
+      "text": "Bot: Consider using TypedEventEmitter pattern for type-safe event names and payloads instead of base EventEmitter",
+      "created_at": "2026-01-30T00:25:34.748Z",
+      "tags": [],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG64NC",
+      "text": "Bot: Forward ChannelLifecycle events (health, reconnection) for completeness - currently only AgentLifecycle events are forwarded",
+      "created_at": "2026-01-30T00:25:47.325Z",
+      "tags": [],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG6503",
+      "text": "CLI tool to inspect types from dependencies - e.g. 'pnpm types @agentclientprotocol/sdk NewSessionRequest' to show type definition from .d.ts files. Could support --expand to follow type references. Helps with SDK integration without digging through node_modules/.pnpm/",
+      "created_at": "2026-01-30T00:31:39.008Z",
+      "tags": [
+        "reflection",
+        "dx"
+      ],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG65AG",
+      "text": "Ensure task workflow is followed when implementing plans in new context - problem: plans focus on what to build, not the kspec workflow (task start/notes/submit/complete). Agent jumps to implementation without starting task. Potential fixes: (1) plan template includes 'kspec task start @slug' as first step, (2) CLAUDE.md implementation checklist, (3) session start detects pending tasks with ready plans, (4) hook on plan approval.",
+      "created_at": "2026-01-30T00:37:20.098Z",
+      "tags": [
+        "reflection",
+        "workflow"
+      ],
+      "added_by": "@claude"
+    }
+  ],
+  "stats": {
+    "total_tasks": 63,
+    "in_progress": 0,
+    "pending_review": 1,
+    "ready": 11,
+    "blocked": 0,
+    "completed": 48,
+    "inbox_items": 20
+  }
+}

@@ -7385,7 +7385,7 @@
   description: "Discord splitter: actually append truncation marker when hard-cutting long content
     without word boundaries"
   spec_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -7404,6 +7404,10 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-01-30T11:54:58.656Z
+  closed_reason: "Merged in PR #31. Fixed truncation marker bug where findSplitPoint() reserved space
+    but never appended the marker. Now returns { index, hardCut } so callers properly append '...
+    [truncated]' on hard-cuts."
 - _ulid: 01KG73NPG9RG46W2MY8YGFJW5Q
   slugs: []
   title: Add Discord typing indicator during processing

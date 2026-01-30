@@ -6454,7 +6454,7 @@
   type: task
   spec_ref: "@bot-config"
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -6471,6 +6471,8 @@
         KbotShadow, separate from projectRoot. Tests needed."
       supersedes: null
   todos: []
+  completed_at: 2026-01-30T04:07:56.834Z
+  closed_reason: Already implemented in bot.ts - kbotDataDir passed as worktreeDir parameter
 - _ulid: 01KG6HAZ543KQVJEPRJ34QXPTR
   slugs: []
   title: Implement git root discovery

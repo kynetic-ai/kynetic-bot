@@ -185,6 +185,10 @@ features:
             given: Turn contains tool call
             when: Turn formatted for replay
             then: "Tool call summarized to [Tool: {name}] {brief_result} format"
+          - id: ac-4
+            given: Context restoration prompt generated
+            when: Prompt injected to session
+            then: Includes session file reference .kbot/conversations/{id}/turns.jsonl
   - _ulid: 01KG2VD4BPPHV4QP9H5XNA87HR
     slugs:
       - mem-agent-sessions

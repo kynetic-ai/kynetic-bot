@@ -6582,6 +6582,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-01-29T19:11:05.137Z
+  started_at: 2026-01-30T11:34:16.376Z
   notes:
     - _ulid: 01KG5JNCV2QBH1MXR9YWXHZ9E5
       created_at: 2026-01-29T19:11:13.762Z
@@ -6598,9 +6599,57 @@
       content: "Automation: eligible - Internal test infrastructure fix. Race condition in spin-lock
         timing. No spec needed (doesn't change product behavior)."
       supersedes: null
+    - _ulid: 01KG7B34WCXPREKER4H608CTM6
+      created_at: 2026-01-30T11:37:24.620Z
+      author: "@claude"
+      content: >-
+        ## Implementation Complete
+
+
+        ### Root Cause
+
+        The original spin lock implementation used busy-waiting (Date.now() loops) which blocked the
+        Node.js event loop. When multiple concurrent operations contended for the same lock, they
+        would all spin simultaneously, consuming CPU and preventing the lock holder from completing
+        work. This caused lock acquisition timeouts in high-concurrency scenarios.
+
+
+        ### Fix
+
+        Converted sync `acquireLock()` to async `acquireLock()` in both ConversationStore and
+        SessionStore:
+
+        - Changed busy-spin to `await new Promise(resolve => setTimeout(resolve, 10))`
+
+        - This yields to the event loop, allowing the lock holder to complete and release
+
+        - Lock contention resolves naturally without starvation
+
+
+        ### Files Modified
+
+        - packages/memory/src/store/conversation-store.ts - async lock methods
+
+        - packages/memory/src/store/session-store.ts - async lock methods
+
+        - packages/memory/test/conversation-store.test.ts - added concurrent test
+
+
+        ### Test Added
+
+        - `handles concurrent turn appends safely` - 10 concurrent appends via Promise.all
+
+        - Verifies unique sequence numbers and correct turn count
+
+        - Ran 5 times to confirm no flakiness
+
+
+        ### All Tests
+
+        862 tests pass, 1 skipped (pre-existing Discord integration skip)
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-01-30T11:34:16.376Z
 - _ulid: 01KG5JNEZN743C5NJTT84CS5TM
   slugs: []
   title: Optimize ConversationStore duplicate detection performance

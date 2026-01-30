@@ -8640,6 +8640,37 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: >-
+    Merged in PR #40. Added /local-review and /pr-review skills for PR quality gates:
+
+
+    - /local-review: Pre-PR quality review (AC coverage, test quality, test isolation)
+
+    - /pr-review: PR review workflow for subagent context (validates task, runs local review, posts
+    review comment, merges with quality gates)
+
+    - @local-review workflow: 5-step quality gate with MUST-FIX enforcement
+
+    - @pr-review-loop workflow: Full PR review subagent workflow
+
+
+    All ACs covered:
+
+    - ac-1: Skill invokes workflow
+
+    - ac-2: AC coverage findings with status
+
+    - ac-3: Review summary posted as PR comment
+
+    - ac-4: MUST-FIX issues mark task needs_review
+
+    - ac-5: All gates pass -> PR merged and task completed
+
+    - ac-6: Covered by separate task @01KG8JPE (GitHub Actions)
+
+
+    This enables ralph loop to properly review PRs by spawning subagents that use these skills,
+    fixing the issue where PRs 37-39 were merged without review comments.
   depends_on: []
   context: []
   priority: 2
@@ -8647,6 +8678,7 @@
   vcs_refs: []
   created_at: 2026-01-30T23:07:06.448Z
   started_at: 2026-01-30T23:17:23.067Z
+  completed_at: 2026-01-30T23:24:30.425Z
   notes:
     - _ulid: 01KG8JK0VYK7P99JS6PF8W9AN6
       created_at: 2026-01-30T23:07:39.262Z
@@ -8693,38 +8725,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-01-30T23:24:30.425Z
-  closed_reason: >-
-    Merged in PR #40. Added /local-review and /pr-review skills for PR quality gates:
-
-
-    - /local-review: Pre-PR quality review (AC coverage, test quality, test isolation)
-
-    - /pr-review: PR review workflow for subagent context (validates task, runs local review, posts
-    review comment, merges with quality gates)
-
-    - @local-review workflow: 5-step quality gate with MUST-FIX enforcement
-
-    - @pr-review-loop workflow: Full PR review subagent workflow
-
-
-    All ACs covered:
-
-    - ac-1: Skill invokes workflow
-
-    - ac-2: AC coverage findings with status
-
-    - ac-3: Review summary posted as PR comment
-
-    - ac-4: MUST-FIX issues mark task needs_review
-
-    - ac-5: All gates pass -> PR merged and task completed
-
-    - ac-6: Covered by separate task @01KG8JPE (GitHub Actions)
-
-
-    This enables ralph loop to properly review PRs by spawning subagents that use these skills,
-    fixing the issue where PRs 37-39 were merged without review comments.
 - _ulid: 01KG8JJGA627HR3FG5X6EGJKDF
   slugs: []
   title: Port /pr-review skill and workflow with PR comment posting
@@ -8906,7 +8906,7 @@
     None - can be done independently of skill porting tasks
   spec_ref: "@bot-pr-review"
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -8992,3 +8992,4 @@
       supersedes: null
   todos: []
   automation: eligible
+  started_at: 2026-01-30T23:26:23.060Z

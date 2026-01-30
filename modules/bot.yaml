@@ -111,6 +111,11 @@ features:
         given: agent emits escalate event
         when: escalation handler processes event
         then: sends notification to escalationChannel if configured, otherwise to lastActiveChannel
+      - id: ac-7
+        given: Bot.create() called
+        when: determining project root
+        then: uses 'git rev-parse --show-toplevel' to find git root, falling back to process.cwd() if not in
+          a git repo
     status:
       maturity: draft
       implementation: implemented

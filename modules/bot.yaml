@@ -118,7 +118,7 @@ features:
           a git repo
     status:
       maturity: draft
-      implementation: implemented
+      implementation: in_progress
   - _ulid: 01KG4GD4PBMEWWEDEN8HPA2DV5
     slugs:
       - bot-cli

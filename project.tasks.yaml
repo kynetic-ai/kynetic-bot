@@ -7762,6 +7762,7 @@
     - dx
   vcs_refs: []
   created_at: 2026-01-30T09:33:59.014Z
+  started_at: 2026-01-30T12:17:57.471Z
   notes:
     - _ulid: 01KG742XBEDZRRTV9NNJNNGEG7
       created_at: 2026-01-30T09:34:56.878Z
@@ -7800,9 +7801,15 @@
         3. `pnpm lefthook install`
         4. Add to package.json scripts: `"prepare": "lefthook install"`
       supersedes: null
+    - _ulid: 01KG7DFQYEJ5DY7NCBCF5B1DQ4
+      created_at: 2026-01-30T12:19:14.510Z
+      author: "@claude"
+      content: Added lefthook for git hooks. Pre-commit runs lint:fix and prettier on staged files in
+        parallel. Pre-push runs full build and test suite. Added prepare script to auto-install
+        hooks on pnpm install.
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-01-30T12:17:57.471Z
 - _ulid: 01KG75SZZ82PBTD0611Q73NQEJ
   slugs:
     - task-system-prompt-identity-injection

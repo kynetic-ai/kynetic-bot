@@ -6315,7 +6315,7 @@
   slugs: []
   title: Implement 'embed' split strategy for Discord adapter
   type: task
-  spec_ref: null
+  spec_ref: "@discord-channel-adapter"
   meta_ref: null
   status: pending
   blocked_by: []
@@ -6327,6 +6327,7 @@
   created_at: 2026-01-29T22:46:32.765Z
   notes: []
   todos: []
+  automation: eligible
 - _ulid: 01KG5ZB9KHZE3EMSKMJP8VBBC8
   slugs: []
   title: Fix pre-existing lint errors across packages

@@ -216,7 +216,8 @@ features:
             tags: []
             description: Select turns for verbatim replay based on token budget (30% of context window), not
               turn count. Tool calls use summarized form for token estimation.
-            depends_on: []
+            depends_on:
+              - "@mem-context-restore"
             implements: []
             relates_to: []
             tests: []

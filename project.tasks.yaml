@@ -3061,6 +3061,10 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "Merged in PR #24. Integrated MessageTransformer into Bot with handleRawMessage()
+    method for platform-agnostic message normalization. AC-1 (incoming message normalization) and
+    AC-3 (graceful handling of unknown content types) covered. AC-2 (outbound denormalization)
+    deferred as current implementation sends text directly."
   depends_on:
     - "@msg-transformer"
     - "@task-bot-orchestration"
@@ -3071,6 +3075,7 @@
   vcs_refs: []
   created_at: 2026-01-28T08:10:17.060Z
   started_at: 2026-01-30T10:46:53.777Z
+  completed_at: 2026-01-30T10:52:02.454Z
   notes:
     - _ulid: 01KG1TNFASGJSP164EP1G5D04P
       created_at: 2026-01-28T08:14:07.194Z
@@ -3182,11 +3187,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-01-30T10:52:02.454Z
-  closed_reason: "Merged in PR #24. Integrated MessageTransformer into Bot with handleRawMessage()
-    method for platform-agnostic message normalization. AC-1 (incoming message normalization) and
-    AC-3 (graceful handling of unknown content types) covered. AC-2 (outbound denormalization)
-    deferred as current implementation sends text directly."
 - _ulid: 01KG1TEPNTSVQ30A0ZB267MHJ8
   slugs:
     - stream-coalescer
@@ -3440,7 +3440,7 @@
   type: task
   spec_ref: "@mem-context-window"
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on:
     - "@conversation-store"
@@ -3560,6 +3560,7 @@
       supersedes: null
   todos: []
   automation: eligible
+  started_at: 2026-01-30T10:53:24.968Z
 - _ulid: 01KG1TEX0F7HVTTAGH9EBRC1DT
   slugs:
     - autonomous-loop

@@ -2928,7 +2928,7 @@
   type: task
   spec_ref: "@msg-history"
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on:
     - "@conversation-store"
@@ -3047,6 +3047,11 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-01-30T10:46:24.086Z
+  closed_reason: "Merged in PR #23. Implemented ConversationHistory class with semantic boundary
+    detection (pause threshold, topic patterns, Q&A breaks), chronological message retrieval with
+    timestamps, and session cleanup/archival. 35 unit tests with AC annotations covering all 3
+    acceptance criteria."
 - _ulid: 01KG1TEEK47KKFMSE6Z3RNZXMP
   slugs:
     - transform-integration

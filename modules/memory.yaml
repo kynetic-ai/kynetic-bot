@@ -242,6 +242,9 @@ features:
                 given: Turn content contains tool markers
                 when: Tool detection runs
                 then: Correctly identifies tool name and extracts brief result
+            status:
+              maturity: draft
+              implementation: in_progress
   - _ulid: 01KG2VD4BPPHV4QP9H5XNA87HR
     slugs:
       - mem-agent-sessions

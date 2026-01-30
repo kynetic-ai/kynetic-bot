@@ -8024,7 +8024,7 @@
   depends_on:
     - "@01KG8G14"
   context: []
-  priority: 1
+  priority: 3
   tags: []
   vcs_refs: []
   created_at: 2026-01-30T22:22:39.519Z

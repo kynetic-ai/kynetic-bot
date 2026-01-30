@@ -8606,4 +8606,4 @@
         @task-context-usage-tracker."
       supersedes: null
   todos: []
-  automation: needs_review
+  automation: eligible

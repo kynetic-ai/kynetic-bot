@@ -218,7 +218,8 @@ features:
             implements: []
             relates_to: []
             tests: []
-            traits: []
+            traits:
+              - "@trait-validated"
             notes: []
             created: 2026-01-30T22:22:02.178Z
   - _ulid: 01KG2VD4BPPHV4QP9H5XNA87HR

@@ -8455,7 +8455,8 @@
       supersedes: null
   todos: []
 - _ulid: 01KG8G16R2T9C0EYDPEHSWZRXA
-  slugs: []
+  slugs:
+    - task-wire-session-lifecycle
   title: Wire Session Lifecycle into Bot
   type: task
   description: Integrate SessionLifecycleManager and ContextRestorer into Bot.handleMessage(). Replace

@@ -366,6 +366,17 @@ export class DiscordAdapter implements ChannelAdapter {
     this.client.on(Events.Warn, (message) => {
       this.logger.warn('Discord client warning:', message);
     });
+
+    // Rate limit logging for observability
+    this.client.rest.on('rateLimited', (info) => {
+      this.logger.warn('Discord rate limited', {
+        route: info.route,
+        method: info.method,
+        limit: info.limit,
+        retryAfter: info.retryAfter,
+        global: info.global,
+      });
+    });
   }
 
   /**

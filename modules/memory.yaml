@@ -109,7 +109,7 @@ features:
         then: verifies session exists or rejects with clear error
     status:
       maturity: draft
-      implementation: in_progress
+      implementation: implemented
   - _ulid: 01KG1RDP884TBCZV7QH03CV53M
     slugs:
       - mem-context-window

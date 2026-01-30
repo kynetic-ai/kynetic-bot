@@ -7559,7 +7559,7 @@
   type: task
   description: "Bot: Enrich error contexts with messageId for easier debugging correlation"
   spec_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -7610,6 +7610,9 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-01-30T12:07:44.796Z
+  closed_reason: "Merged in PR #34. Added messageId to 4 error log contexts in handleMessage() for
+    better debugging correlation."
 - _ulid: 01KG740ZMPVJ5TQHG4519PSW4Y
   slugs: []
   title: Log Discord rate limit events

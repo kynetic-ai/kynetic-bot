@@ -7509,7 +7509,7 @@
   description: "Bot: Extract InMemorySessionStore to shared location - currently duplicated in bot.ts
     and tests, should be reusable"
   spec_ref: null
-  status: in_progress
+  status: pending_review
   blocked_by: []
   depends_on: []
   context: []

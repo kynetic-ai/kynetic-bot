@@ -8,6 +8,22 @@ export type {
   QueuedSpawnRequest,
 } from './types.js';
 
+// Autonomous Loop
+export {
+  AutonomousLoop,
+  AutonomousError,
+  CircuitBreakerOpenError,
+} from './autonomous.js';
+export type {
+  CircuitState,
+  AutonomousState,
+  AutonomousLoopOptions,
+  AutoTask,
+  TaskSource,
+  AutonomousCheckpoint,
+  AutonomousLoopEvents,
+} from './autonomous.js';
+
 // Skills Registry
 export {
   SkillsRegistry,

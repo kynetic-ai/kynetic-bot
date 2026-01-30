@@ -6693,7 +6693,7 @@
   type: task
   spec_ref: "@bot-storage-integration"
   derivation: auto
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -6948,3 +6948,4 @@
         3. **Shadow commits are automatic** - KbotShadow batch scheduler handles this
       supersedes: null
   todos: []
+  started_at: 2026-01-30T08:43:27.062Z

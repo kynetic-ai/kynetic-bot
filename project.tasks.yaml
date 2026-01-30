@@ -2931,7 +2931,7 @@
   status: pending
   blocked_by: []
   depends_on:
-    - "@conversation-storage"
+    - "@conversation-store"
   context: []
   priority: 2
   tags:
@@ -5665,6 +5665,8 @@
   derivation: auto
   status: completed
   blocked_by: []
+  closed_reason: "All child tasks completed: bot-configuration, bot-orchestration, bot-cli,
+    bot-storage-integration"
   depends_on: []
   context: []
   priority: 3
@@ -5672,6 +5674,7 @@
   vcs_refs: []
   created_at: 2026-01-29T09:12:59.933Z
   started_at: 2026-01-30T09:08:18.520Z
+  completed_at: 2026-01-30T09:08:21.508Z
   notes:
     - _ulid: 01KG4GE08WFJ0CMG4TJDGMK70N
       created_at: 2026-01-29T09:12:59.933Z
@@ -5690,9 +5693,6 @@
       supersedes: null
   todos: []
   automation: needs_review
-  completed_at: 2026-01-30T09:08:21.508Z
-  closed_reason: "All child tasks completed: bot-configuration, bot-orchestration, bot-cli,
-    bot-storage-integration"
 - _ulid: 01KG4GE0APQ0QAPCFFE3RMV5VJ
   slugs:
     - task-bot-configuration

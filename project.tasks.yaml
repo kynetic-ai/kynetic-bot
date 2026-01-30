@@ -7683,7 +7683,7 @@
   description: Configure ESLint require-await rule to allow async methods matching interface patterns
     (e.g. store methods). Would eliminate 6+ inline eslint-disable comments.
   spec_ref: null
-  status: in_progress
+  status: pending_review
   blocked_by: []
   depends_on: []
   context: []

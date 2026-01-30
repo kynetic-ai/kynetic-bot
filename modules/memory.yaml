@@ -217,7 +217,8 @@ features:
         implements: []
         relates_to: []
         tests: []
-        traits: []
+        traits:
+          - "@trait-recoverable"
         notes: []
         created: 2026-01-30T22:20:19.268Z
   - _ulid: 01KG73AT8E8H2K6CAY3QTF8EQN

@@ -6481,6 +6481,7 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: Already implemented in bot.ts - getGitRoot() helper function
   depends_on: []
   context: []
   priority: 2
@@ -6488,6 +6489,7 @@
   vcs_refs: []
   created_at: 2026-01-30T04:07:17.923Z
   started_at: 2026-01-30T04:07:58.692Z
+  completed_at: 2026-01-30T04:08:04.103Z
   notes:
     - _ulid: 01KG6HC8WEV5P66A2XMM7AQGMP
       created_at: 2026-01-30T04:08:00.655Z
@@ -6496,15 +6498,13 @@
         --show-toplevel, falls back to process.cwd(). Tests needed."
       supersedes: null
   todos: []
-  completed_at: 2026-01-30T04:08:04.103Z
-  closed_reason: Already implemented in bot.ts - getGitRoot() helper function
 - _ulid: 01KG6HB14FN2NHJ555MW3AZM7K
   slugs: []
   title: Implement ACP readFile handler
   type: task
   spec_ref: "@agent-lifecycle"
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -6514,6 +6514,7 @@
   created_at: 2026-01-30T04:07:19.951Z
   notes: []
   todos: []
+  started_at: 2026-01-30T04:08:05.933Z
 - _ulid: 01KG6HB39PPR5JG0YKZ8FPN64F
   slugs: []
   title: Implement ACP requestPermission handler

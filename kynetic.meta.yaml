@@ -362,4 +362,14 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KG8JV5TT4SKZS9M6HY8156CE
+    type: friction
+    content: Explore subagent gave inaccurate conclusion ('no actual subagent spawning') when
+      investigating ralph loop PR review. Required manual re-investigation to find the truth.
+      Complex multi-file investigations may need verification step or more explicit 'confidence
+      level' in conclusions.
+    created_at: 2026-01-30T23:12:06.491Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

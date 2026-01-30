@@ -264,3 +264,7 @@ features:
         when: Review findings are ready
         then: Summary is posted as PR comment via gh pr comment with AC coverage, spec alignment, and issues
           found
+      - id: ac-4
+        given: Review finds MUST-FIX issues (missing AC coverage, spec misalignment)
+        when: Issues cannot be auto-fixed
+        then: Task marked needs_review with explanation; PR not merged

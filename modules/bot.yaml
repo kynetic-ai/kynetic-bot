@@ -336,3 +336,7 @@ features:
         given: All quality gates pass (AC coverage, spec alignment, CI green)
         when: Merge step executes
         then: PR merged and task completed with summary
+      - id: ac-6
+        given: PR created or updated
+        when: GitHub Actions run
+        then: Tests, typecheck, and build pass; Claude code review runs; unresolved thread check enforced

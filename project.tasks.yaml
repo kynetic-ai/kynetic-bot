@@ -8128,6 +8128,7 @@
            - Return { state, isNew: true } - caller injects identity only
       supersedes: null
   todos: []
+  automation: eligible
 - _ulid: 01KG8G0Q251NCJCPN6ED8S3ZN1
   slugs:
     - task-context-restoration

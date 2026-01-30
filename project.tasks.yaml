@@ -8483,7 +8483,7 @@
         handling)"
       supersedes: null
   todos: []
-  automation: needs_review
+  automation: eligible
 - _ulid: 01KG8G16R2T9C0EYDPEHSWZRXA
   slugs:
     - task-wire-session-lifecycle

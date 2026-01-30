@@ -8396,6 +8396,11 @@
         but only implements AC-5/AC-6/AC-7 subset (stderr capture + usage parsing). Consider
         breaking out a child spec for stderr capture or document which ACs apply."
       supersedes: null
+    - _ulid: 01KG8HH31WESBRRAG7951P1YT9
+      created_at: 2026-01-30T22:49:07.389Z
+      author: "@claude"
+      content: "Spec updated: references @mem-context-usage AC-1 (stderr capture infrastructure)"
+      supersedes: null
   todos: []
   automation: needs_review
 - _ulid: 01KG8G14T6H6Q6KJHQQ8J6AZQM

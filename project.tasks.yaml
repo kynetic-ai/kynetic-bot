@@ -7499,10 +7499,25 @@
   tags: []
   vcs_refs: []
   created_at: 2026-01-30T09:30:02.057Z
-  notes: []
+  started_at: 2026-01-30T12:21:46.819Z
+  notes:
+    - _ulid: 01KG7DTNZGPYZDNC6Y8B7SRHEZ
+      created_at: 2026-01-30T12:25:12.945Z
+      author: "@claude"
+      content: >-
+        Added 80 new tests for ACP layer:
+
+        - 48 tests for JSON-RPC type guards (isRequest, isResponse, isError, isNotification)
+
+        - Tests for JsonRpcException class
+
+        - 32 tests for JsonRpcFraming class (request/response, timeouts, error handling,
+        activity-based timeout reset)
+
+        - All tests verify protocol compliance and edge cases
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-01-30T12:21:46.819Z
 - _ulid: 01KG740T4ZS75452EADRJ18GGC
   slugs: []
   title: Extract InMemorySessionStore to shared location

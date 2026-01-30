@@ -197,6 +197,10 @@ features:
             given: HaikuSummaryProvider unavailable
             when: Context restoration runs
             then: Falls back to recent turns only; warning logged
+          - id: ac-7
+            given: Conversation has no prior turns
+            when: New session created
+            then: Identity prompt injected; no context restoration attempted
   - _ulid: 01KG2VD4BPPHV4QP9H5XNA87HR
     slugs:
       - mem-agent-sessions

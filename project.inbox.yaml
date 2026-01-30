@@ -190,3 +190,11 @@ inbox:
     created_at: 2026-01-30T07:57:48.976Z
     tags: []
     added_by: "@claude"
+  - _ulid: 01KG6YH3TC9G5PZWADXPE1ZBX0
+    text: "Discord threads for subagent execution - Claude Code ACP already supports Task
+      tool/subagents. Wire subagent spawning to create Discord threads: thread starter = task
+      prompt, replies = tool calls/thinking/results, auto-archive on completion. Flatten nested
+      subagents (Discord limitation). Enable when ready, not urgent."
+    created_at: 2026-01-30T07:57:50.796Z
+    tags: []
+    added_by: "@claude"

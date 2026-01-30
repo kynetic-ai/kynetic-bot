@@ -6283,6 +6283,12 @@
         spin-lock timing sensitivity, or 2) Use a different synchronization approach that's more
         testable."
       supersedes: null
+    - _ulid: 01KG69SX1GGVFGS0T5FY4N1MGY
+      created_at: 2026-01-30T01:55:38.673Z
+      author: "@claude"
+      content: "Automation: eligible - Internal test infrastructure fix. Race condition in spin-lock
+        timing. No spec needed (doesn't change product behavior)."
+      supersedes: null
   todos: []
   automation: eligible
 - _ulid: 01KG5JNEZN743C5NJTT84CS5TM

@@ -254,6 +254,10 @@ features:
             given: Multiple messages arrive for same session key
             when: Processing starts
             then: Messages serialized via per-key lock; share same session
+          - id: ac-9
+            given: Bot restarts with recent conversation (< 30 min)
+            when: First message arrives
+            then: Rebuild state from ConversationStore; context restoration injected
   - _ulid: 01KG73AT8E8H2K6CAY3QTF8EQN
     slugs:
       - session-search

@@ -8188,22 +8188,40 @@
   created_at: 2026-01-30T22:22:54.504Z
   notes: []
   todos: []
-- title: Implement ContextUsageTracker
+- _ulid: 01KG8G14T6H6Q6KJHQQ8J6AZQM
+  slugs: []
+  title: Implement ContextUsageTracker
+  type: task
   description: Create ContextUsageTracker class that invokes /usage on ACP sessions and parses the
     stderr output into structured ContextUsageUpdate data. Includes debouncing, timeout handling,
     and async invocation.
+  spec_ref: "@mem-session-lifecycle"
+  meta_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  priority: 2
+  tags: []
+  vcs_refs: []
+  created_at: 2026-01-30T22:22:56.326Z
+  notes: []
+  todos: []
+- title: Wire Session Lifecycle into Bot
+  description: Integrate SessionLifecycleManager and ContextRestorer into Bot.handleMessage(). Replace
+    direct client.newSession() calls, add per-key locking, wire context restoration on rotation.
   type: task
   spec_ref: "@mem-session-lifecycle"
   meta_ref: null
-  priority: 2
+  priority: 4
   slugs: []
   tags: []
-  _ulid: 01KG8G14T6H6Q6KJHQQ8J6AZQM
+  _ulid: 01KG8G16R2T9C0EYDPEHSWZRXA
   status: pending
   blocked_by: []
   depends_on: []
   context: []
   vcs_refs: []
-  created_at: 2026-01-30T22:22:56.326Z
+  created_at: 2026-01-30T22:22:58.306Z
   notes: []
   todos: []

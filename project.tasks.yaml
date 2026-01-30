@@ -8646,6 +8646,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-01-30T23:07:06.448Z
+  started_at: 2026-01-30T23:17:23.067Z
   notes:
     - _ulid: 01KG8JK0VYK7P99JS6PF8W9AN6
       created_at: 2026-01-30T23:07:39.262Z
@@ -8676,9 +8677,14 @@
         **Flow**: Ralph spawns subagent → subagent told to run `/pr-review @task` → skill not found
         → agent improvises → PR merged but no comments posted
       supersedes: null
+    - _ulid: 01KG8K51408J2P09W7TDQ3AB25
+      created_at: 2026-01-30T23:17:29.344Z
+      author: "@claude"
+      content: Starting implementation. Will port /local-review and /pr-review skills from kynetic-spec,
+        and add @local-review and @pr-review-loop workflows to meta.yaml.
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-01-30T23:17:23.067Z
 - _ulid: 01KG8JJGA627HR3FG5X6EGJKDF
   slugs: []
   title: Port /pr-review skill and workflow with PR comment posting

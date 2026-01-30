@@ -37,17 +37,32 @@ const DEFAULT_AGENT_READY_TIMEOUT = 30000;
 const INFLIGHT_POLL_INTERVAL = 100;
 
 /**
- * Get the git repository root directory
+ * Get the git repository root directory (memoized)
  * Falls back to cwd if not in a git repo
+ *
+ * Memoization avoids spawning multiple shell processes during Bot construction.
  *
  * AC: @bot-orchestration ac-7
  */
+let cachedGitRoot: string | null = null;
 function getGitRoot(): string {
-  try {
-    return execSync('git rev-parse --show-toplevel', { encoding: 'utf8' }).trim();
-  } catch {
-    return process.cwd();
+  if (cachedGitRoot !== null) {
+    return cachedGitRoot;
   }
+  try {
+    cachedGitRoot = execSync('git rev-parse --show-toplevel', { encoding: 'utf8' }).trim();
+  } catch {
+    cachedGitRoot = process.cwd();
+  }
+  return cachedGitRoot;
+}
+
+/**
+ * Reset the cached git root (for testing only)
+ * @internal
+ */
+export function _resetGitRootCache(): void {
+  cachedGitRoot = null;
 }
 
 /**

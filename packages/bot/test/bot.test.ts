@@ -25,7 +25,7 @@ import {
   type PlatformTransformer,
 } from '@kynetic-bot/messaging';
 import type { BotConfig } from '../src/config.js';
-import { Bot, type BotState, type EscalationContext } from '../src/bot.js';
+import { Bot, type BotState, type EscalationContext, _resetGitRootCache } from '../src/bot.js';
 
 // Track KbotShadow constructor args for AC-7 and AC-6 tests
 let capturedShadowOptions: { projectRoot?: string; worktreeDir?: string } | null = null;
@@ -818,6 +818,7 @@ describe('Bot', () => {
     beforeEach(() => {
       vi.clearAllMocks();
       capturedShadowOptions = null;
+      _resetGitRootCache();
     });
 
     it('uses git rev-parse --show-toplevel to find git root', () => {
@@ -879,6 +880,7 @@ describe('Bot', () => {
     beforeEach(() => {
       vi.clearAllMocks();
       capturedShadowOptions = null;
+      _resetGitRootCache();
       // Default: git root returns a valid path
       mockExecSync.mockReturnValue('/home/user/project\n');
     });
@@ -950,6 +952,7 @@ describe('Bot', () => {
         vi.clearAllMocks();
         capturedSessionStoreOptions = null;
         capturedConversationStoreOptions = null;
+        _resetGitRootCache();
         mockExecSync.mockReturnValue('/home/user/project\n');
       });
 

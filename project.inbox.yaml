@@ -89,3 +89,9 @@ inbox:
     created_at: 2026-01-30T00:25:41.315Z
     tags: []
     added_by: "@claude"
+  - _ulid: 01KG64NC1W6K081646FVDWVAGH
+    text: "Bot: Forward ChannelLifecycle events (health, reconnection) for completeness - currently only
+      AgentLifecycle events are forwarded"
+    created_at: 2026-01-30T00:25:47.325Z
+    tags: []
+    added_by: "@claude"

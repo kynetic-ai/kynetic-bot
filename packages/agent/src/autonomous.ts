@@ -8,7 +8,7 @@
  */
 
 import { EventEmitter } from 'node:events';
-import { createLogger, KyneticError, type Result } from '@kynetic-bot/core';
+import { createLogger, KyneticError } from '@kynetic-bot/core';
 import type { AgentLifecycle } from './lifecycle.js';
 import type { SkillsRegistry } from './skills.js';
 

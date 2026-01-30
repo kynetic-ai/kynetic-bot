@@ -234,6 +234,10 @@ features:
             given: Bot restarts
             when: Message arrives for known session key
             then: New session created with context restoration from persisted history
+          - id: ac-4
+            given: Session rotation occurs
+            when: New session created
+            then: Previous session marked completed in SessionStore
   - _ulid: 01KG73AT8E8H2K6CAY3QTF8EQN
     slugs:
       - session-search

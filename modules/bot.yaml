@@ -189,3 +189,7 @@ features:
         given: new ACP session created
         when: agent prompt sent
         then: agent session record created in SessionStore with link to conversation
+      - id: ac-4
+        given: agent response completed
+        when: response sent to channel
+        then: assistant turn appended with agent_session_id reference

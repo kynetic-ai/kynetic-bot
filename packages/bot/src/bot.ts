@@ -19,6 +19,7 @@ import {
   MessageTransformer,
   StreamCoalescer,
   BufferedCoalescer,
+  InMemorySessionStore,
   UnsupportedTypeError,
   MissingTransformerError,
   type SessionStore,
@@ -97,41 +98,6 @@ export interface BotOptions {
   transformer?: MessageTransformer;
 }
 
-/**
- * In-memory session store implementation
- */
-class InMemorySessionStore implements SessionStore {
-  private sessions = new Map<string, Session>();
-
-  get(key: string): Session | undefined {
-    return this.sessions.get(key);
-  }
-
-  create(
-    key: string,
-    agent: string,
-    platform: string,
-    peerId: string,
-    peerKind: 'user' | 'channel',
-  ): Session {
-    const session: Session = {
-      key: key as SessionKey,
-      agent,
-      platform,
-      peerId,
-      peerKind,
-      context: [],
-      createdAt: new Date(),
-      lastActivity: new Date(),
-    };
-    this.sessions.set(key, session);
-    return session;
-  }
-
-  delete(key: string): void {
-    this.sessions.delete(key);
-  }
-}
 
 /**
  * Bot - Main orchestration class

@@ -5,50 +5,9 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { SessionKeyRouter } from '../src/router.js';
-import type { Session, SessionStore } from '../src/types.js';
-import type { NormalizedMessage, SessionKey, PeerKind } from '@kynetic-bot/core';
+import { SessionKeyRouter, InMemorySessionStore } from '../src/index.js';
+import type { NormalizedMessage } from '@kynetic-bot/core';
 import { UnknownAgentError } from '@kynetic-bot/core';
-
-/**
- * In-memory session store implementation for testing
- */
-class InMemorySessionStore implements SessionStore {
-  private sessions = new Map<string, Session>();
-
-  get(key: string): Session | undefined {
-    return this.sessions.get(key);
-  }
-
-  create(
-    key: string,
-    agent: string,
-    platform: string,
-    peerId: string,
-    peerKind: PeerKind,
-  ): Session {
-    const session: Session = {
-      key: key as SessionKey,
-      agent,
-      platform,
-      peerId,
-      peerKind,
-      context: [],
-      createdAt: new Date(),
-      lastActivity: new Date(),
-    };
-    this.sessions.set(key, session);
-    return session;
-  }
-
-  delete(key: string): void {
-    this.sessions.delete(key);
-  }
-
-  clear(): void {
-    this.sessions.clear();
-  }
-}
 
 /**
  * Create a mock normalized message

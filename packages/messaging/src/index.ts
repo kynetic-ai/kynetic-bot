@@ -1,6 +1,9 @@
 // Types
 export type { Session, SessionStore } from './types.js';
 
+// Session Store
+export { InMemorySessionStore } from './session-store.js';
+
 // Router
 export { SessionKeyRouter, type Result } from './router.js';
 

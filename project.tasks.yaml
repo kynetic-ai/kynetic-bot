@@ -7393,10 +7393,17 @@
   tags: []
   vcs_refs: []
   created_at: 2026-01-30T09:27:40.977Z
-  notes: []
+  started_at: 2026-01-30T11:51:08.868Z
+  notes:
+    - _ulid: 01KG7C0Q017JQ1NDAJCN0ATHT5
+      created_at: 2026-01-30T11:53:33.441Z
+      author: "@claude"
+      content: "Fixed truncation marker bug: findSplitPoint() now returns { index, hardCut } result type
+        so callers know when a hard-cut occurred. Both splitMessage() and splitMessageToEmbeds() now
+        append '... [truncated]' marker on hard-cuts. Added tests verifying marker presence."
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-01-30T11:51:08.868Z
 - _ulid: 01KG73NPG9RG46W2MY8YGFJW5Q
   slugs: []
   title: Add Discord typing indicator during processing

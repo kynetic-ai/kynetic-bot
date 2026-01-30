@@ -1,8 +1,16 @@
 /**
  * Discord Message Splitter
  *
- * Handles splitting long messages to fit Discord's 2000 character limit.
+ * Handles splitting long messages to fit Discord's limits.
+ * Supports two strategies:
+ * - split: Multiple plain text messages (2000 char limit each)
+ * - embed: Discord embeds (4096 char description limit each)
  */
+
+import type { APIEmbed } from 'discord.js';
+
+/** Maximum length for embed description */
+export const EMBED_DESCRIPTION_MAX = 4096;
 
 /**
  * Split a message into chunks that fit within Discord's character limit
@@ -145,4 +153,93 @@ function trackCodeBlockState(
   }
 
   return { inCodeBlock, lang };
+}
+
+/**
+ * Split a message into Discord embeds
+ *
+ * Embed strategy (AC-3):
+ * - Uses embed description field (4096 char limit vs 2000 for regular messages)
+ * - Preserves code block formatting across splits
+ * - Adds continuation indicators for multi-embed messages
+ *
+ * @param text - Message text to split
+ * @param maxLength - Maximum embed description length (default: 4096)
+ * @returns Array of embed objects
+ */
+export function splitMessageToEmbeds(
+  text: string,
+  maxLength = EMBED_DESCRIPTION_MAX,
+): APIEmbed[] {
+  // Handle edge cases
+  if (!text || text.length === 0) {
+    return [];
+  }
+
+  if (text.length <= maxLength) {
+    return [{ description: text }];
+  }
+
+  const embeds: APIEmbed[] = [];
+  let remaining = text;
+  let inCodeBlock = false;
+  let codeBlockLang = '';
+  let chunkIndex = 0;
+
+  while (remaining.length > 0) {
+    chunkIndex++;
+
+    if (remaining.length <= maxLength) {
+      embeds.push({ description: remaining });
+      break;
+    }
+
+    // Check if we're starting inside a code block from previous chunk
+    const prefix = inCodeBlock ? `\`\`\`${codeBlockLang}\n` : '';
+    const effectiveMaxLength = maxLength - prefix.length;
+
+    // Find a good split point
+    const splitIndex = findSplitPoint(remaining, effectiveMaxLength);
+
+    // Extract the chunk
+    let chunk = remaining.slice(0, splitIndex);
+
+    // Track code block state
+    const codeBlockState = trackCodeBlockState(
+      chunk,
+      inCodeBlock,
+      codeBlockLang,
+    );
+
+    // If we're ending mid-code-block, close it and prepare to reopen
+    let suffix = '';
+    if (codeBlockState.inCodeBlock) {
+      suffix = '\n```';
+      inCodeBlock = true;
+      codeBlockLang = codeBlockState.lang;
+    } else {
+      inCodeBlock = false;
+      codeBlockLang = '';
+    }
+
+    // Assemble final chunk
+    chunk = prefix + chunk + suffix;
+    const trimmedChunk = chunk.trim();
+
+    if (trimmedChunk.length > 0) {
+      embeds.push({ description: trimmedChunk });
+    }
+
+    // Move to remaining text
+    remaining = remaining.slice(splitIndex).trimStart();
+  }
+
+  // Add continuation indicators if multiple embeds
+  if (embeds.length > 1) {
+    embeds.forEach((embed, index) => {
+      embed.footer = { text: `Part ${index + 1} of ${embeds.length}` };
+    });
+  }
+
+  return embeds;
 }

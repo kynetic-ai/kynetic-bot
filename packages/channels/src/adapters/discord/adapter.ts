@@ -27,7 +27,7 @@ import {
   DiscordPermissionError,
 } from './errors.js';
 import { parseIncoming } from './parser.js';
-import { splitMessage } from './splitter.js';
+import { splitMessage, splitMessageToEmbeds, EMBED_DESCRIPTION_MAX } from './splitter.js';
 
 /**
  * Options for sending Discord messages
@@ -162,11 +162,28 @@ export class DiscordAdapter implements ChannelAdapter {
   ): Promise<string> {
     const discordChannel = await this.fetchChannel(channel);
 
-    // Split message if needed (AC-3)
+    // Use configured strategy for handling long messages (AC-3)
+    if (this.config.splitStrategy === 'embed') {
+      return this.sendAsEmbeds(discordChannel, text, options);
+    }
+
+    return this.sendAsChunks(discordChannel, text, options);
+  }
+
+  /**
+   * Send message as plain text chunks (split strategy)
+   */
+  private async sendAsChunks(
+    discordChannel: SendableChannel,
+    text: string,
+    options?: DiscordSendOptions,
+  ): Promise<string> {
     const chunks = splitMessage(text, this.config.maxMessageLength);
 
     if (chunks.length === 0) {
-      throw new DiscordSendError('Cannot send empty message', { channel });
+      throw new DiscordSendError('Cannot send empty message', {
+        channel: discordChannel.id,
+      });
     }
 
     let firstMessageId: string | undefined;
@@ -191,11 +208,61 @@ export class DiscordAdapter implements ChannelAdapter {
           firstMessageId = sentMessage.id;
         }
       } catch (error) {
-        this.handleSendError(error, channel);
+        this.handleSendError(error, discordChannel.id);
       }
     }
 
-    // Should always have a message ID if we got here
+    return firstMessageId!;
+  }
+
+  /**
+   * Send message as Discord embeds (embed strategy)
+   *
+   * Uses embed description field which supports 4096 chars vs 2000 for regular messages.
+   * Adds "Part X of Y" footer for multi-embed messages.
+   */
+  private async sendAsEmbeds(
+    discordChannel: SendableChannel,
+    text: string,
+    options?: DiscordSendOptions,
+  ): Promise<string> {
+    const embeds = splitMessageToEmbeds(text, EMBED_DESCRIPTION_MAX);
+
+    if (embeds.length === 0) {
+      throw new DiscordSendError('Cannot send empty message', {
+        channel: discordChannel.id,
+      });
+    }
+
+    let firstMessageId: string | undefined;
+
+    for (let i = 0; i < embeds.length; i++) {
+      const embed = embeds[i];
+      const isFirst = i === 0;
+
+      try {
+        const messageOptions: {
+          embeds: typeof embeds;
+          reply?: { messageReference: string };
+        } = {
+          embeds: [embed],
+        };
+
+        // Only reply to the referenced message on the first embed
+        if (isFirst && options?.replyTo) {
+          messageOptions.reply = { messageReference: options.replyTo };
+        }
+
+        const sentMessage = await discordChannel.send(messageOptions);
+
+        if (isFirst) {
+          firstMessageId = sentMessage.id;
+        }
+      } catch (error) {
+        this.handleSendError(error, discordChannel.id);
+      }
+    }
+
     return firstMessageId!;
   }
 

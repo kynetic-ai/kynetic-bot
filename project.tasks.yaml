@@ -6562,7 +6562,16 @@
   tags: []
   vcs_refs: []
   created_at: 2026-01-30T04:19:09.532Z
-  notes: []
+  notes:
+    - _ulid: 01KG6J7HG5J3W785MAY7KPTXRG
+      created_at: 2026-01-30T04:22:54.214Z
+      author: "@claude"
+      content: |-
+        Test in packages/bot/test/bot.test.ts or config.test.ts:
+        - Verify Bot passes kbotDataDir to KbotShadow as worktreeDir (not projectRoot)
+        - Mock KbotShadow constructor to verify correct params
+        - Test default value '.kbot' is passed correctly
+      supersedes: null
   todos: []
 - _ulid: 01KG6J0QX14RRYBS1S51448F6J
   slugs: []
@@ -6596,18 +6605,18 @@
   created_at: 2026-01-30T04:19:13.112Z
   notes: []
   todos: []
-- title: Add tests for ACP requestPermission handler (ac-6)
+- _ulid: 01KG6J0VDBF39HMMGXHMY46XZQ
+  slugs: []
+  title: Add tests for ACP requestPermission handler (ac-6)
   type: task
   spec_ref: "@agent-lifecycle"
   meta_ref: null
-  priority: 2
-  slugs: []
-  tags: []
-  _ulid: 01KG6J0VDBF39HMMGXHMY46XZQ
   status: pending
   blocked_by: []
   depends_on: []
   context: []
+  priority: 2
+  tags: []
   vcs_refs: []
   created_at: 2026-01-30T04:19:14.986Z
   notes: []

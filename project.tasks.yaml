@@ -7128,7 +7128,27 @@
   tags: []
   vcs_refs: []
   created_at: 2026-01-30T09:33:48.063Z
-  notes: []
+  notes:
+    - _ulid: 01KG742BSEBZADQX8Z6W3HD9WZ
+      created_at: 2026-01-30T09:34:38.894Z
+      author: "@claude"
+      content: |-
+        ## Implementation
+
+        **Files:**
+        - packages/bot/src/bot.ts (line 76-112) - source InMemorySessionStore
+        - packages/messaging/test/router.test.ts (line 16-51) - duplicate
+        - packages/messaging/src/session-store.ts (NEW) - shared location
+
+        **Steps:**
+        1. Create packages/messaging/src/session-store.ts with InMemorySessionStore
+        2. Export from packages/messaging/src/index.ts
+        3. Update bot.ts import to use @kynetic-bot/messaging
+        4. Update router.test.ts import to use shared implementation
+        5. Delete duplicate implementations
+
+        **Interface already exists:** SessionStore in packages/messaging/src/types.ts
+      supersedes: null
   todos: []
 - _ulid: 01KG740WT6BC0ZFMN3R0W31ZP6
   slugs: []
@@ -7181,21 +7201,21 @@
   created_at: 2026-01-30T09:33:56.618Z
   notes: []
   todos: []
-- title: Add lefthook for pre-commit/pre-push hooks
+- _ulid: 01KG7414V60ZE4RVTKGNDVC7N8
+  slugs: []
+  title: Add lefthook for pre-commit/pre-push hooks
   type: task
-  priority: 4
-  spec_ref: null
-  tags:
-    - reflection
-    - dx
   description: "Add lefthook for pre-commit/pre-push hooks - pre-commit: lint staged files, pre-push:
     typecheck + test. See kynetic-internal's lefthook.yml for pattern."
-  _ulid: 01KG7414V60ZE4RVTKGNDVC7N8
-  slugs: []
+  spec_ref: null
   status: pending
   blocked_by: []
   depends_on: []
   context: []
+  priority: 4
+  tags:
+    - reflection
+    - dx
   vcs_refs: []
   created_at: 2026-01-30T09:33:59.014Z
   notes: []

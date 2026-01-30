@@ -212,6 +212,34 @@ export class ChannelLifecycle {
   }
 
   /**
+   * Send a typing indicator to a channel
+   *
+   * Used to show the user that the bot is processing their message.
+   * Only works if the underlying adapter supports sendTyping.
+   *
+   * Failures are swallowed - typing indicator is non-critical.
+   *
+   * @param channel - Channel identifier
+   */
+  async sendTyping(channel: string): Promise<void> {
+    // Check if adapter supports sendTyping
+    if (!this.adapter.sendTyping) {
+      return;
+    }
+
+    // Don't send typing if unhealthy
+    if (this.state !== 'healthy') {
+      return;
+    }
+
+    try {
+      await this.adapter.sendTyping(channel);
+    } catch {
+      // Swallow typing errors - not critical
+    }
+  }
+
+  /**
    * Start periodic health monitoring
    */
   private startHealthMonitoring(): void {

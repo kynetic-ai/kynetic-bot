@@ -7358,3 +7358,44 @@
       supersedes: null
   todos: []
   automation: eligible
+- title: "Implement: System Prompt Identity Injection"
+  type: task
+  spec_ref: "@bot-identity"
+  derivation: auto
+  priority: 2
+  slugs:
+    - task-system-prompt-identity-injection
+  tags: []
+  depends_on: []
+  notes:
+    - _ulid: 01KG75SZZ8E5V4NW8XCZRMQ1WY
+      created_at: 2026-01-30T10:05:01.800Z
+      author: "@claude"
+      content: >-
+        Implementation notes (auto-generated from spec):
+
+
+        Prepends kbot identity context to ACP system prompt. Establishes kbot as a persistent
+        general assistant with full system access, distinct from ad-hoc Claude Code sessions.
+        Supports user-customizable identity via .kbot/identity.yaml.
+
+
+
+        Acceptance Criteria:
+
+        - ac-1: Given bot starts, when creating ACP session, then prepends kbot base identity to
+        system prompt (persistent general assistant, full system access)
+
+        - ac-2: Given .kbot/identity.yaml exists, when creating system prompt, then includes custom
+        identity (name, role, boundaries) after base identity
+
+        - ac-3: Given identity file missing, when creating system prompt, then uses base identity
+        only without error
+      supersedes: null
+  _ulid: 01KG75SZZ82PBTD0611Q73NQEJ
+  status: pending
+  blocked_by: []
+  context: []
+  vcs_refs: []
+  created_at: 2026-01-30T10:05:01.800Z
+  todos: []

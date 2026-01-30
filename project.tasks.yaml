@@ -8169,22 +8169,41 @@
         identifies tool name and extracts brief result
       supersedes: null
   todos: []
-- title: Capture Agent Stderr for Usage Parsing
+- _ulid: 01KG8G1318V7WSE74WVFRJJ6FZ
+  slugs: []
+  title: Capture Agent Stderr for Usage Parsing
+  type: task
   description: Modify AgentLifecycle to capture stderr output from the ACP process for programmatic
     parsing. Currently stderr uses 'inherit' and goes to parent. Need to change to 'pipe' and add
     event handler.
+  spec_ref: "@mem-session-lifecycle"
+  meta_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  priority: 1
+  tags: []
+  vcs_refs: []
+  created_at: 2026-01-30T22:22:54.504Z
+  notes: []
+  todos: []
+- title: Implement ContextUsageTracker
+  description: Create ContextUsageTracker class that invokes /usage on ACP sessions and parses the
+    stderr output into structured ContextUsageUpdate data. Includes debouncing, timeout handling,
+    and async invocation.
   type: task
   spec_ref: "@mem-session-lifecycle"
   meta_ref: null
-  priority: 1
+  priority: 2
   slugs: []
   tags: []
-  _ulid: 01KG8G1318V7WSE74WVFRJJ6FZ
+  _ulid: 01KG8G14T6H6Q6KJHQQ8J6AZQM
   status: pending
   blocked_by: []
   depends_on: []
   context: []
   vcs_refs: []
-  created_at: 2026-01-30T22:22:54.504Z
+  created_at: 2026-01-30T22:22:56.326Z
   notes: []
   todos: []

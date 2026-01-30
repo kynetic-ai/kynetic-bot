@@ -7146,19 +7146,38 @@
   created_at: 2026-01-30T09:33:50.789Z
   notes: []
   todos: []
-- title: Log Discord rate limit events
+- _ulid: 01KG740ZMPVJ5TQHG4519PSW4Y
+  slugs: []
+  title: Log Discord rate limit events
   type: task
-  priority: 3
-  spec_ref: null
-  tags: []
   description: "Discord adapter: log rate limit events for observability (Discord.js emits rateLimit events)"
-  _ulid: 01KG740ZMPVJ5TQHG4519PSW4Y
+  spec_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  priority: 3
+  tags: []
+  vcs_refs: []
+  created_at: 2026-01-30T09:33:53.686Z
+  notes: []
+  todos: []
+- title: Configure ESLint require-await rule
+  type: task
+  priority: 4
+  spec_ref: null
+  tags:
+    - reflection
+    - dx
+  description: Configure ESLint require-await rule to allow async methods matching interface patterns
+    (e.g. store methods). Would eliminate 6+ inline eslint-disable comments.
+  _ulid: 01KG7412GA28DBP1NB8GZYS5MF
   slugs: []
   status: pending
   blocked_by: []
   depends_on: []
   context: []
   vcs_refs: []
-  created_at: 2026-01-30T09:33:53.686Z
+  created_at: 2026-01-30T09:33:56.618Z
   notes: []
   todos: []

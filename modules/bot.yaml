@@ -250,3 +250,8 @@ features:
     traits: []
     notes: []
     created: 2026-01-30T23:06:19.001Z
+    acceptance_criteria:
+      - id: ac-1
+        given: Ralph loop spawns PR review subagent for pending_review task
+        when: Subagent invokes /pr-review @task-ref
+        then: Skill is found and executes pr-review-loop workflow

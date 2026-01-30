@@ -164,7 +164,9 @@ features:
         description: Generate context restoration prompt when rotating sessions - combines summary of old
           turns, verbatim recent turns (up to 30% token budget), and file reference for full history
           access.
-        depends_on: []
+        depends_on:
+          - "@mem-session-lifecycle"
+          - "@mem-context-window"
         implements: []
         relates_to: []
         tests: []

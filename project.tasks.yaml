@@ -8453,6 +8453,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-01-30T22:22:56.326Z
+  started_at: 2026-01-30T23:45:47.979Z
   notes:
     - _ulid: 01KG8G1YQT9AV9R9XSPQR38WZC
       created_at: 2026-01-30T22:23:22.874Z
@@ -8513,9 +8514,35 @@
       content: "Spec updated: references @mem-context-usage AC-2,3,4 (usage invocation, parsing, error
         handling)"
       supersedes: null
+    - _ulid: 01KG8MZVKJG5TZHZXTX5X98Q7Y
+      created_at: 2026-01-30T23:49:37.010Z
+      author: "@claude"
+      content: >-
+        Implemented ContextUsageTracker in packages/messaging/src/context/context-usage-tracker.ts:
+
+
+        1. Created parseUsageOutput() function to parse /usage stderr output into structured
+        ContextUsageUpdate
+
+        2. Created ContextUsageTracker class with:
+           - checkUsage() method to send /usage prompt and parse response (AC-2, AC-3)
+           - Debouncing to avoid excessive checks (configurable interval)
+           - Timeout handling with stale data fallback (AC-4)
+           - Error handling with stale data fallback (AC-4)
+           - Session-based caching of last known usage
+           - Proper stderr subscription/cleanup
+        3. Added 18 tests covering all acceptance criteria:
+           - AC-2: Sends /usage command via ACP prompt
+           - AC-3: Parses stderr output, emits ContextUsageUpdate events
+           - AC-4: Falls back to stale data on errors and timeouts
+        4. Exported from context/index.ts
+
+
+        Note: Defined ContextUsageUpdate and ContextCategory types locally in messaging package to
+        avoid circular dependency with agent package. All 991 tests pass.
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-01-30T23:45:47.979Z
 - _ulid: 01KG8G16R2T9C0EYDPEHSWZRXA
   slugs:
     - task-wire-session-lifecycle

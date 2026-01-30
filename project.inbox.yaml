@@ -224,3 +224,10 @@ inbox:
     created_at: 2026-01-30T07:58:03.457Z
     tags: []
     added_by: "@claude"
+  - _ulid: 01KG6YHJBZGFNBHDVGXRG6CXF9
+    text: Per-user personality evolution - track user-specific patterns in .kbot, evolve communication
+      style and scope based on individual observation history. Beyond project-specific .kspec
+      context.
+    created_at: 2026-01-30T07:58:05.695Z
+    tags: []
+    added_by: "@claude"

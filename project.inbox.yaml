@@ -205,3 +205,9 @@ inbox:
     created_at: 2026-01-30T07:57:53.250Z
     tags: []
     added_by: "@claude"
+  - _ulid: 01KG6YHBSF6ZJSS9MD6M5ZDHPD
+    text: Bash command widget - show command, exit code, duration, output preview (first 10 lines).
+      Expand button for full output. Part of rich tool widgets work.
+    created_at: 2026-01-30T07:57:58.959Z
+    tags: []
+    added_by: "@claude"

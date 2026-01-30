@@ -7416,7 +7416,7 @@
     thinking, responding). Create TypingController that calls sendTyping() with 9-second refresh
     interval. Hook into Bot.handleMessage() start/finally. Greenfield implementation.
   spec_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -7461,6 +7461,11 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-01-30T12:00:28.629Z
+  closed_reason: "Merged in PR #32. Added Discord typing indicator that shows 'Bot is typing...' while
+    processing messages. Implementation includes: sendTyping() on ChannelAdapter interface
+    (optional), DiscordAdapter implementation with error swallowing, ChannelLifecycle proxy with
+    health checks, and integration in Bot.handleMessage() before session routing."
 - _ulid: 01KG73SXE9P6M1ARE311M9FPA0
   slugs: []
   title: Improve ACP handler test coverage and quality

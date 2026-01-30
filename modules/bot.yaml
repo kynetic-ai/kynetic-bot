@@ -255,3 +255,7 @@ features:
         given: Ralph loop spawns PR review subagent for pending_review task
         when: Subagent invokes /pr-review @task-ref
         then: Skill is found and executes pr-review-loop workflow
+      - id: ac-2
+        given: PR review workflow runs local review step
+        when: AC coverage check completes
+        then: Findings include list of spec ACs and their test coverage status (covered/missing)

@@ -8071,15 +8071,21 @@
         then Rebuild state from ConversationStore; context restoration injected
       supersedes: null
   todos: []
-- title: "Implement: Context Restoration"
+- _ulid: 01KG8G0Q251NCJCPN6ED8S3ZN1
+  slugs:
+    - task-context-restoration
+  title: "Implement: Context Restoration"
   type: task
   spec_ref: "@mem-context-restore"
   derivation: auto
-  priority: 2
-  slugs:
-    - task-context-restoration
-  tags: []
+  status: pending
+  blocked_by: []
   depends_on: []
+  context: []
+  priority: 2
+  tags: []
+  vcs_refs: []
+  created_at: 2026-01-30T22:22:42.245Z
   notes:
     - _ulid: 01KG8G0Q255ZH0YDVYNVTYFMYA
       created_at: 2026-01-30T22:22:42.245Z
@@ -8119,10 +8125,47 @@
         - ac-8: Given Single turn exceeds 30% token budget, when Turn selected for replay, then Turn
         truncated with [truncated] marker to fit budget
       supersedes: null
-  _ulid: 01KG8G0Q251NCJCPN6ED8S3ZN1
+  todos: []
+- title: "Implement: Token-Based Turn Selection"
+  type: task
+  spec_ref: "@mem-turn-selection"
+  derivation: auto
+  priority: 2
+  slugs:
+    - task-token-based-turn-selection
+  tags: []
+  depends_on: []
+  notes:
+    - _ulid: 01KG8G0S5Q33B2E65N1KS0VR00
+      created_at: 2026-01-30T22:22:44.407Z
+      author: "@claude"
+      content: >-
+        Implementation notes (auto-generated from spec):
+
+
+        Select turns for verbatim replay based on token budget (30% of context window), not turn
+        count. Tool calls use summarized form for token estimation.
+
+
+
+        Acceptance Criteria:
+
+        - ac-1: Given Turns exist for replay, when Selection runs with token budget, then Most
+        recent turns fitting within 30% budget selected
+
+        - ac-2: Given Turn is a tool call, when Token estimation runs, then Summarized form tokens
+        used, not original verbose output
+
+        - ac-3: Given Token budget calculated, when Selection complete, then Selected turns fit
+        within budget with 5% margin
+
+        - ac-4: Given Turn content contains tool markers, when Tool detection runs, then Correctly
+        identifies tool name and extracts brief result
+      supersedes: null
+  _ulid: 01KG8G0S5RXPQ79N4YC1F3EBA4
   status: pending
   blocked_by: []
   context: []
   vcs_refs: []
-  created_at: 2026-01-30T22:22:42.245Z
+  created_at: 2026-01-30T22:22:44.408Z
   todos: []

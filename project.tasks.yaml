@@ -3019,6 +3019,32 @@
 
         Unit tests for chronological ordering and boundary detection.
       supersedes: null
+    - _ulid: 01KG782004YYXQ3BE383MVKS6W
+      created_at: 2026-01-30T10:44:21.124Z
+      author: "@claude"
+      content: |-
+        ## Implementation Complete
+
+        ### Files Created
+        - packages/messaging/src/history.ts - ConversationHistory class
+        - packages/messaging/test/history.test.ts - 35 unit tests
+
+        ### Acceptance Criteria Coverage
+        - AC-1: getHistory() returns messages chronologically with timestamps
+        - AC-2: Semantic boundary detection via pause threshold, topic patterns, Q&A breaks
+        - AC-3: cleanup() archives conversations and releases resources on timeout/manual
+
+        ### Implementation Details
+        - ConversationHistory wraps ConversationStore from @kynetic-bot/memory
+        - Configurable: sessionTimeout, pauseThreshold, boundaryPatterns
+        - Default 30min session timeout, 5min pause threshold
+        - Boundary detection: long pauses, explicit patterns (let's talk about...), Q&A breaks
+        - markBoundary() persists via system message metadata
+        - getSegments() and getCurrentSegment() for context windowing
+
+        ### Dependencies Added
+        - @kynetic-bot/memory as workspace dependency to messaging package
+      supersedes: null
   todos: []
   automation: eligible
 - _ulid: 01KG1TEEK47KKFMSE6Z3RNZXMP
@@ -7368,6 +7394,9 @@
   derivation: auto
   status: completed
   blocked_by: []
+  closed_reason: "PR #21 merged. Implemented identity.ts module with base identity and custom identity
+    loading from .kbot/identity.yaml. All 3 ACs covered with tests and AC annotations. 16 new tests
+    total."
   depends_on: []
   context: []
   priority: 2
@@ -7375,6 +7404,7 @@
   vcs_refs: []
   created_at: 2026-01-30T10:05:01.800Z
   started_at: 2026-01-30T10:20:08.125Z
+  completed_at: 2026-01-30T10:40:13.684Z
   notes:
     - _ulid: 01KG75SZZ8E5V4NW8XCZRMQ1WY
       created_at: 2026-01-30T10:05:01.800Z
@@ -7482,7 +7512,3 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-01-30T10:40:13.684Z
-  closed_reason: "PR #21 merged. Implemented identity.ts module with base identity and custom identity
-    loading from .kbot/identity.yaml. All 3 ACs covered with tests and AC annotations. 16 new tests
-    total."

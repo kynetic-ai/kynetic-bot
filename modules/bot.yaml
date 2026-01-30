@@ -193,3 +193,7 @@ features:
         given: agent response completed
         when: response sent to channel
         then: assistant turn appended with agent_session_id reference
+      - id: ac-5
+        given: bot restarts
+        when: conversation resumed by same session key
+        then: previous turns are available via ConversationStore.readTurns()

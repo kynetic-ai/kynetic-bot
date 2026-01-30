@@ -248,7 +248,71 @@ features:
     relates_to: []
     tests: []
     traits: []
-    notes: []
+    notes:
+      - _ulid: 01KG8JHJS5FBG07JBH333AJTT9
+        created_at: 2026-01-30T23:06:52.069Z
+        author: "@claude"
+        content: >-
+          ## Problem Discovery
+
+
+          During automation triage, we discovered that the ralph loop's PR review subagent was not
+          posting review feedback as comments on PRs. Investigation revealed:
+
+
+          1. **Ralph loop spawns subagents** for pending_review tasks (code in
+          kynetic-spec/src/ralph/subagent.ts)
+
+          2. **Subagent is told to run** `/pr-review @task-ref` (see buildSubagentPrompt())
+
+          3. **But kynetic-bot has no /pr-review skill** - only /pr (for creating PRs)
+
+          4. **Result**: Agent improvises, PRs get merged, but no review comments posted
+
+
+          Evidence:
+
+          - Recent merged PRs (37, 38, 39) have empty comments and reviews arrays
+
+          - Zero `gh pr comment` or `gh pr review` commands in session events.jsonl
+
+          - Only phases in session: task-work and reflect (no pr-review phase)
+
+
+          ## Root Cause
+
+
+          kynetic-bot is missing:
+
+          - `/pr-review` skill (exists in kynetic-spec/.claude/skills/pr-review/)
+
+          - `/local-review` skill (exists in kynetic-spec/.claude/skills/local-review/)
+
+          - `@pr-review-loop` workflow (exists in kynetic-spec/.kspec/kynetic.meta.yaml)
+
+          - `@local-review` workflow
+
+
+          ## Solution
+
+
+          Port the PR review skills and workflows from kynetic-spec, with one key addition:
+
+          **Add a step to post review findings as a PR comment** (the original kynetic-spec workflow
+          also lacks this).
+
+
+          ## Source Files to Port
+
+
+          From kynetic-spec:
+
+          - .claude/skills/pr-review/SKILL.md
+
+          - .claude/skills/local-review/SKILL.md
+
+          - .kspec/kynetic.meta.yaml (workflows: pr-review-loop, local-review)
+        supersedes: null
     created: 2026-01-30T23:06:19.001Z
     acceptance_criteria:
       - id: ac-1

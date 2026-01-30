@@ -14,3 +14,12 @@ export {
   type BotOptions,
   type EscalationContext,
 } from './bot.js';
+
+// Identity
+export {
+  buildIdentityPrompt,
+  loadCustomIdentity,
+  getBaseIdentity,
+  CustomIdentitySchema,
+  type CustomIdentity,
+} from './identity.js';

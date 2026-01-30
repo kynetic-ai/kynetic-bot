@@ -68,6 +68,9 @@ importers:
       '@kynetic-bot/messaging':
         specifier: workspace:*
         version: link:../messaging
+      yaml:
+        specifier: ^2.3
+        version: 2.8.2
       zod:
         specifier: ^3.23
         version: 3.25.76

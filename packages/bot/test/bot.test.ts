@@ -1263,4 +1263,127 @@ describe('Bot', () => {
       });
     });
   });
+
+  // AC: @bot-identity
+  describe('Bot Identity Injection', () => {
+    // AC: @bot-identity ac-1
+    describe('AC-1: Base identity prepended on new session', () => {
+      beforeEach(() => {
+        vi.clearAllMocks();
+        // Make agent return no existing session to trigger new session creation
+        mockAgent.getSessionId.mockReturnValue(null);
+      });
+
+      it('sends identity prompt before first user message', async () => {
+        // Arrange
+        const testBot = Bot.createWithDependencies({
+          config,
+          agent: mockAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
+          router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
+          shadow: mockShadow as unknown as Parameters<typeof Bot.createWithDependencies>[0]['shadow'],
+          registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
+        });
+        await testBot.start();
+
+        const msg = createMockMessage();
+        const lifecycle = createMockChannelLifecycle();
+        testBot.setChannelLifecycle(lifecycle as unknown as Parameters<typeof testBot.setChannelLifecycle>[0]);
+
+        // Act
+        await testBot.handleMessage(msg);
+
+        // Assert - two prompts: identity (system) then user message
+        expect(mockAgent._mockClient.prompt).toHaveBeenCalledTimes(2);
+
+        // First prompt is identity (system source)
+        const firstPrompt = mockAgent._mockClient.prompt.mock.calls[0][0];
+        expect(firstPrompt.promptSource).toBe('system');
+        expect(firstPrompt.prompt[0].text).toContain('kynetic-bot');
+        expect(firstPrompt.prompt[0].text).toContain('persistent general assistant');
+
+        // Second prompt is user message
+        const secondPrompt = mockAgent._mockClient.prompt.mock.calls[1][0];
+        expect(secondPrompt.promptSource).toBe('user');
+        expect(secondPrompt.prompt[0].text).toBe('Hello, bot!');
+
+        await testBot.stop();
+      });
+    });
+
+    // AC: @bot-identity ac-3
+    describe('AC-3: Missing identity file uses base identity', () => {
+      beforeEach(() => {
+        vi.clearAllMocks();
+        mockAgent.getSessionId.mockReturnValue(null);
+      });
+
+      it('uses base identity when no identity.yaml exists', async () => {
+        // Arrange - no custom identity file (mocked fs returns ENOENT)
+        const testBot = Bot.createWithDependencies({
+          config,
+          agent: mockAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
+          router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
+          shadow: mockShadow as unknown as Parameters<typeof Bot.createWithDependencies>[0]['shadow'],
+          registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
+        });
+        await testBot.start();
+
+        const msg = createMockMessage();
+        const lifecycle = createMockChannelLifecycle();
+        testBot.setChannelLifecycle(lifecycle as unknown as Parameters<typeof testBot.setChannelLifecycle>[0]);
+
+        // Act
+        await testBot.handleMessage(msg);
+
+        // Assert - identity prompt still sent
+        expect(mockAgent._mockClient.prompt).toHaveBeenCalledTimes(2);
+
+        // First prompt contains base identity
+        const identityPrompt = mockAgent._mockClient.prompt.mock.calls[0][0];
+        expect(identityPrompt.prompt[0].text).toContain('kynetic-bot');
+        expect(identityPrompt.prompt[0].text).toContain('persistent general assistant');
+        expect(identityPrompt.prompt[0].text).toContain('full system access');
+
+        await testBot.stop();
+      });
+    });
+
+    describe('Identity only sent on new session', () => {
+      beforeEach(() => {
+        vi.clearAllMocks();
+      });
+
+      it('does not send identity prompt on existing session', async () => {
+        // Arrange - agent already has a session
+        mockAgent.getSessionId.mockReturnValue('existing-session-123');
+
+        const testBot = Bot.createWithDependencies({
+          config,
+          agent: mockAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
+          router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
+          shadow: mockShadow as unknown as Parameters<typeof Bot.createWithDependencies>[0]['shadow'],
+          registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
+        });
+        await testBot.start();
+
+        const msg = createMockMessage();
+        const lifecycle = createMockChannelLifecycle();
+        testBot.setChannelLifecycle(lifecycle as unknown as Parameters<typeof testBot.setChannelLifecycle>[0]);
+
+        // Act
+        await testBot.handleMessage(msg);
+
+        // Assert - only user message, no identity prompt
+        expect(mockAgent._mockClient.prompt).toHaveBeenCalledTimes(1);
+        expect(mockAgent._mockClient.prompt).toHaveBeenCalledWith(
+          expect.objectContaining({
+            promptSource: 'user',
+            prompt: [{ type: 'text', text: 'Hello, bot!' }],
+          }),
+        );
+
+        await testBot.stop();
+      });
+    });
+  });
 });

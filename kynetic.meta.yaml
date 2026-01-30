@@ -324,4 +324,14 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KG7AQ2E7PRZM07YHV83TJA0A
+    type: success
+    content: "Optional interface method pattern for backwards-compatible extension: Added editMessage?()
+      to ChannelAdapter interface (optional with ?) so existing adapters don't need changes. Callers
+      use optional chaining (adapter.editMessage?.()). Allows incremental adoption across
+      platforms."
+    created_at: 2026-01-30T11:30:48.903Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

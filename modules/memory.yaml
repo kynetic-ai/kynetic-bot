@@ -152,7 +152,8 @@ features:
         then: "uses Haiku via ACP to generate short summary capturing: topics discussed, key user
           instructions/notes, and session file reference"
     status:
-      maturity: deferred
+      maturity: draft
+      implementation: not_started
   - _ulid: 01KG2VD4BPPHV4QP9H5XNA87HR
     slugs:
       - mem-agent-sessions

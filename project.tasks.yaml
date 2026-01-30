@@ -7685,6 +7685,9 @@
   spec_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "Merged in PR #36. Disabled @typescript-eslint/require-await globally in
+    eslint.config.js and removed 7 inline eslint-disable comments from escalation.ts,
+    session-store.ts, conversation-store.ts, and haiku-summary-provider.ts."
   depends_on: []
   context: []
   priority: 4
@@ -7694,6 +7697,7 @@
   vcs_refs: []
   created_at: 2026-01-30T09:33:56.618Z
   started_at: 2026-01-30T12:13:45.514Z
+  completed_at: 2026-01-30T12:17:10.184Z
   notes:
     - _ulid: 01KG742SJHQ0R1BEDAQD8W5KR3
       created_at: 2026-01-30T09:34:53.009Z
@@ -7741,10 +7745,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-01-30T12:17:10.184Z
-  closed_reason: "Merged in PR #36. Disabled @typescript-eslint/require-await globally in
-    eslint.config.js and removed 7 inline eslint-disable comments from escalation.ts,
-    session-store.ts, conversation-store.ts, and haiku-summary-provider.ts."
 - _ulid: 01KG7414V60ZE4RVTKGNDVC7N8
   slugs: []
   title: Add lefthook for pre-commit/pre-push hooks
@@ -7752,7 +7752,7 @@
   description: "Add lefthook for pre-commit/pre-push hooks - pre-commit: lint staged files, pre-push:
     typecheck + test. See kynetic-internal's lefthook.yml for pattern."
   spec_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -7802,6 +7802,7 @@
       supersedes: null
   todos: []
   automation: eligible
+  started_at: 2026-01-30T12:17:57.471Z
 - _ulid: 01KG75SZZ82PBTD0611Q73NQEJ
   slugs:
     - task-system-prompt-identity-injection

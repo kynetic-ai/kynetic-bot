@@ -3442,6 +3442,10 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "Merged in PR #25. ContextWindowManager implements token-based compaction with
+    two-tier thresholds (70% soft, 85% hard), semantic boundary preservation, SummaryProvider
+    interface for Haiku summarization via ACP, and session file references for agent access. All 4
+    ACs verified with 22 unit tests."
   depends_on:
     - "@conversation-store"
     - "@conversation-history"
@@ -3452,6 +3456,7 @@
   vcs_refs: []
   created_at: 2026-01-28T08:10:29.699Z
   started_at: 2026-01-30T10:53:24.968Z
+  completed_at: 2026-01-30T11:04:23.869Z
   notes:
     - _ulid: 01KG1TQ1FN0ECNT890Y5JN7TR4
       created_at: 2026-01-28T08:14:58.549Z
@@ -3619,11 +3624,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-01-30T11:04:23.869Z
-  closed_reason: "Merged in PR #25. ContextWindowManager implements token-based compaction with
-    two-tier thresholds (70% soft, 85% hard), semantic boundary preservation, SummaryProvider
-    interface for Haiku summarization via ACP, and session file references for agent access. All 4
-    ACs verified with 22 unit tests."
 - _ulid: 01KG1TEX0F7HVTTAGH9EBRC1DT
   slugs:
     - autonomous-loop
@@ -3631,7 +3631,7 @@
   type: task
   spec_ref: "@agent-autonomous"
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on:
     - "@agent-lifecycle-task"
@@ -3728,6 +3728,7 @@
       supersedes: null
   todos: []
   automation: eligible
+  started_at: 2026-01-30T11:05:06.033Z
 - _ulid: 01KG1TEZG2CMJ3CKE1HMSJZQHA
   slugs:
     - streaming-integration

@@ -14,7 +14,14 @@ import path from 'node:path';
 import { createLogger, type NormalizedMessage, type SessionKey } from '@kynetic-bot/core';
 import { ChannelRegistry, ChannelLifecycle } from '@kynetic-bot/channels';
 import { AgentLifecycle } from '@kynetic-bot/agent';
-import { SessionKeyRouter, type SessionStore, type Session } from '@kynetic-bot/messaging';
+import {
+  SessionKeyRouter,
+  MessageTransformer,
+  UnsupportedTypeError,
+  MissingTransformerError,
+  type SessionStore,
+  type Session,
+} from '@kynetic-bot/messaging';
 import {
   KbotShadow,
   ConversationStore,
@@ -69,6 +76,8 @@ export interface BotOptions {
   memorySessionStore?: MemorySessionStore;
   /** ConversationStore for conversation persistence (optional, auto-created if not provided) */
   conversationStore?: ConversationStore;
+  /** MessageTransformer for platform message normalization/denormalization (optional) */
+  transformer?: MessageTransformer;
 }
 
 /**
@@ -130,6 +139,7 @@ export class Bot extends EventEmitter {
   private readonly shadow: KbotShadow;
   private readonly memorySessionStore: MemorySessionStore;
   private readonly conversationStore: ConversationStore;
+  private readonly transformer: MessageTransformer;
   private channelLifecycle: ChannelLifecycle | null = null;
 
   private lastActiveChannel: string | null = null;
@@ -160,6 +170,9 @@ export class Bot extends EventEmitter {
       baseDir,
       sessionStore: this.memorySessionStore,
     });
+
+    // AC: @transform-integration - MessageTransformer for platform normalization
+    this.transformer = options.transformer ?? new MessageTransformer();
 
     this.setupAgentEventHandlers();
   }
@@ -421,6 +434,69 @@ export class Bot extends EventEmitter {
     } finally {
       this.inflightCount--;
     }
+  }
+
+  /**
+   * Handle a raw platform-specific message
+   *
+   * Normalizes the message using the registered platform transformer,
+   * then delegates to handleMessage.
+   *
+   * AC: @transform-integration ac-1 - Incoming messages normalized before routing
+   * AC: @transform-integration ac-3 - Unknown content types logged and skipped
+   *
+   * @param platform - Platform identifier (e.g., 'discord', 'slack')
+   * @param raw - Raw platform-specific message
+   */
+  async handleRawMessage(platform: string, raw: unknown): Promise<void> {
+    // AC-1: Normalize incoming message
+    const result = this.transformer.normalize(platform, raw);
+
+    if (!result.ok) {
+      // AC-3: Log and skip gracefully for unknown/unsupported content
+      if (result.error instanceof UnsupportedTypeError) {
+        this.log.warn('Unsupported content type - skipping message', {
+          platform,
+          errorCode: result.error.code,
+        });
+        return;
+      }
+
+      if (result.error instanceof MissingTransformerError) {
+        this.log.warn('No transformer registered for platform - skipping message', {
+          platform,
+        });
+        return;
+      }
+
+      // Other normalization errors
+      this.log.error('Message normalization failed', {
+        platform,
+        error: result.error.message,
+      });
+      return;
+    }
+
+    // Delegate to main handler
+    await this.handleMessage(result.value);
+  }
+
+  /**
+   * Register a platform transformer
+   *
+   * @param transformer - Platform transformer to register
+   */
+  registerTransformer(transformer: Parameters<MessageTransformer['registerTransformer']>[0]): void {
+    this.transformer.registerTransformer(transformer);
+  }
+
+  /**
+   * Get the message transformer instance
+   *
+   * Allows external code to register transformers or check capabilities.
+   */
+  getTransformer(): MessageTransformer {
+    return this.transformer;
   }
 
   /**

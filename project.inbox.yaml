@@ -131,3 +131,14 @@ inbox:
     created_at: 2026-01-30T07:58:05.695Z
     tags: []
     added_by: "@claude"
+  - _ulid: 01KG756XS1SYF6NM7D060N9TB1
+    text: Kbot reimplements kspec shadow branch instead of using kspec as library.
+      packages/memory/src/shadow/ duplicates functionality from kspec's parser/shadow.ts. Should add
+      kspec as dependency and use its shadow branch utilities (detectShadow, initializeShadow,
+      commitIfShadow, etc.) instead of maintaining parallel implementation. May need to parameterize
+      kspec's shadow for different branch names (.kbot vs .kspec) or extend it.
+    created_at: 2026-01-30T09:54:36.962Z
+    tags:
+      - architecture
+      - tech-debt
+    added_by: "@claude"

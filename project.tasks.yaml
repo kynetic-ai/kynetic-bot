@@ -6506,6 +6506,7 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: Already implemented in lifecycle.ts - createACPHandlers().readFile
   depends_on: []
   context: []
   priority: 2
@@ -6513,6 +6514,7 @@
   vcs_refs: []
   created_at: 2026-01-30T04:07:19.951Z
   started_at: 2026-01-30T04:08:05.933Z
+  completed_at: 2026-01-30T04:08:11.311Z
   notes:
     - _ulid: 01KG6HCFV2ZK98TSP4VG65W9NH
       created_at: 2026-01-30T04:08:07.778Z
@@ -6521,15 +6523,13 @@
         file with line/limit support. Tests needed."
       supersedes: null
   todos: []
-  completed_at: 2026-01-30T04:08:11.311Z
-  closed_reason: Already implemented in lifecycle.ts - createACPHandlers().readFile
 - _ulid: 01KG6HB39PPR5JG0YKZ8FPN64F
   slugs: []
   title: Implement ACP requestPermission handler
   type: task
   spec_ref: "@agent-lifecycle"
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -6539,3 +6539,4 @@
   created_at: 2026-01-30T04:07:22.165Z
   notes: []
   todos: []
+  started_at: 2026-01-30T04:08:13.210Z

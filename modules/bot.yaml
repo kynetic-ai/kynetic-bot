@@ -231,3 +231,6 @@ features:
         given: identity file missing
         when: creating system prompt
         then: uses base identity only without error
+    status:
+      maturity: draft
+      implementation: in_progress

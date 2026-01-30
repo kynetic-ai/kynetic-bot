@@ -29,4 +29,8 @@ export {
 } from './parser.js';
 
 // Splitter (for testing or custom splitting)
-export { splitMessage } from './splitter.js';
+export {
+  splitMessage,
+  splitMessageToEmbeds,
+  EMBED_DESCRIPTION_MAX,
+} from './splitter.js';

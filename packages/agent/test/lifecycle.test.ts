@@ -11,8 +11,7 @@ import type { AgentCheckpoint, AgentLifecycleState } from '../src/types.js';
 /**
  * Delay helper for testing
  */
-const delay = (ms: number): Promise<void> =>
-  new Promise((resolve) => setTimeout(resolve, ms));
+const delay = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Track mock ACPClient instances for test manipulation
 let mockACPClientInstance: {
@@ -24,7 +23,11 @@ let mockACPClientInstance: {
   emit: ReturnType<typeof vi.fn>;
   removeAllListeners: ReturnType<typeof vi.fn>;
   _handlers?: {
-    readFile?: (params: { path: string; line?: number; limit?: number }) => Promise<{ content: string }>;
+    readFile?: (params: {
+      path: string;
+      line?: number;
+      limit?: number;
+    }) => Promise<{ content: string }>;
     requestPermission?: (params: {
       toolCall?: { title?: string };
       options: Array<{ optionId: string; name: string; kind: string }>;
@@ -78,15 +81,16 @@ function createMockChildProcess() {
   let _signalCode: NodeJS.Signals | null = null;
   let _killed = false;
 
-  // Use real PassThrough streams for stdin/stdout
+  // Use real PassThrough streams for stdin/stdout/stderr
   const stdin = new PassThrough();
   const stdout = new PassThrough();
+  const stderr = new PassThrough();
 
   const mockProcess = Object.assign(processEmitter, {
     pid: 12345,
     stdin,
     stdout,
-    stderr: null,
+    stderr,
     get exitCode() {
       return _exitCode;
     },
@@ -181,7 +185,7 @@ describe('AgentLifecycle', () => {
             KYNETIC_AGENT: 'true',
             KYNETIC_SESSION_ID: '',
           }),
-        }),
+        })
       );
 
       expect(lifecycle.getState()).toBe('healthy');
@@ -202,7 +206,7 @@ describe('AgentLifecycle', () => {
             KYNETIC_AGENT: 'custom',
             CUSTOM_VAR: 'value',
           }),
-        }),
+        })
       );
 
       await lifecycle.kill();
@@ -864,7 +868,7 @@ describe('AgentLifecycle', () => {
       try {
         // Act & Assert - should throw
         await expect(
-          handlers!.readFile!({ path: '/tmp/nonexistent-file-xyz.txt' }),
+          handlers!.readFile!({ path: '/tmp/nonexistent-file-xyz.txt' })
         ).rejects.toThrow();
       } finally {
         await lifecycle.kill();
@@ -963,6 +967,99 @@ describe('AgentLifecycle', () => {
       } finally {
         await lifecycle.kill();
       }
+    });
+  });
+
+  // AC: @mem-context-usage ac-1
+  describe('AC-1: Stderr Capture (@mem-context-usage)', () => {
+    it('should emit stderr events when process writes to stderr', async () => {
+      const stderrChunks: string[] = [];
+      lifecycle.on('stderr', (data) => stderrChunks.push(data));
+
+      await lifecycle.spawn();
+
+      // Simulate stderr output from the process
+      mockProcess.stderr.push(Buffer.from('Error: something went wrong\n'));
+
+      // Wait for event processing
+      await delay(10);
+
+      expect(stderrChunks).toContain('Error: something went wrong\n');
+
+      await lifecycle.kill();
+    });
+
+    it('should emit multiple stderr chunks as separate events', async () => {
+      const stderrChunks: string[] = [];
+      lifecycle.on('stderr', (data) => stderrChunks.push(data));
+
+      await lifecycle.spawn();
+
+      // Simulate multiple stderr writes
+      mockProcess.stderr.push(Buffer.from('First error\n'));
+      mockProcess.stderr.push(Buffer.from('Second error\n'));
+
+      await delay(10);
+
+      expect(stderrChunks).toHaveLength(2);
+      expect(stderrChunks[0]).toBe('First error\n');
+      expect(stderrChunks[1]).toBe('Second error\n');
+
+      await lifecycle.kill();
+    });
+
+    it('should provide onStderr convenience method for subscribing', async () => {
+      const stderrChunks: string[] = [];
+      const unsubscribe = lifecycle.onStderr((data) => stderrChunks.push(data));
+
+      await lifecycle.spawn();
+
+      mockProcess.stderr.push(Buffer.from('Test output\n'));
+      await delay(10);
+
+      expect(stderrChunks).toContain('Test output\n');
+
+      // Unsubscribe should stop receiving events
+      unsubscribe();
+      mockProcess.stderr.push(Buffer.from('After unsubscribe\n'));
+      await delay(10);
+
+      expect(stderrChunks).toHaveLength(1);
+      expect(stderrChunks).not.toContain('After unsubscribe\n');
+
+      await lifecycle.kill();
+    });
+
+    it('should handle binary data converted to string', async () => {
+      const stderrChunks: string[] = [];
+      lifecycle.on('stderr', (data) => stderrChunks.push(data));
+
+      await lifecycle.spawn();
+
+      // Simulate binary-like output (usage stats often contain special chars)
+      const output = 'Usage: 1234 tokens\nModel: claude-3-opus\n';
+      mockProcess.stderr.push(Buffer.from(output));
+
+      await delay(10);
+
+      expect(stderrChunks[0]).toBe(output);
+
+      await lifecycle.kill();
+    });
+
+    it('should not inherit stderr to parent process', async () => {
+      await lifecycle.spawn();
+
+      // Verify spawn was called with pipe for stderr (not 'inherit')
+      expect(mockSpawn).toHaveBeenCalledWith(
+        'test-agent',
+        ['--test'],
+        expect.objectContaining({
+          stdio: ['pipe', 'pipe', 'pipe'],
+        })
+      );
+
+      await lifecycle.kill();
     });
   });
 });

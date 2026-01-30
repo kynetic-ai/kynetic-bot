@@ -10,11 +10,7 @@ import { EventEmitter } from 'node:events';
 import * as fs from 'node:fs/promises';
 import { PassThrough } from 'node:stream';
 import { createLogger } from '@kynetic-bot/core';
-import {
-  ACPClient,
-  type ACPClientHandlers,
-  type RequestPermissionResponse,
-} from './acp/index.js';
+import { ACPClient, type ACPClientHandlers, type RequestPermissionResponse } from './acp/index.js';
 import type {
   AgentCheckpoint,
   AgentLifecycleOptions,
@@ -72,12 +68,10 @@ export class AgentLifecycle extends EventEmitter {
       args: options.args ?? [],
       cwd: options.cwd ?? process.cwd(),
       env: options.env ?? {},
-      healthCheckInterval:
-        options.healthCheckInterval ?? DEFAULTS.healthCheckInterval,
+      healthCheckInterval: options.healthCheckInterval ?? DEFAULTS.healthCheckInterval,
       failureThreshold: options.failureThreshold ?? DEFAULTS.failureThreshold,
       shutdownTimeout: options.shutdownTimeout ?? DEFAULTS.shutdownTimeout,
-      maxConcurrentSpawns:
-        options.maxConcurrentSpawns ?? DEFAULTS.maxConcurrentSpawns,
+      maxConcurrentSpawns: options.maxConcurrentSpawns ?? DEFAULTS.maxConcurrentSpawns,
       backoff: {
         initial: options.backoff?.initial ?? DEFAULTS.backoff.initial,
         max: options.backoff?.max ?? DEFAULTS.backoff.max,
@@ -117,6 +111,19 @@ export class AgentLifecycle extends EventEmitter {
   }
 
   /**
+   * Register a callback for stderr output from the agent process
+   *
+   * AC: @mem-context-usage ac-1 - Stderr output captured programmatically
+   *
+   * @param callback Function to call with each stderr chunk
+   * @returns Unsubscribe function
+   */
+  onStderr(callback: (data: string) => void): () => void {
+    this.on('stderr', callback);
+    return () => this.off('stderr', callback);
+  }
+
+  /**
    * Spawn the agent process
    *
    * If already spawning or at max concurrent spawns, the request is queued.
@@ -126,10 +133,7 @@ export class AgentLifecycle extends EventEmitter {
    */
   async spawn(env?: Record<string, string>): Promise<void> {
     // If we can't spawn right now, queue the request
-    if (
-      this.activeSpawns >= this.options.maxConcurrentSpawns ||
-      this.state === 'spawning'
-    ) {
+    if (this.activeSpawns >= this.options.maxConcurrentSpawns || this.state === 'spawning') {
       return new Promise<void>((resolve, reject) => {
         this.spawnQueue.push({ env, resolve, reject });
         const queueLength = this.spawnQueue.length;
@@ -139,11 +143,7 @@ export class AgentLifecycle extends EventEmitter {
     }
 
     // Can't spawn from certain states
-    if (
-      this.state !== 'idle' &&
-      this.state !== 'failed' &&
-      this.state !== 'unhealthy'
-    ) {
+    if (this.state !== 'idle' && this.state !== 'failed' && this.state !== 'unhealthy') {
       throw new Error(`Cannot spawn from state: ${this.state}`);
     }
 
@@ -356,7 +356,7 @@ export class AgentLifecycle extends EventEmitter {
       this.process = spawn(this.options.command, this.options.args, {
         cwd: this.options.cwd,
         env: mergedEnv as NodeJS.ProcessEnv,
-        stdio: ['pipe', 'pipe', 'inherit'],
+        stdio: ['pipe', 'pipe', 'pipe'],
       });
 
       // Wire up stdio streams
@@ -365,6 +365,13 @@ export class AgentLifecycle extends EventEmitter {
       }
       if (this.process.stdout) {
         this.process.stdout.pipe(stdoutStream);
+      }
+
+      // AC: @mem-context-usage ac-1 - Capture stderr output programmatically
+      if (this.process.stderr) {
+        this.process.stderr.on('data', (chunk: Buffer) => {
+          this.emit('stderr', chunk.toString());
+        });
       }
 
       // Handle early exit during spawn
@@ -446,7 +453,7 @@ export class AgentLifecycle extends EventEmitter {
       // Apply backoff
       this.currentBackoffMs = Math.min(
         this.currentBackoffMs * this.options.backoff.multiplier,
-        this.options.backoff.max,
+        this.options.backoff.max
       );
 
       // Reject queued spawns on failure
@@ -462,10 +469,7 @@ export class AgentLifecycle extends EventEmitter {
    * Process queued spawn requests
    */
   private processSpawnQueue(): void {
-    while (
-      this.spawnQueue.length > 0 &&
-      this.activeSpawns < this.options.maxConcurrentSpawns
-    ) {
+    while (this.spawnQueue.length > 0 && this.activeSpawns < this.options.maxConcurrentSpawns) {
       const request = this.spawnQueue.shift()!;
       const queueLength = this.spawnQueue.length;
 
@@ -605,9 +609,7 @@ export class AgentLifecycle extends EventEmitter {
     log.info('Waiting for backoff before respawn', {
       backoffMs: this.currentBackoffMs,
     });
-    await new Promise((resolve) =>
-      setTimeout(resolve, this.currentBackoffMs),
-    );
+    await new Promise((resolve) => setTimeout(resolve, this.currentBackoffMs));
 
     // Try to respawn
     try {
@@ -627,10 +629,7 @@ export class AgentLifecycle extends EventEmitter {
   /**
    * Handle process exit
    */
-  private handleProcessExit(
-    code: number | null,
-    signal: NodeJS.Signals | null,
-  ): void {
+  private handleProcessExit(code: number | null, signal: NodeJS.Signals | null): void {
     log.info('Agent process exited', { code, signal });
     this.emit('agent:exited', code, signal);
 

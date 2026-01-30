@@ -8914,6 +8914,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-01-30T23:09:31.320Z
+  started_at: 2026-01-30T23:26:23.060Z
   notes:
     - _ulid: 01KG8JPVA2D04TJ5YRFWKAV3Y8
       created_at: 2026-01-30T23:09:44.642Z
@@ -8990,6 +8991,11 @@
           run: pnpm test
         ```
       supersedes: null
+    - _ulid: 01KG8KNXSA4GDY14DRWW0VS34A
+      created_at: 2026-01-30T23:26:42.986Z
+      author: "@claude"
+      content: "Porting 3 workflows from kynetic-spec: test.yml (adapted for pnpm monorepo),
+        claude-code-review.yml, and pr-review-resolution-check.yml"
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-01-30T23:26:23.060Z

@@ -221,6 +221,11 @@ features:
           - "@trait-recoverable"
         notes: []
         created: 2026-01-30T22:20:19.268Z
+        acceptance_criteria:
+          - id: ac-1
+            given: Bot running with active ACP session for session key
+            when: New message arrives
+            then: Existing session reused if within 70% context limit
   - _ulid: 01KG73AT8E8H2K6CAY3QTF8EQN
     slugs:
       - session-search

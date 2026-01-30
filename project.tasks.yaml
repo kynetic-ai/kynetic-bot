@@ -8126,15 +8126,21 @@
         truncated with [truncated] marker to fit budget
       supersedes: null
   todos: []
-- title: "Implement: Token-Based Turn Selection"
+- _ulid: 01KG8G0S5RXPQ79N4YC1F3EBA4
+  slugs:
+    - task-token-based-turn-selection
+  title: "Implement: Token-Based Turn Selection"
   type: task
   spec_ref: "@mem-turn-selection"
   derivation: auto
-  priority: 2
-  slugs:
-    - task-token-based-turn-selection
-  tags: []
+  status: pending
+  blocked_by: []
   depends_on: []
+  context: []
+  priority: 2
+  tags: []
+  vcs_refs: []
+  created_at: 2026-01-30T22:22:44.408Z
   notes:
     - _ulid: 01KG8G0S5Q33B2E65N1KS0VR00
       created_at: 2026-01-30T22:22:44.407Z
@@ -8162,10 +8168,23 @@
         - ac-4: Given Turn content contains tool markers, when Tool detection runs, then Correctly
         identifies tool name and extracts brief result
       supersedes: null
-  _ulid: 01KG8G0S5RXPQ79N4YC1F3EBA4
+  todos: []
+- title: Capture Agent Stderr for Usage Parsing
+  description: Modify AgentLifecycle to capture stderr output from the ACP process for programmatic
+    parsing. Currently stderr uses 'inherit' and goes to parent. Need to change to 'pipe' and add
+    event handler.
+  type: task
+  spec_ref: "@mem-session-lifecycle"
+  meta_ref: null
+  priority: 1
+  slugs: []
+  tags: []
+  _ulid: 01KG8G1318V7WSE74WVFRJJ6FZ
   status: pending
   blocked_by: []
+  depends_on: []
   context: []
   vcs_refs: []
-  created_at: 2026-01-30T22:22:44.408Z
+  created_at: 2026-01-30T22:22:54.504Z
+  notes: []
   todos: []

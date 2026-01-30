@@ -6693,6 +6693,9 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "Merged in PR #39. Implemented O(1) duplicate detection via message-id-index.json per
+    conversation. Index uses in-memory cache with file persistence. Recovery rebuilds index from
+    turns.jsonl if missing. All 886 tests pass."
   depends_on: []
   context: []
   priority: 4
@@ -6700,6 +6703,7 @@
   vcs_refs: []
   created_at: 2026-01-29T19:11:15.957Z
   started_at: 2026-01-30T12:26:09.737Z
+  completed_at: 2026-01-30T12:34:40.045Z
   notes:
     - _ulid: 01KG5JNN40CZFEH4DVG551YWPX
       created_at: 2026-01-29T19:11:22.241Z
@@ -6730,10 +6734,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-01-30T12:34:40.045Z
-  closed_reason: "Merged in PR #39. Implemented O(1) duplicate detection via message-id-index.json per
-    conversation. Index uses in-memory cache with file persistence. Recovery rebuilds index from
-    turns.jsonl if missing. All 886 tests pass."
 - _ulid: 01KG5YZN1Y96ET4PPZAGF4Q2NG
   slugs: []
   title: Implement 'embed' split strategy for Discord adapter
@@ -7539,7 +7539,7 @@
        - requestPermission: null values, missing required fields
   spec_ref: null
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -7566,6 +7566,11 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-01-30T12:36:24.281Z
+  closed_reason: "Merged in PR #38. Added 80 comprehensive tests for ACP layer: 48 tests for JSON-RPC
+    type guards (isRequest, isResponse, isError, isNotification), 5 tests for JsonRpcException
+    class, and 32 tests for JsonRpcFraming (request/response, timeouts, error handling,
+    activity-based timeout reset). Total test count increased from 886 to 966."
 - _ulid: 01KG740T4ZS75452EADRJ18GGC
   slugs: []
   title: Extract InMemorySessionStore to shared location

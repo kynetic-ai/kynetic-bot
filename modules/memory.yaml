@@ -246,6 +246,10 @@ features:
             given: Context usage captured
             when: Update processed
             then: SessionLifecycleManager receives ContextUsageUpdate with token counts
+          - id: ac-7
+            given: /usage command fails or times out
+            when: Error caught
+            then: Session continues with stale usage data; warning logged
   - _ulid: 01KG73AT8E8H2K6CAY3QTF8EQN
     slugs:
       - session-search

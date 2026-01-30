@@ -145,7 +145,7 @@ features:
       - id: ac-3
         given: user references earlier topic
         when: context assembled
-        then: retrieves relevant archived context
+        then: includes session file reference in context, allowing agent to read archived turns directly
       - id: ac-4
         given: compaction triggered
         when: summarizing older turns

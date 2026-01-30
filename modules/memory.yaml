@@ -349,6 +349,22 @@ features:
             given: Bot restarts with recent conversation (< 30 min)
             when: First message arrives
             then: Rebuild state from ConversationStore; context restoration injected
+        features:
+          - _ulid: 01KG8HG0ZBF8C3WN61V28Q9A54
+            slugs:
+              - mem-context-usage
+            title: Context Usage Tracking
+            type: feature
+            tags: []
+            description: Track context usage via /usage command with stderr parsing. Provides token counts to
+              SessionLifecycleManager for rotation decisions.
+            depends_on: []
+            implements: []
+            relates_to: []
+            tests: []
+            traits: []
+            notes: []
+            created: 2026-01-30T22:48:32.491Z
   - _ulid: 01KG73AT8E8H2K6CAY3QTF8EQN
     slugs:
       - session-search

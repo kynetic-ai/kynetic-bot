@@ -8476,6 +8476,12 @@
         but implements specific subset (usage parsing/tracking). Consider creating child spec for
         ContextUsageTracker with its own ACs."
       supersedes: null
+    - _ulid: 01KG8HH4JE784FE4S3DNNZ4TQ3
+      created_at: 2026-01-30T22:49:08.942Z
+      author: "@claude"
+      content: "Spec updated: references @mem-context-usage AC-2,3,4 (usage invocation, parsing, error
+        handling)"
+      supersedes: null
   todos: []
   automation: needs_review
 - _ulid: 01KG8G16R2T9C0EYDPEHSWZRXA

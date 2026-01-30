@@ -6117,6 +6117,7 @@
   derivation: auto
   status: completed
   blocked_by: []
+  closed_reason: "CLI implemented with signal handling, graceful shutdown, tests passing. PR #18 merged."
   depends_on:
     - "@task-bot-orchestration"
   context: []
@@ -6125,6 +6126,7 @@
   vcs_refs: []
   created_at: 2026-01-29T09:13:00.080Z
   started_at: 2026-01-30T02:41:32.720Z
+  completed_at: 2026-01-30T02:51:14.111Z
   notes:
     - _ulid: 01KG4GE0DGBV3JSWMHDVVX29EE
       created_at: 2026-01-29T09:13:00.080Z
@@ -6286,8 +6288,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-01-30T02:51:14.111Z
-  closed_reason: "CLI implemented with signal handling, graceful shutdown, tests passing. PR #18 merged."
 - _ulid: 01KG5JN4DH1WAWA7YC9RF1433C
   slugs: []
   title: Fix flaky ConversationStore concurrent access test
@@ -6447,4 +6447,20 @@
 
         All 62 errors fixed, tests passing (671/672, 1 skipped).
       supersedes: null
+  todos: []
+- title: Implement kbotDataDir as relative worktree dir
+  type: task
+  spec_ref: "@bot-config"
+  meta_ref: null
+  priority: 2
+  slugs: []
+  tags: []
+  _ulid: 01KG6HAX07Y54JHMDZNBT1Z5HF
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  vcs_refs: []
+  created_at: 2026-01-30T04:07:15.718Z
+  notes: []
   todos: []

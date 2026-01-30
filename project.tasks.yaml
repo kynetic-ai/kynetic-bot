@@ -6660,7 +6660,7 @@
   type: task
   spec_ref: "@mem-conversation"
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -6686,6 +6686,7 @@
       supersedes: null
   todos: []
   automation: eligible
+  started_at: 2026-01-30T12:26:09.737Z
 - _ulid: 01KG5YZN1Y96ET4PPZAGF4Q2NG
   slugs: []
   title: Implement 'embed' split strategy for Discord adapter

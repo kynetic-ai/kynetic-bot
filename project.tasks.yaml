@@ -8802,7 +8802,10 @@
   notes: []
   todos: []
   automation: eligible
-- title: Port GitHub Actions workflows from kynetic-spec
+- _ulid: 01KG8JPE9RPPWVDQRKE68ZGYAR
+  slugs: []
+  title: Port GitHub Actions workflows from kynetic-spec
+  type: task
   description: |-
     Port CI/CD workflows from kynetic-spec to kynetic-bot for automated testing and PR review.
 
@@ -8854,18 +8857,90 @@
 
     ## Dependencies
     None - can be done independently of skill porting tasks
-  type: task
   spec_ref: "@bot-pr-review"
   meta_ref: null
-  priority: 2
-  slugs: []
-  tags: []
-  _ulid: 01KG8JPE9RPPWVDQRKE68ZGYAR
   status: pending
   blocked_by: []
   depends_on: []
   context: []
+  priority: 2
+  tags: []
   vcs_refs: []
   created_at: 2026-01-30T23:09:31.320Z
-  notes: []
+  notes:
+    - _ulid: 01KG8JPVA2D04TJ5YRFWKAV3Y8
+      created_at: 2026-01-30T23:09:44.642Z
+      author: "@claude"
+      content: >-
+        ## Context
+
+
+        This task complements the PR review skill porting tasks. While those tasks fix the ralph
+        loop subagent behavior, this task adds CI-level quality gates.
+
+
+        **Current state**: kynetic-bot has zero GitHub Actions workflows. All CI is manual or
+        dependent on ralph loop.
+
+
+        **After this task**:
+
+        1. **Tests run automatically** on every PR and push to main
+
+        2. **Claude reviews PRs** via claude-code-action (independent of ralph)
+
+        3. **Unresolved threads block merge** - enforces review completion
+
+
+        ## Integration with PR Review Workflow
+
+
+        The pr-review-resolution-check.yml is especially important:
+
+        - When ralph's review subagent posts comments, they create review threads
+
+        - This action ensures those threads must be resolved before merge
+
+        - Creates accountability for addressing automated review feedback
+
+
+        ## Secrets Required
+
+
+        Need to configure in GitHub repo settings:
+
+        - `CLAUDE_CODE_OAUTH_TOKEN` - for claude-code-review.yml
+
+
+        ## pnpm Monorepo Adaptations
+
+
+        kynetic-bot uses pnpm workspaces, so test.yml needs:
+
+        ```yaml
+
+        - name: Setup pnpm
+          uses: pnpm/action-setup@v2
+          with:
+            version: 8
+
+        - name: Setup Node.js
+          uses: actions/setup-node@v4
+          with:
+            node-version: '20'
+            cache: 'pnpm'
+
+        - name: Install dependencies
+          run: pnpm install --frozen-lockfile
+
+        - name: Typecheck
+          run: pnpm typecheck
+
+        - name: Build
+          run: pnpm build
+
+        - name: Test
+          run: pnpm test
+        ```
+      supersedes: null
   todos: []

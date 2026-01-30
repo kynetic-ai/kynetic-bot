@@ -230,6 +230,10 @@ features:
             given: ACP session context exceeds 70% threshold
             when: New message arrives
             then: New session created with context restoration
+          - id: ac-3
+            given: Bot restarts
+            when: Message arrives for known session key
+            then: New session created with context restoration from persisted history
   - _ulid: 01KG73AT8E8H2K6CAY3QTF8EQN
     slugs:
       - session-search

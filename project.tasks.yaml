@@ -11014,7 +11014,7 @@
   type: task
   spec_ref: "@discord-tool-widgets"
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on:
     - "@task-rich-tool-call-display"
@@ -11109,3 +11109,4 @@
         But the code fix is independent of permissions.
       supersedes: null
   todos: []
+  started_at: 2026-01-31T19:12:39.480Z

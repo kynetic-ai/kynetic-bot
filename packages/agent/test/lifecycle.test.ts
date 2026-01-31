@@ -916,9 +916,9 @@ describe('AgentLifecycle', () => {
 
       try {
         // Act - call the writeFile handler
-        const result = await handlers!.writeFile!({ 
-          path: testFilePath, 
-          content: testContent 
+        const result = await handlers!.writeFile!({
+          path: testFilePath,
+          content: testContent,
         });
 
         // Assert - should return empty object
@@ -951,9 +951,9 @@ describe('AgentLifecycle', () => {
 
         // Act - overwrite with new content
         const newContent = 'New content that overwrites';
-        await handlers!.writeFile!({ 
-          path: testFilePath, 
-          content: newContent 
+        await handlers!.writeFile!({
+          path: testFilePath,
+          content: newContent,
         });
 
         // Assert - file should contain only new content
@@ -974,9 +974,9 @@ describe('AgentLifecycle', () => {
 
       try {
         // Act - write empty content
-        await handlers!.writeFile!({ 
-          path: testFilePath, 
-          content: '' 
+        await handlers!.writeFile!({
+          path: testFilePath,
+          content: '',
         });
 
         // Assert - file should exist and be empty
@@ -998,9 +998,9 @@ describe('AgentLifecycle', () => {
 
       try {
         // Act
-        await handlers!.writeFile!({ 
-          path: testFilePath, 
-          content: testContent 
+        await handlers!.writeFile!({
+          path: testFilePath,
+          content: testContent,
         });
 
         // Assert
@@ -1020,9 +1020,9 @@ describe('AgentLifecycle', () => {
       try {
         // Act & Assert - should throw
         await expect(
-          handlers!.writeFile!({ 
-            path: '/invalid/path/that/does/not/exist/file.txt', 
-            content: 'test' 
+          handlers!.writeFile!({
+            path: '/invalid/path/that/does/not/exist/file.txt',
+            content: 'test',
           })
         ).rejects.toThrow();
       } finally {

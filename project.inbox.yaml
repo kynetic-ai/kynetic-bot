@@ -211,3 +211,12 @@ inbox:
       - reflection
       - documentation
     added_by: "@claude"
+  - _ulid: 01KG8RRDA1S5T5JADE7W45GG4R
+    text: Configure lefthook to lint only changed files on pre-commit (use {staged_files}), but ensure
+      full lint runs regularly (e.g., pre-push hook or CI). This prevents unrelated lint errors from
+      blocking commits while maintaining overall code quality.
+    created_at: 2026-01-31T00:55:27.298Z
+    tags:
+      - reflection
+      - tooling
+    added_by: "@claude"

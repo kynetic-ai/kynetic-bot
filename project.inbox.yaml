@@ -330,3 +330,10 @@ inbox:
     created_at: 2026-01-31T05:23:36.909Z
     tags: []
     added_by: Jacob Chapel
+  - _ulid: 01KG9C1KWKFVK7YG588VN6BXYQ
+    text: Create test harness to validate commands against real Claude Code instance - smoke tests for
+      /context, /help and other commands to prevent silent failures. Integration test suite for
+      harness-Claude Code interaction. Would have caught the /usage vs /context issue early.
+    created_at: 2026-01-31T06:32:31.891Z
+    tags: []
+    added_by: Jacob Chapel

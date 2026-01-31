@@ -389,4 +389,13 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KG8RS06YXBH1WYV66335Q07E
+    type: friction
+    content: "Claude's XML tool format uses antml: namespace prefix ONLY on closing tags (e.g.,
+      </invoke>), not opening tags (<invoke>). This asymmetry isn't documented and requires
+      trial-and-error to discover when writing test fixtures."
+    created_at: 2026-01-31T00:55:46.654Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

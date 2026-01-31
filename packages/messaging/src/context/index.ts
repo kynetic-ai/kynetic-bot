@@ -31,3 +31,12 @@ export {
   type UsagePromptClient,
   type StderrProvider,
 } from './context-usage-tracker.js';
+
+export { ToolSummarizer, type DetectedToolCall, type ToolSummary } from './tool-summarizer.js';
+
+export {
+  TurnSelector,
+  type TurnSelectorOptions,
+  type EstimatedTurn,
+  type TurnSelectionResult,
+} from './turn-selector.js';

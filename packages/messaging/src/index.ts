@@ -16,11 +16,7 @@ export {
 } from './transformer.js';
 
 // Streaming
-export {
-  StreamCoalescer,
-  BufferedCoalescer,
-  type StreamOptions,
-} from './streaming.js';
+export { StreamCoalescer, BufferedCoalescer, type StreamOptions } from './streaming.js';
 
 // History
 export {
@@ -43,4 +39,27 @@ export {
   type ContextWindowEvents,
   type ACPPromptClient,
   type HaikuSummaryProviderOptions,
+} from './context/index.js';
+
+// Context Usage Tracking
+export {
+  ContextUsageTracker,
+  parseUsageOutput,
+  type ContextCategory,
+  type ContextUsageUpdate,
+  type ContextUsageTrackerOptions,
+  type ContextUsageTrackerEvents,
+  type UsagePromptClient,
+  type StderrProvider,
+} from './context/index.js';
+
+// Turn Selection
+export {
+  ToolSummarizer,
+  TurnSelector,
+  type DetectedToolCall,
+  type ToolSummary,
+  type TurnSelectorOptions,
+  type EstimatedTurn,
+  type TurnSelectionResult,
 } from './context/index.js';

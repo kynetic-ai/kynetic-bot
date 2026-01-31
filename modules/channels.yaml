@@ -248,3 +248,7 @@ features:
             given: More than 10 concurrent tool calls executing
             when: rendering widgets in Discord message
             then: Splits across multiple messages with max 10 embeds per message, maintains chronological order
+          - id: ac-8
+            given: File edit/write operates on binary file (PNG, PDF, etc.)
+            when: tool_call_update received with diff
+            then: Widget shows '(binary file changed, X bytes)' instead of diff content

@@ -8141,6 +8141,33 @@
         5. 70% context threshold for rotation decisions
         6. Recovery on restart: query ConversationStore for recent conversations
       supersedes: null
+    - _ulid: 01KG8QH05GK775R9ME3WRR0MKE
+      created_at: 2026-01-31T00:33:55.888Z
+      author: "@claude"
+      content: |-
+        Implementation complete:
+
+        1. SessionLifecycleManager in packages/messaging/src/session/session-lifecycle.ts
+           - Per-key locking via async mutex pattern (AC-8)
+           - Session reuse under 70% threshold (AC-1)
+           - Rotation at/above 70% threshold (AC-2)
+           - Restart recovery from ConversationStore (AC-3, AC-9)
+           - Previous session marked complete on rotation (AC-4)
+           - ContextUsageUpdate integration (AC-5, AC-6)
+           - Stale data fallback on errors (AC-7)
+
+        2. 29 new tests covering all acceptance criteria
+           - Session reuse: 3 tests
+           - Session rotation: 4 tests
+           - Restart recovery: 4 tests
+           - Session completion: 2 tests
+           - Context usage: 4 tests
+           - Per-key locking: 4 tests
+           - State management: 4 tests
+           - Edge cases: 4 tests
+
+        3. All 1075 tests pass
+      supersedes: null
   todos: []
   automation: eligible
 - _ulid: 01KG8G0Q251NCJCPN6ED8S3ZN1

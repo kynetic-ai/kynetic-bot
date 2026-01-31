@@ -8019,7 +8019,7 @@
   type: task
   spec_ref: "@mem-session-lifecycle"
   derivation: auto
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on:
     - "@01KG8G14"
@@ -8175,6 +8175,11 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-01-31T00:40:07.860Z
+  closed_reason: "Merged in PR #45. Implemented SessionLifecycleManager with session reuse under 70%
+    threshold, rotation above threshold, per-key locking for concurrent message serialization,
+    restart recovery from ConversationStore for recent conversations (<30 min). All 9 acceptance
+    criteria covered by 29 tests with AC annotations."
 - _ulid: 01KG8G0Q251NCJCPN6ED8S3ZN1
   slugs:
     - task-context-restoration

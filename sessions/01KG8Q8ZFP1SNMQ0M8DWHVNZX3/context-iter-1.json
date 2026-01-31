@@ -1,0 +1,267 @@
+{
+  "generated_at": "2026-01-31T00:29:33.132Z",
+  "branch": "main",
+  "context": {
+    "focus": null,
+    "threads": [],
+    "open_questions": [],
+    "updated_at": "2026-01-31T00:29:33.132Z"
+  },
+  "active_tasks": [],
+  "pending_review_tasks": [],
+  "recent_notes": [],
+  "active_todos": [],
+  "ready_tasks": [
+    {
+      "ref": "01KG8G0M",
+      "title": "Implement: Session Lifecycle Management",
+      "priority": 3,
+      "spec_ref": "@mem-session-lifecycle",
+      "tags": []
+    },
+    {
+      "ref": "01KG8G0Q",
+      "title": "Implement: Context Restoration",
+      "priority": 3,
+      "spec_ref": "@mem-context-restore",
+      "tags": []
+    }
+  ],
+  "blocked_tasks": [],
+  "recently_completed": [
+    {
+      "ref": "01KG8PHB",
+      "title": "Fix pre-existing ESLint errors",
+      "completed_at": "2026-01-31T00:26:30.201Z",
+      "closed_reason": "Merged in PR #44. Fixed pre-existing ESLint errors blocking commits.\n\n**What was fixed:**\n- packages/bot/src/bot.ts: Removed unused type imports (SessionKey, SessionStore, Session)\n- packages/bot/src/identity.ts: Added explicit 'unknown' type annotation for yaml.parse() result\n- packages/channels/src/adapters/discord/splitter.ts: Removed unused chunkIndex variable\n\nAll ESLint checks now pass. Pre-commit hooks no longer blocked."
+    },
+    {
+      "ref": "01KG8G0S",
+      "title": "Implement: Token-Based Turn Selection",
+      "completed_at": "2026-01-31T00:26:26.545Z",
+      "closed_reason": "Merged in PR #44. Implemented token-based turn selection for conversation replay.\n\n**What was implemented:**\n- ToolSummarizer: Detects and summarizes tool calls in conversation turns\n  - Handles XML-style function calls with antml: namespace prefix\n  - Reduces verbose tool outputs by 80%+ for accurate token estimation\n  - Supports Read, Write, Edit, Bash, Grep, Glob, Task, WebFetch, WebSearch\n\n- TurnSelector: Selects turns based on 30% context window budget\n  - Token-based selection instead of fixed turn count\n  - Applies tool summarization for realistic token counting\n  - Maintains 5% safety margin to prevent budget overruns\n\n**Test coverage:**\n- 55 tests (31 tool-summarizer + 24 turn-selector)\n- All 4 acceptance criteria fully covered with AC annotations\n- Comprehensive edge case coverage\n\n**Technical notes:**\nTest fixtures use antml: namespace prefix for closing tags to match Claude's actual format. Used Python script to generate fixtures to avoid triggering Claude Code's internal parser."
+    },
+    {
+      "ref": "01KG8G14",
+      "title": "Implement ContextUsageTracker",
+      "completed_at": "2026-01-30T23:57:45.895Z",
+      "closed_reason": "Merged in PR #43. Implemented ContextUsageTracker class that parses /usage command stderr output into structured ContextUsageUpdate data. Includes debouncing (30s), timeout handling (10s), and stale data fallback. All 4 ACs covered by tests: AC-1 (stderr capture) in agent package, AC-2/3/4 (usage command, parsing, error handling) in messaging package."
+    },
+    {
+      "ref": "01KG8G13",
+      "title": "Capture Agent Stderr for Usage Parsing",
+      "completed_at": "2026-01-30T23:45:03.777Z",
+      "closed_reason": "Merged in PR #42. Implemented stderr capture infrastructure for AgentLifecycle: changed stdio to pipe for stderr, added stderr event emission, added onStderr convenience method. AC-1 of @mem-context-usage fully covered with 5 tests. Provides foundation for AC-2/3/4 (usage parsing) in future tasks."
+    },
+    {
+      "ref": "01KG8JPE",
+      "title": "Port GitHub Actions workflows from kynetic-spec",
+      "completed_at": "2026-01-30T23:32:40.660Z",
+      "closed_reason": "PR #41 merged. Added GitHub Actions workflows: test.yml (build + tests), claude-code-review.yml (automated code review), pr-review-resolution-check.yml (unresolved thread enforcement). Implements AC-6 of @bot-pr-review. Note: CI billing limit issue needs resolution separately."
+    },
+    {
+      "ref": "01KG8JJ0",
+      "title": "Port /local-review skill and workflow from kynetic-spec",
+      "completed_at": "2026-01-30T23:24:30.425Z",
+      "closed_reason": "Merged in PR #40. Added /local-review and /pr-review skills for PR quality gates:\n\n- /local-review: Pre-PR quality review (AC coverage, test quality, test isolation)\n- /pr-review: PR review workflow for subagent context (validates task, runs local review, posts review comment, merges with quality gates)\n- @local-review workflow: 5-step quality gate with MUST-FIX enforcement\n- @pr-review-loop workflow: Full PR review subagent workflow\n\nAll ACs covered:\n- ac-1: Skill invokes workflow\n- ac-2: AC coverage findings with status\n- ac-3: Review summary posted as PR comment\n- ac-4: MUST-FIX issues mark task needs_review\n- ac-5: All gates pass -> PR merged and task completed\n- ac-6: Covered by separate task @01KG8JPE (GitHub Actions)\n\nThis enables ralph loop to properly review PRs by spawning subagents that use these skills, fixing the issue where PRs 37-39 were merged without review comments."
+    },
+    {
+      "ref": "01KG7414",
+      "title": "Add lefthook for pre-commit/pre-push hooks",
+      "completed_at": "2026-01-30T12:37:19.860Z",
+      "closed_reason": "Merged in PR #37. Added lefthook with pre-commit hooks (lint:fix, prettier on staged files in parallel) and pre-push hooks (build, test). Auto-installs via prepare script."
+    },
+    {
+      "ref": "01KG73SX",
+      "title": "Improve ACP handler test coverage and quality",
+      "completed_at": "2026-01-30T12:36:24.281Z",
+      "closed_reason": "Merged in PR #38. Added 80 comprehensive tests for ACP layer: 48 tests for JSON-RPC type guards (isRequest, isResponse, isError, isNotification), 5 tests for JsonRpcException class, and 32 tests for JsonRpcFraming (request/response, timeouts, error handling, activity-based timeout reset). Total test count increased from 886 to 966."
+    },
+    {
+      "ref": "01KG5JNE",
+      "title": "Optimize ConversationStore duplicate detection performance",
+      "completed_at": "2026-01-30T12:34:40.045Z",
+      "closed_reason": "Merged in PR #39. Implemented O(1) duplicate detection via message-id-index.json per conversation. Index uses in-memory cache with file persistence. Recovery rebuilds index from turns.jsonl if missing. All 886 tests pass."
+    },
+    {
+      "ref": "01KG7412",
+      "title": "Configure ESLint require-await rule",
+      "completed_at": "2026-01-30T12:17:10.184Z",
+      "closed_reason": "Merged in PR #36. Disabled @typescript-eslint/require-await globally in eslint.config.js and removed 7 inline eslint-disable comments from escalation.ts, session-store.ts, conversation-store.ts, and haiku-summary-provider.ts."
+    }
+  ],
+  "recent_commits": [
+    {
+      "hash": "15b535c",
+      "full_hash": "15b535c1c30985f666fa26031fd80f50851b0990",
+      "date": "2026-01-31T00:26:05.000Z",
+      "message": "Merge pull request #44 from kynetic-ai/feat/token-based-turn-selection",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "7b240ca",
+      "full_hash": "7b240caf7d1cdca3aa7d7d89e6b8fcd3646aecce",
+      "date": "2026-01-31T00:19:42.000Z",
+      "message": "feat(messaging): implement token-based turn selection",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "2cd804c",
+      "full_hash": "2cd804ca2e1752bdc1e06cd6b72dd6d2bb5941b2",
+      "date": "2026-01-31T00:19:31.000Z",
+      "message": "fix: resolve pre-existing ESLint errors",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "36d5c04",
+      "full_hash": "36d5c0436e8cd90051e0a8c9482de9fee7f67a17",
+      "date": "2026-01-30T23:57:35.000Z",
+      "message": "Merge pull request #43 from kynetic-ai/feat/agent-stderr-capture",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "7eea187",
+      "full_hash": "7eea187e5ab28bf0c55b566e602c0552c2dd73ac",
+      "date": "2026-01-30T23:55:50.000Z",
+      "message": "fix(ci): remove explicit pnpm version from test workflow",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "4158796",
+      "full_hash": "41587964c29d8ab4c4703782e8dd9f7b97b47cb8",
+      "date": "2026-01-30T23:51:33.000Z",
+      "message": "feat(messaging): add ContextUsageTracker for /usage command parsing",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "d28d0c2",
+      "full_hash": "d28d0c2ba7b12db842ef97f30e9065e99af6a358",
+      "date": "2026-01-30T23:44:53.000Z",
+      "message": "Merge pull request #42 from kynetic-ai/feat/agent-stderr-capture",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "cd55b1b",
+      "full_hash": "cd55b1bb54380a118b9bc353864d81fedddfc540",
+      "date": "2026-01-30T23:41:26.000Z",
+      "message": "feat(agent): capture stderr output from agent process",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "056f42a",
+      "full_hash": "056f42af764fc660a22dd6b1f16d5464562d4805",
+      "date": "2026-01-30T23:32:26.000Z",
+      "message": "Merge pull request #41 from kynetic-ai/ci/github-actions-workflows",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "8f185a2",
+      "full_hash": "8f185a213d3fb69dbfda6dd331dba84f3b36dc25",
+      "date": "2026-01-30T23:30:01.000Z",
+      "message": "fix: correct test.yml for pnpm monorepo",
+      "author": "Jacob Chapel"
+    }
+  ],
+  "working_tree": {
+    "clean": true,
+    "staged": [],
+    "unstaged": [],
+    "untracked": []
+  },
+  "inbox_items": [
+    {
+      "ref": "01KG4KV8",
+      "text": "Spec review workflow/skill that runs verification + holistic review after spec changes. Would automate the repeated 'run two subagents to check plan vs implementation and find gaps' pattern.",
+      "created_at": "2026-01-29T10:12:40.090Z",
+      "tags": [
+        "reflection",
+        "workflow"
+      ],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG4KVB",
+      "text": "Allow kspec item trait add to accept multiple traits: kspec item trait add @spec @trait1 @trait2 @trait3 instead of requiring separate commands for each trait.",
+      "created_at": "2026-01-29T10:12:43.363Z",
+      "tags": [
+        "reflection",
+        "kspec-cli"
+      ],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG4KVD",
+      "text": "Display relates_to and depends_on fields in kspec item get output. Currently these fields are only visible by reading the YAML directly.",
+      "created_at": "2026-01-29T10:12:45.470Z",
+      "tags": [
+        "reflection",
+        "kspec-cli"
+      ],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG5Z1E",
+      "text": "Discord adapter: add health check support using client.ws.ping for latency monitoring",
+      "created_at": "2026-01-29T22:47:31.618Z",
+      "tags": [],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG5Z1K",
+      "text": "Discord adapter: make bot message filtering configurable (currently filters all bots, not just self)",
+      "created_at": "2026-01-29T22:47:36.999Z",
+      "tags": [],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG5Z1P",
+      "text": "Discord adapter: expand DiscordSendOptions for ephemeral messages, thread options, slash command support",
+      "created_at": "2026-01-29T22:47:39.899Z",
+      "tags": [],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG64MZ",
+      "text": "Bot: Consider using TypedEventEmitter pattern for type-safe event names and payloads instead of base EventEmitter",
+      "created_at": "2026-01-30T00:25:34.748Z",
+      "tags": [],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG64NC",
+      "text": "Bot: Forward ChannelLifecycle events (health, reconnection) for completeness - currently only AgentLifecycle events are forwarded",
+      "created_at": "2026-01-30T00:25:47.325Z",
+      "tags": [],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG6503",
+      "text": "CLI tool to inspect types from dependencies - e.g. 'pnpm types @agentclientprotocol/sdk NewSessionRequest' to show type definition from .d.ts files. Could support --expand to follow type references. Helps with SDK integration without digging through node_modules/.pnpm/",
+      "created_at": "2026-01-30T00:31:39.008Z",
+      "tags": [
+        "reflection",
+        "dx"
+      ],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG65AG",
+      "text": "Ensure task workflow is followed when implementing plans in new context - problem: plans focus on what to build, not the kspec workflow (task start/notes/submit/complete). Agent jumps to implementation without starting task. Potential fixes: (1) plan template includes 'kspec task start @slug' as first step, (2) CLAUDE.md implementation checklist, (3) session start detects pending tasks with ready plans, (4) hook on plan approval.",
+      "created_at": "2026-01-30T00:37:20.098Z",
+      "tags": [
+        "reflection",
+        "workflow"
+      ],
+      "added_by": "@claude"
+    }
+  ],
+  "stats": {
+    "total_tasks": 73,
+    "in_progress": 0,
+    "pending_review": 0,
+    "ready": 3,
+    "blocked": 0,
+    "completed": 64,
+    "inbox_items": 21
+  }
+}

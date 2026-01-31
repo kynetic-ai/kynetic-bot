@@ -247,7 +247,7 @@ features:
               implementation: implemented
         status:
           maturity: draft
-          implementation: in_progress
+          implementation: implemented
   - _ulid: 01KG2VD4BPPHV4QP9H5XNA87HR
     slugs:
       - mem-agent-sessions

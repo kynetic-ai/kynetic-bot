@@ -8021,6 +8021,10 @@
   derivation: auto
   status: completed
   blocked_by: []
+  closed_reason: "Merged in PR #45. Implemented SessionLifecycleManager with session reuse under 70%
+    threshold, rotation above threshold, per-key locking for concurrent message serialization,
+    restart recovery from ConversationStore for recent conversations (<30 min). All 9 acceptance
+    criteria covered by 29 tests with AC annotations."
   depends_on:
     - "@01KG8G14"
   context: []
@@ -8029,6 +8033,7 @@
   vcs_refs: []
   created_at: 2026-01-30T22:22:39.519Z
   started_at: 2026-01-31T00:30:23.422Z
+  completed_at: 2026-01-31T00:40:07.860Z
   notes:
     - _ulid: 01KG8G0MCZCKTESQDEMW887FVX
       created_at: 2026-01-30T22:22:39.519Z
@@ -8175,11 +8180,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-01-31T00:40:07.860Z
-  closed_reason: "Merged in PR #45. Implemented SessionLifecycleManager with session reuse under 70%
-    threshold, rotation above threshold, per-key locking for concurrent message serialization,
-    restart recovery from ConversationStore for recent conversations (<30 min). All 9 acceptance
-    criteria covered by 29 tests with AC annotations."
 - _ulid: 01KG8G0Q251NCJCPN6ED8S3ZN1
   slugs:
     - task-context-restoration
@@ -8187,7 +8187,7 @@
   type: task
   spec_ref: "@mem-context-restore"
   derivation: auto
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on:
     - "@task-token-based-turn-selection"
@@ -8309,6 +8309,7 @@
       supersedes: null
   todos: []
   automation: eligible
+  started_at: 2026-01-31T00:40:56.768Z
 - _ulid: 01KG8G0S5RXPQ79N4YC1F3EBA4
   slugs:
     - task-token-based-turn-selection

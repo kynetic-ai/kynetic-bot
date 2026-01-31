@@ -268,3 +268,11 @@ inbox:
     created_at: 2026-01-31T04:48:41.198Z
     tags: []
     added_by: Jacob Chapel
+  - _ulid: 01KG96S5K00XGNTCS7WNBXX72X
+    text: Agent messages concatenated without spacing/newlines - each tool call result appears
+      immediately after previous text with only ':' separator (no space/newline). Should send
+      separate messages per statement, especially important when tool call widgets are implemented
+      for Discord visibility.
+    created_at: 2026-01-31T05:00:32.225Z
+    tags: []
+    added_by: Jacob Chapel

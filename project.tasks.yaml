@@ -8711,7 +8711,7 @@
     direct client.newSession() calls, add per-key locking, wire context restoration on rotation.
   spec_ref: "@mem-session-lifecycle"
   meta_ref: null
-  status: in_progress
+  status: pending_review
   blocked_by: []
   depends_on:
     - "@task-context-restoration"

@@ -13,7 +13,12 @@ import { execSync } from 'node:child_process';
 import path from 'node:path';
 import { createLogger, type NormalizedMessage } from '@kynetic-bot/core';
 import { ChannelRegistry, ChannelLifecycle } from '@kynetic-bot/channels';
-import { AgentLifecycle } from '@kynetic-bot/agent';
+import {
+  AgentLifecycle,
+  type ToolCall,
+  type ToolCallUpdate,
+  type SessionUpdate,
+} from '@kynetic-bot/agent';
 import {
   SessionKeyRouter,
   MessageTransformer,
@@ -538,10 +543,7 @@ export class Bot extends EventEmitter {
       }
 
       // 6. Set up update handler to feed chunks through coalescer
-      const updateHandler = (
-        _sid: string,
-        update: { sessionUpdate?: string; content?: { type?: string; text?: string } }
-      ) => {
+      const updateHandler = (_sid: string, update: SessionUpdate) => {
         if (update.sessionUpdate === 'agent_message_chunk' && update.content?.type === 'text') {
           const text = update.content.text ?? '';
           if (coalescer instanceof StreamCoalescer) {
@@ -552,6 +554,27 @@ export class Bot extends EventEmitter {
           } else {
             coalescer.push(text);
           }
+        }
+
+        // AC: @discord-tool-widgets - Emit tool call events for channel adapters
+        // When sessionUpdate is 'tool_call', the update object IS the ToolCall (with sessionUpdate added)
+        if (update.sessionUpdate === 'tool_call') {
+          this.emit(
+            'tool:call',
+            sessionId,
+            msg.channel,
+            update as ToolCall & { sessionUpdate: string }
+          );
+        }
+
+        // When sessionUpdate is 'tool_call_update', the update object IS the ToolCallUpdate
+        if (update.sessionUpdate === 'tool_call_update') {
+          this.emit(
+            'tool:update',
+            sessionId,
+            msg.channel,
+            update as ToolCallUpdate & { sessionUpdate: string }
+          );
         }
       };
       client.on('update', updateHandler);

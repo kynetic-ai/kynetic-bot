@@ -80,6 +80,10 @@ features:
         given: agent sends terminal/release request
         when: handler invoked
         then: cleans up terminal resources and releases session handle
+      - id: ac-12
+        given: agent sends fs/write_text_file request via ACP
+        when: handler invoked
+        then: writes content to file path and returns empty response
     status:
       maturity: draft
       implementation: implemented

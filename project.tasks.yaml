@@ -8265,7 +8265,7 @@
   type: task
   spec_ref: "@mem-turn-selection"
   derivation: auto
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -8384,6 +8384,36 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-01-31T00:26:26.545Z
+  closed_reason: >-
+    Merged in PR #44. Implemented token-based turn selection for conversation replay.
+
+
+    **What was implemented:**
+
+    - ToolSummarizer: Detects and summarizes tool calls in conversation turns
+      - Handles XML-style function calls with antml: namespace prefix
+      - Reduces verbose tool outputs by 80%+ for accurate token estimation
+      - Supports Read, Write, Edit, Bash, Grep, Glob, Task, WebFetch, WebSearch
+
+    - TurnSelector: Selects turns based on 30% context window budget
+      - Token-based selection instead of fixed turn count
+      - Applies tool summarization for realistic token counting
+      - Maintains 5% safety margin to prevent budget overruns
+
+    **Test coverage:**
+
+    - 55 tests (31 tool-summarizer + 24 turn-selector)
+
+    - All 4 acceptance criteria fully covered with AC annotations
+
+    - Comprehensive edge case coverage
+
+
+    **Technical notes:**
+
+    Test fixtures use antml: namespace prefix for closing tags to match Claude's actual format. Used
+    Python script to generate fixtures to avoid triggering Claude Code's internal parser.
 - _ulid: 01KG8G1318V7WSE74WVFRJJ6FZ
   slugs:
     - task-capture-stderr

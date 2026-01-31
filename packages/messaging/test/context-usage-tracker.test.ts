@@ -1,7 +1,7 @@
 /**
  * ContextUsageTracker Tests
  *
- * Tests for context usage tracking via /usage command parsing.
+ * Tests for context usage tracking via /context command parsing.
  *
  * @see @mem-context-usage
  */
@@ -175,9 +175,9 @@ describe('ContextUsageTracker', () => {
     vi.clearAllMocks();
   });
 
-  // AC: @mem-context-usage ac-2 - Sends /usage command when triggered
+  // AC: @mem-context-usage ac-2 - Sends /context command when triggered
   describe('checkUsage', () => {
-    it('sends /usage prompt to agent', async () => {
+    it('sends /context prompt to agent', async () => {
       // Emit stderr output when prompt is called
       (mockClient.prompt as ReturnType<typeof vi.fn>).mockImplementation(async () => {
         for (const cb of stderrCallbacks) {
@@ -190,7 +190,7 @@ describe('ContextUsageTracker', () => {
 
       expect(mockClient.prompt).toHaveBeenCalledWith({
         sessionId: 'session-1',
-        prompt: [{ type: 'text', text: '/usage' }],
+        prompt: [{ type: 'text', text: '/context' }],
         promptSource: 'system',
       });
       expect(result).not.toBeNull();

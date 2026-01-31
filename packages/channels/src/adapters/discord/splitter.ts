@@ -76,7 +76,7 @@ export function splitMessage(text: string, maxLength = 2000): string[] {
     const codeBlockState = trackCodeBlockState(
       remaining.slice(0, splitIndex),
       inCodeBlock,
-      codeBlockLang,
+      codeBlockLang
     );
 
     // If we're ending mid-code-block, close it and prepare to reopen
@@ -145,7 +145,7 @@ function findSplitPoint(text: string, maxLength: number): SplitPointResult {
 function trackCodeBlockState(
   text: string,
   startInCodeBlock: boolean,
-  startLang: string,
+  startLang: string
 ): { inCodeBlock: boolean; lang: string } {
   let inCodeBlock = startInCodeBlock;
   let lang = startLang;
@@ -181,10 +181,7 @@ function trackCodeBlockState(
  * @param maxLength - Maximum embed description length (default: 4096)
  * @returns Array of embed objects
  */
-export function splitMessageToEmbeds(
-  text: string,
-  maxLength = EMBED_DESCRIPTION_MAX,
-): APIEmbed[] {
+export function splitMessageToEmbeds(text: string, maxLength = EMBED_DESCRIPTION_MAX): APIEmbed[] {
   // Handle edge cases
   if (!text || text.length === 0) {
     return [];
@@ -198,11 +195,8 @@ export function splitMessageToEmbeds(
   let remaining = text;
   let inCodeBlock = false;
   let codeBlockLang = '';
-  let chunkIndex = 0;
 
   while (remaining.length > 0) {
-    chunkIndex++;
-
     if (remaining.length <= maxLength) {
       embeds.push({ description: remaining });
       break;
@@ -228,7 +222,7 @@ export function splitMessageToEmbeds(
     const codeBlockState = trackCodeBlockState(
       remaining.slice(0, splitIndex),
       inCodeBlock,
-      codeBlockLang,
+      codeBlockLang
     );
 
     // If we're ending mid-code-block, close it and prepare to reopen

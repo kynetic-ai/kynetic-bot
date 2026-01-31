@@ -11,7 +11,7 @@
 import { EventEmitter } from 'node:events';
 import { execSync } from 'node:child_process';
 import path from 'node:path';
-import { createLogger, type NormalizedMessage, type SessionKey } from '@kynetic-bot/core';
+import { createLogger, type NormalizedMessage } from '@kynetic-bot/core';
 import { ChannelRegistry, ChannelLifecycle } from '@kynetic-bot/channels';
 import { AgentLifecycle } from '@kynetic-bot/agent';
 import {
@@ -22,8 +22,6 @@ import {
   InMemorySessionStore,
   UnsupportedTypeError,
   MissingTransformerError,
-  type SessionStore,
-  type Session,
 } from '@kynetic-bot/messaging';
 import {
   KbotShadow,
@@ -98,7 +96,6 @@ export interface BotOptions {
   transformer?: MessageTransformer;
 }
 
-
 /**
  * Bot - Main orchestration class
  *
@@ -141,18 +138,22 @@ export class Bot extends EventEmitter {
     this.router = options.router ?? this.createRouter();
     // AC: @bot-orchestration ac-7 - uses git root for projectRoot
     // AC: @bot-config ac-6 - kbotDataDir is relative worktree dir name
-    this.shadow = options.shadow ?? new KbotShadow({
-      projectRoot: getGitRoot(),
-      worktreeDir: this.config.kbotDataDir,
-    });
+    this.shadow =
+      options.shadow ??
+      new KbotShadow({
+        projectRoot: getGitRoot(),
+        worktreeDir: this.config.kbotDataDir,
+      });
 
     // AC: @bot-storage-integration ac-1 - Instantiate memory stores
     const baseDir = path.join(getGitRoot(), this.config.kbotDataDir);
     this.memorySessionStore = options.memorySessionStore ?? new MemorySessionStore({ baseDir });
-    this.conversationStore = options.conversationStore ?? new ConversationStore({
-      baseDir,
-      sessionStore: this.memorySessionStore,
-    });
+    this.conversationStore =
+      options.conversationStore ??
+      new ConversationStore({
+        baseDir,
+        sessionStore: this.memorySessionStore,
+      });
 
     // AC: @transform-integration - MessageTransformer for platform normalization
     this.transformer = options.transformer ?? new MessageTransformer();
@@ -355,7 +356,10 @@ export class Bot extends EventEmitter {
             });
           } catch (err) {
             const error = err instanceof Error ? err : new Error(String(err));
-            this.log.error('Failed to create session record', { error: error.message, messageId: msg.id });
+            this.log.error('Failed to create session record', {
+              error: error.message,
+              messageId: msg.id,
+            });
           }
         }
 
@@ -395,7 +399,11 @@ export class Bot extends EventEmitter {
               streamingMessageId = result?.messageId;
             } else {
               // Subsequent chunks - edit existing message with accumulated text
-              await this.channelLifecycle.editMessage?.(msg.channel, streamingMessageId, cumulativeText);
+              await this.channelLifecycle.editMessage?.(
+                msg.channel,
+                streamingMessageId,
+                cumulativeText
+              );
             }
           },
           onComplete: async (fullText) => {
@@ -424,7 +432,10 @@ export class Bot extends EventEmitter {
       }
 
       // 6. Set up update handler to feed chunks through coalescer
-      const updateHandler = (_sid: string, update: { sessionUpdate?: string; content?: { type?: string; text?: string } }) => {
+      const updateHandler = (
+        _sid: string,
+        update: { sessionUpdate?: string; content?: { type?: string; text?: string } }
+      ) => {
         if (update.sessionUpdate === 'agent_message_chunk' && update.content?.type === 'text') {
           const text = update.content.text ?? '';
           if (coalescer instanceof StreamCoalescer) {
@@ -469,7 +480,10 @@ export class Bot extends EventEmitter {
           });
         } catch (err) {
           const error = err instanceof Error ? err : new Error(String(err));
-          this.log.error('Failed to persist assistant turn', { error: error.message, messageId: msg.id });
+          this.log.error('Failed to persist assistant turn', {
+            error: error.message,
+            messageId: msg.id,
+          });
         }
       }
 
@@ -739,5 +753,4 @@ export class Bot extends EventEmitter {
     // @trait-observable: Emit state:change event
     this.emit('state:change', oldState, newState);
   }
-
 }

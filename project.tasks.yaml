@@ -9479,4 +9479,388 @@
         - @01KG6YHE File diff widget  
         - @01KG6YHG Interactive expand/collapse
       supersedes: null
+    - _ulid: 01KG94XF9SH9HT112J6Y1V2XP8
+      created_at: 2026-01-31T04:27:56.090Z
+      author: Jacob Chapel
+      content: >-
+        UPDATED Implementation Guide (Comprehensive):
+
+
+        ## Overview
+
+        Implement rich Discord embeds that display agent tool calls in real-time. This replaces the
+        current behavior where tool calls are hidden from Discord users.
+
+
+        ## Architecture Components
+
+
+        ### 1. ToolWidgetBuilder
+
+        **Purpose**: Factory for creating Discord embeds per tool type
+
+        **Location**: packages/channels/src/adapters/discord/tool-widgets/ToolWidgetBuilder.ts
+
+
+        **Responsibilities**:
+
+        - Create compact embed for each tool type (Bash, Read, Write, Edit, Grep, WebFetch, etc.)
+
+        - Format tool parameters for display (truncate long paths, sanitize output)
+
+        - Handle tool icons: 🔧 Read, 💻 Bash, ✏️ Edit/Write, 🔍 Grep, 🌐 WebFetch
+
+        - Build ActionRow with expand button (customId format: 'expand:toolCallId')
+
+        - Handle error states with red border and ❌ icon
+
+        - Handle binary file edits (show byte count instead of diff)
+
+
+        **Key Methods**:
+
+        - buildWidget(toolCall: ToolCall): { embed: EmbedBuilder, components: ActionRowBuilder[] }
+
+        - buildBashWidget(toolCall): Embed with command (50 char max), exit code when complete
+
+        - buildFileWidget(toolCall): Embed with file path (basename), line ranges, first 10 lines of
+        diff
+
+        - buildErrorWidget(toolCall, error): Red embed with error summary (100 char max)
+
+        - truncateOutput(output: string, maxLines: number, maxCharsPerLine: number): string
+
+
+        **Parameter Display Rules**:
+
+        - Bash: command (truncated to 50 chars with ellipsis)
+
+        - Read/Write/Edit: file_path (basename only, e.g., 'bot.ts' not full path)
+
+        - Grep: pattern + path (pattern in backticks)
+
+        - WebFetch: url (hostname only for compact view)
+
+
+        **Output Sanitization**:
+
+        - Strip ANSI color codes from bash output
+
+        - Truncate lines to 80 chars max
+
+        - Show first 10 lines, add '(X more lines)' indicator
+
+        - Binary data displayed as '(binary content, X bytes)'
+
+
+        ### 2. ToolCallTracker
+
+        **Purpose**: Track active tool calls and map to Discord messages
+
+        **Location**: packages/channels/src/adapters/discord/tool-widgets/ToolCallTracker.ts
+
+
+        **Responsibilities**:
+
+        - Maintain map of toolCallId -> { messageId, channelId, embedIndex }
+
+        - Track multiple widgets per message (up to 10 embeds per message)
+
+        - Rebuild full embeds array when updating one widget (Discord edits replace entire message)
+
+        - Handle session isolation (separate tracking per conversation/channel)
+
+        - Clean up tracking data on session end
+
+
+        **Key Data Structures**:
+
+        interface ToolCallState {
+          toolCallId: string;
+          messageId: string;
+          channelId: string;
+          embedIndex: number; // Position in message's embeds array
+          status: 'pending' | 'in_progress' | 'completed' | 'failed' | 'timed_out';
+          embed: EmbedBuilder;
+        }
+
+
+        interface MessageState {
+          messageId: string;
+          channelId: string;
+          embeds: EmbedBuilder[]; // Full array of embeds (max 10)
+          toolCallIds: string[];
+        }
+
+
+        **Key Methods**:
+
+        - trackToolCall(toolCallId, channelId): Create Discord message, return messageId
+
+        - updateToolCall(toolCallId, newEmbed): Queue update to MessageUpdateBatcher
+
+        - getMessageState(messageId): Return full MessageState for rebuilding
+
+        - cleanupSession(sessionId): Clear all tracking for session
+
+
+        **Concurrency Handling**:
+
+        - Handle multiple simultaneous sessions (isolate by sessionId/channelId)
+
+        - When >10 tools active, create new message for overflow embeds
+
+        - Maintain chronological order across messages
+
+
+        ### 3. MessageUpdateBatcher
+
+        **Purpose**: Batch Discord message edits to respect rate limits
+
+        **Location**: packages/channels/src/adapters/discord/tool-widgets/MessageUpdateBatcher.ts
+
+
+        **Responsibilities**:
+
+        - Respect Discord rate limit: 5 edits per 5 seconds per channel
+
+        - Batch rapid updates with 200ms debounce window
+
+        - Use token bucket algorithm (refill 1 token/second for safety margin)
+
+        - Queue pending updates when rate limited
+
+        - Retry on 429 errors with exponential backoff
+
+
+        **Implementation Pattern**:
+
+        class MessageUpdateBatcher {
+          private queue: Map<messageId, PendingUpdate> = new Map();
+          private tokens: number = 5;
+          private lastRefill: number = Date.now();
+          async queueUpdate(messageId, channelId, embeds): void {
+            // Merge with existing queued update for same message (batching)
+            this.queue.set(messageId, { channelId, embeds, timestamp: Date.now() });
+            this.scheduleFlush();
+          }
+          private async flush(): void {
+            this.refillTokens();
+            while (this.queue.size > 0 && this.tokens >= 1) {
+              const [messageId, update] = this.queue.entries().next().value;
+              this.tokens--;
+              await this.sendUpdate(messageId, update);
+              this.queue.delete(messageId);
+            }
+          }
+        }
+
+
+        **Rate Limit Handling**:
+
+        - Discord.js automatically handles 429 responses (queues and retries)
+
+        - App-level batching reduces API calls before hitting limits
+
+        - Use 1 edit/second (vs Discord's 5/5s) for safety buffer
+
+        - Log dropped updates if queue exceeds 50 items
+
+
+        ## Integration Points
+
+
+        ### Bot.handleMessage() Modifications
+
+        **File**: packages/bot/src/bot.ts (lines 542-555)
+
+        **Current**: Only handles 'agent_message_chunk' events
+
+        **Add**: Cases for 'tool_call' and 'tool_call_update' events
+
+
+
+
+        **Why**: ACP SDK emits these events (confirmed in packages/agent/src/acp/client.ts:458-465)
+        but Bot currently ignores them. This wiring is essential for widgets to receive tool call
+        data.
+
+
+        ### Discord Adapter Event Listeners
+
+        **File**: packages/channels/src/adapters/discord/adapter.ts
+
+
+        **Add to setupEventHandlers()**:
+
+        1. Listen to bot 'tool:call' and 'tool:update' events
+
+        2. Call ToolWidgetBuilder to create/update embeds
+
+        3. Send via ToolCallTracker
+
+
+        **Add InteractionCreate handler**:
+
+
+
+        **Why**: Discord adapter currently only listens to Events.MessageCreate (line 413). Need
+        InteractionCreate for button clicks.
+
+
+        ### Expanded Content Storage
+
+        **Storage Strategy**: In-memory Map<toolCallId, string>
+
+        **Lifecycle**: 
+
+        - Store when tool completes (during tool_call_update with result)
+
+        - Clear on session end
+
+        - Accept data loss on bot restart (v1 simplification)
+
+
+        **Alternative (for v2)**: Store in ConversationStore with tool_call_id key for persistence
+        across restarts
+
+
+        ## File Structure
+
+
+        ### New Files to Create:
+
+
+
+        ### Files to Modify:
+
+        - packages/bot/src/bot.ts (add tool_call event handlers, ~10 lines)
+
+        - packages/channels/src/adapters/discord/adapter.ts (add InteractionCreate handler, wire
+        tool events, ~50 lines)
+
+
+        ### Existing Code to Leverage:
+
+        - packages/messaging/src/context/tool-summarizer.ts (for generating summaries)
+
+        - Discord.js builders: ActionRowBuilder, ButtonBuilder, EmbedBuilder (already in
+        dependencies)
+
+
+        ## Implementation Checklist
+
+
+        ### Phase 1: Core Widget Display
+
+        - [ ] Create ToolWidgetBuilder with buildWidget() method
+
+        - [ ] Implement widget builders for Bash, File (Read/Write/Edit)
+
+        - [ ] Create ToolCallTracker with basic tracking
+
+        - [ ] Wire bot.ts to emit 'tool:call' and 'tool:update' events
+
+        - [ ] Wire Discord adapter to listen and create widgets
+
+        - [ ] Test with single tool call (bash command)
+
+
+        ### Phase 2: Interaction & Expand
+
+        - [ ] Add InteractionCreate handler to Discord adapter
+
+        - [ ] Create expanded content storage (Map)
+
+        - [ ] Build expand button in widgets
+
+        - [ ] Implement auto-delete after 60 seconds
+
+        - [ ] Test expand button interaction
+
+
+        ### Phase 3: Rate Limiting & Batching
+
+        - [ ] Implement MessageUpdateBatcher with token bucket
+
+        - [ ] Wire ToolCallTracker updates through batcher
+
+        - [ ] Add 200ms debounce for rapid updates
+
+        - [ ] Test with multiple rapid tool calls (>5 in 5 seconds)
+
+
+        ### Phase 4: Edge Cases
+
+        - [ ] Handle >10 concurrent tools (split across messages)
+
+        - [ ] Handle binary file diffs
+
+        - [ ] Handle error states (red embeds)
+
+        - [ ] Handle session cleanup (update pending widgets to final state)
+
+        - [ ] Handle timeout (mark tools pending >30s as timed out)
+
+
+        ## Testing Scenarios
+
+
+        1. **Single bash command**: Tool widget appears, updates with result, expand shows full
+        output
+
+        2. **File edit**: Widget shows diff preview, syntax highlighting, expand shows full diff
+
+        3. **Rapid tools (10+ in 2 seconds)**: Rate limiting prevents 429 errors, all widgets update
+
+        4. **Error case**: Failed tool shows red embed with error icon
+
+        5. **Binary file**: Shows byte count instead of diff
+
+        6. **Session end**: All pending widgets marked completed/cancelled
+
+        7. **Button interaction**: Expand button shows full output, auto-deletes after 60s
+
+
+        ## Success Criteria (Links to AC)
+
+
+        - AC-1: Tool widgets display with icons and parameters
+
+        - AC-2: Bash widgets show exit code, duration, 10-line preview
+
+        - AC-3: File diffs show syntax highlighting and line ranges
+
+        - AC-4: Expand buttons work, auto-delete after 60s
+
+        - AC-5: Rate limiting prevents 429 errors during rapid updates
+
+        - AC-6: Error widgets show red border and error summary
+
+        - AC-7: >10 tools split across multiple messages
+
+        - AC-8: Binary files show byte count
+
+        - AC-9: Session end cleans up pending widgets
+
+
+        ## Related Inbox Items to Close After Implementation
+
+        - @01KG6YHB Bash command widget
+
+        - @01KG6YHE File diff widget
+
+        - @01KG6YHG Interactive expand/collapse
+
+
+        ## Notes on Trait Inheritance
+
+        This implementation inherits traits from parent @discord-channel-adapter:
+
+        - @trait-rate-limited: MessageUpdateBatcher implements rate limiting
+
+        - @trait-recoverable: ToolCallTracker handles session cleanup on crash
+
+        - @trait-observable: Emit events for widget creation/update/error
+      supersedes: null
   todos: []

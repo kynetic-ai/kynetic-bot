@@ -9397,7 +9397,7 @@
   type: task
   spec_ref: "@discord-tool-widgets"
   derivation: auto
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on:
     - "@discord-adapter"
@@ -9979,6 +9979,8 @@
         merged to main."
       supersedes: null
   todos: []
+  completed_at: 2026-01-31T09:21:47.891Z
+  closed_reason: "All 5 PR review issues fixed, tests added, PR #53 merged to main"
 - _ulid: 01KG9C0DG3KH8HH1ZN8E8KMVC3
   slugs: []
   title: "Fix context tracking: change /usage to /context command"

@@ -387,7 +387,7 @@ features:
                 when: Usage check triggered
                 then: /context command sent to agent and response awaited
               - id: ac-3
-                given: /usage response captured from stderr
+                given: /context response captured from stderr
                 when: Parsing completes
                 then: ContextUsageUpdate emitted with model, token counts, and category breakdown
               - id: ac-4

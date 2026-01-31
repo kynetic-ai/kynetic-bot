@@ -188,6 +188,8 @@ function createMockChannelLifecycle() {
     sendMessage: vi.fn().mockResolvedValue({ messageId: 'sent-msg-1' }),
     sendTyping: vi.fn().mockResolvedValue(undefined),
     editMessage: vi.fn().mockResolvedValue(undefined),
+    startTypingLoop: vi.fn().mockResolvedValue(undefined),
+    stopTypingLoop: vi.fn(),
     stop: vi.fn().mockResolvedValue(undefined),
   };
 }

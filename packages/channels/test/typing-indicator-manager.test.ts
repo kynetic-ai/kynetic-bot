@@ -32,17 +32,13 @@ describe('TypingIndicatorManager', () => {
 
   describe('Basic Operations', () => {
     it('should send typing indicator immediately on start', async () => {
-      const promise = manager.startTyping('channel-1', 'msg-1', sendFn);
-      await vi.runAllTimersAsync();
-      await promise;
+      await manager.startTyping('channel-1', 'msg-1', sendFn);
 
       expect(sendFn).toHaveBeenCalledTimes(1);
     });
 
     it('should refresh typing indicator at configured interval', async () => {
-      const promise = manager.startTyping('channel-1', 'msg-1', sendFn);
-      await vi.runAllTimersAsync();
-      await promise;
+      await manager.startTyping('channel-1', 'msg-1', sendFn);
 
       // Initial call
       expect(sendFn).toHaveBeenCalledTimes(1);
@@ -57,9 +53,7 @@ describe('TypingIndicatorManager', () => {
     });
 
     it('should stop refreshing when stopped', async () => {
-      const promise = manager.startTyping('channel-1', 'msg-1', sendFn);
-      await vi.runAllTimersAsync();
-      await promise;
+      await manager.startTyping('channel-1', 'msg-1', sendFn);
 
       expect(sendFn).toHaveBeenCalledTimes(1);
 
@@ -74,9 +68,7 @@ describe('TypingIndicatorManager', () => {
     it('should track active status correctly', async () => {
       expect(manager.isActive('channel-1')).toBe(false);
 
-      const promise = manager.startTyping('channel-1', 'msg-1', sendFn);
-      await vi.runAllTimersAsync();
-      await promise;
+      await manager.startTyping('channel-1', 'msg-1', sendFn);
 
       expect(manager.isActive('channel-1')).toBe(true);
 
@@ -87,17 +79,13 @@ describe('TypingIndicatorManager', () => {
 
   describe('Duplicate Prevention', () => {
     it('should not start duplicate loops for same channel', async () => {
-      const promise1 = manager.startTyping('channel-1', 'msg-1', sendFn);
-      await vi.runAllTimersAsync();
-      await promise1;
+      await manager.startTyping('channel-1', 'msg-1', sendFn);
 
       expect(sendFn).toHaveBeenCalledTimes(1);
 
       // Try to start again for same channel
       const sendFn2 = vi.fn().mockResolvedValue(undefined);
-      const promise2 = manager.startTyping('channel-1', 'msg-2', sendFn2);
-      await vi.runAllTimersAsync();
-      await promise2;
+      await manager.startTyping('channel-1', 'msg-2', sendFn2);
 
       // Second sendFn should not be called
       expect(sendFn2).toHaveBeenCalledTimes(0);
@@ -111,11 +99,10 @@ describe('TypingIndicatorManager', () => {
       const sendFn1 = vi.fn().mockResolvedValue(undefined);
       const sendFn2 = vi.fn().mockResolvedValue(undefined);
 
-      const promise1 = manager.startTyping('channel-1', 'msg-1', sendFn1);
-      const promise2 = manager.startTyping('channel-2', 'msg-2', sendFn2);
-
-      await vi.runAllTimersAsync();
-      await Promise.all([promise1, promise2]);
+      await Promise.all([
+        manager.startTyping('channel-1', 'msg-1', sendFn1),
+        manager.startTyping('channel-2', 'msg-2', sendFn2),
+      ]);
 
       expect(sendFn1).toHaveBeenCalledTimes(1);
       expect(sendFn2).toHaveBeenCalledTimes(1);
@@ -139,18 +126,17 @@ describe('TypingIndicatorManager', () => {
 
   describe('Safety Timeout', () => {
     it('should stop typing loop after max duration', async () => {
-      const promise = manager.startTyping('channel-1', 'msg-1', sendFn);
-      await vi.runAllTimersAsync();
-      await promise;
+      await manager.startTyping('channel-1', 'msg-1', sendFn);
 
       expect(sendFn).toHaveBeenCalledTimes(1);
-
-      // Advance to just before timeout
-      await vi.advanceTimersByTimeAsync(59000);
       expect(manager.isActive('channel-1')).toBe(true);
 
-      // Advance past timeout
-      await vi.advanceTimersByTimeAsync(8000); // Total: 67 seconds
+      // Advance to just before timeout (56 seconds = 7 intervals)
+      await vi.advanceTimersByTimeAsync(56000);
+      expect(manager.isActive('channel-1')).toBe(true);
+
+      // Advance past timeout (64 seconds total, 8th interval check triggers timeout)
+      await vi.advanceTimersByTimeAsync(8000);
       expect(manager.isActive('channel-1')).toBe(false);
     });
   });
@@ -162,9 +148,7 @@ describe('TypingIndicatorManager', () => {
         .mockRejectedValueOnce(new Error('Network error'))
         .mockResolvedValue(undefined);
 
-      const promise = manager.startTyping('channel-1', 'msg-1', failingSendFn);
-      await vi.runAllTimersAsync();
-      await promise;
+      await manager.startTyping('channel-1', 'msg-1', failingSendFn);
 
       // First call failed but was caught
       expect(failingSendFn).toHaveBeenCalledTimes(1);
@@ -180,9 +164,7 @@ describe('TypingIndicatorManager', () => {
     it('should handle initial sendFn error gracefully', async () => {
       const failingSendFn = vi.fn().mockRejectedValue(new Error('Initial error'));
 
-      const promise = manager.startTyping('channel-1', 'msg-1', failingSendFn);
-      await vi.runAllTimersAsync();
-      await promise;
+      await manager.startTyping('channel-1', 'msg-1', failingSendFn);
 
       // Loop should still be created despite initial error
       expect(manager.isActive('channel-1')).toBe(true);
@@ -196,18 +178,9 @@ describe('TypingIndicatorManager', () => {
       const sendFn3 = vi.fn().mockResolvedValue(undefined);
 
       await Promise.all([
-        (async () => {
-          await manager.startTyping('channel-1', 'msg-1', sendFn1);
-          await vi.runAllTimersAsync();
-        })(),
-        (async () => {
-          await manager.startTyping('channel-2', 'msg-2', sendFn2);
-          await vi.runAllTimersAsync();
-        })(),
-        (async () => {
-          await manager.startTyping('channel-3', 'msg-3', sendFn3);
-          await vi.runAllTimersAsync();
-        })(),
+        manager.startTyping('channel-1', 'msg-1', sendFn1),
+        manager.startTyping('channel-2', 'msg-2', sendFn2),
+        manager.startTyping('channel-3', 'msg-3', sendFn3),
       ]);
 
       expect(manager.getActiveCount()).toBe(3);
@@ -244,9 +217,7 @@ describe('TypingIndicatorManager', () => {
       });
       const customSendFn = vi.fn().mockResolvedValue(undefined);
 
-      const promise = customManager.startTyping('channel-1', 'msg-1', customSendFn);
-      await vi.runAllTimersAsync();
-      await promise;
+      await customManager.startTyping('channel-1', 'msg-1', customSendFn);
 
       expect(customSendFn).toHaveBeenCalledTimes(1);
 
@@ -262,17 +233,15 @@ describe('TypingIndicatorManager', () => {
       });
       const customSendFn = vi.fn().mockResolvedValue(undefined);
 
-      const promise = customManager.startTyping('channel-1', 'msg-1', customSendFn);
-      await vi.runAllTimersAsync();
-      await promise;
+      await customManager.startTyping('channel-1', 'msg-1', customSendFn);
 
       expect(customManager.isActive('channel-1')).toBe(true);
 
-      // Advance to just before custom timeout
-      await vi.advanceTimersByTimeAsync(19000);
+      // Advance to just before custom timeout (16 seconds = 2 intervals)
+      await vi.advanceTimersByTimeAsync(16000);
       expect(customManager.isActive('channel-1')).toBe(true);
 
-      // Advance past custom timeout
+      // Advance past custom timeout (24 seconds total, 3rd interval check triggers timeout)
       await vi.advanceTimersByTimeAsync(8000);
       expect(customManager.isActive('channel-1')).toBe(false);
     });

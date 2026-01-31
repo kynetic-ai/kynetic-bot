@@ -8350,6 +8350,16 @@
         (</invoke>). Need to update regex patterns in ToolSummarizer to match actual format, or
         update test fixtures to use correct format."
       supersedes: null
+    - _ulid: 01KG8PCVA8G5NAA1TNCEHJMGXE
+      created_at: 2026-01-31T00:14:11.272Z
+      author: "@claude"
+      content: "Fixed XML namespace mismatch in test fixtures. The issue was that test fixtures used plain
+        closing tags (e.g., </invoke>) while the regex patterns in tool-summarizer.ts expected tags
+        with antml: namespace prefix (e.g., </invoke>). Used Python script to regenerate test file
+        with correct tag format. All 31 tests now passing. This was the issue causing Ralph loop
+        problems - writing these tags directly in responses triggers Claude Code's internal parser
+        and causes turn termination."
+      supersedes: null
   todos: []
   automation: eligible
 - _ulid: 01KG8G1318V7WSE74WVFRJJ6FZ

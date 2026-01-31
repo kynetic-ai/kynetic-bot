@@ -1,0 +1,272 @@
+{
+  "generated_at": "2026-01-30T23:54:05.541Z",
+  "branch": "feat/agent-stderr-capture",
+  "context": {
+    "focus": null,
+    "threads": [],
+    "open_questions": [],
+    "updated_at": "2026-01-30T23:54:05.541Z"
+  },
+  "active_tasks": [],
+  "pending_review_tasks": [
+    {
+      "ref": "01KG8G14",
+      "title": "Implement ContextUsageTracker",
+      "started_at": "2026-01-30T23:45:47.979Z",
+      "priority": 2,
+      "spec_ref": "@mem-context-usage",
+      "note_count": 4,
+      "last_note_at": "2026-01-30T23:49:37.010Z",
+      "todo_count": 0,
+      "incomplete_todos": 0
+    }
+  ],
+  "recent_notes": [],
+  "active_todos": [],
+  "ready_tasks": [
+    {
+      "ref": "01KG8G0S",
+      "title": "Implement: Token-Based Turn Selection",
+      "priority": 2,
+      "spec_ref": "@mem-turn-selection",
+      "tags": []
+    }
+  ],
+  "blocked_tasks": [],
+  "recently_completed": [
+    {
+      "ref": "01KG8G13",
+      "title": "Capture Agent Stderr for Usage Parsing",
+      "completed_at": "2026-01-30T23:45:03.777Z",
+      "closed_reason": "Merged in PR #42. Implemented stderr capture infrastructure for AgentLifecycle: changed stdio to pipe for stderr, added stderr event emission, added onStderr convenience method. AC-1 of @mem-context-usage fully covered with 5 tests. Provides foundation for AC-2/3/4 (usage parsing) in future tasks."
+    },
+    {
+      "ref": "01KG8JPE",
+      "title": "Port GitHub Actions workflows from kynetic-spec",
+      "completed_at": "2026-01-30T23:32:40.660Z",
+      "closed_reason": "PR #41 merged. Added GitHub Actions workflows: test.yml (build + tests), claude-code-review.yml (automated code review), pr-review-resolution-check.yml (unresolved thread enforcement). Implements AC-6 of @bot-pr-review. Note: CI billing limit issue needs resolution separately."
+    },
+    {
+      "ref": "01KG8JJ0",
+      "title": "Port /local-review skill and workflow from kynetic-spec",
+      "completed_at": "2026-01-30T23:24:30.425Z",
+      "closed_reason": "Merged in PR #40. Added /local-review and /pr-review skills for PR quality gates:\n\n- /local-review: Pre-PR quality review (AC coverage, test quality, test isolation)\n- /pr-review: PR review workflow for subagent context (validates task, runs local review, posts review comment, merges with quality gates)\n- @local-review workflow: 5-step quality gate with MUST-FIX enforcement\n- @pr-review-loop workflow: Full PR review subagent workflow\n\nAll ACs covered:\n- ac-1: Skill invokes workflow\n- ac-2: AC coverage findings with status\n- ac-3: Review summary posted as PR comment\n- ac-4: MUST-FIX issues mark task needs_review\n- ac-5: All gates pass -> PR merged and task completed\n- ac-6: Covered by separate task @01KG8JPE (GitHub Actions)\n\nThis enables ralph loop to properly review PRs by spawning subagents that use these skills, fixing the issue where PRs 37-39 were merged without review comments."
+    },
+    {
+      "ref": "01KG7414",
+      "title": "Add lefthook for pre-commit/pre-push hooks",
+      "completed_at": "2026-01-30T12:37:19.860Z",
+      "closed_reason": "Merged in PR #37. Added lefthook with pre-commit hooks (lint:fix, prettier on staged files in parallel) and pre-push hooks (build, test). Auto-installs via prepare script."
+    },
+    {
+      "ref": "01KG73SX",
+      "title": "Improve ACP handler test coverage and quality",
+      "completed_at": "2026-01-30T12:36:24.281Z",
+      "closed_reason": "Merged in PR #38. Added 80 comprehensive tests for ACP layer: 48 tests for JSON-RPC type guards (isRequest, isResponse, isError, isNotification), 5 tests for JsonRpcException class, and 32 tests for JsonRpcFraming (request/response, timeouts, error handling, activity-based timeout reset). Total test count increased from 886 to 966."
+    },
+    {
+      "ref": "01KG5JNE",
+      "title": "Optimize ConversationStore duplicate detection performance",
+      "completed_at": "2026-01-30T12:34:40.045Z",
+      "closed_reason": "Merged in PR #39. Implemented O(1) duplicate detection via message-id-index.json per conversation. Index uses in-memory cache with file persistence. Recovery rebuilds index from turns.jsonl if missing. All 886 tests pass."
+    },
+    {
+      "ref": "01KG7412",
+      "title": "Configure ESLint require-await rule",
+      "completed_at": "2026-01-30T12:17:10.184Z",
+      "closed_reason": "Merged in PR #36. Disabled @typescript-eslint/require-await globally in eslint.config.js and removed 7 inline eslint-disable comments from escalation.ts, session-store.ts, conversation-store.ts, and haiku-summary-provider.ts."
+    },
+    {
+      "ref": "01KG740Z",
+      "title": "Log Discord rate limit events",
+      "completed_at": "2026-01-30T12:13:05.455Z",
+      "closed_reason": "Merged in PR #35. Added rate limit event logging to DiscordAdapter - listens for 'rateLimited' events on client.rest and logs route, method, limit, retryAfter, and global flag at warn level for observability."
+    },
+    {
+      "ref": "01KG740W",
+      "title": "Enrich error contexts with messageId",
+      "completed_at": "2026-01-30T12:07:44.796Z",
+      "closed_reason": "Merged in PR #34. Added messageId to 4 error log contexts in handleMessage() for better debugging correlation."
+    },
+    {
+      "ref": "01KG740T",
+      "title": "Extract InMemorySessionStore to shared location",
+      "completed_at": "2026-01-30T12:04:32.270Z",
+      "closed_reason": "Merged in PR #33. Extracted InMemorySessionStore to packages/messaging/src/session-store.ts, eliminating duplicate implementations from bot.ts and router.test.ts. Added clear() method and size getter for enhanced utility."
+    }
+  ],
+  "recent_commits": [
+    {
+      "hash": "4158796",
+      "full_hash": "41587964c29d8ab4c4703782e8dd9f7b97b47cb8",
+      "date": "2026-01-30T23:51:33.000Z",
+      "message": "feat(messaging): add ContextUsageTracker for /usage command parsing",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "d28d0c2",
+      "full_hash": "d28d0c2ba7b12db842ef97f30e9065e99af6a358",
+      "date": "2026-01-30T23:44:53.000Z",
+      "message": "Merge pull request #42 from kynetic-ai/feat/agent-stderr-capture",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "cd55b1b",
+      "full_hash": "cd55b1bb54380a118b9bc353864d81fedddfc540",
+      "date": "2026-01-30T23:41:26.000Z",
+      "message": "feat(agent): capture stderr output from agent process",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "056f42a",
+      "full_hash": "056f42af764fc660a22dd6b1f16d5464562d4805",
+      "date": "2026-01-30T23:32:26.000Z",
+      "message": "Merge pull request #41 from kynetic-ai/ci/github-actions-workflows",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "8f185a2",
+      "full_hash": "8f185a213d3fb69dbfda6dd331dba84f3b36dc25",
+      "date": "2026-01-30T23:30:01.000Z",
+      "message": "fix: correct test.yml for pnpm monorepo",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "a8a5982",
+      "full_hash": "a8a598287e40a4c69c629dffd1aeb590d836905c",
+      "date": "2026-01-30T23:27:24.000Z",
+      "message": "style: apply yaml formatting to workflow files",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "7a9ed4e",
+      "full_hash": "7a9ed4eccf3cd726ff2b608ee3a7e8596b53f4d1",
+      "date": "2026-01-30T23:27:16.000Z",
+      "message": "ci: add GitHub Actions workflows for CI and PR review",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "79fcdce",
+      "full_hash": "79fcdcee2a13b26bfd42d2441b7951acd493eecc",
+      "date": "2026-01-30T23:24:18.000Z",
+      "message": "Merge pull request #40 from kynetic-ai/feat/pr-review-skills",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "d2d74d9",
+      "full_hash": "d2d74d98d9c2f8ac9930865ee5202cdf1d1ca630",
+      "date": "2026-01-30T23:21:30.000Z",
+      "message": "style: apply markdown formatting to skill files",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "18b8cae",
+      "full_hash": "18b8cae5961944b46b01c3e08332cc13ff0e1ca7",
+      "date": "2026-01-30T23:20:30.000Z",
+      "message": "feat: add local-review and pr-review skills for PR quality gates",
+      "author": "Jacob Chapel"
+    }
+  ],
+  "working_tree": {
+    "clean": true,
+    "staged": [],
+    "unstaged": [],
+    "untracked": []
+  },
+  "inbox_items": [
+    {
+      "ref": "01KG4KV8",
+      "text": "Spec review workflow/skill that runs verification + holistic review after spec changes. Would automate the repeated 'run two subagents to check plan vs implementation and find gaps' pattern.",
+      "created_at": "2026-01-29T10:12:40.090Z",
+      "tags": [
+        "reflection",
+        "workflow"
+      ],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG4KVB",
+      "text": "Allow kspec item trait add to accept multiple traits: kspec item trait add @spec @trait1 @trait2 @trait3 instead of requiring separate commands for each trait.",
+      "created_at": "2026-01-29T10:12:43.363Z",
+      "tags": [
+        "reflection",
+        "kspec-cli"
+      ],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG4KVD",
+      "text": "Display relates_to and depends_on fields in kspec item get output. Currently these fields are only visible by reading the YAML directly.",
+      "created_at": "2026-01-29T10:12:45.470Z",
+      "tags": [
+        "reflection",
+        "kspec-cli"
+      ],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG5Z1E",
+      "text": "Discord adapter: add health check support using client.ws.ping for latency monitoring",
+      "created_at": "2026-01-29T22:47:31.618Z",
+      "tags": [],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG5Z1K",
+      "text": "Discord adapter: make bot message filtering configurable (currently filters all bots, not just self)",
+      "created_at": "2026-01-29T22:47:36.999Z",
+      "tags": [],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG5Z1P",
+      "text": "Discord adapter: expand DiscordSendOptions for ephemeral messages, thread options, slash command support",
+      "created_at": "2026-01-29T22:47:39.899Z",
+      "tags": [],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG64MZ",
+      "text": "Bot: Consider using TypedEventEmitter pattern for type-safe event names and payloads instead of base EventEmitter",
+      "created_at": "2026-01-30T00:25:34.748Z",
+      "tags": [],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG64NC",
+      "text": "Bot: Forward ChannelLifecycle events (health, reconnection) for completeness - currently only AgentLifecycle events are forwarded",
+      "created_at": "2026-01-30T00:25:47.325Z",
+      "tags": [],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG6503",
+      "text": "CLI tool to inspect types from dependencies - e.g. 'pnpm types @agentclientprotocol/sdk NewSessionRequest' to show type definition from .d.ts files. Could support --expand to follow type references. Helps with SDK integration without digging through node_modules/.pnpm/",
+      "created_at": "2026-01-30T00:31:39.008Z",
+      "tags": [
+        "reflection",
+        "dx"
+      ],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG65AG",
+      "text": "Ensure task workflow is followed when implementing plans in new context - problem: plans focus on what to build, not the kspec workflow (task start/notes/submit/complete). Agent jumps to implementation without starting task. Potential fixes: (1) plan template includes 'kspec task start @slug' as first step, (2) CLAUDE.md implementation checklist, (3) session start detects pending tasks with ready plans, (4) hook on plan approval.",
+      "created_at": "2026-01-30T00:37:20.098Z",
+      "tags": [
+        "reflection",
+        "workflow"
+      ],
+      "added_by": "@claude"
+    }
+  ],
+  "stats": {
+    "total_tasks": 72,
+    "in_progress": 0,
+    "pending_review": 1,
+    "ready": 2,
+    "blocked": 0,
+    "completed": 61,
+    "inbox_items": 21
+  }
+}

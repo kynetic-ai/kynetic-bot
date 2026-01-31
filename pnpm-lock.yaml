@@ -83,6 +83,9 @@ importers:
 
   packages/channels:
     dependencies:
+      '@kynetic-bot/agent':
+        specifier: workspace:*
+        version: link:../agent
       '@kynetic-bot/core':
         specifier: workspace:*
         version: link:../core

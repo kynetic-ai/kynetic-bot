@@ -28,6 +28,13 @@ import {
 } from './errors.js';
 import { parseIncoming } from './parser.js';
 import { splitMessage, splitMessageToEmbeds, EMBED_DESCRIPTION_MAX } from './splitter.js';
+import type { ToolCall, ToolCallUpdate } from '@kynetic-bot/agent';
+import {
+  ToolWidgetBuilder,
+  ToolCallTracker,
+  MessageUpdateBatcher,
+  type MessageEditFn,
+} from './tool-widgets/index.js';
 
 /**
  * Options for sending Discord messages
@@ -64,6 +71,9 @@ export class DiscordAdapter implements ChannelAdapter {
   private readonly client: Client;
   private readonly logger = createLogger('discord-adapter');
   private messageHandler: MessageHandler | null = null;
+  private toolWidgetBuilder!: ToolWidgetBuilder;
+  private toolCallTracker!: ToolCallTracker;
+  private messageUpdateBatcher!: MessageUpdateBatcher;
   private isStarted = false;
 
   constructor(config: DiscordAdapterConfig) {
@@ -77,6 +87,31 @@ export class DiscordAdapter implements ChannelAdapter {
     });
 
     this.setupEventHandlers();
+
+    // Initialize tool widget system
+    const editMessageFn: MessageEditFn = async (channelId, messageId, embeds, components) => {
+      try {
+        const channel = await this.client.channels.fetch(channelId);
+        if (!channel || !channel.isTextBased()) {
+          return null;
+        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+        const message = await (channel as any).messages.fetch(messageId);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+        return await message.edit({ embeds, components });
+      } catch (error) {
+        this.logger.error('Failed to edit message for tool widget', {
+          channelId,
+          messageId,
+          error: error instanceof Error ? error.message : String(error),
+        });
+        return null;
+      }
+    };
+
+    this.messageUpdateBatcher = new MessageUpdateBatcher(editMessageFn);
+    this.toolWidgetBuilder = new ToolWidgetBuilder();
+    this.toolCallTracker = new ToolCallTracker(this.messageUpdateBatcher, this.toolWidgetBuilder);
   }
 
   /**
@@ -113,9 +148,7 @@ export class DiscordAdapter implements ChannelAdapter {
       await readyPromise;
 
       this.isStarted = true;
-      this.logger.info(
-        `Discord adapter started. Logged in as ${this.client.user?.tag}`,
-      );
+      this.logger.info(`Discord adapter started. Logged in as ${this.client.user?.tag}`);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
       throw new DiscordConnectionError(`Failed to connect to Discord: ${message}`, {
@@ -136,6 +169,8 @@ export class DiscordAdapter implements ChannelAdapter {
 
     void this.client.destroy();
     this.isStarted = false;
+    // Cleanup tool widget system
+    this.messageUpdateBatcher.stop();
     this.logger.info('Discord adapter stopped');
 
     return Promise.resolve();
@@ -155,11 +190,7 @@ export class DiscordAdapter implements ChannelAdapter {
    * @throws DiscordPermissionError if missing permissions
    * @throws DiscordSendError for other send failures
    */
-  async sendMessage(
-    channel: string,
-    text: string,
-    options?: DiscordSendOptions,
-  ): Promise<string> {
+  async sendMessage(channel: string, text: string, options?: DiscordSendOptions): Promise<string> {
     const discordChannel = await this.fetchChannel(channel);
 
     // Use configured strategy for handling long messages (AC-3)
@@ -176,7 +207,7 @@ export class DiscordAdapter implements ChannelAdapter {
   private async sendAsChunks(
     discordChannel: SendableChannel,
     text: string,
-    options?: DiscordSendOptions,
+    options?: DiscordSendOptions
   ): Promise<string> {
     const chunks = splitMessage(text, this.config.maxMessageLength);
 
@@ -224,7 +255,7 @@ export class DiscordAdapter implements ChannelAdapter {
   private async sendAsEmbeds(
     discordChannel: SendableChannel,
     text: string,
-    options?: DiscordSendOptions,
+    options?: DiscordSendOptions
   ): Promise<string> {
     const embeds = splitMessageToEmbeds(text, EMBED_DESCRIPTION_MAX);
 
@@ -278,11 +309,7 @@ export class DiscordAdapter implements ChannelAdapter {
    * @returns The message ID of the edited message
    * @throws DiscordSendError for edit failures
    */
-  async editMessage(
-    channel: string,
-    messageId: string,
-    newText: string,
-  ): Promise<string> {
+  async editMessage(channel: string, messageId: string, newText: string): Promise<string> {
     const discordChannel = await this.fetchChannel(channel);
 
     try {
@@ -334,10 +361,174 @@ export class DiscordAdapter implements ChannelAdapter {
   /**
    * Set up Discord.js event handlers
    */
+  /**
+   * Set up listeners for bot tool events
+   * Should be called externally after adapter is created
+   *
+   * @param bot - Bot instance to listen to
+   */
+  setupBotEventListeners(bot: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- EventEmitter callback requires any[]
+    on: (event: string, handler: (...args: any[]) => void) => void;
+  }): void {
+    // Register listeners
+    bot.on('tool:call', (sessionId: string, channelId: string, toolCall: ToolCall) => {
+      void this.handleToolCall(sessionId, channelId, toolCall);
+    });
+
+    bot.on(
+      'tool:update',
+      (sessionId: string, channelId: string, toolCallUpdate: ToolCallUpdate) => {
+        void this.handleToolCallUpdate(sessionId, channelId, toolCallUpdate);
+      }
+    );
+
+    this.logger.info('Bot event listeners registered for tool widgets');
+  }
+
+  /**
+   * Handle tool call event
+   *
+   * AC: @discord-tool-widgets ac-1
+   */
+  private async handleToolCall(
+    sessionId: string,
+    channelId: string,
+    toolCall: ToolCall
+  ): Promise<void> {
+    this.logger.debug('Tool call received', {
+      toolCallId: toolCall.toolCallId,
+      title: toolCall.title,
+      sessionId,
+    });
+
+    try {
+      // Build widget
+      const widgetResult = this.toolWidgetBuilder.buildWidget(toolCall);
+
+      // Track and send
+      await this.toolCallTracker.trackToolCall(
+        toolCall,
+        sessionId,
+        channelId,
+        widgetResult,
+        async (embeds, components) => {
+          const channel = await this.fetchChannel(channelId);
+          const message = await channel.send({ embeds, components });
+          return message.id;
+        }
+      );
+    } catch (error) {
+      this.logger.error('Failed to handle tool call', {
+        error: error instanceof Error ? error.message : String(error),
+        toolCallId: toolCall.toolCallId,
+      });
+    }
+  }
+
+  /**
+   * Handle tool call update event
+   *
+   * AC: @discord-tool-widgets ac-2, ac-3, ac-5, ac-6
+   */
+  private async handleToolCallUpdate(
+    sessionId: string,
+    channelId: string,
+    toolCallUpdate: ToolCallUpdate
+  ): Promise<void> {
+    this.logger.debug('Tool call update received', {
+      toolCallId: toolCallUpdate.toolCallId,
+      status: toolCallUpdate.status,
+      sessionId,
+    });
+
+    try {
+      // Get the original tool call to build updated widget
+      const allToolCalls = this.toolCallTracker.getAllToolCalls();
+      const toolCallState = allToolCalls.find((tc) => tc.toolCallId === toolCallUpdate.toolCallId);
+
+      if (!toolCallState) {
+        this.logger.warn('Tool call not found for update', {
+          toolCallId: toolCallUpdate.toolCallId,
+        });
+        return;
+      }
+
+      // Build updated widget
+      const widgetResult = this.toolWidgetBuilder.buildWidget(
+        toolCallState.toolCall,
+        toolCallUpdate
+      );
+
+      // Update tracker
+      await this.toolCallTracker.updateToolCall(
+        toolCallUpdate.toolCallId,
+        toolCallUpdate,
+        widgetResult
+      );
+    } catch (error) {
+      this.logger.error('Failed to handle tool call update', {
+        error: error instanceof Error ? error.message : String(error),
+        toolCallId: toolCallUpdate.toolCallId,
+      });
+    }
+  }
+
   private setupEventHandlers(): void {
     // Handle incoming messages
     this.client.on(Events.MessageCreate, (message) => {
       void this.handleIncomingMessage(message);
+    });
+
+    // Handle button interactions for tool widget expand buttons
+    // AC: @discord-tool-widgets ac-4
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    this.client.on(Events.InteractionCreate, async (interaction) => {
+      if (!interaction.isButton()) {
+        return;
+      }
+
+      // Check if this is an expand button
+      if (!interaction.customId.startsWith('expand:')) {
+        return;
+      }
+
+      const toolCallId = interaction.customId.replace('expand:', '');
+
+      try {
+        // Get full output
+        const fullOutput = this.toolCallTracker.getFullOutput(toolCallId);
+
+        if (!fullOutput) {
+          await interaction.reply({
+            content: 'Output not available',
+            ephemeral: true,
+          });
+          return;
+        }
+
+        // Send full output (not ephemeral per AC-4 correction)
+        const reply = await interaction.reply({
+          content: `\`\`\`\n${fullOutput.slice(0, 1900)}\n\`\`\``,
+          fetchReply: true,
+        });
+
+        // Auto-delete after 60 seconds
+        setTimeout(() => {
+          if (reply && 'delete' in reply) {
+            reply.delete().catch((err) => {
+              this.logger.warn('Failed to auto-delete expand reply', {
+                error: err instanceof Error ? err.message : String(err),
+              });
+            });
+          }
+        }, 60000);
+      } catch (error) {
+        this.logger.error('Failed to handle expand button', {
+          error: error instanceof Error ? error.message : String(error),
+          toolCallId,
+        });
+      }
     });
 
     // Connection state logging (AC-4: observability)
@@ -350,9 +541,7 @@ export class DiscordAdapter implements ChannelAdapter {
     });
 
     this.client.on(Events.ShardResume, (shardId, replayedEvents) => {
-      this.logger.info(
-        `Shard ${shardId} resumed. Replayed ${replayedEvents} events`,
-      );
+      this.logger.info(`Shard ${shardId} resumed. Replayed ${replayedEvents} events`);
     });
 
     this.client.on(Events.ShardDisconnect, (event, shardId) => {
@@ -456,10 +645,10 @@ export class DiscordAdapter implements ChannelAdapter {
 
       // 50001: Missing Access, 50013: Missing Permissions
       if (error.code === 50001 || error.code === 50013) {
-        throw new DiscordPermissionError(
-          `Missing permission to access channel: ${channelId}`,
-          { channelId, discordError: error.message },
-        );
+        throw new DiscordPermissionError(`Missing permission to access channel: ${channelId}`, {
+          channelId,
+          discordError: error.message,
+        });
       }
     }
 
@@ -485,7 +674,7 @@ export class DiscordAdapter implements ChannelAdapter {
       if (error.code === 50001 || error.code === 50013) {
         throw new DiscordPermissionError(
           `Missing permission to send message to channel: ${channelId}`,
-          { channelId, discordError: error.message },
+          { channelId, discordError: error.message }
         );
       }
 
@@ -522,16 +711,17 @@ export class DiscordAdapter implements ChannelAdapter {
       if (error.code === 50001 || error.code === 50013) {
         throw new DiscordPermissionError(
           `Missing permission to edit message in channel: ${channelId}`,
-          { channelId, messageId, discordError: error.message },
+          { channelId, messageId, discordError: error.message }
         );
       }
 
       // 50005: Cannot edit a message authored by another user
       if (error.code === 50005) {
-        throw new DiscordPermissionError(
-          'Cannot edit message authored by another user',
-          { channelId, messageId, discordError: error.message },
-        );
+        throw new DiscordPermissionError('Cannot edit message authored by another user', {
+          channelId,
+          messageId,
+          discordError: error.message,
+        });
       }
     }
 

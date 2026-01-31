@@ -366,3 +366,13 @@ inbox:
     created_at: 2026-01-31T07:46:40.073Z
     tags: []
     added_by: "@claude"
+  - _ulid: 01KG9JB5P77ASACB9MY8KTFW6Q
+    text: Add timing assertion utility with tolerance for flaky CI tests - tests using exact ms
+      comparisons (e.g., expect(timeDiff).toBeGreaterThanOrEqual(100)) fail in CI due to timing
+      jitter. Create a test utility like expectTiming(actual, expected, toleranceMs) or document the
+      pattern of subtracting 5ms tolerance.
+    created_at: 2026-01-31T08:22:36.488Z
+    tags:
+      - reflection
+      - testing
+    added_by: "@claude"

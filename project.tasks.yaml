@@ -9314,7 +9314,7 @@
   type: task
   spec_ref: "@agent-lifecycle"
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -9387,3 +9387,6 @@
         All 275 tests passing.
       supersedes: null
   todos: []
+  completed_at: 2026-01-31T03:53:47.213Z
+  closed_reason: "PR #50 merged. Implemented ACP terminal handlers (create, output, wait_for_exit,
+    kill, release) enabling Claude Code to execute bash commands via kbot."

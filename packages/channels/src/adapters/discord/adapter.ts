@@ -369,6 +369,7 @@ export class DiscordAdapter implements ChannelAdapter {
    * @param bot - Bot instance to listen to
    */
   setupBotEventListeners(bot: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- EventEmitter callback requires any[]
     on: (event: string, handler: (...args: any[]) => void) => void;
   }): void {
     // Register listeners

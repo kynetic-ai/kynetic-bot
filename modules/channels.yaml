@@ -224,3 +224,8 @@ features:
             when: tool_call_update received with result
             then: Widget shows exit code, duration, and first 10 lines of output with expand button for full
               output
+          - id: ac-3
+            given: File edit/write tool completes
+            when: tool_call_update received with diff
+            then: Widget shows syntax-highlighted diff with +/- prefixes, line ranges, and expand button for
+              full content

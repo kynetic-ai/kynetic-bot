@@ -232,7 +232,8 @@ features:
           - id: ac-4
             given: User clicks expand button on a widget
             when: Discord component interaction received
-            then: Bot sends ephemeral follow-up message with full tool output, handles Discord rate limits
+            then: Bot sends follow-up message with full tool output (auto-deleted after 60 seconds), handles
+              Discord rate limits
           - id: ac-5
             given: Multiple tool calls executing rapidly
             when: tool_call_update events stream in

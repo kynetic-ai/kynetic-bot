@@ -2,11 +2,7 @@
 export { ChannelRegistry } from './registry.js';
 
 // Lifecycle
-export {
-  ChannelLifecycle,
-  type LifecycleOptions,
-  type LifecycleState,
-} from './lifecycle.js';
+export { ChannelLifecycle, type LifecycleOptions, type LifecycleState } from './lifecycle.js';
 
 // Media
 export {
@@ -47,6 +43,9 @@ export {
   DiscordPermissionError,
   type DiscordMessageMetadata,
 } from './adapters/discord/index.js';
+
+// Typing Indicator
+export { TypingIndicatorManager } from './typing-indicator-manager.js';
 
 // Types
 export { ValidationError, type Result } from './types.js';

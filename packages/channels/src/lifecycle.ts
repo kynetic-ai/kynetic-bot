@@ -3,6 +3,7 @@
  *
  * Manages channel adapter connection lifecycle with health monitoring.
  */
+import { TypingIndicatorManager } from './typing-indicator-manager.js';
 
 import type { ChannelAdapter } from '@kynetic-bot/core';
 
@@ -58,12 +59,13 @@ export class ChannelLifecycle {
   private reconnectAttempts = 0;
   private messageQueue: QueuedMessage[] = [];
   private processingQueue = false;
+  private typingManager?: TypingIndicatorManager;
 
   private readonly options: Required<LifecycleOptions>;
 
   constructor(
     private adapter: ChannelAdapter,
-    options: LifecycleOptions = {},
+    options: LifecycleOptions = {}
   ) {
     this.options = {
       healthCheckInterval: options.healthCheckInterval ?? 30000,
@@ -124,6 +126,8 @@ export class ChannelLifecycle {
       this.state = 'idle';
       this.consecutiveFailures = 0;
       this.reconnectAttempts = 0;
+      // Stop all typing loops
+      this.typingManager?.stopAll();
       this.messageQueue = [];
     }
   }
@@ -153,7 +157,7 @@ export class ChannelLifecycle {
   async sendMessage(
     channel: string,
     text: string,
-    options?: Record<string, unknown>,
+    options?: Record<string, unknown>
   ): Promise<{ messageId?: string } | void> {
     // AC-4: Queue messages when rate limited or unhealthy
     return new Promise<{ messageId?: string } | void>((resolve, reject) => {
@@ -187,11 +191,7 @@ export class ChannelLifecycle {
    * @param newText - New message text
    * @returns Optional message ID from the underlying adapter
    */
-  async editMessage(
-    channel: string,
-    messageId: string,
-    newText: string,
-  ): Promise<string | void> {
+  async editMessage(channel: string, messageId: string, newText: string): Promise<string | void> {
     // Check if adapter supports editMessage
     if (!this.adapter.editMessage) {
       return;
@@ -237,6 +237,45 @@ export class ChannelLifecycle {
     } catch {
       // Swallow typing errors - not critical
     }
+  }
+
+  /**
+   * Start a typing indicator loop for a channel
+   *
+   * Periodically refreshes the typing indicator to keep it active during long operations.
+   * The typing indicator is refreshed every 8 seconds (before Discord's 10s expiry).
+   *
+   * @param channel - Channel identifier
+   * @param messageId - ID of the message that triggered typing
+   */
+  async startTypingLoop(channel: string, messageId: string): Promise<void> {
+    if (!this.adapter.sendTyping || this.state !== 'healthy') {
+      return;
+    }
+
+    if (!this.typingManager) {
+      this.typingManager = new TypingIndicatorManager();
+    }
+
+    const sendFn = async () => {
+      try {
+        await this.adapter.sendTyping!(channel);
+      } catch {
+        // Log but don't stop loop - typing is non-critical
+        // Swallow error for now - logger would be added if available
+      }
+    };
+
+    await this.typingManager.startTyping(channel, messageId, sendFn);
+  }
+
+  /**
+   * Stop the typing indicator loop for a channel
+   *
+   * @param channel - Channel identifier
+   */
+  stopTypingLoop(channel: string): void {
+    this.typingManager?.stopTyping(channel);
   }
 
   /**
@@ -326,9 +365,7 @@ export class ChannelLifecycle {
 
     try {
       // Wait before reconnecting
-      await new Promise((resolve) =>
-        setTimeout(resolve, this.options.reconnectDelay),
-      );
+      await new Promise((resolve) => setTimeout(resolve, this.options.reconnectDelay));
 
       // Stop existing connection
       await this.adapter.stop();
@@ -364,10 +401,7 @@ export class ChannelLifecycle {
       // AC-4: Wait if unhealthy or reconnecting (with max wait)
       if (this.state === 'unhealthy' || this.state === 'reconnecting') {
         let waitCount = 0;
-        while (
-          (this.state === 'unhealthy' || this.state === 'reconnecting') &&
-          waitCount < 10
-        ) {
+        while ((this.state === 'unhealthy' || this.state === 'reconnecting') && waitCount < 10) {
           await new Promise((resolve) => setTimeout(resolve, 100));
           waitCount++;
         }
@@ -389,7 +423,7 @@ export class ChannelLifecycle {
         const result = await this.adapter.sendMessage(
           message.channel,
           message.text,
-          message.options,
+          message.options
         );
 
         // Success - remove from queue and resolve with message ID
@@ -405,9 +439,7 @@ export class ChannelLifecycle {
         if (message.attempts >= 5) {
           this.messageQueue.shift();
           message.reject(
-            error instanceof Error
-              ? error
-              : new Error('Failed to send message after 5 attempts'),
+            error instanceof Error ? error : new Error('Failed to send message after 5 attempts')
           );
         } else {
           // Wait before retrying
@@ -427,10 +459,7 @@ export class ChannelLifecycle {
     const startTime = Date.now();
 
     // Wait for queue to drain or timeout
-    while (
-      this.messageQueue.length > 0 &&
-      Date.now() - startTime < timeout
-    ) {
+    while (this.messageQueue.length > 0 && Date.now() - startTime < timeout) {
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
 

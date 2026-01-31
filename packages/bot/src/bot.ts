@@ -348,7 +348,7 @@ export class Bot extends EventEmitter {
     // Send typing indicator while processing
     // This shows the user that the bot is working on their message
     if (this.channelLifecycle) {
-      await this.channelLifecycle.sendTyping(msg.channel);
+      await this.channelLifecycle.startTypingLoop(msg.channel, msg.id);
     }
 
     try {
@@ -503,6 +503,8 @@ export class Bot extends EventEmitter {
                 replyTo: msg.id,
               });
               streamingMessageId = result?.messageId;
+              // Stop typing indicator once we start sending response
+              this.channelLifecycle.stopTypingLoop(msg.channel);
             } else {
               // Subsequent chunks - edit existing message with accumulated text
               await this.channelLifecycle.editMessage?.(
@@ -533,6 +535,8 @@ export class Bot extends EventEmitter {
             await this.channelLifecycle.sendMessage(msg.channel, fullText, {
               replyTo: msg.id,
             });
+            // Stop typing indicator once we start sending response
+            this.channelLifecycle.stopTypingLoop(msg.channel);
           }
         }, this.log);
       }
@@ -616,6 +620,8 @@ export class Bot extends EventEmitter {
       // @trait-observable: Emit message:error event
       this.emit('message:error', msg, error);
     } finally {
+      // Stop typing indicator when processing completes
+      this.channelLifecycle?.stopTypingLoop(msg.channel);
       this.inflightCount--;
     }
   }

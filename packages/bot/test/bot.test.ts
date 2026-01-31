@@ -244,6 +244,8 @@ function createMockChannelLifecycle() {
     stop: vi.fn().mockResolvedValue(undefined),
     sendMessage: vi.fn().mockResolvedValue('sent-msg-id'),
     sendTyping: vi.fn().mockResolvedValue(undefined),
+    startTypingLoop: vi.fn().mockResolvedValue(undefined),
+    stopTypingLoop: vi.fn(),
     getState: vi.fn().mockReturnValue('healthy'),
     isHealthy: vi.fn().mockReturnValue(true),
   };
@@ -420,7 +422,7 @@ describe('Bot', () => {
       expect(errorListener).toHaveBeenCalled();
     });
 
-    it('sends typing indicator before processing message', async () => {
+    it('starts typing loop before processing message', async () => {
       // Arrange
       const msg = createMockMessage();
       const lifecycle = createMockChannelLifecycle();
@@ -431,11 +433,11 @@ describe('Bot', () => {
       // Act
       await bot.handleMessage(msg);
 
-      // Assert - typing indicator sent to the message channel
-      expect(lifecycle.sendTyping).toHaveBeenCalledWith(msg.channel);
+      // Assert - typing loop started for the message channel
+      expect(lifecycle.startTypingLoop).toHaveBeenCalledWith(msg.channel, msg.id);
     });
 
-    it('sends typing indicator before routing session', async () => {
+    it('starts typing loop before routing session', async () => {
       // Arrange
       const msg = createMockMessage();
       const lifecycle = createMockChannelLifecycle();
@@ -444,7 +446,7 @@ describe('Bot', () => {
       );
 
       const callOrder: string[] = [];
-      lifecycle.sendTyping.mockImplementation(async () => {
+      lifecycle.startTypingLoop.mockImplementation(async () => {
         callOrder.push('typing');
       });
       mockRouter.resolveSession.mockImplementation(() => {
@@ -467,7 +469,7 @@ describe('Bot', () => {
       // Act
       await bot.handleMessage(msg);
 
-      // Assert - typing sent before routing
+      // Assert - typing loop started before routing
       expect(callOrder[0]).toBe('typing');
       expect(callOrder[1]).toBe('route');
     });
@@ -1817,6 +1819,8 @@ describe('Bot', () => {
         stop: vi.fn().mockResolvedValue(undefined),
         sendMessage: vi.fn().mockResolvedValue({ messageId: 'sent-msg-id' }),
         sendTyping: vi.fn().mockResolvedValue(undefined),
+        startTypingLoop: vi.fn().mockResolvedValue(undefined),
+        stopTypingLoop: vi.fn(),
         editMessage: vi.fn().mockResolvedValue('sent-msg-id'),
         getState: vi.fn().mockReturnValue('healthy'),
         isHealthy: vi.fn().mockReturnValue(true),

@@ -285,5 +285,101 @@ describe('ToolWidgetBuilder', () => {
         expect(result.hasExpandButton).toBe(true);
       });
     });
+
+    // AC: @discord-tool-widgets ac-8 - Binary detection
+    describe('binary content detection', () => {
+      it('should detect content with null bytes as binary', () => {
+        const binaryContent = 'some text\x00with null byte';
+        const toolCall = createMockToolCall({
+          rawOutput: binaryContent,
+        });
+
+        const result = builder.buildWidget(toolCall);
+
+        const embedData = result.embed.toJSON();
+        const outputField = embedData.fields?.find((f) => f.name === 'Output');
+        expect(outputField?.value).toContain('binary file');
+        expect(outputField?.value).toContain('bytes');
+        // Should not have expand button for binary content
+        expect(result.hasExpandButton).toBe(false);
+      });
+
+      it('should detect content with high ratio of non-printable chars as binary', () => {
+        // Create content with >10% non-printable characters (control chars)
+        const chars = [];
+        for (let i = 0; i < 100; i++) {
+          if (i < 15) {
+            chars.push(String.fromCharCode(0x01)); // Non-printable control char
+          } else {
+            chars.push('a');
+          }
+        }
+        const binaryContent = chars.join('');
+        const toolCall = createMockToolCall({
+          rawOutput: binaryContent,
+        });
+
+        const result = builder.buildWidget(toolCall);
+
+        const embedData = result.embed.toJSON();
+        const outputField = embedData.fields?.find((f) => f.name === 'Output');
+        expect(outputField?.value).toContain('binary file');
+      });
+
+      it('should not detect normal text as binary', () => {
+        const normalText = 'Hello world! This is normal text with some\nnewlines\tand tabs.';
+        const toolCall = createMockToolCall({
+          rawOutput: normalText,
+        });
+
+        const result = builder.buildWidget(toolCall);
+
+        const embedData = result.embed.toJSON();
+        const outputField = embedData.fields?.find((f) => f.name === 'Output');
+        expect(outputField?.value).toContain('Hello world');
+        expect(outputField?.value).not.toContain('binary file');
+      });
+
+      it('should format bytes for small binary files', () => {
+        const binaryContent = 'ab\x00cd'; // 5 bytes with null
+        const toolCall = createMockToolCall({
+          rawOutput: binaryContent,
+        });
+
+        const result = builder.buildWidget(toolCall);
+
+        const embedData = result.embed.toJSON();
+        const outputField = embedData.fields?.find((f) => f.name === 'Output');
+        expect(outputField?.value).toMatch(/\(binary file, \d+ bytes\)/);
+      });
+
+      it('should format KB for larger binary files', () => {
+        // Create binary content >= 1024 bytes
+        const binaryContent = '\x00'.repeat(2048);
+        const toolCall = createMockToolCall({
+          rawOutput: binaryContent,
+        });
+
+        const result = builder.buildWidget(toolCall);
+
+        const embedData = result.embed.toJSON();
+        const outputField = embedData.fields?.find((f) => f.name === 'Output');
+        expect(outputField?.value).toMatch(/\(binary file, [\d.]+ KB\)/);
+      });
+
+      it('should detect binary content in content array', () => {
+        const binaryContent = 'diff content\x00with null byte';
+        const toolCall = createMockToolCall({
+          content: [{ type: 'diff', diff: binaryContent }],
+        });
+
+        const result = builder.buildWidget(toolCall);
+
+        const embedData = result.embed.toJSON();
+        const contentField = embedData.fields?.find((f) => f.name === 'Content');
+        expect(contentField?.value).toContain('binary file');
+        expect(result.hasExpandButton).toBe(false);
+      });
+    });
   });
 });

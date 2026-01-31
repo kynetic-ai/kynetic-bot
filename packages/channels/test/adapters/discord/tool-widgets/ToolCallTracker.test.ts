@@ -6,11 +6,14 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { EmbedBuilder, ActionRowBuilder, ButtonBuilder } from 'discord.js';
+import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import { ToolCallTracker } from '../../../../src/adapters/discord/tool-widgets/ToolCallTracker.js';
 import { MessageUpdateBatcher } from '../../../../src/adapters/discord/tool-widgets/MessageUpdateBatcher.js';
+import {
+  ToolWidgetBuilder,
+  type WidgetResult,
+} from '../../../../src/adapters/discord/tool-widgets/ToolWidgetBuilder.js';
 import type { ToolCall, ToolCallUpdate } from '@kynetic-bot/agent';
-import type { WidgetResult } from '../../../../src/adapters/discord/tool-widgets/ToolWidgetBuilder.js';
 
 /**
  * Create a mock ToolCall
@@ -28,11 +31,21 @@ function createMockToolCall(overrides: Partial<ToolCall> = {}): ToolCall {
 /**
  * Create a mock WidgetResult
  */
-function createMockWidgetResult(): WidgetResult {
+function createMockWidgetResult(hasExpandButton = false, toolCallId = 'tc-mock'): WidgetResult {
+  const components = hasExpandButton
+    ? [
+        new ActionRowBuilder<ButtonBuilder>().addComponents(
+          new ButtonBuilder()
+            .setCustomId(`expand:${toolCallId}`)
+            .setLabel('Show Full Output')
+            .setStyle(ButtonStyle.Secondary)
+        ),
+      ]
+    : [];
   return {
     embed: new EmbedBuilder().setTitle('Test'),
-    components: [],
-    hasExpandButton: false,
+    components,
+    hasExpandButton,
   };
 }
 
@@ -58,13 +71,31 @@ function createMockSendMessage() {
   });
 }
 
+/**
+ * Create a mock ToolWidgetBuilder
+ */
+function createMockWidgetBuilder() {
+  return {
+    buildWidget: vi.fn().mockImplementation((toolCall: ToolCall, update?: ToolCallUpdate) => {
+      const status = update?.status ?? toolCall.status ?? 'in_progress';
+      return {
+        embed: new EmbedBuilder().setTitle(toolCall.title || 'Test').setFooter({ text: status }),
+        components: [],
+        hasExpandButton: false,
+      };
+    }),
+  } as unknown as ToolWidgetBuilder;
+}
+
 describe('ToolCallTracker', () => {
   let tracker: ToolCallTracker;
   let batcher: ReturnType<typeof createMockBatcher>;
+  let widgetBuilder: ReturnType<typeof createMockWidgetBuilder>;
 
   beforeEach(() => {
     batcher = createMockBatcher();
-    tracker = new ToolCallTracker(batcher as MessageUpdateBatcher);
+    widgetBuilder = createMockWidgetBuilder();
+    tracker = new ToolCallTracker(batcher as MessageUpdateBatcher, widgetBuilder);
   });
 
   describe('trackToolCall()', () => {
@@ -263,6 +294,77 @@ describe('ToolCallTracker', () => {
 
       expect(batcher.queueUpdate).not.toHaveBeenCalled();
     });
+
+    // Component preservation tests
+    it('should preserve expand buttons from other tool calls when updating one', async () => {
+      const toolCall1 = createMockToolCall({ toolCallId: 'tc-1' });
+      const toolCall2 = createMockToolCall({ toolCallId: 'tc-2' });
+      // Both have expand buttons
+      const widgetResult1 = createMockWidgetResult(true, 'tc-1');
+      const widgetResult2 = createMockWidgetResult(true, 'tc-2');
+      const sendMessage = createMockSendMessage();
+
+      await tracker.trackToolCall(
+        toolCall1,
+        'session-1',
+        'channel-1',
+        widgetResult1,
+        sendMessage
+      );
+
+      await tracker.trackToolCall(
+        toolCall2,
+        'session-1',
+        'channel-1',
+        widgetResult2,
+        sendMessage
+      );
+
+      // Update tc-1 with a new widget that still has a button
+      const update: ToolCallUpdate = { status: 'completed' } as ToolCallUpdate;
+      const newWidgetResult1 = createMockWidgetResult(true, 'tc-1');
+      await tracker.updateToolCall('tc-1', update, newWidgetResult1);
+
+      // Check that batcher was called with components from BOTH tool calls
+      const lastCall = batcher.queueUpdate.mock.calls[batcher.queueUpdate.mock.calls.length - 1];
+      const components = lastCall[3] as ActionRowBuilder<ButtonBuilder>[];
+      expect(components).toHaveLength(2);
+
+      // Verify both buttons are present
+      const customIds = components.map((row) => row.toJSON().components[0].custom_id);
+      expect(customIds).toContain('expand:tc-1');
+      expect(customIds).toContain('expand:tc-2');
+    });
+
+    // ActionRow limit test
+    it('should enforce ActionRow limit of 5 when updating', async () => {
+      const sendMessage = createMockSendMessage();
+
+      // Add 6 tool calls, each with an expand button
+      for (let i = 0; i < 6; i++) {
+        const toolCall = createMockToolCall({ toolCallId: `tc-${i}` });
+        const widgetResult = createMockWidgetResult(true, `tc-${i}`);
+        await tracker.trackToolCall(
+          toolCall,
+          'session-1',
+          'channel-1',
+          widgetResult,
+          sendMessage
+        );
+      }
+
+      // Update one of them
+      const update: ToolCallUpdate = { status: 'completed' } as ToolCallUpdate;
+      const newWidgetResult = createMockWidgetResult(true, 'tc-0');
+      await tracker.updateToolCall('tc-0', update, newWidgetResult);
+
+      // Get the last queueUpdate call
+      const lastCall = batcher.queueUpdate.mock.calls[batcher.queueUpdate.mock.calls.length - 1];
+      const components = lastCall[3] as ActionRowBuilder<ButtonBuilder>[];
+
+      // Should be limited to 5 ActionRows (Discord API limit)
+      expect(components.length).toBeLessThanOrEqual(5);
+    });
   });
 
   describe('getFullOutput()', () => {
@@ -410,6 +512,68 @@ describe('ToolCallTracker', () => {
       await tracker.cleanupSession('non-existent');
 
       expect(tracker.getAllToolCalls()).toHaveLength(0);
+    });
+
+    // AC-9: Session cleanup should update widgets to final state
+    it('should update widgets to final state and remove buttons', async () => {
+      const widgetResult = createMockWidgetResult(true, 'tc-1'); // Has expand button
+      const sendMessage = createMockSendMessage();
+
+      await tracker.trackToolCall(
+        createMockToolCall({ toolCallId: 'tc-1', status: 'in_progress' }),
+        'session-1',
+        'channel-1',
+        widgetResult,
+        sendMessage
+      );
+
+      // Clear previous batcher calls from trackToolCall
+      batcher.queueUpdate.mockClear();
+
+      await tracker.cleanupSession('session-1');
+
+      // Should have called queueUpdate to finalize widgets
+      expect(batcher.queueUpdate).toHaveBeenCalled();
+
+      // Components should be empty (no expand buttons after session ends)
+      const lastCall = batcher.queueUpdate.mock.calls[0];
+      const components = lastCall[3] as ActionRowBuilder<ButtonBuilder>[];
+      expect(components).toHaveLength(0);
+
+      // widgetBuilder.buildWidget should have been called with completed status
+      expect(widgetBuilder.buildWidget).toHaveBeenCalledWith(
+        expect.objectContaining({ toolCallId: 'tc-1' }),
+        expect.objectContaining({ status: 'completed' })
+      );
+    });
+
+    it('should preserve failed status during cleanup', async () => {
+      const widgetResult = createMockWidgetResult(true, 'tc-1');
+      const sendMessage = createMockSendMessage();
+
+      await tracker.trackToolCall(
+        createMockToolCall({ toolCallId: 'tc-1', status: 'failed' }),
+        'session-1',
+        'channel-1',
+        widgetResult,
+        sendMessage
+      );
+
+      // Update the state to failed
+      const update: ToolCallUpdate = { status: 'failed' } as ToolCallUpdate;
+      await tracker.updateToolCall('tc-1', update, widgetResult);
+
+      // Clear previous batcher calls
+      batcher.queueUpdate.mockClear();
+      widgetBuilder.buildWidget.mockClear();
+
+      await tracker.cleanupSession('session-1');
+
+      // widgetBuilder.buildWidget should have been called with failed status preserved
+      expect(widgetBuilder.buildWidget).toHaveBeenCalledWith(
+        expect.objectContaining({ toolCallId: 'tc-1' }),
+        expect.objectContaining({ status: 'failed' })
+      );
     });
   });
 

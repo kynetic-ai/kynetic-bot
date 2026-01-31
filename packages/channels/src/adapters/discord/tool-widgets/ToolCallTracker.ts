@@ -13,10 +13,11 @@
 import { createLogger } from '@kynetic-bot/core';
 import type { EmbedBuilder, ActionRowBuilder, ButtonBuilder } from 'discord.js';
 import type { ToolCall, ToolCallUpdate } from '@kynetic-bot/agent';
-import type { WidgetResult } from './ToolWidgetBuilder.js';
+import type { WidgetResult, ToolWidgetBuilder } from './ToolWidgetBuilder.js';
 import type { MessageUpdateBatcher } from './MessageUpdateBatcher.js';
 
 const MAX_EMBEDS_PER_MESSAGE = 10;
+const MAX_ACTION_ROWS_PER_MESSAGE = 5; // Discord API limit
 
 /**
  * Tool call state tracking
@@ -53,9 +54,11 @@ export class ToolCallTracker {
   private readonly toolCallStates = new Map<string, ToolCallState>();
   private readonly messageStates = new Map<string, MessageState>();
   private readonly batcher: MessageUpdateBatcher;
+  private readonly widgetBuilder: ToolWidgetBuilder;
 
-  constructor(batcher: MessageUpdateBatcher) {
+  constructor(batcher: MessageUpdateBatcher, widgetBuilder: ToolWidgetBuilder) {
     this.batcher = batcher;
+    this.widgetBuilder = widgetBuilder;
   }
 
   /**
@@ -96,12 +99,12 @@ export class ToolCallTracker {
       existingMessage.components.push(...widgetResult.components);
       existingMessage.toolCallIds.push(toolCallId);
 
-      // Queue update to Discord
+      // Queue update to Discord (enforce ActionRow limit)
       await this.batcher.queueUpdate(
         messageId,
         channelId,
         existingMessage.embeds,
-        existingMessage.components
+        existingMessage.components.slice(0, MAX_ACTION_ROWS_PER_MESSAGE)
       );
     } else {
       // Create new message
@@ -174,9 +177,13 @@ export class ToolCallTracker {
 
     // Update embed at the specific index
     messageState.embeds[state.embedIndex] = newWidgetResult.embed;
-    // For components, we need to rebuild the array since each widget can have 0 or more components
-    // For now, just append (this is simplified - proper impl would track component indices)
-    messageState.components = newWidgetResult.components;
+
+    // Rebuild all components from all tool calls in this message
+    // Each tool call stores its widgetResult, which contains components
+    messageState.components = messageState.toolCallIds
+      .map((id) => this.toolCallStates.get(id)?.widgetResult.components ?? [])
+      .flat()
+      .slice(0, MAX_ACTION_ROWS_PER_MESSAGE);
 
     // Queue update through batcher (handles rate limiting)
     // AC-5: MessageUpdateBatcher batches rapid updates
@@ -184,7 +191,7 @@ export class ToolCallTracker {
       state.messageId,
       state.channelId,
       messageState.embeds,
-      messageState.components.flat()
+      messageState.components
     );
 
     this.logger.debug('Updated tool call widget', {
@@ -234,6 +241,9 @@ export class ToolCallTracker {
   /**
    * Clean up tracking for a session
    *
+   * Updates widgets to final state (completed/failed) and removes expand buttons,
+   * then clears tracking state.
+   *
    * AC: @discord-tool-widgets ac-9
    *
    * @param sessionId - Session ID to clean up
@@ -241,16 +251,40 @@ export class ToolCallTracker {
   async cleanupSession(sessionId: string): Promise<void> {
     this.logger.info('Cleaning up session', { sessionId });
 
-    // Find all tool calls for this session
+    // Find all messages for this session that need final updates
+    const messagesToUpdate = new Map<string, MessageState>();
     const toolCallsToCleanup: string[] = [];
 
     for (const [toolCallId, state] of this.toolCallStates.entries()) {
       if (state.sessionId === sessionId) {
         toolCallsToCleanup.push(toolCallId);
+
+        const messageState = this.messageStates.get(state.messageId);
+        if (messageState) {
+          messagesToUpdate.set(state.messageId, messageState);
+
+          // Update widget to final state (no expand button)
+          const finalWidget = this.buildFinalWidget(state);
+          state.widgetResult = finalWidget;
+          messageState.embeds[state.embedIndex] = finalWidget.embed;
+        }
       }
     }
 
-    // Remove tool call states
+    // Queue final updates for each message (remove all buttons)
+    for (const [messageId, messageState] of messagesToUpdate) {
+      // Clear all components since session is ending
+      messageState.components = [];
+
+      await this.batcher.queueUpdate(
+        messageId,
+        messageState.channelId,
+        messageState.embeds,
+        messageState.components
+      );
+    }
+
+    // Now clear tracking state
     for (const toolCallId of toolCallsToCleanup) {
       this.toolCallStates.delete(toolCallId);
     }
@@ -273,6 +307,26 @@ export class ToolCallTracker {
       toolCallsCleaned: toolCallsToCleanup.length,
       messagesCleaned: messagesToRemove.length,
     });
+  }
+
+  /**
+   * Build a final widget (no expand button) for session cleanup
+   */
+  private buildFinalWidget(state: ToolCallState): WidgetResult {
+    // Determine final status - preserve failed status, otherwise mark as completed
+    const finalStatus = state.status === 'failed' ? 'failed' : 'completed';
+
+    // Build widget with final status
+    const widget = this.widgetBuilder.buildWidget(state.toolCall, {
+      status: finalStatus,
+    } as import('@kynetic-bot/agent').ToolCallUpdate);
+
+    // Return widget without components (no expand button after session ends)
+    return {
+      ...widget,
+      components: [],
+      hasExpandButton: false,
+    };
   }
 
   /**

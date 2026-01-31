@@ -74,7 +74,6 @@ export class DiscordAdapter implements ChannelAdapter {
   private toolWidgetBuilder!: ToolWidgetBuilder;
   private toolCallTracker!: ToolCallTracker;
   private messageUpdateBatcher!: MessageUpdateBatcher;
-  private botEventHandler: ((eventName: string, ...args: unknown[]) => void) | null = null;
   private isStarted = false;
 
   constructor(config: DiscordAdapterConfig) {
@@ -111,8 +110,8 @@ export class DiscordAdapter implements ChannelAdapter {
     };
 
     this.messageUpdateBatcher = new MessageUpdateBatcher(editMessageFn);
-    this.toolCallTracker = new ToolCallTracker(this.messageUpdateBatcher);
     this.toolWidgetBuilder = new ToolWidgetBuilder();
+    this.toolCallTracker = new ToolCallTracker(this.messageUpdateBatcher, this.toolWidgetBuilder);
   }
 
   /**

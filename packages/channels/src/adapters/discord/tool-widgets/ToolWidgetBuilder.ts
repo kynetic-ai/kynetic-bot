@@ -20,6 +20,7 @@ const STATUS_EMOJIS = {
 } as const;
 
 const MAX_OUTPUT_LENGTH = 800;
+const BINARY_THRESHOLD_RATIO = 0.1; // 10% non-printable chars indicates binary
 
 export interface WidgetResult {
   embed: EmbedBuilder;
@@ -46,13 +47,26 @@ export class ToolWidgetBuilder {
         typeof toolCall.rawOutput === 'string'
           ? toolCall.rawOutput
           : JSON.stringify(toolCall.rawOutput);
-      const truncated = this.truncate(output, MAX_OUTPUT_LENGTH);
-      embed.addFields({
-        name: 'Output',
-        value: `\`\`\`\n${truncated}\n\`\`\``,
-        inline: false,
-      });
-      hasOutput = output.length > MAX_OUTPUT_LENGTH;
+
+      // Check for binary content (AC-8)
+      const { isBinary, byteCount } = this.detectBinary(output);
+
+      if (isBinary) {
+        embed.addFields({
+          name: 'Output',
+          value: this.formatBinaryMessage(byteCount),
+          inline: false,
+        });
+        // No expand button needed for binary content
+      } else {
+        const truncated = this.truncate(output, MAX_OUTPUT_LENGTH);
+        embed.addFields({
+          name: 'Output',
+          value: `\`\`\`\n${truncated}\n\`\`\``,
+          inline: false,
+        });
+        hasOutput = output.length > MAX_OUTPUT_LENGTH;
+      }
     }
 
     // Add content if available
@@ -67,13 +81,25 @@ export class ToolWidgetBuilder {
         .join('\n');
 
       if (contentText) {
-        const truncated = this.truncate(contentText, MAX_OUTPUT_LENGTH);
-        embed.addFields({
-          name: 'Content',
-          value: `\`\`\`\n${truncated}\n\`\`\``,
-          inline: false,
-        });
-        hasOutput = hasOutput || contentText.length > MAX_OUTPUT_LENGTH;
+        // Check for binary content (AC-8)
+        const { isBinary, byteCount } = this.detectBinary(contentText);
+
+        if (isBinary) {
+          embed.addFields({
+            name: 'Content',
+            value: this.formatBinaryMessage(byteCount),
+            inline: false,
+          });
+          // No expand button needed for binary content
+        } else {
+          const truncated = this.truncate(contentText, MAX_OUTPUT_LENGTH);
+          embed.addFields({
+            name: 'Content',
+            value: `\`\`\`\n${truncated}\n\`\`\``,
+            inline: false,
+          });
+          hasOutput = hasOutput || contentText.length > MAX_OUTPUT_LENGTH;
+        }
       }
     }
 
@@ -113,5 +139,48 @@ export class ToolWidgetBuilder {
       .setStyle(ButtonStyle.Secondary);
 
     return new ActionRowBuilder<ButtonBuilder>().addComponents(button);
+  }
+
+  /**
+   * Detect if content is binary
+   *
+   * AC: @discord-tool-widgets ac-8
+   */
+  private detectBinary(content: string): { isBinary: boolean; byteCount: number } {
+    const byteCount = Buffer.byteLength(content, 'utf8');
+
+    // Check for null bytes (definite binary indicator)
+    if (content.includes('\x00')) {
+      return { isBinary: true, byteCount };
+    }
+
+    // Check ratio of non-printable characters (excluding common whitespace)
+    // Non-printable: 0x00-0x08, 0x0E-0x1F, 0x7F-0x9F
+    let nonPrintable = 0;
+    for (let i = 0; i < content.length; i++) {
+      const code = content.charCodeAt(i);
+      if (
+        (code >= 0x00 && code <= 0x08) ||
+        (code >= 0x0e && code <= 0x1f) ||
+        (code >= 0x7f && code <= 0x9f)
+      ) {
+        nonPrintable++;
+      }
+    }
+    const ratio = nonPrintable / content.length;
+
+    return { isBinary: ratio > BINARY_THRESHOLD_RATIO, byteCount };
+  }
+
+  /**
+   * Format binary file message
+   *
+   * AC: @discord-tool-widgets ac-8
+   */
+  private formatBinaryMessage(byteCount: number): string {
+    const kb = (byteCount / 1024).toFixed(1);
+    return byteCount >= 1024
+      ? `(binary file, ${kb} KB)`
+      : `(binary file, ${byteCount} bytes)`;
   }
 }

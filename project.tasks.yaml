@@ -9408,6 +9408,7 @@
     - ui
   vcs_refs: []
   created_at: 2026-01-31T04:00:43.707Z
+  started_at: 2026-01-31T07:06:50.880Z
   notes:
     - _ulid: 01KG93BN5TZK736BNFQ6HKJ6TN
       created_at: 2026-01-31T04:00:43.706Z
@@ -9925,8 +9926,12 @@
 
         Full types available at packages/agent/src/acp/types.ts lines 98-101
       supersedes: null
+    - _ulid: 01KG9E0KJP5FM8W98RX3VZFPVC
+      created_at: 2026-01-31T07:06:55.958Z
+      author: Jacob Chapel
+      content: Starting implementation in worktree /home/chapel/Projects/kynetic-bot-discord-widgets
+      supersedes: null
   todos: []
-  started_at: 2026-01-31T07:06:50.880Z
 - _ulid: 01KG9C0DG3KH8HH1ZN8E8KMVC3
   slugs: []
   title: "Fix context tracking: change /usage to /context command"

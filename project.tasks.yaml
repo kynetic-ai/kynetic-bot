@@ -9926,3 +9926,22 @@
         Full types available at packages/agent/src/acp/types.ts lines 98-101
       supersedes: null
   todos: []
+- title: "Fix context tracking: change /usage to /context command"
+  description: The harness is sending /usage to track context usage for session rotation, but the
+    correct command is /context. This causes silent failures and prevents dynamic session management
+    based on context limits. Need to update implementation to use /context instead.
+  type: task
+  spec_ref: null
+  meta_ref: null
+  priority: 1
+  slugs: []
+  tags: []
+  _ulid: 01KG9C0DG3KH8HH1ZN8E8KMVC3
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  vcs_refs: []
+  created_at: 2026-01-31T06:31:52.575Z
+  notes: []
+  todos: []

@@ -8028,6 +8028,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-01-30T22:22:39.519Z
+  started_at: 2026-01-31T00:30:23.422Z
   notes:
     - _ulid: 01KG8G0MCZCKTESQDEMW887FVX
       created_at: 2026-01-30T22:22:39.519Z
@@ -8127,9 +8128,21 @@
            - Create new ACP session
            - Return { state, isNew: true } - caller injects identity only
       supersedes: null
+    - _ulid: 01KG8QAQ7T8JGZ7TX0Q92HKNWQ
+      created_at: 2026-01-31T00:30:30.138Z
+      author: "@claude"
+      content: |-
+        Starting implementation. Architecture:
+
+        1. SessionLifecycleManager class in packages/messaging/src/session/session-lifecycle.ts
+        2. Per-key locking using async mutex pattern for message serialization
+        3. Integration with ContextUsageTracker (already implemented)
+        4. Session state tracking: sessionKey -> { acpSessionId, conversationId, lastUsage }
+        5. 70% context threshold for rotation decisions
+        6. Recovery on restart: query ConversationStore for recent conversations
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-01-31T00:30:23.422Z
 - _ulid: 01KG8G0Q251NCJCPN6ED8S3ZN1
   slugs:
     - task-context-restoration

@@ -9096,7 +9096,7 @@
   description: "Fix pre-existing ESLint errors blocking commits: unused imports in bot.ts, unsafe any
     in identity.ts, unused variable in splitter.ts"
   spec_ref: null
-  status: in_progress
+  status: pending_review
   blocked_by: []
   depends_on: []
   context: []

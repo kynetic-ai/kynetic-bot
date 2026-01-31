@@ -8721,6 +8721,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-01-30T22:22:58.306Z
+  started_at: 2026-01-31T02:00:40.651Z
   notes:
     - _ulid: 01KG8G3SWRKETJGSGHSRCFW6Z0
       created_at: 2026-01-30T22:24:23.448Z
@@ -8823,9 +8824,48 @@
         coverage delegated to child @mem-context-usage via @task-capture-stderr and
         @task-context-usage-tracker."
       supersedes: null
+    - _ulid: 01KG8X5X1SF3AD9A6YRM9NQ3QV
+      created_at: 2026-01-31T02:12:43.705Z
+      author: "@claude"
+      content: |-
+        ## Implementation Complete
+
+        ### Changes Made
+
+        **packages/messaging/src/session/session-lifecycle.ts**
+        - Added `wasRecovered` boolean to `GetSessionResult` interface
+        - Updated all return statements to include `wasRecovered` flag
+
+        **packages/messaging/src/index.ts**
+        - Added export for `ContextRestorer` and related types
+
+        **packages/bot/src/bot.ts**
+        - Added imports for SessionLifecycleManager, ContextRestorer, ContextUsageTracker
+        - Added BotOptions fields for session lifecycle components
+        - Added instance variables and constructor initialization
+        - Replaced session creation logic with SessionLifecycleManager.getOrCreateSession()
+        - Added context restoration on rotation/recovery
+        - Added usage tracking after prompt response
+        - Added session cleanup in stop()
+        - Added event forwarding in setupAgentEventHandlers()
+        - Created adapter for SessionStore -> SessionMemoryStore interface
+
+        **packages/bot/test/integration/session-lifecycle.test.ts**
+        - New integration test file with 8 tests covering:
+          - AC-1: Session reuse under threshold
+          - AC-2: Session rotation above threshold
+          - AC-7: Continue on usage errors
+          - AC-8: Session acquisition serialization
+          - @trait-observable: Event emission
+          - @trait-recoverable: Error handling
+
+        ### Test Results
+        - 135 bot package tests passing
+        - 223 messaging package tests passing
+        - 8 new integration tests passing
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-01-31T02:00:40.651Z
 - _ulid: 01KG8JJ0TGBMHE9XMPDKMDCWZ4
   slugs: []
   title: Port /local-review skill and workflow from kynetic-spec

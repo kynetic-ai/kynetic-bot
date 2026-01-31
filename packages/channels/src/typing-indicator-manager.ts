@@ -43,7 +43,6 @@ export class TypingIndicatorManager {
     const startedAt = Date.now();
 
     // Set up periodic refresh
-    // Set up periodic refresh
     const intervalId = setInterval(() => {
       const elapsed = Date.now() - startedAt;
       // Safety timeout: stop after max duration

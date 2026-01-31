@@ -7,11 +7,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { TypingIndicatorManager } from '../src/typing-indicator-manager.js';
 
-/**
- * Delay helper for testing
- */
-const delay = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
-
 describe('TypingIndicatorManager', () => {
   let manager: TypingIndicatorManager;
   let sendFn: ReturnType<typeof vi.fn>;

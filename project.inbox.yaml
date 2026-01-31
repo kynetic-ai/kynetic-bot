@@ -245,3 +245,9 @@ inbox:
     created_at: 2026-01-31T02:42:51.875Z
     tags: []
     added_by: "@claude"
+  - _ulid: 01KG8YX59CTEWXX6PTPQA26AR7
+    text: Have AgentLifecycle explicitly implement StderrProvider interface to avoid type cast in
+      Bot.handleMessage usage tracking
+    created_at: 2026-01-31T02:42:54.380Z
+    tags: []
+    added_by: "@claude"

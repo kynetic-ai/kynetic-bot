@@ -9935,7 +9935,7 @@
     based on context limits. Need to update implementation to use /context instead.
   spec_ref: null
   meta_ref: null
-  status: in_progress
+  status: pending_review
   blocked_by: []
   depends_on: []
   context: []

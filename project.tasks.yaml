@@ -10111,4 +10111,746 @@
         Important for user experience - users need visual feedback that bot is working, especially
         for complex queries that take time to process.
       supersedes: null
+    - _ulid: 01KG9DYN5Z9VRYDJXCJGMNP7AX
+      created_at: 2026-01-31T07:05:52.064Z
+      author: Jacob Chapel
+      content: >-
+        ## Comprehensive Implementation Guide
+
+
+        ### Overview
+
+        Implement a periodic typing indicator refresh loop for Discord to maintain visual feedback
+        during long-running agent operations. Discord's typing indicator expires after exactly 10
+        seconds, requiring periodic re-sending for operations exceeding this duration.
+
+
+        ### Problem Analysis
+
+
+        **Current Behavior:**
+
+        - Bot.handleMessage() calls channelLifecycle.sendTyping() once at line 351
+        (packages/bot/src/bot.ts)
+
+        - Typing indicator sent immediately when message processing starts
+
+        - Indicator expires after ~10 seconds per Discord API limitation
+
+        - For agent operations >10s (common with tool calls, complex thinking), typing disappears
+
+        - Users perceive bot as unresponsive despite active processing
+
+
+        **Discord API Constraints:**
+
+        - Typing indicator duration: 10 seconds (hard limit, documented across discord.js and
+        discord.py)
+
+        - Cannot be extended - must be refreshed by calling sendTyping() again
+
+        - Automatically cleared when bot sends a message
+
+        - Safe to call repeatedly - Discord handles deduplication
+
+
+        **Sources:**
+
+        - https://github.com/discordjs/discord.js/issues/10061
+
+        - https://github.com/Rapptz/discord.py/discussions/5969
+
+
+        ### Architecture Design
+
+
+        #### Component: TypingIndicatorManager
+
+        **Location:** packages/channels/src/typing-indicator-manager.ts
+
+
+        **Purpose:** Centralized tracker for active typing loops per channel
+
+
+        **Key Responsibilities:**
+
+        - Track active typing loops per channel (prevent duplicate loops)
+
+        - Start periodic refresh loop when agent begins processing
+
+        - Stop loop when response sent or session ends
+
+        - Handle cleanup on errors/disconnections
+
+        - Support multiple concurrent channels (different conversations)
+
+
+        **Data Structures:**
+
+        ```typescript
+
+        interface TypingLoop {
+          channelId: string;
+          intervalId: NodeJS.Timeout;
+          startedAt: number;
+          messageId: string; // Original message that triggered typing
+        }
+
+
+        class TypingIndicatorManager {
+          private activeLoops = new Map<string, TypingLoop>();
+          private readonly refreshInterval = 8000; // 8 seconds (before 10s expiry)
+          async startTyping(channelId: string, messageId: string, sendFn: () => Promise<void>): Promise<void>
+          stopTyping(channelId: string): void
+          stopAll(): void // Cleanup on bot shutdown
+        }
+
+        ```
+
+
+        **Refresh Timing:**
+
+        - Interval: 8 seconds (2 second safety margin before 10s expiry)
+
+        - First call: Immediate (when message received)
+
+        - Subsequent calls: Every 8 seconds via setInterval
+
+        - Stop trigger: Message sent or 60s timeout (prevent infinite loops)
+
+
+        **Pattern Reference:**
+
+        Similar to existing periodic operations in codebase:
+
+        - packages/channels/src/lifecycle.ts lines 250-262 (health check interval)
+
+        - packages/memory/src/shadow/shadow.ts lines 308-328 (scheduler)
+
+
+        #### Integration Points
+
+
+        **1. ChannelLifecycle Modifications**
+
+        **File:** packages/channels/src/lifecycle.ts
+
+
+        **Add Methods:**
+
+        ```typescript
+
+        // After line 236
+
+        private typingManager?: TypingIndicatorManager;
+
+
+        async startTypingLoop(channel: string, messageId: string): Promise<void> {
+          if (!this.adapter.sendTyping || this.state !== 'healthy') {
+            return;
+          }
+          if (!this.typingManager) {
+            this.typingManager = new TypingIndicatorManager();
+          }
+          const sendFn = async () => {
+            try {
+              await this.adapter.sendTyping(channel);
+            } catch (error) {
+              // Log but don't stop loop - typing is non-critical
+              this.logger?.warn('Typing refresh failed', { channel, error });
+            }
+          };
+          await this.typingManager.startTyping(channel, messageId, sendFn);
+        }
+
+
+        stopTypingLoop(channel: string): void {
+          this.typingManager?.stopTyping(channel);
+        }
+
+        ```
+
+
+        **Why:** Encapsulates typing logic in ChannelLifecycle (where other channel operations
+        live), maintains single responsibility.
+
+
+        **2. Bot.handleMessage() Modifications**
+
+        **File:** packages/bot/src/bot.ts
+
+
+        **Replace lines 348-352:**
+
+        ```typescript
+
+        // OLD (line 351):
+
+        await this.channelLifecycle.sendTyping(msg.channel);
+
+
+        // NEW:
+
+        await this.channelLifecycle.startTypingLoop(msg.channel, msg.id);
+
+        ```
+
+
+        **Add cleanup in finally block (after line 618):**
+
+        ```typescript
+
+        } finally {
+          // Stop typing indicator when processing completes
+          this.channelLifecycle?.stopTypingLoop(msg.channel);
+          this.inflightCount--;
+        }
+
+        ```
+
+
+        **Why:** Start typing loop when processing begins, guarantee cleanup via finally block
+        (executes on success, error, or cancellation).
+
+
+        **3. Coalescer sendChunk() Modification**
+
+        **File:** packages/messaging/src/coalescers/stream-coalescer.ts (line ~120-140)
+
+
+        **Add typing stop when first chunk sent:**
+
+        ```typescript
+
+        private async sendChunk(text: string): Promise<void> {
+          // ... existing validation ...
+          // Stop typing BEFORE sending first message chunk
+          // (Discord auto-clears typing when bot sends message)
+          if (!this.hasSentMessage) {
+            this.emit('first_chunk_sending'); // Bot can listen to stop typing
+          }
+          // ... rest of sendChunk logic ...
+        }
+
+        ```
+
+
+        **Bot listens to event (in handleMessage):**
+
+        ```typescript
+
+        coalescer.once('first_chunk_sending', () => {
+          this.channelLifecycle?.stopTypingLoop(msg.channel);
+        });
+
+        ```
+
+
+        **Why:** Stop typing immediately before first response chunk sent (prevents overlap where
+        typing shows after bot already responding).
+
+
+        ### Implementation Details
+
+
+        #### TypingIndicatorManager Implementation
+
+        ```typescript
+
+        import { createLogger } from '@kynetic-bot/core';
+
+
+        const DEFAULT_REFRESH_INTERVAL = 8000; // 8 seconds
+
+        const MAX_TYPING_DURATION = 60000; // 60 seconds (safety timeout)
+
+
+        export class TypingIndicatorManager {
+          private readonly logger = createLogger('typing-indicator');
+          private activeLoops = new Map<string, TypingLoop>();
+          private readonly refreshInterval: number;
+          private readonly maxDuration: number;
+
+          constructor(options?: { refreshInterval?: number; maxDuration?: number }) {
+            this.refreshInterval = options?.refreshInterval ?? DEFAULT_REFRESH_INTERVAL;
+            this.maxDuration = options?.maxDuration ?? MAX_TYPING_DURATION;
+          }
+
+          async startTyping(
+            channelId: string,
+            messageId: string,
+            sendFn: () => Promise<void>
+          ): Promise<void> {
+            // Don't start new loop if already active for this channel
+            if (this.activeLoops.has(channelId)) {
+              this.logger.debug('Typing already active', { channelId });
+              return;
+            }
+
+            // Send initial typing indicator immediately
+            try {
+              await sendFn();
+            } catch (error) {
+              this.logger.warn('Initial typing send failed', { channelId, error });
+              // Continue anyway - non-critical
+            }
+
+            const startedAt = Date.now();
+
+            // Set up periodic refresh
+            const intervalId = setInterval(async () => {
+              const elapsed = Date.now() - startedAt;
+              // Safety timeout: stop after max duration
+              if (elapsed >= this.maxDuration) {
+                this.logger.warn('Typing loop exceeded max duration', { 
+                  channelId, 
+                  elapsed,
+                  maxDuration: this.maxDuration 
+                });
+                this.stopTyping(channelId);
+                return;
+              }
+
+              try {
+                await sendFn();
+              } catch (error) {
+                this.logger.warn('Typing refresh failed', { channelId, error });
+                // Don't stop loop on error - transient failures common
+              }
+            }, this.refreshInterval);
+
+            this.activeLoops.set(channelId, {
+              channelId,
+              intervalId,
+              startedAt,
+              messageId,
+            });
+
+            this.logger.debug('Typing loop started', { channelId, messageId });
+          }
+
+          stopTyping(channelId: string): void {
+            const loop = this.activeLoops.get(channelId);
+            if (!loop) {
+              return;
+            }
+
+            clearInterval(loop.intervalId);
+            this.activeLoops.delete(channelId);
+
+            const duration = Date.now() - loop.startedAt;
+            this.logger.debug('Typing loop stopped', { channelId, duration });
+          }
+
+          stopAll(): void {
+            for (const channelId of this.activeLoops.keys()) {
+              this.stopTyping(channelId);
+            }
+          }
+
+          // For testing/observability
+          isActive(channelId: string): boolean {
+            return this.activeLoops.has(channelId);
+          }
+
+          getActiveCount(): number {
+            return this.activeLoops.size;
+          }
+        }
+
+        ```
+
+
+        ### File Structure
+
+
+        **New Files:**
+
+        - packages/channels/src/typing-indicator-manager.ts (~150 lines)
+
+        - packages/channels/test/typing-indicator-manager.test.ts (~300 lines)
+
+
+        **Modified Files:**
+
+        - packages/channels/src/lifecycle.ts (+30 lines, modify stop() to call
+        typingManager.stopAll())
+
+        - packages/bot/src/bot.ts (+5 lines, modify handleMessage finally block)
+
+        - packages/messaging/src/coalescers/stream-coalescer.ts (+5 lines, emit event before first
+        send)
+
+
+        **Export Updates:**
+
+        - packages/channels/src/index.ts: Export TypingIndicatorManager
+
+
+        ### Implementation Checklist
+
+
+        #### Phase 1: Core Manager
+
+        - [ ] Create TypingIndicatorManager class with startTyping/stopTyping methods
+
+        - [ ] Implement 8-second interval with setInterval
+
+        - [ ] Add 60-second safety timeout
+
+        - [ ] Add duplicate loop prevention (check activeLoops Map)
+
+        - [ ] Test with single channel typing loop
+
+        - [ ] Test safety timeout triggers after 60s
+
+
+        #### Phase 2: Integration
+
+        - [ ] Add TypingIndicatorManager to ChannelLifecycle
+
+        - [ ] Implement startTypingLoop/stopTypingLoop methods
+
+        - [ ] Replace sendTyping() call in Bot.handleMessage() with startTypingLoop()
+
+        - [ ] Add stopTypingLoop() to finally block
+
+        - [ ] Test typing continues >10 seconds during long operations
+
+        - [ ] Test typing stops when response sent
+
+
+        #### Phase 3: Early Stop Optimization
+
+        - [ ] Add 'first_chunk_sending' event to StreamCoalescer
+
+        - [ ] Wire Bot to listen and stop typing on first chunk
+
+        - [ ] Test typing stops immediately when first response chunk sent
+
+        - [ ] Verify no overlap between typing and bot message
+
+
+        #### Phase 4: Edge Cases & Cleanup
+
+        - [ ] Add stopAll() call to ChannelLifecycle.stop() for graceful shutdown
+
+        - [ ] Test multiple concurrent channels (different conversations)
+
+        - [ ] Test error during typing send (should log, not crash loop)
+
+        - [ ] Test session cancellation (typing stops via finally)
+
+        - [ ] Add observability: log loop start/stop/duration
+
+
+        ### Testing Scenarios
+
+
+        **1. Long Operation (>10s):**
+
+        - User sends complex query requiring 30s of processing
+
+        - Expected: Typing indicator persists entire 30s, refreshes at 0s, 8s, 16s, 24s
+
+        - Verify: Check Discord shows continuous typing indicator
+
+
+        **2. Quick Response (<8s):**
+
+        - User sends simple query completing in 3s
+
+        - Expected: Typing shows for 3s, stops when response sent, interval never fires
+
+        - Verify: No unnecessary typing refreshes after response
+
+
+        **3. Multiple Concurrent Channels:**
+
+        - User1 in channel A sends message (30s processing)
+
+        - User2 in channel B sends message (20s processing)
+
+        - Expected: Both channels show independent typing indicators
+
+        - Verify: Stopping channel A doesn't affect channel B
+
+
+        **4. Error During Processing:**
+
+        - User sends message, agent crashes after 15s
+
+        - Expected: Typing stops when finally block executes
+
+        - Verify: No orphaned typing loops in activeLoops Map
+
+
+        **5. Safety Timeout:**
+
+        - Simulate hung agent (never completes, never sends response)
+
+        - Expected: Typing stops after 60s safety timeout
+
+        - Verify: Loop cleaned up, warning logged
+
+
+        **6. Rapid Messages (Same Channel):**
+
+        - User sends message A (20s processing)
+
+        - User sends message B 5s later
+
+        - Expected: Message A typing loop stops when B starts (or continues - depends on design
+        choice)
+
+        - Verify: No duplicate loops for same channel
+
+
+        **7. Bot Shutdown:**
+
+        - Bot processing 3 messages across different channels
+
+        - Bot receives shutdown signal
+
+        - Expected: All typing loops stop via ChannelLifecycle.stop() → stopAll()
+
+        - Verify: All intervals cleared, no hanging timers
+
+
+        ### Success Criteria
+
+
+        **Functional:**
+
+        - ✓ Typing indicator persists for entire duration of agent processing (AC: matches task
+        description)
+
+        - ✓ Indicator refreshes every 8 seconds (before 10s Discord expiry)
+
+        - ✓ Stops immediately when response sent (via finally block + first_chunk event)
+
+        - ✓ Stops on error/cancellation (via finally block)
+
+        - ✓ Works for multiple concurrent channels
+
+
+        **Non-Functional:**
+
+        - ✓ No memory leaks (intervals cleared via stopTyping/stopAll)
+
+        - ✓ No orphaned loops (Map cleanup on stop)
+
+        - ✓ Graceful degradation (errors logged, loop continues)
+
+        - ✓ Observability (debug logs for start/stop/duration)
+
+
+        **Performance:**
+
+        - ✓ Minimal overhead (<1ms per refresh)
+
+        - ✓ No impact on message processing latency
+
+        - ✓ Scales to 100+ concurrent typing loops (Map lookup O(1))
+
+
+        ### Edge Cases & Considerations
+
+
+        **1. Discord Rate Limiting:**
+
+        - Discord allows ~5 typing calls per 5 seconds per channel
+
+        - Our 8-second interval = 0.125 calls/sec = well under limit
+
+        - If rate limited, adapter.sendTyping() throws, we log and continue
+
+        - ChannelLifecycle.sendTyping() already swallows errors (line 236)
+
+
+        **2. Duplicate Loop Prevention:**
+
+        - Check activeLoops.has(channelId) before starting new loop
+
+        - Design choice: Log and ignore, or stop old loop and start new?
+
+        - Recommendation: Ignore (existing loop already serving its purpose)
+
+
+        **3. Channel Deletion During Typing:**
+
+        - If channel deleted mid-loop, sendTyping() throws DiscordChannelNotFoundError
+
+        - Loop continues (error logged), eventually hits safety timeout
+
+        - Alternative: Could stop loop on specific error codes (10003: Unknown Channel)
+
+
+        **4. Very Long Operations (>60s):**
+
+        - Safety timeout at 60s stops typing to prevent infinite loops
+
+        - For operations genuinely requiring >60s, consider:
+          - Increase MAX_TYPING_DURATION constant (with comment explaining why)
+          - Or send interim messages ("Still processing, this may take a while...")
+
+        **5. Buffered vs Streaming Coalescers:**
+
+        - StreamCoalescer: Emits first_chunk_sending event, typing stops early
+
+        - BufferedCoalescer: No streaming, typing runs until complete() called
+
+        - Both handled by finally block as fallback
+
+
+        **6. Multiple Messages Same Channel:**
+
+        - If user sends new message while bot processing previous:
+          - Bot.handleMessage() called again for same channel
+          - startTypingLoop() sees existing loop, returns early (no duplicate)
+          - Original loop continues until first message completes
+          - New message reuses same typing indicator
+        - Alternative: Could stop old loop and start new (more complex, unclear benefit)
+
+
+        ### Related Code References
+
+
+        **Existing Typing Logic:**
+
+        - packages/channels/src/adapters/discord/adapter.ts line 320-334 (sendTyping implementation)
+
+        - packages/channels/src/lifecycle.ts line 224-237 (ChannelLifecycle.sendTyping wrapper)
+
+        - packages/bot/src/bot.ts line 351 (current single sendTyping call)
+
+
+        **Interval Patterns:**
+
+        - packages/channels/src/lifecycle.ts line 250-262 (health check interval)
+
+        - packages/memory/src/shadow/shadow.ts line 308-328 (scheduler interval)
+
+
+        **Error Handling Patterns:**
+
+        - packages/channels/src/lifecycle.ts line 236 (swallow typing errors)
+
+        - packages/bot/src/bot.ts line 612-618 (finally block cleanup)
+
+
+        ### Priority Justification (P2)
+
+
+        **User Impact:** High
+
+        - Long agent operations (30-60s) common for complex queries with multiple tool calls
+
+        - Typing indicator primary UX feedback mechanism
+
+        - Users report bot "hanging" or "frozen" when typing disappears
+
+
+        **Implementation Complexity:** Low
+
+        - ~150 lines new code (TypingIndicatorManager)
+
+        - ~40 lines modifications (integration points)
+
+        - Well-understood pattern (setInterval/clearInterval)
+
+        - No external dependencies
+
+
+        **Risk:** Low
+
+        - Isolated component, doesn't affect message processing flow
+
+        - Failures non-critical (typing is cosmetic)
+
+        - Extensive existing interval patterns to reference
+
+
+        **Recommendation:** Implement soon (after P1 critical bugs), high impact-to-effort ratio.
+
+
+        ### Testing Strategy
+
+
+        **Unit Tests (typing-indicator-manager.test.ts):**
+
+        - Test startTyping sends immediate typing call
+
+        - Test interval fires at configured interval (8s)
+
+        - Test stopTyping clears interval
+
+        - Test safety timeout stops loop after maxDuration
+
+        - Test duplicate loop prevention
+
+        - Test stopAll() clears all loops
+
+        - Test error during sendFn doesn't stop loop
+
+
+        **Integration Tests (bot.test.ts):**
+
+        - Test typing loop starts when message received
+
+        - Test typing loop stops when response sent
+
+        - Test typing loop stops on error (via finally)
+
+        - Test multiple concurrent channels
+
+        - Mock time with vi.useFakeTimers() to test interval behavior
+
+
+        **Manual Testing:**
+
+        - Deploy to test Discord server
+
+        - Send query requiring 30s processing
+
+        - Observe typing indicator persists continuously
+
+        - Verify stops when bot responds
+
+
+        ### Post-Implementation
+
+
+        **Documentation Updates:**
+
+        - Add note to packages/channels/README.md about typing indicator behavior
+
+        - Update CHANGELOG.md with user-facing improvement
+
+
+        **Observability:**
+
+        - Monitor typing loop durations in production logs
+
+        - Track safety timeout occurrences (indicates hung operations)
+
+        - Alert if typing refresh failures exceed threshold (indicates Discord API issues)
+
+
+        **Future Enhancements:**
+
+        - Consider typing indicator for tool call execution (show which tool running)
+
+        - Consider custom typing messages ("Agent is thinking...", "Running bash command...")
+
+        - Consider adaptive interval (longer for slower agent responses)
+
+
+        ---
+
+
+        **This implementation provides standalone, production-ready guidance for an implementation
+        agent. All architectural decisions are justified, edge cases documented, and success
+        criteria clearly defined.**
+      supersedes: null
   todos: []

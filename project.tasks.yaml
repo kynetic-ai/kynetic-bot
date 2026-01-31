@@ -8196,6 +8196,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-01-30T22:22:42.245Z
+  started_at: 2026-01-31T00:40:56.768Z
   notes:
     - _ulid: 01KG8G0Q255ZH0YDVYNVTYFMYA
       created_at: 2026-01-30T22:22:42.245Z
@@ -8307,9 +8308,30 @@
         - HaikuSummaryProvider fails → skip summary section, include more recent turns
         - Single turn exceeds budget → truncate with [truncated] marker
       supersedes: null
+    - _ulid: 01KG8R5BCWQ843SY6KNKM3KNV8
+      created_at: 2026-01-31T00:45:02.749Z
+      author: "@claude"
+      content: |-
+        Implementation complete:
+
+        1. ContextRestorer in packages/messaging/src/context/context-restorer.ts
+           - Generates restoration prompts for session rotation
+           - Recent turns replayed verbatim up to 30% token budget (AC-1)
+           - Older turns summarized via SummaryProvider (AC-2)
+           - Tool calls summarized via ToolSummarizer (AC-3)
+           - Includes session file reference .kbot/conversations/{id}/turns.jsonl (AC-4)
+           - Prompt format: Summary, Recent History, Archived History sections (AC-5)
+           - Falls back if summary provider unavailable/fails; logs warning (AC-6)
+           - Returns skipped=true if no prior turns (AC-7)
+           - Oversized turns truncated with [truncated] marker (AC-8)
+
+        2. 22 new tests covering all acceptance criteria
+           - AC coverage verified with // AC: @mem-context-restore ac-N annotations
+
+        3. All 1097 tests pass
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-01-31T00:40:56.768Z
 - _ulid: 01KG8G0S5RXPQ79N4YC1F3EBA4
   slugs:
     - task-token-based-turn-selection

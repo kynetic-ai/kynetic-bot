@@ -40,3 +40,11 @@ export {
   type EstimatedTurn,
   type TurnSelectionResult,
 } from './turn-selector.js';
+
+export {
+  ContextRestorer,
+  type ContextRestorationResult,
+  type ContextRestorationStats,
+  type ContextRestorerOptions,
+  type ContextRestorerLogger,
+} from './context-restorer.js';

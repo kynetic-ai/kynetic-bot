@@ -202,9 +202,3 @@ inbox:
       - lint
       - blocker
     added_by: "@claude"
-  - _ulid: 01KG8PH4BPV55PP14GQX60N3R1
-    text: "Fix pre-existing ESLint errors blocking commits: unused imports in bot.ts, unsafe any in
-      identity.ts, unused variable in splitter.ts"
-    created_at: 2026-01-31T00:16:31.607Z
-    tags: []
-    added_by: "@claude"

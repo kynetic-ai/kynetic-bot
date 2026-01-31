@@ -9089,3 +9089,20 @@
       supersedes: null
   todos: []
   automation: eligible
+- title: Fix pre-existing ESLint errors
+  type: task
+  priority: 2
+  spec_ref: null
+  tags: []
+  description: "Fix pre-existing ESLint errors blocking commits: unused imports in bot.ts, unsafe any
+    in identity.ts, unused variable in splitter.ts"
+  _ulid: 01KG8PHBMB8HFEWHA09TCY1J5K
+  slugs: []
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  vcs_refs: []
+  created_at: 2026-01-31T00:16:39.051Z
+  notes: []
+  todos: []

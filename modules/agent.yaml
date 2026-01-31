@@ -82,7 +82,7 @@ features:
         then: cleans up terminal resources and releases session handle
     status:
       maturity: draft
-      implementation: implemented
+      implementation: in_progress
   - _ulid: 01KG1RE068887DHMQXFSCSTXZ6
     slugs:
       - agent-autonomous

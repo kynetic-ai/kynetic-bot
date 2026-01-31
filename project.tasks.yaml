@@ -10968,21 +10968,22 @@
         Small fix - just add comments to existing code.
       supersedes: null
   todos: []
-- title: Implement ACP writeFile handler
+- _ulid: 01KG9NK31RS7Q8VGXVC1Y8DQX8
+  slugs: []
+  title: Implement ACP writeFile handler
+  type: task
   description: Add writeFile handler to agent lifecycle to support file writing operations via ACP.
     Implements AC-12 of @agent-lifecycle spec.
-  type: task
   spec_ref: "@agent-lifecycle"
   meta_ref: null
-  priority: 1
-  slugs: []
-  tags: []
-  depends_on: []
-  _ulid: 01KG9NK31RS7Q8VGXVC1Y8DQX8
-  status: pending
+  status: in_progress
   blocked_by: []
+  depends_on: []
   context: []
+  priority: 1
+  tags: []
   vcs_refs: []
   created_at: 2026-01-31T09:19:21.656Z
   notes: []
   todos: []
+  started_at: 2026-01-31T09:19:40.634Z

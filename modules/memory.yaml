@@ -367,7 +367,7 @@ features:
             title: Context Usage Tracking
             type: feature
             tags: []
-            description: Track context usage via /usage command with stderr parsing. Provides token counts to
+            description: Track context usage via /context command with stderr parsing. Provides token counts to
               SessionLifecycleManager for rotation decisions.
             depends_on: []
             implements: []

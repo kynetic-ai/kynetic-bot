@@ -46,6 +46,7 @@ async function main(): Promise<void> {
 
   bot.setChannelLifecycle(channelLifecycle);
   discordAdapter.onMessage((msg: NormalizedMessage) => void bot!.handleMessage(msg));
+  discordAdapter.setupBotEventListeners(bot);
 
   log.info('Connecting to Discord...');
   await channelLifecycle.start();

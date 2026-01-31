@@ -10049,7 +10049,7 @@
     seconds. Discord requires typing to be re-sent every 10s to maintain indicator. Need periodic
     refresh loop while agent is active.
   spec_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -10929,6 +10929,9 @@
         Commit: c71f1b0
       supersedes: null
   todos: []
+  completed_at: 2026-01-31T08:21:11.987Z
+  closed_reason: "PR #52 merged - typing indicator refresh implemented with 8s interval, 60s safety
+    timeout, tests passing"
 - _ulid: 01KG9G4H1M8S4SGJVRHFT0WXD3
   slugs: []
   title: Add AC annotations to terminal handler implementations

@@ -76,6 +76,10 @@ features:
         given: agent sends terminal/kill request for active terminal
         when: handler invoked
         then: terminates the process and marks session as killed
+      - id: ac-11
+        given: agent sends terminal/release request
+        when: handler invoked
+        then: cleans up terminal resources and releases session handle
     status:
       maturity: draft
       implementation: implemented

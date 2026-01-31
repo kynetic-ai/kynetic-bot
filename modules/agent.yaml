@@ -68,6 +68,10 @@ features:
         given: agent sends terminal/output request for active terminal
         when: handler invoked
         then: returns stdout/stderr output since last read
+      - id: ac-9
+        given: agent sends terminal/wait_for_exit request
+        when: handler invoked
+        then: blocks until process completes and returns exit code
     status:
       maturity: draft
       implementation: implemented

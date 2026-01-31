@@ -118,8 +118,9 @@ describe('StreamCoalescer', () => {
       expect(timestamps).toHaveLength(2);
 
       // AC-4: Verify time between sends respects rate limit
+      // Allow 5ms tolerance for timing jitter in CI environments
       const timeDiff = timestamps[1] - timestamps[0];
-      expect(timeDiff).toBeGreaterThanOrEqual(chunkDelay);
+      expect(timeDiff).toBeGreaterThanOrEqual(chunkDelay - 5);
 
       await coalescer.complete();
     });

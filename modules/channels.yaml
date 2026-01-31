@@ -194,3 +194,23 @@ features:
     status:
       maturity: draft
       implementation: implemented
+    requirements:
+      - _ulid: 01KG93A3GEVCRNZQ8HY1A2VQGX
+        slugs:
+          - discord-tool-widgets
+        title: Rich Tool Call Display
+        type: requirement
+        tags:
+          - discord
+          - ui
+        description: Display agent tool calls and results as rich Discord embeds with interactive
+          components. Shows what the agent is doing in a compact, readable format with expand
+          buttons for full details. Uses ACP tool_call/tool_call_update events to track and present
+          tool execution.
+        depends_on: []
+        implements: []
+        relates_to: []
+        tests: []
+        traits: []
+        notes: []
+        created: 2026-01-31T03:59:52.847Z

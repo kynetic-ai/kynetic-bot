@@ -9937,6 +9937,7 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: null
   depends_on: []
   context: []
   priority: 1
@@ -9944,6 +9945,7 @@
   vcs_refs: []
   created_at: 2026-01-31T06:31:52.575Z
   started_at: 2026-01-31T06:41:45.782Z
+  completed_at: 2026-01-31T06:52:46.532Z
   notes:
     - _ulid: 01KG9CB21KXAJQSQB04J4AW2SX
       created_at: 2026-01-31T06:37:41.299Z
@@ -9995,5 +9997,22 @@
         Ready for submission.
       supersedes: null
   todos: []
-  completed_at: 2026-01-31T06:52:46.532Z
-  closed_reason: null
+- title: Fix Discord typing indicator to refresh periodically
+  type: task
+  priority: 2
+  spec_ref: null
+  tags: []
+  description: Discord typing indicator only fires once - should refresh periodically while agent is
+    working. Currently sends typing indicator at start of processing but it expires after ~10
+    seconds. Discord requires typing to be re-sent every 10s to maintain indicator. Need periodic
+    refresh loop while agent is active.
+  _ulid: 01KG9D98CXGC8H15KH2H0H7FVQ
+  slugs: []
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  vcs_refs: []
+  created_at: 2026-01-31T06:54:10.844Z
+  notes: []
+  todos: []

@@ -9316,6 +9316,8 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "PR #50 merged. Implemented ACP terminal handlers (create, output, wait_for_exit,
+    kill, release) enabling Claude Code to execute bash commands via kbot."
   depends_on: []
   context: []
   priority: 2
@@ -9323,6 +9325,7 @@
   vcs_refs: []
   created_at: 2026-01-31T03:28:06.761Z
   started_at: 2026-01-31T03:31:18.296Z
+  completed_at: 2026-01-31T03:53:47.213Z
   notes:
     - _ulid: 01KG91G4H65TB1A0ZPCADRD0R1
       created_at: 2026-01-31T03:28:13.351Z
@@ -9387,6 +9390,58 @@
         All 275 tests passing.
       supersedes: null
   todos: []
-  completed_at: 2026-01-31T03:53:47.213Z
-  closed_reason: "PR #50 merged. Implemented ACP terminal handlers (create, output, wait_for_exit,
-    kill, release) enabling Claude Code to execute bash commands via kbot."
+- title: "Implement: Rich Tool Call Display"
+  type: task
+  spec_ref: "@discord-tool-widgets"
+  derivation: auto
+  priority: 3
+  slugs:
+    - task-rich-tool-call-display
+  tags:
+    - discord
+    - ui
+  depends_on:
+    - "@discord-adapter"
+  notes:
+    - _ulid: 01KG93BN5TZK736BNFQ6HKJ6TN
+      created_at: 2026-01-31T04:00:43.706Z
+      author: Jacob Chapel
+      content: >-
+        Implementation notes (auto-generated from spec):
+
+
+        Display agent tool calls and results as rich Discord embeds with interactive components.
+        Shows what the agent is doing in a compact, readable format with expand buttons for full
+        details. Uses ACP tool_call/tool_call_update events to track and present tool execution.
+
+
+
+        Acceptance Criteria:
+
+        - ac-1: Given Agent executes a tool call (bash, read, write, etc.), when tool_call event
+        received from ACP, then Discord message shows compact widget with tool type icon, key
+        parameters, and status
+
+        - ac-2: Given Bash command completes, when tool_call_update received with result, then
+        Widget shows exit code, duration, and first 10 lines of output with expand button for full
+        output
+
+        - ac-3: Given File edit/write tool completes, when tool_call_update received with diff, then
+        Widget shows syntax-highlighted diff with +/- prefixes, line ranges, and expand button for
+        full content
+
+        - ac-4: Given User clicks expand button on a widget, when Discord component interaction
+        received, then Bot sends ephemeral follow-up message with full tool output, handles Discord
+        rate limits
+
+        - ac-5: Given Multiple tool calls executing rapidly, when tool_call_update events stream in,
+        then ToolCallTracker batches message updates, MessageUpdateBatcher respects Discord rate
+        limits (5 edits per 5 seconds per message)
+      supersedes: null
+  _ulid: 01KG93BN5V22Y1C0X837M92HP9
+  status: pending
+  blocked_by: []
+  context: []
+  vcs_refs: []
+  created_at: 2026-01-31T04:00:43.707Z
+  todos: []

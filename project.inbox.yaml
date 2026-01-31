@@ -251,3 +251,12 @@ inbox:
     created_at: 2026-01-31T02:42:54.380Z
     tags: []
     added_by: "@claude"
+  - _ulid: 01KG92W7TZHPC9AG5RJ5KSJ6P9
+    text: "Terminal output handling rethink: Instead of 1MB in-memory buffer with truncation, capture
+      terminal outputs to files by default. Return file path as metadata so agent can read output
+      selectively (like Claude Code does). Truncate output sent to agent to avoid context blowout,
+      but full output available via file. Also investigate ../kynetic-internal terminal support
+      implementation for patterns/learnings."
+    created_at: 2026-01-31T03:52:18.528Z
+    tags: []
+    added_by: "@claude"

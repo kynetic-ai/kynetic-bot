@@ -10051,6 +10051,8 @@
   spec_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "PR #52 merged - typing indicator refresh implemented with 8s interval, 60s safety
+    timeout, tests passing"
   depends_on: []
   context: []
   priority: 2
@@ -10058,6 +10060,7 @@
   vcs_refs: []
   created_at: 2026-01-31T06:54:10.844Z
   started_at: 2026-01-31T07:09:00.553Z
+  completed_at: 2026-01-31T08:21:11.987Z
   notes:
     - _ulid: 01KG9D9V9V82K0GV6FZ2H1F1MN
       created_at: 2026-01-31T06:54:30.204Z
@@ -10929,9 +10932,6 @@
         Commit: c71f1b0
       supersedes: null
   todos: []
-  completed_at: 2026-01-31T08:21:11.987Z
-  closed_reason: "PR #52 merged - typing indicator refresh implemented with 8s interval, 60s safety
-    timeout, tests passing"
 - _ulid: 01KG9G4H1M8S4SGJVRHFT0WXD3
   slugs: []
   title: Add AC annotations to terminal handler implementations
@@ -10967,4 +10967,22 @@
 
         Small fix - just add comments to existing code.
       supersedes: null
+  todos: []
+- title: Implement ACP writeFile handler
+  description: Add writeFile handler to agent lifecycle to support file writing operations via ACP.
+    Implements AC-12 of @agent-lifecycle spec.
+  type: task
+  spec_ref: "@agent-lifecycle"
+  meta_ref: null
+  priority: 1
+  slugs: []
+  tags: []
+  depends_on: []
+  _ulid: 01KG9NK31RS7Q8VGXVC1Y8DQX8
+  status: pending
+  blocked_by: []
+  context: []
+  vcs_refs: []
+  created_at: 2026-01-31T09:19:21.656Z
+  notes: []
   todos: []

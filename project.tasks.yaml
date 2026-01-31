@@ -9390,18 +9390,24 @@
         All 275 tests passing.
       supersedes: null
   todos: []
-- title: "Implement: Rich Tool Call Display"
+- _ulid: 01KG93BN5V22Y1C0X837M92HP9
+  slugs:
+    - task-rich-tool-call-display
+  title: "Implement: Rich Tool Call Display"
   type: task
   spec_ref: "@discord-tool-widgets"
   derivation: auto
+  status: pending
+  blocked_by: []
+  depends_on:
+    - "@discord-adapter"
+  context: []
   priority: 3
-  slugs:
-    - task-rich-tool-call-display
   tags:
     - discord
     - ui
-  depends_on:
-    - "@discord-adapter"
+  vcs_refs: []
+  created_at: 2026-01-31T04:00:43.707Z
   notes:
     - _ulid: 01KG93BN5TZK736BNFQ6HKJ6TN
       created_at: 2026-01-31T04:00:43.706Z
@@ -9438,10 +9444,39 @@
         then ToolCallTracker batches message updates, MessageUpdateBatcher respects Discord rate
         limits (5 edits per 5 seconds per message)
       supersedes: null
-  _ulid: 01KG93BN5V22Y1C0X837M92HP9
-  status: pending
-  blocked_by: []
-  context: []
-  vcs_refs: []
-  created_at: 2026-01-31T04:00:43.707Z
+    - _ulid: 01KG93C2CTN2QZHBMV7D7SR21Y
+      created_at: 2026-01-31T04:00:57.243Z
+      author: Jacob Chapel
+      content: |-
+        Implementation approach:
+
+        **Architecture:**
+        - ToolWidgetBuilder - Factory for creating Discord embeds/components per tool type
+        - ToolCallTracker - Tracks active tool calls, maps to Discord messages for editing
+        - MessageUpdateBatcher - Rate limit handler (5 edits/5sec per message)
+
+        **Files to create/modify:**
+        - packages/discord-adapter/src/tool-widgets/ - New directory for widget system
+          - ToolWidgetBuilder.ts - Main widget factory
+          - ToolCallTracker.ts - Track tool call state -> Discord message mapping
+          - MessageUpdateBatcher.ts - Rate limit batching
+          - widgets/ - Individual widget implementations (BashWidget, FileWidget, etc.)
+
+        **Integration points:**
+        - Listen to ACP tool_call and tool_call_update events
+        - Use Discord.js ActionRowBuilder + ButtonBuilder for expand buttons
+        - Store expanded content in memory (or ephemeral storage)
+        - Use EmbedBuilder for compact display
+
+        **Key decisions:**
+        - Use Discord components (buttons) for expand/collapse vs reactions
+        - Ephemeral follow-up messages for expanded content (user-only visibility)
+        - Batch updates with 5-second window to respect rate limits
+        - Syntax highlighting via Discord code blocks with language hints
+
+        **Related inbox items to close:**
+        - @01KG6YHB Bash command widget
+        - @01KG6YHE File diff widget  
+        - @01KG6YHG Interactive expand/collapse
+      supersedes: null
   todos: []

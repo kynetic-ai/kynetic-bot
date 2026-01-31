@@ -8187,7 +8187,7 @@
   type: task
   spec_ref: "@mem-context-restore"
   derivation: auto
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on:
     - "@task-token-based-turn-selection"
@@ -8337,6 +8337,10 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-01-31T00:49:31.886Z
+  closed_reason: "Merged in PR #46. Implemented ContextRestorer for session rotation - generates
+    restoration prompts with recent turns (30% budget), older turn summaries via SummaryProvider,
+    tool call summarization, and session file reference. All 8 ACs verified with test coverage."
 - _ulid: 01KG8G0S5RXPQ79N4YC1F3EBA4
   slugs:
     - task-token-based-turn-selection

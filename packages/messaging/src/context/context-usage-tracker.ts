@@ -1,11 +1,11 @@
 /**
- * ContextUsageTracker - Track context usage via /usage command
+ * ContextUsageTracker - Track context usage via /context command
  *
- * Monitors agent context usage by invoking /usage command and parsing
+ * Monitors agent context usage by invoking /context command and parsing
  * stderr output. Provides token counts to SessionLifecycleManager for
  * rotation decisions.
  *
- * AC: @mem-context-usage ac-2 - Sends /usage command when triggered
+ * AC: @mem-context-usage ac-2 - Sends /context command when triggered
  * AC: @mem-context-usage ac-3 - Parses stderr, emits ContextUsageUpdate
  * AC: @mem-context-usage ac-4 - Handles failures with stale data fallback
  *
@@ -34,7 +34,7 @@ export interface ContextCategory {
 }
 
 /**
- * Context usage update parsed from agent stderr /usage output
+ * Context usage update parsed from agent stderr /context output
  *
  * AC: @mem-context-usage ac-3 - Structured output type
  */
@@ -76,7 +76,7 @@ export interface StderrProvider {
  * Options for ContextUsageTracker
  */
 export interface ContextUsageTrackerOptions {
-  /** Timeout for /usage command in milliseconds (default: 10000) */
+  /** Timeout for /context command in milliseconds (default: 10000) */
   timeout?: number;
   /** Minimum interval between usage checks in milliseconds (default: 30000) */
   debounceInterval?: number;
@@ -103,7 +103,7 @@ const DEFAULT_DEBOUNCE_INTERVAL = 30000; // 30 seconds
 // ============================================================================
 
 /**
- * Parse /usage output from stderr
+ * Parse /context output from stderr
  *
  * AC: @mem-context-usage ac-3 - Parse stderr response into structured update
  *
@@ -190,7 +190,7 @@ export function parseUsageOutput(output: string): ContextUsageUpdate | null {
 // ============================================================================
 
 /**
- * Tracks context usage by invoking /usage command and parsing stderr.
+ * Tracks context usage by invoking /context command and parsing stderr.
  *
  * @trait-observable - Emits usage:update events with parsed data
  * @trait-recoverable - Handles timeouts and errors gracefully
@@ -214,7 +214,7 @@ export class ContextUsageTracker extends EventEmitter {
   /**
    * Check context usage for a session
    *
-   * AC: @mem-context-usage ac-2 - Sends /usage command to agent
+   * AC: @mem-context-usage ac-2 - Sends /context command to agent
    * AC: @mem-context-usage ac-3 - Parses response and emits ContextUsageUpdate
    * AC: @mem-context-usage ac-4 - Falls back to stale data on error/timeout
    *
@@ -281,11 +281,11 @@ export class ContextUsageTracker extends EventEmitter {
     });
 
     try {
-      // Send /usage command with timeout
-      // AC-2: Send /usage command and await response
+      // Send /context command with timeout
+      // AC-2: Send /context command and await response
       const promptPromise = client.prompt({
         sessionId,
-        prompt: [{ type: 'text', text: '/usage' }],
+        prompt: [{ type: 'text', text: '/context' }],
         promptSource: 'system',
       });
 

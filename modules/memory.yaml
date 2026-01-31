@@ -385,7 +385,7 @@ features:
               - id: ac-2
                 given: Agent response completes
                 when: Usage check triggered
-                then: /usage command sent to agent and response awaited
+                then: /context command sent to agent and response awaited
               - id: ac-3
                 given: /usage response captured from stderr
                 when: Parsing completes

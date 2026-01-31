@@ -8713,6 +8713,9 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "PR #49 merged. Wired SessionLifecycleManager, ContextRestorer, and
+    ContextUsageTracker into Bot for per-conversation session management with context-aware
+    rotation."
   depends_on:
     - "@task-context-restoration"
     - "@task-session-lifecycle-management"
@@ -8722,6 +8725,7 @@
   vcs_refs: []
   created_at: 2026-01-30T22:22:58.306Z
   started_at: 2026-01-31T02:00:40.651Z
+  completed_at: 2026-01-31T02:43:13.591Z
   notes:
     - _ulid: 01KG8G3SWRKETJGSGHSRCFW6Z0
       created_at: 2026-01-30T22:24:23.448Z
@@ -8866,10 +8870,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-01-31T02:43:13.591Z
-  closed_reason: "PR #49 merged. Wired SessionLifecycleManager, ContextRestorer, and
-    ContextUsageTracker into Bot for per-conversation session management with context-aware
-    rotation."
 - _ulid: 01KG8JJ0TGBMHE9XMPDKMDCWZ4
   slugs: []
   title: Port /local-review skill and workflow from kynetic-spec
@@ -9307,4 +9307,20 @@
 
         All lint checks now pass.
       supersedes: null
+  todos: []
+- title: Implement ACP terminal handlers
+  type: task
+  spec_ref: "@agent-lifecycle"
+  meta_ref: null
+  priority: 2
+  slugs: []
+  tags: []
+  _ulid: 01KG91FY39QDW04K5C0PT5VATX
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  vcs_refs: []
+  created_at: 2026-01-31T03:28:06.761Z
+  notes: []
   todos: []

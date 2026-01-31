@@ -9308,19 +9308,46 @@
         All lint checks now pass.
       supersedes: null
   todos: []
-- title: Implement ACP terminal handlers
+- _ulid: 01KG91FY39QDW04K5C0PT5VATX
+  slugs: []
+  title: Implement ACP terminal handlers
   type: task
   spec_ref: "@agent-lifecycle"
   meta_ref: null
-  priority: 2
-  slugs: []
-  tags: []
-  _ulid: 01KG91FY39QDW04K5C0PT5VATX
   status: pending
   blocked_by: []
   depends_on: []
   context: []
+  priority: 2
+  tags: []
   vcs_refs: []
   created_at: 2026-01-31T03:28:06.761Z
-  notes: []
+  notes:
+    - _ulid: 01KG91G4H65TB1A0ZPCADRD0R1
+      created_at: 2026-01-31T03:28:13.351Z
+      author: "@claude"
+      content: >-
+        Investigation findings:
+
+        - ACP client advertises terminal: true capability (client.ts:131) but provides no handlers
+
+        - All terminal methods return -32601 'Method not supported'
+
+        - Handlers need implementation in lifecycle.ts createACPHandlers()
+
+
+        Files to modify:
+
+        - packages/agent/src/lifecycle.ts - add terminal handler implementations
+
+        - packages/agent/src/acp/types.ts - may need terminal state tracking types
+
+
+        Implementation will enable kbot to execute bash commands when Claude Code requests terminal
+        operations.
+
+
+        Covers ACs: ac-7 (create), ac-8 (output), ac-9 (wait_for_exit), ac-10 (kill), ac-11
+        (release)
+      supersedes: null
   todos: []

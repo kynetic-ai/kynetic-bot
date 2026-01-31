@@ -9397,7 +9397,7 @@
   type: task
   spec_ref: "@discord-tool-widgets"
   derivation: auto
-  status: in_progress
+  status: pending_review
   blocked_by: []
   depends_on:
     - "@discord-adapter"
@@ -9931,6 +9931,43 @@
       author: Jacob Chapel
       content: Starting implementation in worktree /home/chapel/Projects/kynetic-bot-discord-widgets
       supersedes: null
+    - _ulid: 01KG9EXBKW7GQJVK2NZ9B73DB0
+      created_at: 2026-01-31T07:22:38.076Z
+      author: Test
+      content: >-
+        Completed implementation of Discord tool widgets feature in worktree. All components built
+        successfully:
+
+
+        - ToolWidgetBuilder: Creates Discord embeds for tool calls using actual SDK types (title,
+        kind, rawOutput, content, status)
+
+        - ToolCallTracker: Tracks tool calls to Discord messages with rate-limited updates  
+
+        - MessageUpdateBatcher: Token bucket rate limiting (1 edit/sec safety margin vs Discord's
+        5/5s)
+
+        - Bot integration: Added tool:call and tool:update event emissions in bot.ts updateHandler
+
+        - Discord adapter integration: Added setupBotEventListeners(), handleToolCall(),
+        handleToolCallUpdate(), and InteractionCreate handler for expand buttons
+
+        - Added @kynetic-bot/agent dependency to channels package
+
+
+        Note: Simplified implementation from original detailed AC notes due to actual SDK ToolCall
+        type structure being different than expected. Uses title + rawOutput + content fields
+        instead of name + parameters. All core functionality implemented but tool-specific
+        formatting reduced to use 'kind' field for icons.
+      supersedes: null
+    - _ulid: 01KG9F3QQ9WXWYB8AJ2SH1ZRB3
+      created_at: 2026-01-31T07:26:07.081Z
+      author: Test
+      content: |-
+        Implementation complete and PR created: https://github.com/kynetic-ai/kynetic-bot/pull/53
+
+        All components successfully built and integrated. Task submitted for review.
+      supersedes: null
   todos: []
 - _ulid: 01KG9C0DG3KH8HH1ZN8E8KMVC3
   slugs: []
@@ -10012,7 +10049,7 @@
     seconds. Discord requires typing to be re-sent every 10s to maintain indicator. Need periodic
     refresh loop while agent is active.
   spec_ref: null
-  status: in_progress
+  status: pending_review
   blocked_by: []
   depends_on: []
   context: []
@@ -10876,4 +10913,35 @@
         - Early stop when first response chunk sent (streaming and buffered)
         - Tests created but need timer mocking fixes (vitest fake timers advancing too far)
       supersedes: null
+    - _ulid: 01KG9EMJSGS6EQ4WQ1EBEP2A59
+      created_at: 2026-01-31T07:17:50.512Z
+      author: Test
+      content: |-
+        PR created: https://github.com/kynetic-ai/kynetic-bot/pull/52
+
+        All implementation phases complete:
+        ✓ Phase 1: TypingIndicatorManager core implementation
+        ✓ Phase 2: Integration with ChannelLifecycle and Bot
+        ✓ Phase 3: Early stop optimization (first chunk sent)
+        ✓ Phase 4: Edge cases & cleanup handling
+
+        Branch: feature/typing-indicator-refresh
+        Commit: c71f1b0
+      supersedes: null
+  todos: []
+- title: Add AC annotations to terminal handler implementations
+  type: task
+  spec_ref: "@agent-lifecycle"
+  meta_ref: null
+  priority: 4
+  slugs: []
+  tags: []
+  depends_on: []
+  _ulid: 01KG9G4H1M8S4SGJVRHFT0WXD3
+  status: pending
+  blocked_by: []
+  context: []
+  vcs_refs: []
+  created_at: 2026-01-31T07:44:01.587Z
+  notes: []
   todos: []

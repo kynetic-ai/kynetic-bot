@@ -9,14 +9,50 @@ import { spawn, type ChildProcess } from 'node:child_process';
 import { EventEmitter } from 'node:events';
 import * as fs from 'node:fs/promises';
 import { PassThrough } from 'node:stream';
+import { ulid } from 'ulid';
 import { createLogger } from '@kynetic-bot/core';
-import { ACPClient, type ACPClientHandlers, type RequestPermissionResponse } from './acp/index.js';
+import {
+  ACPClient,
+  type ACPClientHandlers,
+  type CreateTerminalResponse,
+  type KillTerminalCommandResponse,
+  type ReleaseTerminalResponse,
+  type RequestPermissionResponse,
+  type TerminalOutputResponse,
+  type WaitForTerminalExitResponse,
+} from './acp/index.js';
 import type {
   AgentCheckpoint,
   AgentLifecycleOptions,
   AgentLifecycleState,
   QueuedSpawnRequest,
 } from './types.js';
+
+/**
+ * Terminal session state tracked by the lifecycle manager
+ */
+interface TerminalSession {
+  /** Unique terminal identifier */
+  id: string;
+  /** Session ID this terminal belongs to */
+  sessionId: string;
+  /** The spawned child process */
+  process: ChildProcess;
+  /** Accumulated stdout/stderr output */
+  output: string;
+  /** Maximum output size before truncation (default: 1MB) */
+  maxOutputSize: number;
+  /** Whether output was truncated */
+  truncated: boolean;
+  /** Exit code if process exited normally */
+  exitCode: number | null;
+  /** Signal if process was killed */
+  signal: string | null;
+  /** Whether the process has exited */
+  exited: boolean;
+  /** Resolvers waiting for process exit */
+  exitWaiters: Array<(result: { exitCode: number | null; signal: string | null }) => void>;
+}
 
 const log = createLogger('agent-lifecycle');
 
@@ -53,6 +89,12 @@ export class AgentLifecycle extends EventEmitter {
 
   private spawnQueue: QueuedSpawnRequest[] = [];
   private activeSpawns = 0;
+
+  /** Active terminal sessions */
+  private terminals = new Map<string, TerminalSession>();
+
+  /** Default max output size for terminals (1MB) */
+  private readonly terminalMaxOutputSize = 1024 * 1024;
 
   private readonly options: Required<
     Omit<AgentLifecycleOptions, 'backoff'> & {
@@ -687,6 +729,9 @@ export class AgentLifecycle extends EventEmitter {
     // Clear timers
     this.stopHealthMonitoring();
 
+    // Clean up terminal sessions
+    this.cleanupTerminals();
+
     // Remove ACP client listeners before nulling to prevent accumulation
     if (this.acpClient) {
       this.acpClient.removeAllListeners();
@@ -702,10 +747,7 @@ export class AgentLifecycle extends EventEmitter {
   }
 
   /**
-   * Create ACP handlers for file operations and permissions
-   */
-  /**
-   * Create ACP handlers for file operations and permissions
+   * Create ACP handlers for file operations, terminal, and permissions
    */
   private createACPHandlers(): ACPClientHandlers {
     return {
@@ -747,6 +789,228 @@ export class AgentLifecycle extends EventEmitter {
         log.warn('No permission options available, cancelling');
         return { outcome: { outcome: 'cancelled' } };
       },
+
+      // AC: @agent-lifecycle ac-7 - Create terminal session with command execution
+      createTerminal: async (params): Promise<CreateTerminalResponse> => {
+        const terminalId = ulid();
+        log.info('Creating terminal', {
+          terminalId,
+          command: params.command,
+          args: params.args,
+          cwd: params.cwd,
+        });
+
+        // Build environment from params.env array
+        const env: Record<string, string> = { ...process.env } as Record<string, string>;
+        if (params.env) {
+          for (const envVar of params.env) {
+            env[envVar.name] = envVar.value;
+          }
+        }
+
+        // Spawn the process
+        const childProcess = spawn(params.command, params.args ?? [], {
+          cwd: params.cwd ?? process.cwd(),
+          env,
+          stdio: ['pipe', 'pipe', 'pipe'],
+          shell: true,
+        });
+
+        // Create terminal session
+        const session: TerminalSession = {
+          id: terminalId,
+          sessionId: params.sessionId,
+          process: childProcess,
+          output: '',
+          maxOutputSize: this.terminalMaxOutputSize,
+          truncated: false,
+          exitCode: null,
+          signal: null,
+          exited: false,
+          exitWaiters: [],
+        };
+
+        // Capture stdout
+        if (childProcess.stdout) {
+          childProcess.stdout.on('data', (chunk: Buffer) => {
+            this.appendTerminalOutput(session, chunk.toString());
+          });
+        }
+
+        // Capture stderr (merge with stdout)
+        if (childProcess.stderr) {
+          childProcess.stderr.on('data', (chunk: Buffer) => {
+            this.appendTerminalOutput(session, chunk.toString());
+          });
+        }
+
+        // Handle process exit
+        childProcess.on('exit', (code, signal) => {
+          session.exitCode = code;
+          session.signal = signal;
+          session.exited = true;
+          log.debug('Terminal process exited', { terminalId, code, signal });
+
+          // Resolve all exit waiters
+          for (const waiter of session.exitWaiters) {
+            waiter({ exitCode: code, signal });
+          }
+          session.exitWaiters = [];
+        });
+
+        childProcess.on('error', (err) => {
+          log.error('Terminal process error', { terminalId, error: err.message });
+          session.exited = true;
+          session.exitCode = 1;
+
+          // Resolve all exit waiters with error
+          for (const waiter of session.exitWaiters) {
+            waiter({ exitCode: 1, signal: null });
+          }
+          session.exitWaiters = [];
+        });
+
+        this.terminals.set(terminalId, session);
+        return { terminalId };
+      },
+
+      // AC: @agent-lifecycle ac-8 - Return stdout/stderr output since last read
+      getTerminalOutput: (params): TerminalOutputResponse => {
+        const session = this.terminals.get(params.terminalId);
+        if (!session) {
+          log.warn('Terminal not found', { terminalId: params.terminalId });
+          return { output: '', truncated: false };
+        }
+
+        const response: TerminalOutputResponse = {
+          output: session.output,
+          truncated: session.truncated,
+        };
+
+        // Include exit status if process has exited
+        if (session.exited) {
+          response.exitStatus = {
+            exitCode: session.exitCode,
+            signal: session.signal,
+          };
+        }
+
+        // Clear the output buffer after reading
+        session.output = '';
+        session.truncated = false;
+
+        return response;
+      },
+
+      // AC: @agent-lifecycle ac-9 - Block until process completes and return exit code
+      waitForTerminalExit: async (params): Promise<WaitForTerminalExitResponse> => {
+        const session = this.terminals.get(params.terminalId);
+        if (!session) {
+          log.warn('Terminal not found for wait', { terminalId: params.terminalId });
+          return { exitCode: 1, signal: null };
+        }
+
+        // If already exited, return immediately
+        if (session.exited) {
+          return {
+            exitCode: session.exitCode,
+            signal: session.signal,
+          };
+        }
+
+        // Wait for exit
+        const result = await new Promise<{ exitCode: number | null; signal: string | null }>(
+          (resolve) => {
+            session.exitWaiters.push(resolve);
+          }
+        );
+
+        return {
+          exitCode: result.exitCode,
+          signal: result.signal,
+        };
+      },
+
+      // AC: @agent-lifecycle ac-10 - Terminate process and mark session as killed
+      killTerminal: async (params): Promise<KillTerminalCommandResponse> => {
+        const session = this.terminals.get(params.terminalId);
+        if (!session) {
+          log.warn('Terminal not found for kill', { terminalId: params.terminalId });
+          return {};
+        }
+
+        if (!session.exited) {
+          log.info('Killing terminal', { terminalId: params.terminalId });
+          session.process.kill('SIGKILL');
+
+          // Wait for the process to actually exit
+          await new Promise<void>((resolve) => {
+            if (session.exited) {
+              resolve();
+              return;
+            }
+            session.exitWaiters.push(() => resolve());
+          });
+        }
+
+        return {};
+      },
+
+      // AC: @agent-lifecycle ac-11 - Clean up terminal resources and release session handle
+      releaseTerminal: (params): ReleaseTerminalResponse => {
+        const session = this.terminals.get(params.terminalId);
+        if (!session) {
+          log.debug('Terminal already released', { terminalId: params.terminalId });
+          return {};
+        }
+
+        // Kill process if still running
+        if (!session.exited) {
+          log.debug('Killing terminal before release', { terminalId: params.terminalId });
+          session.process.kill('SIGKILL');
+        }
+
+        // Remove from tracking
+        this.terminals.delete(params.terminalId);
+        log.debug('Terminal released', { terminalId: params.terminalId });
+
+        return {};
+      },
     };
+  }
+
+  /**
+   * Append output to a terminal session, handling truncation
+   */
+  private appendTerminalOutput(session: TerminalSession, data: string): void {
+    if (session.truncated) {
+      // Already truncated, don't accumulate more
+      return;
+    }
+
+    session.output += data;
+
+    // Check if we need to truncate
+    if (session.output.length > session.maxOutputSize) {
+      session.output = session.output.slice(0, session.maxOutputSize);
+      session.truncated = true;
+      log.debug('Terminal output truncated', {
+        terminalId: session.id,
+        maxSize: session.maxOutputSize,
+      });
+    }
+  }
+
+  /**
+   * Clean up all terminal sessions (called during shutdown)
+   */
+  private cleanupTerminals(): void {
+    for (const [terminalId, session] of this.terminals) {
+      if (!session.exited) {
+        log.debug('Killing terminal during cleanup', { terminalId });
+        session.process.kill('SIGKILL');
+      }
+    }
+    this.terminals.clear();
   }
 }

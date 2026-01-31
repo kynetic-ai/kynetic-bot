@@ -244,3 +244,7 @@ features:
             when: tool_call_update received with error status
             then: Widget shows red embed border, ❌ icon, error message summary (first 100 chars), expand button
               for full error details
+          - id: ac-7
+            given: More than 10 concurrent tool calls executing
+            when: rendering widgets in Discord message
+            then: Splits across multiple messages with max 10 embeds per message, maintains chronological order

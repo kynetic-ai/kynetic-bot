@@ -898,6 +898,138 @@ describe('AgentLifecycle', () => {
   });
 
   // AC: @agent-lifecycle ac-6
+
+  // AC: @agent-lifecycle ac-12
+  describe('AC-12: ACP writeFile handler', () => {
+    it('should write file content successfully', async () => {
+      await lifecycle.spawn();
+
+      // Get the handlers that were passed to ACPClient
+      const handlers = mockACPClientInstance?._handlers;
+      expect(handlers).toBeDefined();
+      expect(handlers?.writeFile).toBeDefined();
+
+      // Prepare test file path and content
+      const testFilePath = '/tmp/test-write-file.txt';
+      const testContent = 'Hello, World!\nThis is a test file.';
+      const fs = await import('node:fs/promises');
+
+      try {
+        // Act - call the writeFile handler
+        const result = await handlers!.writeFile!({ 
+          path: testFilePath, 
+          content: testContent 
+        });
+
+        // Assert - should return empty object
+        expect(result).toEqual({});
+
+        // Verify file was actually written
+        const writtenContent = await fs.readFile(testFilePath, 'utf8');
+        expect(writtenContent).toBe(testContent);
+      } finally {
+        // Cleanup
+        try {
+          await fs.unlink(testFilePath);
+        } catch {
+          // Ignore if file doesn't exist
+        }
+        await lifecycle.kill();
+      }
+    });
+
+    it('should overwrite existing file content', async () => {
+      await lifecycle.spawn();
+
+      const handlers = mockACPClientInstance?._handlers;
+      const testFilePath = '/tmp/test-write-overwrite.txt';
+      const fs = await import('node:fs/promises');
+
+      try {
+        // Create initial file with some content
+        await fs.writeFile(testFilePath, 'Initial content');
+
+        // Act - overwrite with new content
+        const newContent = 'New content that overwrites';
+        await handlers!.writeFile!({ 
+          path: testFilePath, 
+          content: newContent 
+        });
+
+        // Assert - file should contain only new content
+        const writtenContent = await fs.readFile(testFilePath, 'utf8');
+        expect(writtenContent).toBe(newContent);
+      } finally {
+        await fs.unlink(testFilePath);
+        await lifecycle.kill();
+      }
+    });
+
+    it('should handle empty content', async () => {
+      await lifecycle.spawn();
+
+      const handlers = mockACPClientInstance?._handlers;
+      const testFilePath = '/tmp/test-write-empty.txt';
+      const fs = await import('node:fs/promises');
+
+      try {
+        // Act - write empty content
+        await handlers!.writeFile!({ 
+          path: testFilePath, 
+          content: '' 
+        });
+
+        // Assert - file should exist and be empty
+        const writtenContent = await fs.readFile(testFilePath, 'utf8');
+        expect(writtenContent).toBe('');
+      } finally {
+        await fs.unlink(testFilePath);
+        await lifecycle.kill();
+      }
+    });
+
+    it('should handle multiline content with various newline styles', async () => {
+      await lifecycle.spawn();
+
+      const handlers = mockACPClientInstance?._handlers;
+      const testFilePath = '/tmp/test-write-multiline.txt';
+      const testContent = 'Line 1\nLine 2\nLine 3\n\nLine 5';
+      const fs = await import('node:fs/promises');
+
+      try {
+        // Act
+        await handlers!.writeFile!({ 
+          path: testFilePath, 
+          content: testContent 
+        });
+
+        // Assert
+        const writtenContent = await fs.readFile(testFilePath, 'utf8');
+        expect(writtenContent).toBe(testContent);
+      } finally {
+        await fs.unlink(testFilePath);
+        await lifecycle.kill();
+      }
+    });
+
+    it('should throw error when path is invalid or inaccessible', async () => {
+      await lifecycle.spawn();
+
+      const handlers = mockACPClientInstance?._handlers;
+
+      try {
+        // Act & Assert - should throw
+        await expect(
+          handlers!.writeFile!({ 
+            path: '/invalid/path/that/does/not/exist/file.txt', 
+            content: 'test' 
+          })
+        ).rejects.toThrow();
+      } finally {
+        await lifecycle.kill();
+      }
+    });
+  });
   describe('AC-6: ACP requestPermission handler', () => {
     it('should select first allow_once option when available', async () => {
       await lifecycle.spawn();

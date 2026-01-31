@@ -239,3 +239,8 @@ features:
             when: tool_call_update events stream in
             then: ToolCallTracker batches message updates, MessageUpdateBatcher respects Discord rate limits (5
               edits per 5 seconds per message)
+          - id: ac-6
+            given: Tool call fails with error (bash exit code != 0, file read permission denied, etc.)
+            when: tool_call_update received with error status
+            then: Widget shows red embed border, ❌ icon, error message summary (first 100 chars), expand button
+              for full error details

@@ -9399,6 +9399,7 @@
   derivation: auto
   status: completed
   blocked_by: []
+  closed_reason: "All 5 PR review issues fixed, tests added, PR #53 merged to main"
   depends_on:
     - "@discord-adapter"
   context: []
@@ -9409,6 +9410,7 @@
   vcs_refs: []
   created_at: 2026-01-31T04:00:43.707Z
   started_at: 2026-01-31T07:06:50.880Z
+  completed_at: 2026-01-31T09:21:47.891Z
   notes:
     - _ulid: 01KG93BN5TZK736BNFQ6HKJ6TN
       created_at: 2026-01-31T04:00:43.706Z
@@ -9979,8 +9981,6 @@
         merged to main."
       supersedes: null
   todos: []
-  completed_at: 2026-01-31T09:21:47.891Z
-  closed_reason: "All 5 PR review issues fixed, tests added, PR #53 merged to main"
 - _ulid: 01KG9C0DG3KH8HH1ZN8E8KMVC3
   slugs: []
   title: "Fix context tracking: change /usage to /context command"
@@ -10988,8 +10988,9 @@
     Implements AC-12 of @agent-lifecycle spec.
   spec_ref: "@agent-lifecycle"
   meta_ref: null
-  status: in_progress
+  status: completed
   blocked_by: []
+  closed_reason: null
   depends_on: []
   context: []
   priority: 1
@@ -10997,5 +10998,31 @@
   vcs_refs: []
   created_at: 2026-01-31T09:19:21.656Z
   started_at: 2026-01-31T09:19:40.634Z
+  completed_at: 2026-01-31T09:28:12.325Z
+  notes:
+    - _ulid: 01KG9P3VEEF3ARRV099A5G59SQ
+      created_at: 2026-01-31T09:28:30.926Z
+      author: Test
+      content: "PR #54 merged successfully. Implemented writeFile handler in lifecycle.ts with
+        comprehensive test coverage (5 test cases). All 73 lifecycle tests pass. Critical P1 issue
+        resolved - agents can now write files via ACP."
+      supersedes: null
+  todos: []
+- title: Wire up Discord tool widget event listeners
+  type: task
+  spec_ref: "@discord-tool-widgets"
+  meta_ref: null
+  priority: 1
+  slugs: []
+  tags:
+    - discord,bugfix
+  depends_on:
+    - "@task-rich-tool-call-display"
+  _ulid: 01KGAQGE62YHV5MJXPZ6PB2XAE
+  status: pending
+  blocked_by: []
+  context: []
+  vcs_refs: []
+  created_at: 2026-01-31T19:12:06.338Z
   notes: []
   todos: []

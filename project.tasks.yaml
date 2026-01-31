@@ -9892,4 +9892,37 @@
         This correction is reflected in the comprehensive implementation guide below and in the spec
         @discord-tool-widgets.
       supersedes: null
+    - _ulid: 01KG95FWFD78MNPPT4CBEX4VB1
+      created_at: 2026-01-31T04:37:59.406Z
+      author: Jacob Chapel
+      content: |-
+        Additional Clarifications:
+
+        ## Rate Limiting Details
+        Discord's actual limit: **5 edits per 5 seconds PER CHANNEL** (not per message)
+        - All messages in the same channel share this limit
+        - Token bucket refills at 1 token/second (5 tokens max)
+        - Safety margin: Use 1 edit/second average to stay under limit
+        - When queue exceeds 50 items: Log warning, continue processing (don't drop)
+
+        ## Tool Timeout Duration
+        Tools pending >30 seconds without update are marked as 'timed_out' (AC-9 edge case)
+
+        ## Expanded Content Storage Limits
+        Store max 1 MB of output per tool call to prevent memory bloat
+        - Truncate with "(output truncated, X bytes total)" if exceeded
+
+        ## Session Isolation
+        ToolCallTracker maps tool calls by: sessionId + toolCallId (not just channelId)
+        - Prevents interference between multiple sessions in same channel
+        - Cleanup operates on session-level, not channel-level
+
+        ## ACP Event Structures (for reference)
+        Based on packages/agent/src/acp/types.ts:
+        - ToolCall: { toolCallId, name, parameters, status }  
+        - ToolCallUpdate: { toolCallId, status, result?, error? }
+        - SessionUpdate: 'tool_call' | 'tool_call_update' | 'agent_message_chunk'
+
+        Full types available at packages/agent/src/acp/types.ts lines 98-101
+      supersedes: null
   todos: []

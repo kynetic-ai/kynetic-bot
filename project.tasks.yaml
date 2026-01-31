@@ -9997,22 +9997,118 @@
         Ready for submission.
       supersedes: null
   todos: []
-- title: Fix Discord typing indicator to refresh periodically
+- _ulid: 01KG9D98CXGC8H15KH2H0H7FVQ
+  slugs: []
+  title: Fix Discord typing indicator to refresh periodically
   type: task
-  priority: 2
-  spec_ref: null
-  tags: []
   description: Discord typing indicator only fires once - should refresh periodically while agent is
     working. Currently sends typing indicator at start of processing but it expires after ~10
     seconds. Discord requires typing to be re-sent every 10s to maintain indicator. Need periodic
     refresh loop while agent is active.
-  _ulid: 01KG9D98CXGC8H15KH2H0H7FVQ
-  slugs: []
+  spec_ref: null
   status: pending
   blocked_by: []
   depends_on: []
   context: []
+  priority: 2
+  tags: []
   vcs_refs: []
   created_at: 2026-01-31T06:54:10.844Z
-  notes: []
+  notes:
+    - _ulid: 01KG9D9V9V82K0GV6FZ2H1F1MN
+      created_at: 2026-01-31T06:54:30.204Z
+      author: Jacob Chapel
+      content: >-
+        ## Problem
+
+
+        Discord typing indicator only fires once at the start of agent processing, then expires
+        after ~10 seconds. For long-running agent operations (tool calls, thinking, etc.), the
+        typing indicator disappears, making it appear to the user that the bot stopped responding.
+
+
+        ## Discord API Behavior
+
+
+        Discord's typing indicator () expires after approximately 10 seconds. To maintain the
+        indicator during long operations, it must be re-sent periodically (typically every 5-10
+        seconds).
+
+
+        ## Current Implementation
+
+
+        Check packages/channels/src/adapters/discord/adapter.ts for current typing logic:
+
+        - Likely sends typing once when message processing starts
+
+        - No refresh loop while agent is active
+
+
+        ## Solution
+
+
+        Implement a typing indicator refresh loop:
+
+
+        1. **Start typing loop** when agent begins processing message
+
+        2. **Re-send typing every 5-8 seconds** (before 10s expiration)
+
+        3. **Stop loop** when agent response is sent or session ends
+
+
+        **Implementation pattern:**
+
+
+
+        ## Integration Points
+
+
+        **Where to start loop:**
+
+        - When message received and processing begins
+
+        - Bot.handleMessage() starts agent processing
+
+
+        **Where to stop loop:**
+
+        - When agent response sent to Discord
+
+        - When session ends/errors
+
+        - When user sends another message (cancellation)
+
+
+        ## Related Code
+
+
+        **Files to check:**
+
+        - packages/channels/src/adapters/discord/adapter.ts - Discord adapter implementation
+
+        - packages/bot/src/bot.ts - Message handling lifecycle
+
+        - Look for existing sendTyping() calls
+
+
+        ## Success Criteria
+
+
+        - Typing indicator remains active for entire duration of agent processing
+
+        - Indicator disappears immediately when response is sent
+
+        - No memory leaks from unclosed intervals
+
+        - Works for both quick (<10s) and long (>30s) responses
+
+
+        ## Priority: P2
+
+
+        Important for user experience - users need visual feedback that bot is working, especially
+        for complex queries that take time to process.
+      supersedes: null
   todos: []

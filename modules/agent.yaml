@@ -60,6 +60,10 @@ features:
         when: handler invoked
         then: auto-selects first 'allow_once' or 'allow_always' option, or cancels if no options available
           (MVP behavior)
+      - id: ac-7
+        given: agent sends terminal/create request via ACP
+        when: handler invoked
+        then: creates terminal session with command execution capability and returns session handle
     status:
       maturity: draft
       implementation: implemented

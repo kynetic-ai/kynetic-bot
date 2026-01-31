@@ -8189,6 +8189,9 @@
   derivation: auto
   status: completed
   blocked_by: []
+  closed_reason: "Merged in PR #46. Implemented ContextRestorer for session rotation - generates
+    restoration prompts with recent turns (30% budget), older turn summaries via SummaryProvider,
+    tool call summarization, and session file reference. All 8 ACs verified with test coverage."
   depends_on:
     - "@task-token-based-turn-selection"
   context: []
@@ -8197,6 +8200,7 @@
   vcs_refs: []
   created_at: 2026-01-30T22:22:42.245Z
   started_at: 2026-01-31T00:40:56.768Z
+  completed_at: 2026-01-31T00:49:31.886Z
   notes:
     - _ulid: 01KG8G0Q255ZH0YDVYNVTYFMYA
       created_at: 2026-01-30T22:22:42.245Z
@@ -8337,10 +8341,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-01-31T00:49:31.886Z
-  closed_reason: "Merged in PR #46. Implemented ContextRestorer for session rotation - generates
-    restoration prompts with recent turns (30% budget), older turn summaries via SummaryProvider,
-    tool call summarization, and session file reference. All 8 ACs verified with test coverage."
 - _ulid: 01KG8G0S5RXPQ79N4YC1F3EBA4
   slugs:
     - task-token-based-turn-selection
@@ -8711,7 +8711,7 @@
     direct client.newSession() calls, add per-key locking, wire context restoration on rotation.
   spec_ref: "@mem-session-lifecycle"
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on:
     - "@task-context-restoration"
@@ -8825,6 +8825,7 @@
       supersedes: null
   todos: []
   automation: eligible
+  started_at: 2026-01-31T02:00:40.651Z
 - _ulid: 01KG8JJ0TGBMHE9XMPDKMDCWZ4
   slugs: []
   title: Port /local-review skill and workflow from kynetic-spec

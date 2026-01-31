@@ -380,4 +380,13 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KG8RRRXMR47RQNKQFPV64GFJ
+    type: success
+    content: "When needing to generate content with problematic XML tags (antml: namespace) that trigger
+      Claude Code parser, use Python/script-based generation instead of writing tags directly in
+      responses. Avoids turn termination issues."
+    created_at: 2026-01-31T00:55:39.188Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

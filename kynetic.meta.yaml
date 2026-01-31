@@ -426,4 +426,16 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KG9JGH5E90FQ1S0GTA9KECNX
+    type: success
+    content: "Git worktree corruption recovery pattern: When a worktree has corrupted git config
+      (core.bare=true, wrong user.email), remove the worktree entirely (git worktree remove
+      --force), reset branch from main repo (git branch -f <branch> origin/main), cherry-pick real
+      commits, force push. Trying to fix in-place can create more garbage commits. Root cause of
+      corruption still unclear - possibly related to parallel Claude Code sessions or interrupted
+      operations."
+    created_at: 2026-01-31T08:25:32.079Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

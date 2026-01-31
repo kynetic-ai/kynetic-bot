@@ -257,3 +257,6 @@ features:
             when: session cleanup triggered
             then: All pending widgets updated to final state (completed/cancelled/timed out), ToolCallTracker
               clears tracking data
+        status:
+          maturity: draft
+          implementation: in_progress

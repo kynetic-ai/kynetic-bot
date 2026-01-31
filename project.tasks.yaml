@@ -10929,19 +10929,39 @@
         Commit: c71f1b0
       supersedes: null
   todos: []
-- title: Add AC annotations to terminal handler implementations
+- _ulid: 01KG9G4H1M8S4SGJVRHFT0WXD3
+  slugs: []
+  title: Add AC annotations to terminal handler implementations
   type: task
   spec_ref: "@agent-lifecycle"
   meta_ref: null
-  priority: 4
-  slugs: []
-  tags: []
-  depends_on: []
-  _ulid: 01KG9G4H1M8S4SGJVRHFT0WXD3
   status: pending
   blocked_by: []
+  depends_on: []
   context: []
+  priority: 4
+  tags: []
   vcs_refs: []
   created_at: 2026-01-31T07:44:01.587Z
-  notes: []
+  notes:
+    - _ulid: 01KG9G4QZT01ZKF2NARW07AVG9
+      created_at: 2026-01-31T07:44:08.698Z
+      author: "@claude"
+      content: >-
+        Terminal handler implementations in lifecycle.ts are missing inline AC annotations. Tests
+        have them in describe blocks but the implementation code should also have:
+
+        - // AC: @agent-lifecycle ac-7 above createTerminal handler
+
+        - // AC: @agent-lifecycle ac-8 above getTerminalOutput handler  
+
+        - // AC: @agent-lifecycle ac-9 above waitForTerminalExit handler
+
+        - // AC: @agent-lifecycle ac-10 above killTerminal handler
+
+        - // AC: @agent-lifecycle ac-11 above releaseTerminal handler
+
+
+        Small fix - just add comments to existing code.
+      supersedes: null
   todos: []

@@ -276,3 +276,10 @@ inbox:
     created_at: 2026-01-31T05:00:32.225Z
     tags: []
     added_by: Jacob Chapel
+  - _ulid: 01KG96SE8P7CAC7DH4SRCBHMZC
+    text: kbot-test session events.jsonl files are empty - events should capture raw session data like
+      kynetic-bot/.kspec/sessions/ does. Currently only turns.jsonl has data but doesn't include
+      tool call events, missing granular session event tracking.
+    created_at: 2026-01-31T05:00:41.111Z
+    tags: []
+    added_by: Jacob Chapel

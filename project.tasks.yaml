@@ -8267,6 +8267,35 @@
   derivation: auto
   status: completed
   blocked_by: []
+  closed_reason: >-
+    Merged in PR #44. Implemented token-based turn selection for conversation replay.
+
+
+    **What was implemented:**
+
+    - ToolSummarizer: Detects and summarizes tool calls in conversation turns
+      - Handles XML-style function calls with antml: namespace prefix
+      - Reduces verbose tool outputs by 80%+ for accurate token estimation
+      - Supports Read, Write, Edit, Bash, Grep, Glob, Task, WebFetch, WebSearch
+
+    - TurnSelector: Selects turns based on 30% context window budget
+      - Token-based selection instead of fixed turn count
+      - Applies tool summarization for realistic token counting
+      - Maintains 5% safety margin to prevent budget overruns
+
+    **Test coverage:**
+
+    - 55 tests (31 tool-summarizer + 24 turn-selector)
+
+    - All 4 acceptance criteria fully covered with AC annotations
+
+    - Comprehensive edge case coverage
+
+
+    **Technical notes:**
+
+    Test fixtures use antml: namespace prefix for closing tags to match Claude's actual format. Used
+    Python script to generate fixtures to avoid triggering Claude Code's internal parser.
   depends_on: []
   context: []
   priority: 2
@@ -8274,6 +8303,7 @@
   vcs_refs: []
   created_at: 2026-01-30T22:22:44.408Z
   started_at: 2026-01-30T23:59:08.421Z
+  completed_at: 2026-01-31T00:26:26.545Z
   notes:
     - _ulid: 01KG8G0S5Q33B2E65N1KS0VR00
       created_at: 2026-01-30T22:22:44.407Z
@@ -8384,36 +8414,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-01-31T00:26:26.545Z
-  closed_reason: >-
-    Merged in PR #44. Implemented token-based turn selection for conversation replay.
-
-
-    **What was implemented:**
-
-    - ToolSummarizer: Detects and summarizes tool calls in conversation turns
-      - Handles XML-style function calls with antml: namespace prefix
-      - Reduces verbose tool outputs by 80%+ for accurate token estimation
-      - Supports Read, Write, Edit, Bash, Grep, Glob, Task, WebFetch, WebSearch
-
-    - TurnSelector: Selects turns based on 30% context window budget
-      - Token-based selection instead of fixed turn count
-      - Applies tool summarization for realistic token counting
-      - Maintains 5% safety margin to prevent budget overruns
-
-    **Test coverage:**
-
-    - 55 tests (31 tool-summarizer + 24 turn-selector)
-
-    - All 4 acceptance criteria fully covered with AC annotations
-
-    - Comprehensive edge case coverage
-
-
-    **Technical notes:**
-
-    Test fixtures use antml: namespace prefix for closing tags to match Claude's actual format. Used
-    Python script to generate fixtures to avoid triggering Claude Code's internal parser.
 - _ulid: 01KG8G1318V7WSE74WVFRJJ6FZ
   slugs:
     - task-capture-stderr
@@ -9148,7 +9148,7 @@
   description: "Fix pre-existing ESLint errors blocking commits: unused imports in bot.ts, unsafe any
     in identity.ts, unused variable in splitter.ts"
   spec_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -9170,3 +9170,13 @@
         All lint checks now pass.
       supersedes: null
   todos: []
+  completed_at: 2026-01-31T00:26:30.201Z
+  closed_reason: |-
+    Merged in PR #44. Fixed pre-existing ESLint errors blocking commits.
+
+    **What was fixed:**
+    - packages/bot/src/bot.ts: Removed unused type imports (SessionKey, SessionStore, Session)
+    - packages/bot/src/identity.ts: Added explicit 'unknown' type annotation for yaml.parse() result
+    - packages/channels/src/adapters/discord/splitter.ts: Removed unused chunkIndex variable
+
+    All ESLint checks now pass. Pre-commit hooks no longer blocked.

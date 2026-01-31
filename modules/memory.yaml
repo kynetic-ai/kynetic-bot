@@ -391,7 +391,7 @@ features:
                 when: Parsing completes
                 then: ContextUsageUpdate emitted with model, token counts, and category breakdown
               - id: ac-4
-                given: /usage command fails or times out
+                given: /context command fails or times out
                 when: Error caught
                 then: Session continues with stale usage data; warning logged
             status:

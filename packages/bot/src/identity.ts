@@ -18,12 +18,14 @@ const log = createLogger('identity');
 /**
  * Schema for custom identity configuration (.kbot/identity.yaml)
  */
-export const CustomIdentitySchema = z.object({
-  name: z.string().optional(),
-  role: z.string().optional(),
-  boundaries: z.array(z.string()).optional(),
-  traits: z.array(z.string()).optional(),
-}).partial();
+export const CustomIdentitySchema = z
+  .object({
+    name: z.string().optional(),
+    role: z.string().optional(),
+    boundaries: z.array(z.string()).optional(),
+    traits: z.array(z.string()).optional(),
+  })
+  .partial();
 
 export type CustomIdentity = z.infer<typeof CustomIdentitySchema>;
 
@@ -53,7 +55,7 @@ export async function loadCustomIdentity(kbotDataDir: string): Promise<CustomIde
 
   try {
     const content = await fs.readFile(identityPath, 'utf8');
-    const parsed = yaml.parse(content);
+    const parsed: unknown = yaml.parse(content);
     const validated = CustomIdentitySchema.parse(parsed);
     log.info('Loaded custom identity', { path: identityPath });
     return validated;

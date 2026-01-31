@@ -53,6 +53,9 @@ importers:
       '@kynetic-bot/messaging':
         specifier: workspace:*
         version: link:../messaging
+      ulid:
+        specifier: ^2.3
+        version: 2.4.0
 
   packages/bot:
     dependencies:

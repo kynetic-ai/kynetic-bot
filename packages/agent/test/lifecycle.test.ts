@@ -32,6 +32,27 @@ let mockACPClientInstance: {
       toolCall?: { title?: string };
       options: Array<{ optionId: string; name: string; kind: string }>;
     }) => Promise<{ outcome: { outcome: string; optionId?: string } }>;
+    createTerminal?: (params: {
+      sessionId: string;
+      command: string;
+      args?: string[];
+      cwd?: string;
+      env?: Array<{ name: string; value: string }>;
+    }) => Promise<{ terminalId: string }>;
+    getTerminalOutput?: (params: { sessionId: string; terminalId: string }) => {
+      output: string;
+      truncated: boolean;
+      exitStatus?: { exitCode: number | null; signal: string | null };
+    };
+    waitForTerminalExit?: (params: {
+      sessionId: string;
+      terminalId: string;
+    }) => Promise<{ exitCode: number | null; signal: string | null }>;
+    killTerminal?: (params: {
+      sessionId: string;
+      terminalId: string;
+    }) => Promise<Record<string, never>>;
+    releaseTerminal?: (params: { sessionId: string; terminalId: string }) => Record<string, never>;
   };
 } | null = null;
 
@@ -964,6 +985,641 @@ describe('AgentLifecycle', () => {
         // Assert - should cancel
         expect(result.outcome.outcome).toBe('cancelled');
         expect(result.outcome.optionId).toBeUndefined();
+      } finally {
+        await lifecycle.kill();
+      }
+    });
+  });
+
+  // AC: @agent-lifecycle ac-7
+  describe('AC-7: ACP createTerminal handler', () => {
+    it('should create terminal and return terminalId', async () => {
+      // Create a separate mock process for the terminal
+      const terminalProcess = createMockChildProcess();
+      mockSpawn.mockReturnValueOnce(mockProcess as unknown as ReturnType<typeof spawn>);
+      mockSpawn.mockReturnValueOnce(terminalProcess as unknown as ReturnType<typeof spawn>);
+
+      await lifecycle.spawn();
+
+      const handlers = mockACPClientInstance?._handlers;
+      expect(handlers?.createTerminal).toBeDefined();
+
+      try {
+        // Act - create a terminal
+        const result = await handlers!.createTerminal!({
+          sessionId: 'test-session',
+          command: 'echo',
+          args: ['hello'],
+        });
+
+        // Assert - should return a terminalId (ULID format)
+        expect(result.terminalId).toBeDefined();
+        expect(result.terminalId.length).toBe(26); // ULID is 26 characters
+      } finally {
+        await lifecycle.kill();
+      }
+    });
+
+    it('should capture stdout from terminal process', async () => {
+      // Create a separate mock process for the terminal
+      const terminalProcess = createMockChildProcess();
+      mockSpawn.mockReturnValueOnce(mockProcess as unknown as ReturnType<typeof spawn>);
+      mockSpawn.mockReturnValueOnce(terminalProcess as unknown as ReturnType<typeof spawn>);
+
+      await lifecycle.spawn();
+
+      const handlers = mockACPClientInstance?._handlers;
+
+      try {
+        // Create terminal
+        const result = await handlers!.createTerminal!({
+          sessionId: 'test-session',
+          command: 'echo',
+          args: ['hello', 'world'],
+        });
+
+        // Simulate stdout from terminal
+        terminalProcess.stdout.push(Buffer.from('hello world\n'));
+
+        // Simulate process exit
+        terminalProcess.exitCode = 0;
+        terminalProcess._emit('exit', 0, null);
+
+        await delay(10);
+
+        // Get output
+        const output = handlers!.getTerminalOutput!({
+          sessionId: 'test-session',
+          terminalId: result.terminalId,
+        });
+
+        expect(output.output).toContain('hello world');
+        expect(output.exitStatus?.exitCode).toBe(0);
+      } finally {
+        await lifecycle.kill();
+      }
+    });
+
+    it('should capture stderr from terminal process', async () => {
+      const terminalProcess = createMockChildProcess();
+      mockSpawn.mockReturnValueOnce(mockProcess as unknown as ReturnType<typeof spawn>);
+      mockSpawn.mockReturnValueOnce(terminalProcess as unknown as ReturnType<typeof spawn>);
+
+      await lifecycle.spawn();
+
+      const handlers = mockACPClientInstance?._handlers;
+
+      try {
+        const result = await handlers!.createTerminal!({
+          sessionId: 'test-session',
+          command: 'cmd',
+          args: [],
+        });
+
+        // Simulate stderr from terminal
+        terminalProcess.stderr.push(Buffer.from('error message\n'));
+
+        // Simulate process exit
+        terminalProcess.exitCode = 1;
+        terminalProcess._emit('exit', 1, null);
+
+        await delay(10);
+
+        const output = handlers!.getTerminalOutput!({
+          sessionId: 'test-session',
+          terminalId: result.terminalId,
+        });
+
+        expect(output.output).toContain('error message');
+      } finally {
+        await lifecycle.kill();
+      }
+    });
+
+    it('should spawn with correct command and args', async () => {
+      const terminalProcess = createMockChildProcess();
+      mockSpawn.mockReturnValueOnce(mockProcess as unknown as ReturnType<typeof spawn>);
+      mockSpawn.mockReturnValueOnce(terminalProcess as unknown as ReturnType<typeof spawn>);
+
+      await lifecycle.spawn();
+
+      const handlers = mockACPClientInstance?._handlers;
+
+      try {
+        await handlers!.createTerminal!({
+          sessionId: 'test-session',
+          command: 'ls',
+          args: ['-la', '/tmp'],
+          cwd: '/home',
+        });
+
+        // Verify spawn was called with correct params for terminal
+        expect(mockSpawn).toHaveBeenNthCalledWith(
+          2,
+          'ls',
+          ['-la', '/tmp'],
+          expect.objectContaining({
+            cwd: '/home',
+            shell: true,
+          })
+        );
+      } finally {
+        await lifecycle.kill();
+      }
+    });
+
+    it('should pass environment variables to terminal', async () => {
+      const terminalProcess = createMockChildProcess();
+      mockSpawn.mockReturnValueOnce(mockProcess as unknown as ReturnType<typeof spawn>);
+      mockSpawn.mockReturnValueOnce(terminalProcess as unknown as ReturnType<typeof spawn>);
+
+      await lifecycle.spawn();
+
+      const handlers = mockACPClientInstance?._handlers;
+
+      try {
+        await handlers!.createTerminal!({
+          sessionId: 'test-session',
+          command: 'printenv',
+          env: [
+            { name: 'TEST_VAR', value: 'test_value' },
+            { name: 'ANOTHER_VAR', value: 'another' },
+          ],
+        });
+
+        // Verify spawn was called with env vars
+        expect(mockSpawn).toHaveBeenNthCalledWith(
+          2,
+          'printenv',
+          [],
+          expect.objectContaining({
+            env: expect.objectContaining({
+              TEST_VAR: 'test_value',
+              ANOTHER_VAR: 'another',
+            }),
+          })
+        );
+      } finally {
+        await lifecycle.kill();
+      }
+    });
+  });
+
+  // AC: @agent-lifecycle ac-8
+  describe('AC-8: ACP getTerminalOutput handler', () => {
+    it('should return accumulated stdout/stderr output', async () => {
+      const terminalProcess = createMockChildProcess();
+      mockSpawn.mockReturnValueOnce(mockProcess as unknown as ReturnType<typeof spawn>);
+      mockSpawn.mockReturnValueOnce(terminalProcess as unknown as ReturnType<typeof spawn>);
+
+      await lifecycle.spawn();
+
+      const handlers = mockACPClientInstance?._handlers;
+
+      try {
+        const createResult = await handlers!.createTerminal!({
+          sessionId: 'test-session',
+          command: 'echo',
+          args: ['test output'],
+        });
+
+        // Simulate output
+        terminalProcess.stdout.push(Buffer.from('line 1\n'));
+        terminalProcess.stdout.push(Buffer.from('line 2\n'));
+
+        await delay(10);
+
+        const output = handlers!.getTerminalOutput!({
+          sessionId: 'test-session',
+          terminalId: createResult.terminalId,
+        });
+
+        expect(output.output).toBe('line 1\nline 2\n');
+        expect(output.truncated).toBe(false);
+      } finally {
+        await lifecycle.kill();
+      }
+    });
+
+    it('should include exitStatus when process has exited', async () => {
+      const terminalProcess = createMockChildProcess();
+      mockSpawn.mockReturnValueOnce(mockProcess as unknown as ReturnType<typeof spawn>);
+      mockSpawn.mockReturnValueOnce(terminalProcess as unknown as ReturnType<typeof spawn>);
+
+      await lifecycle.spawn();
+
+      const handlers = mockACPClientInstance?._handlers;
+
+      try {
+        const createResult = await handlers!.createTerminal!({
+          sessionId: 'test-session',
+          command: 'true',
+        });
+
+        // Simulate process exit
+        terminalProcess.exitCode = 0;
+        terminalProcess._emit('exit', 0, null);
+
+        await delay(10);
+
+        const output = handlers!.getTerminalOutput!({
+          sessionId: 'test-session',
+          terminalId: createResult.terminalId,
+        });
+
+        expect(output.exitStatus).toBeDefined();
+        expect(output.exitStatus?.exitCode).toBe(0);
+        expect(output.exitStatus?.signal).toBeNull();
+      } finally {
+        await lifecycle.kill();
+      }
+    });
+
+    it('should return empty output for nonexistent terminal', async () => {
+      await lifecycle.spawn();
+
+      const handlers = mockACPClientInstance?._handlers;
+
+      try {
+        const output = handlers!.getTerminalOutput!({
+          sessionId: 'test-session',
+          terminalId: 'nonexistent-terminal-id',
+        });
+
+        expect(output.output).toBe('');
+        expect(output.truncated).toBe(false);
+      } finally {
+        await lifecycle.kill();
+      }
+    });
+
+    it('should clear output buffer after reading', async () => {
+      const terminalProcess = createMockChildProcess();
+      mockSpawn.mockReturnValueOnce(mockProcess as unknown as ReturnType<typeof spawn>);
+      mockSpawn.mockReturnValueOnce(terminalProcess as unknown as ReturnType<typeof spawn>);
+
+      await lifecycle.spawn();
+
+      const handlers = mockACPClientInstance?._handlers;
+
+      try {
+        const createResult = await handlers!.createTerminal!({
+          sessionId: 'test-session',
+          command: 'echo',
+          args: ['buffered output'],
+        });
+
+        // Simulate output
+        terminalProcess.stdout.push(Buffer.from('buffered output\n'));
+        await delay(10);
+
+        // First read
+        const output1 = handlers!.getTerminalOutput!({
+          sessionId: 'test-session',
+          terminalId: createResult.terminalId,
+        });
+        expect(output1.output).toContain('buffered output');
+
+        // Second read - buffer should be cleared
+        const output2 = handlers!.getTerminalOutput!({
+          sessionId: 'test-session',
+          terminalId: createResult.terminalId,
+        });
+        expect(output2.output).toBe('');
+      } finally {
+        await lifecycle.kill();
+      }
+    });
+  });
+
+  // AC: @agent-lifecycle ac-9
+  describe('AC-9: ACP waitForTerminalExit handler', () => {
+    it('should block until process completes and return exit code', async () => {
+      const terminalProcess = createMockChildProcess();
+      mockSpawn.mockReturnValueOnce(mockProcess as unknown as ReturnType<typeof spawn>);
+      mockSpawn.mockReturnValueOnce(terminalProcess as unknown as ReturnType<typeof spawn>);
+
+      await lifecycle.spawn();
+
+      const handlers = mockACPClientInstance?._handlers;
+
+      try {
+        const createResult = await handlers!.createTerminal!({
+          sessionId: 'test-session',
+          command: 'sh',
+          args: ['-c', 'exit 42'],
+        });
+
+        // Start waiting
+        const waitPromise = handlers!.waitForTerminalExit!({
+          sessionId: 'test-session',
+          terminalId: createResult.terminalId,
+        });
+
+        // Simulate exit after a short delay
+        setTimeout(() => {
+          terminalProcess.exitCode = 42;
+          terminalProcess._emit('exit', 42, null);
+        }, 50);
+
+        const exitResult = await waitPromise;
+
+        expect(exitResult.exitCode).toBe(42);
+        expect(exitResult.signal).toBeNull();
+      } finally {
+        await lifecycle.kill();
+      }
+    });
+
+    it('should return immediately if already exited', async () => {
+      const terminalProcess = createMockChildProcess();
+      mockSpawn.mockReturnValueOnce(mockProcess as unknown as ReturnType<typeof spawn>);
+      mockSpawn.mockReturnValueOnce(terminalProcess as unknown as ReturnType<typeof spawn>);
+
+      await lifecycle.spawn();
+
+      const handlers = mockACPClientInstance?._handlers;
+
+      try {
+        const createResult = await handlers!.createTerminal!({
+          sessionId: 'test-session',
+          command: 'true',
+        });
+
+        // Simulate immediate exit
+        terminalProcess.exitCode = 0;
+        terminalProcess._emit('exit', 0, null);
+        await delay(10);
+
+        // Wait should return immediately
+        const start = Date.now();
+        const exitResult = await handlers!.waitForTerminalExit!({
+          sessionId: 'test-session',
+          terminalId: createResult.terminalId,
+        });
+        const elapsed = Date.now() - start;
+
+        expect(exitResult.exitCode).toBe(0);
+        expect(elapsed).toBeLessThan(50);
+      } finally {
+        await lifecycle.kill();
+      }
+    });
+
+    it('should return error exit code for nonexistent terminal', async () => {
+      await lifecycle.spawn();
+
+      const handlers = mockACPClientInstance?._handlers;
+
+      try {
+        const exitResult = await handlers!.waitForTerminalExit!({
+          sessionId: 'test-session',
+          terminalId: 'nonexistent-terminal-id',
+        });
+
+        expect(exitResult.exitCode).toBe(1);
+      } finally {
+        await lifecycle.kill();
+      }
+    });
+
+    it('should handle signal termination', async () => {
+      const terminalProcess = createMockChildProcess();
+      mockSpawn.mockReturnValueOnce(mockProcess as unknown as ReturnType<typeof spawn>);
+      mockSpawn.mockReturnValueOnce(terminalProcess as unknown as ReturnType<typeof spawn>);
+
+      await lifecycle.spawn();
+
+      const handlers = mockACPClientInstance?._handlers;
+
+      try {
+        const createResult = await handlers!.createTerminal!({
+          sessionId: 'test-session',
+          command: 'sleep',
+          args: ['60'],
+        });
+
+        const waitPromise = handlers!.waitForTerminalExit!({
+          sessionId: 'test-session',
+          terminalId: createResult.terminalId,
+        });
+
+        // Simulate kill by signal
+        setTimeout(() => {
+          terminalProcess.signalCode = 'SIGTERM';
+          terminalProcess._emit('exit', null, 'SIGTERM');
+        }, 50);
+
+        const exitResult = await waitPromise;
+
+        expect(exitResult.exitCode).toBeNull();
+        expect(exitResult.signal).toBe('SIGTERM');
+      } finally {
+        await lifecycle.kill();
+      }
+    });
+  });
+
+  // AC: @agent-lifecycle ac-10
+  describe('AC-10: ACP killTerminal handler', () => {
+    it('should terminate running process', async () => {
+      const terminalProcess = createMockChildProcess();
+      mockSpawn.mockReturnValueOnce(mockProcess as unknown as ReturnType<typeof spawn>);
+      mockSpawn.mockReturnValueOnce(terminalProcess as unknown as ReturnType<typeof spawn>);
+
+      await lifecycle.spawn();
+
+      const handlers = mockACPClientInstance?._handlers;
+
+      try {
+        const createResult = await handlers!.createTerminal!({
+          sessionId: 'test-session',
+          command: 'sleep',
+          args: ['60'],
+        });
+
+        // Kill the terminal
+        await handlers!.killTerminal!({
+          sessionId: 'test-session',
+          terminalId: createResult.terminalId,
+        });
+
+        // Process should have been killed
+        expect(terminalProcess.kill).toHaveBeenCalledWith('SIGKILL');
+      } finally {
+        await lifecycle.kill();
+      }
+    });
+
+    it('should be idempotent for already exited process', async () => {
+      const terminalProcess = createMockChildProcess();
+      mockSpawn.mockReturnValueOnce(mockProcess as unknown as ReturnType<typeof spawn>);
+      mockSpawn.mockReturnValueOnce(terminalProcess as unknown as ReturnType<typeof spawn>);
+
+      await lifecycle.spawn();
+
+      const handlers = mockACPClientInstance?._handlers;
+
+      try {
+        const createResult = await handlers!.createTerminal!({
+          sessionId: 'test-session',
+          command: 'true',
+        });
+
+        // Simulate process already exited
+        terminalProcess.exitCode = 0;
+        terminalProcess._emit('exit', 0, null);
+        await delay(10);
+
+        // Kill should not throw and return empty object
+        const result = await handlers!.killTerminal!({
+          sessionId: 'test-session',
+          terminalId: createResult.terminalId,
+        });
+
+        expect(result).toEqual({});
+      } finally {
+        await lifecycle.kill();
+      }
+    });
+
+    it('should handle nonexistent terminal gracefully', async () => {
+      await lifecycle.spawn();
+
+      const handlers = mockACPClientInstance?._handlers;
+
+      try {
+        const result = await handlers!.killTerminal!({
+          sessionId: 'test-session',
+          terminalId: 'nonexistent-terminal-id',
+        });
+
+        expect(result).toEqual({});
+      } finally {
+        await lifecycle.kill();
+      }
+    });
+  });
+
+  // AC: @agent-lifecycle ac-11
+  describe('AC-11: ACP releaseTerminal handler', () => {
+    it('should clean up terminal resources', async () => {
+      const terminalProcess = createMockChildProcess();
+      mockSpawn.mockReturnValueOnce(mockProcess as unknown as ReturnType<typeof spawn>);
+      mockSpawn.mockReturnValueOnce(terminalProcess as unknown as ReturnType<typeof spawn>);
+
+      await lifecycle.spawn();
+
+      const handlers = mockACPClientInstance?._handlers;
+
+      try {
+        const createResult = await handlers!.createTerminal!({
+          sessionId: 'test-session',
+          command: 'true',
+        });
+
+        // Simulate process exit
+        terminalProcess.exitCode = 0;
+        terminalProcess._emit('exit', 0, null);
+        await delay(10);
+
+        // Release
+        const result = handlers!.releaseTerminal!({
+          sessionId: 'test-session',
+          terminalId: createResult.terminalId,
+        });
+
+        expect(result).toEqual({});
+
+        // Terminal should be removed
+        const output = handlers!.getTerminalOutput!({
+          sessionId: 'test-session',
+          terminalId: createResult.terminalId,
+        });
+        expect(output.output).toBe('');
+      } finally {
+        await lifecycle.kill();
+      }
+    });
+
+    it('should kill running process before releasing', async () => {
+      const terminalProcess = createMockChildProcess();
+      mockSpawn.mockReturnValueOnce(mockProcess as unknown as ReturnType<typeof spawn>);
+      mockSpawn.mockReturnValueOnce(terminalProcess as unknown as ReturnType<typeof spawn>);
+
+      await lifecycle.spawn();
+
+      const handlers = mockACPClientInstance?._handlers;
+
+      try {
+        const createResult = await handlers!.createTerminal!({
+          sessionId: 'test-session',
+          command: 'sleep',
+          args: ['60'],
+        });
+
+        // Release without waiting
+        const result = handlers!.releaseTerminal!({
+          sessionId: 'test-session',
+          terminalId: createResult.terminalId,
+        });
+
+        expect(result).toEqual({});
+        expect(terminalProcess.kill).toHaveBeenCalledWith('SIGKILL');
+      } finally {
+        await lifecycle.kill();
+      }
+    });
+
+    it('should handle nonexistent terminal gracefully', async () => {
+      await lifecycle.spawn();
+
+      const handlers = mockACPClientInstance?._handlers;
+
+      try {
+        const result = handlers!.releaseTerminal!({
+          sessionId: 'test-session',
+          terminalId: 'nonexistent-terminal-id',
+        });
+
+        expect(result).toEqual({});
+      } finally {
+        await lifecycle.kill();
+      }
+    });
+
+    it('should be idempotent', async () => {
+      const terminalProcess = createMockChildProcess();
+      mockSpawn.mockReturnValueOnce(mockProcess as unknown as ReturnType<typeof spawn>);
+      mockSpawn.mockReturnValueOnce(terminalProcess as unknown as ReturnType<typeof spawn>);
+
+      await lifecycle.spawn();
+
+      const handlers = mockACPClientInstance?._handlers;
+
+      try {
+        const createResult = await handlers!.createTerminal!({
+          sessionId: 'test-session',
+          command: 'true',
+        });
+
+        // Simulate process exit
+        terminalProcess.exitCode = 0;
+        terminalProcess._emit('exit', 0, null);
+        await delay(10);
+
+        // Release twice
+        handlers!.releaseTerminal!({
+          sessionId: 'test-session',
+          terminalId: createResult.terminalId,
+        });
+
+        const result = handlers!.releaseTerminal!({
+          sessionId: 'test-session',
+          terminalId: createResult.terminalId,
+        });
+
+        expect(result).toEqual({});
       } finally {
         await lifecycle.kill();
       }

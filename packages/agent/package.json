@@ -15,6 +15,7 @@
     "@agentclientprotocol/sdk": "^0.13.1",
     "@kynetic-bot/core": "workspace:*",
     "@kynetic-bot/memory": "workspace:*",
-    "@kynetic-bot/messaging": "workspace:*"
+    "@kynetic-bot/messaging": "workspace:*",
+    "ulid": "^2.3"
   }
 }

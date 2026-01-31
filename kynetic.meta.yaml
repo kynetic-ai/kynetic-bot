@@ -416,4 +416,14 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KG9JBY8DRPD47GSPSQTN1KXQ
+    type: friction
+    content: "Forgot to run 'kspec task complete' after PR merge - had to be prompted by user. The
+      workflow is documented in AGENTS.md but easy to miss when focused on the merge itself.
+      Consider: PR merge command could remind about task completion, or /pr skill could check for
+      associated task."
+    created_at: 2026-01-31T08:23:01.645Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

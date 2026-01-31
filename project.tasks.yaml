@@ -9943,6 +9943,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-01-31T06:31:52.575Z
+  started_at: 2026-01-31T06:41:45.782Z
   notes:
     - _ulid: 01KG9CB21KXAJQSQB04J4AW2SX
       created_at: 2026-01-31T06:37:41.299Z
@@ -9967,5 +9968,30 @@
         - Update test expectations to use /context
         - Verify parser works with actual /context output format
       supersedes: null
+    - _ulid: 01KG9CJQRY69MYJAH95ZQAMTXM
+      created_at: 2026-01-31T06:41:52.927Z
+      author: Jacob Chapel
+      content: >-
+        Implementation completed by agent af7bc26:
+
+
+        **Changes made:**
+
+        - packages/messaging/src/context/context-usage-tracker.ts - Changed /usage to /context (15
+        locations)
+
+        - packages/messaging/test/context-usage-tracker.test.ts - Updated tests (4 locations)
+
+
+        **Verification:**
+
+        - All 18 tests passing
+
+        - No remaining /usage references
+
+        - Parser works unchanged (same output format)
+
+
+        Ready for submission.
+      supersedes: null
   todos: []
-  started_at: 2026-01-31T06:41:45.782Z

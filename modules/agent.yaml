@@ -64,6 +64,10 @@ features:
         given: agent sends terminal/create request via ACP
         when: handler invoked
         then: creates terminal session with command execution capability and returns session handle
+      - id: ac-8
+        given: agent sends terminal/output request for active terminal
+        when: handler invoked
+        then: returns stdout/stderr output since last read
     status:
       maturity: draft
       implementation: implemented

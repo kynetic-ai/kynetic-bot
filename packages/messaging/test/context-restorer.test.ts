@@ -23,7 +23,7 @@ import type { SummaryProvider } from '../src/context/context-window.js';
 function createTurn(
   seq: number,
   content: string,
-  role: 'user' | 'assistant' | 'system' = 'user',
+  role: 'user' | 'assistant' | 'system' = 'user'
 ): ConversationTurn {
   return {
     ts: Date.now() - (100 - seq) * 1000,
@@ -65,7 +65,9 @@ class FailingSummaryProvider implements SummaryProvider {
 /**
  * Create a mock logger for testing warnings
  */
-function createMockLogger(): ContextRestorerLogger & { calls: Array<{ message: string; context?: Record<string, unknown> }> } {
+function createMockLogger(): ContextRestorerLogger & {
+  calls: Array<{ message: string; context?: Record<string, unknown> }>;
+} {
   const calls: Array<{ message: string; context?: Record<string, unknown> }> = [];
   return {
     calls,
@@ -221,10 +223,7 @@ describe('ContextRestorer', () => {
         },
       });
 
-      const turns = [
-        createTurn(1, 'Hello', 'user'),
-        createTurn(2, 'Hi there!', 'assistant'),
-      ];
+      const turns = [createTurn(1, 'Hello', 'user'), createTurn(2, 'Hi there!', 'assistant')];
 
       const result = await restorer.generateRestorationPrompt(turns, conversationId, baseDir);
 
@@ -348,13 +347,11 @@ describe('ContextRestorer', () => {
 
       const turns = [createTurn(1, 'Hello', 'user')];
 
-      const result = await restorer.generateRestorationPrompt(
-        turns,
-        'conv123',
-        '/data/kbot',
-      );
+      const result = await restorer.generateRestorationPrompt(turns, 'conv123', '/data/kbot');
 
-      expect(result.prompt).toContain('Full conversation history: /data/kbot/conversations/conv123/turns.jsonl');
+      expect(result.prompt).toContain(
+        'Full conversation history: /data/kbot/conversations/conv123/turns.jsonl'
+      );
       expect(result.prompt).toContain('Read this file if you need earlier context');
     });
   });
@@ -435,7 +432,7 @@ describe('ContextRestorer', () => {
 
       // 100 turns, each ~20 tokens = ~2000 tokens total, budget only 300
       const turns = Array.from({ length: 100 }, (_, i) =>
-        createTurn(i + 1, createContentOfTokens(20), i % 2 === 0 ? 'user' : 'assistant'),
+        createTurn(i + 1, createContentOfTokens(20), i % 2 === 0 ? 'user' : 'assistant')
       );
 
       const result = await restorer.generateRestorationPrompt(turns, conversationId, baseDir);
@@ -448,9 +445,7 @@ describe('ContextRestorer', () => {
     it('handles special characters in content', async () => {
       const restorer = new ContextRestorer(new MockSummaryProvider());
 
-      const turns = [
-        createTurn(1, 'Message with <tags> and "quotes" and \\backslashes', 'user'),
-      ];
+      const turns = [createTurn(1, 'Message with <tags> and "quotes" and \\backslashes', 'user')];
 
       const result = await restorer.generateRestorationPrompt(turns, conversationId, baseDir);
 

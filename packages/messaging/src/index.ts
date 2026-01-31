@@ -63,3 +63,15 @@ export {
   type EstimatedTurn,
   type TurnSelectionResult,
 } from './context/index.js';
+
+// Session Lifecycle
+export {
+  SessionLifecycleManager,
+  type SessionState,
+  type GetSessionResult,
+  type SessionACPClient,
+  type SessionConversationStore,
+  type SessionMemoryStore,
+  type SessionLifecycleManagerOptions,
+  type SessionLifecycleEvents,
+} from './session/index.js';

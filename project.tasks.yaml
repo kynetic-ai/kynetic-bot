@@ -10865,4 +10865,15 @@
       author: Jacob Chapel
       content: Starting implementation in worktree /home/chapel/Projects/kynetic-bot-typing-indicator
       supersedes: null
+    - _ulid: 01KG9EDBHEJV8CGMRQ0EDB6Q7M
+      created_at: 2026-01-31T07:13:53.710Z
+      author: Jacob Chapel
+      content: |-
+        Core implementation complete:
+        - TypingIndicatorManager class created with 8s refresh interval
+        - Integrated into ChannelLifecycle (startTypingLoop/stopTypingLoop)
+        - Bot.handleMessage updated to start loop and stop in finally block
+        - Early stop when first response chunk sent (streaming and buffered)
+        - Tests created but need timer mocking fixes (vitest fake timers advancing too far)
+      supersedes: null
   todos: []

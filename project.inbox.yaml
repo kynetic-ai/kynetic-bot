@@ -283,3 +283,10 @@ inbox:
     created_at: 2026-01-31T05:00:41.111Z
     tags: []
     added_by: Jacob Chapel
+  - _ulid: 01KG96SMK81MNYQ4XXQYNT723Z
+    text: User messages sent during agent turn are swallowed/ignored - messages sent while agent is
+      working should be queued and slotted inline in agent's message feed so agent can see and react
+      to them mid-turn. Currently lost/never delivered to agent.
+    created_at: 2026-01-31T05:00:47.592Z
+    tags: []
+    added_by: Jacob Chapel

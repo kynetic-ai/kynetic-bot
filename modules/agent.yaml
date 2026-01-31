@@ -72,6 +72,10 @@ features:
         given: agent sends terminal/wait_for_exit request
         when: handler invoked
         then: blocks until process completes and returns exit code
+      - id: ac-10
+        given: agent sends terminal/kill request for active terminal
+        when: handler invoked
+        then: terminates the process and marks session as killed
     status:
       maturity: draft
       implementation: implemented

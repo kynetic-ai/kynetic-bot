@@ -113,7 +113,7 @@ export class ContextRestorer {
 
   constructor(
     summaryProvider: SummaryProvider | null,
-    options: ContextRestorerOptions & { logger?: ContextRestorerLogger } = {},
+    options: ContextRestorerOptions & { logger?: ContextRestorerLogger } = {}
   ) {
     this.summaryProvider = summaryProvider;
     this.turnSelector = new TurnSelector(options.turnSelectorOptions);
@@ -144,7 +144,7 @@ export class ContextRestorer {
   async generateRestorationPrompt(
     turns: ConversationTurn[],
     conversationId: string,
-    baseDir: string,
+    baseDir: string
   ): Promise<ContextRestorationResult> {
     // AC: @mem-context-restore ac-7 - No restoration if no prior turns
     if (turns.length === 0) {
@@ -277,7 +277,7 @@ export class ContextRestorer {
    */
   private async generateSummary(
     turns: ConversationTurn[],
-    sessionFileRef: string,
+    sessionFileRef: string
   ): Promise<{ summary: string; failed: boolean }> {
     if (!this.summaryProvider) {
       // No summary provider configured - log warning and skip
@@ -309,15 +309,13 @@ export class ContextRestorer {
     summary: string,
     formattedTurns: string,
     sessionFileRef: string,
-    hasOlderTurns: boolean,
+    hasOlderTurns: boolean
   ): string {
     const sections: string[] = [];
 
     sections.push('## Session Context');
     sections.push('');
-    sections.push(
-      'You are resuming a conversation. Here is the relevant context:',
-    );
+    sections.push('You are resuming a conversation. Here is the relevant context:');
 
     // Summary section (if we have older turns and a summary)
     if (hasOlderTurns) {
@@ -326,9 +324,7 @@ export class ContextRestorer {
       if (summary) {
         sections.push(summary);
       } else {
-        sections.push(
-          '(Summary unavailable - see archived history reference for full context)',
-        );
+        sections.push('(Summary unavailable - see archived history reference for full context)');
       }
     }
 

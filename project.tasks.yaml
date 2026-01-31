@@ -9314,7 +9314,7 @@
   type: task
   spec_ref: "@agent-lifecycle"
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -9351,3 +9351,4 @@
         (release)
       supersedes: null
   todos: []
+  started_at: 2026-01-31T03:31:18.296Z

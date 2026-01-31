@@ -233,3 +233,8 @@ features:
             given: User clicks expand button on a widget
             when: Discord component interaction received
             then: Bot sends ephemeral follow-up message with full tool output, handles Discord rate limits
+          - id: ac-5
+            given: Multiple tool calls executing rapidly
+            when: tool_call_update events stream in
+            then: ToolCallTracker batches message updates, MessageUpdateBatcher respects Discord rate limits (5
+              edits per 5 seconds per message)

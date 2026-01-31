@@ -11014,8 +11014,9 @@
   type: task
   spec_ref: "@discord-tool-widgets"
   meta_ref: null
-  status: in_progress
+  status: completed
   blocked_by: []
+  closed_reason: null
   depends_on:
     - "@task-rich-tool-call-display"
   context: []
@@ -11024,6 +11025,8 @@
     - discord,bugfix
   vcs_refs: []
   created_at: 2026-01-31T19:12:06.338Z
+  started_at: 2026-01-31T19:12:39.480Z
+  completed_at: 2026-01-31T19:18:17.501Z
   notes:
     - _ulid: 01KGAQGXH38EG0W5RQBT6MAM60
       created_at: 2026-01-31T19:12:22.061Z
@@ -11108,5 +11111,35 @@
 
         But the code fix is independent of permissions.
       supersedes: null
+    - _ulid: 01KGAQQB0DSBYNQB6DQ527GZ17
+      created_at: 2026-01-31T19:15:52.462Z
+      author: Test
+      content: "Implemented one-line fix in packages/bot/src/cli.ts. Added
+        discordAdapter.setupBotEventListeners(bot) call after onMessage registration. Created PR
+        #55: https://github.com/kynetic-ai/kynetic-bot/pull/55"
+      supersedes: null
+    - _ulid: 01KGAQVX40K3F04SAGA9DX0Q0Y
+      created_at: 2026-01-31T19:18:22.080Z
+      author: Test
+      content: "PR #55 merged successfully at 2026-01-31T19:17:59Z. One-line fix adds
+        discordAdapter.setupBotEventListeners(bot) call in cli.ts (line 49), wiring up the event
+        listeners for Discord tool widgets. All CI checks passed. Implementation matches
+        specification exactly."
+      supersedes: null
   todos: []
-  started_at: 2026-01-31T19:12:39.480Z
+- title: Improve Discord tool widget UX
+  type: task
+  spec_ref: null
+  meta_ref: null
+  priority: 2
+  slugs: []
+  tags: []
+  depends_on: []
+  _ulid: 01KGB7QG6VX57GFRFFHCWZ34H8
+  status: pending
+  blocked_by: []
+  context: []
+  vcs_refs: []
+  created_at: 2026-01-31T23:55:35.002Z
+  notes: []
+  todos: []

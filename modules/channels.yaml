@@ -229,3 +229,7 @@ features:
             when: tool_call_update received with diff
             then: Widget shows syntax-highlighted diff with +/- prefixes, line ranges, and expand button for
               full content
+          - id: ac-4
+            given: User clicks expand button on a widget
+            when: Discord component interaction received
+            then: Bot sends ephemeral follow-up message with full tool output, handles Discord rate limits

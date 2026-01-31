@@ -298,3 +298,11 @@ inbox:
     created_at: 2026-01-31T05:00:53.784Z
     tags: []
     added_by: Jacob Chapel
+  - _ulid: 01KG96T0NS03GJM95M2AQ9SMN9
+    text: Agent self-restart mechanism to load new functionality - provide way for agent to
+      restart/reload itself when new features are deployed or configuration changes. Should preserve
+      conversation context and notify user of restart reason. Enables hot-reload of skills,
+      adapters, and core functionality without losing session state.
+    created_at: 2026-01-31T05:00:59.962Z
+    tags: []
+    added_by: Jacob Chapel

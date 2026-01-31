@@ -8360,6 +8360,28 @@
         problems - writing these tags directly in responses triggers Claude Code's internal parser
         and causes turn termination."
       supersedes: null
+    - _ulid: 01KG8PMEHWC2F9F9TPMSSW7ABY
+      created_at: 2026-01-31T00:18:20.348Z
+      author: "@claude"
+      content: >-
+        Implementation complete. All 55 tests passing (31 tool-summarizer + 24 turn-selector). Key
+        learnings:
+
+
+        1. XML namespace handling: Claude uses antml: prefix for closing tags (e.g., </invoke>) but
+        not opening tags. Test fixtures must match this format.
+
+
+        2. Writing these namespaced tags directly in agent responses triggers Claude Code's internal
+        parser and can cause turn termination. Used Python script to generate test fixtures to avoid
+        this.
+
+
+        3. Fixed pre-existing lint errors in separate task (01KG8PHB) to allow commits.
+
+
+        Ready to submit for review.
+      supersedes: null
   todos: []
   automation: eligible
 - _ulid: 01KG8G1318V7WSE74WVFRJJ6FZ

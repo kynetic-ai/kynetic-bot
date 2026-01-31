@@ -11008,21 +11008,104 @@
         resolved - agents can now write files via ACP."
       supersedes: null
   todos: []
-- title: Wire up Discord tool widget event listeners
+- _ulid: 01KGAQGE62YHV5MJXPZ6PB2XAE
+  slugs: []
+  title: Wire up Discord tool widget event listeners
   type: task
   spec_ref: "@discord-tool-widgets"
   meta_ref: null
-  priority: 1
-  slugs: []
-  tags:
-    - discord,bugfix
-  depends_on:
-    - "@task-rich-tool-call-display"
-  _ulid: 01KGAQGE62YHV5MJXPZ6PB2XAE
   status: pending
   blocked_by: []
+  depends_on:
+    - "@task-rich-tool-call-display"
   context: []
+  priority: 1
+  tags:
+    - discord,bugfix
   vcs_refs: []
   created_at: 2026-01-31T19:12:06.338Z
-  notes: []
+  notes:
+    - _ulid: 01KGAQGXH38EG0W5RQBT6MAM60
+      created_at: 2026-01-31T19:12:22.061Z
+      author: Jacob Chapel
+      content: >-
+        ## Problem
+
+
+        Discord tool widgets are implemented (PRs #52/#53 merged) but not displaying because the
+        event listeners are never wired up.
+
+
+        ## Root Cause
+
+
+        The `DiscordAdapter.setupBotEventListeners(bot)` method exists but is never called during
+        bot initialization in cli.ts.
+
+
+        Bot emits tool:call and tool:update events (bot.ts:566-571) but no listeners are registered
+        to receive them.
+
+
+        ## Solution
+
+
+        Add one line in packages/bot/src/cli.ts around line 41:
+
+
+        ```typescript
+
+        bot.setChannelLifecycle(channelLifecycle);
+
+        discordAdapter.onMessage((msg: NormalizedMessage) => void bot!.handleMessage(msg));
+
+
+        // ADD THIS LINE:
+
+        discordAdapter.setupBotEventListeners(bot);
+
+
+        log.info('Connecting to Discord...');
+
+        ```
+
+
+        ## Files to Modify
+
+
+        - `packages/bot/src/cli.ts` - Add setupBotEventListeners call (1 line)
+
+
+        ## Testing
+
+
+        After fix, tool calls should:
+
+        1. Display as Discord embeds with tool name, parameters, status
+
+        2. Update in real-time as tools execute
+
+        3. Show expand buttons for large outputs
+
+        4. Respect rate limiting (token bucket algorithm)
+
+
+        ## Investigation Report
+
+
+        Full analysis at: /home/chapel/Projects/kbot-test/discord-widget-investigation.md
+
+
+        ## Note on Permissions
+
+
+        User will also need to add Discord bot permissions separately:
+
+        - Embed Links (16384)
+
+        - Read Message History (65536)
+
+
+        But the code fix is independent of permissions.
+      supersedes: null
   todos: []

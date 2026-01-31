@@ -260,3 +260,11 @@ inbox:
     created_at: 2026-01-31T03:52:18.528Z
     tags: []
     added_by: "@claude"
+  - _ulid: 01KG963F7D9FGYRCPZEE1XFNCT
+    text: Bot harness /usage command interferes with agent message delivery - when harness sends /usage
+      for context tracking, subsequent agent messages are not delivered to user via Discord. User
+      sees partial responses cut off mid-task. Affects kbot sessions where agents may send multiple
+      tool calls followed by text responses.
+    created_at: 2026-01-31T04:48:41.198Z
+    tags: []
+    added_by: Jacob Chapel

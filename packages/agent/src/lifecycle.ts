@@ -768,6 +768,19 @@ export class AgentLifecycle extends EventEmitter {
         }
       },
 
+      // AC: @agent-lifecycle ac-12 - Handle file write requests from agent
+      writeFile: async (params) => {
+        log.debug('Writing file for agent', { path: params.path });
+        try {
+          await fs.writeFile(params.path, params.content, 'utf8');
+          return {};
+        } catch (err) {
+          const error = err instanceof Error ? err : new Error(String(err));
+          log.warn('Failed to write file', { path: params.path, error: error.message });
+          throw error;
+        }
+      },
+
       // AC: @agent-lifecycle ac-6 - Handle permission requests (MVP: auto-allow)
       requestPermission: async (params): Promise<RequestPermissionResponse> => {
         log.debug('Permission requested', { toolCall: params.toolCall?.title });

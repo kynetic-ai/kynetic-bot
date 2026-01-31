@@ -9863,4 +9863,33 @@
 
         - @trait-observable: Emit events for widget creation/update/error
       supersedes: null
+    - _ulid: 01KG95FD6SKDMHA3H1TWXDNNW3
+      created_at: 2026-01-31T04:37:43.770Z
+      author: Jacob Chapel
+      content: >-
+        CORRECTION: AC-4 Update
+
+
+        The auto-generated note above contains STALE information about AC-4. The correct behavior
+        is:
+
+
+        **AC-4 (Current/Correct)**: Bot sends follow-up message with full tool output (auto-deleted
+        after 60 seconds), handles Discord rate limits
+
+
+        **NOT**: Ephemeral follow-up message (ephemeral messages only work in slash command context,
+        not regular message interactions)
+
+
+        Implementation: Use regular message with setTimeout to delete after 60 seconds:
+
+        - interaction.reply({ content: fullOutput, ephemeral: false })
+
+        - setTimeout(() => interaction.deleteReply(), 60000)
+
+
+        This correction is reflected in the comprehensive implementation guide below and in the spec
+        @discord-tool-widgets.
+      supersedes: null
   todos: []

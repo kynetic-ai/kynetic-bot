@@ -22,6 +22,12 @@ import {
   InMemorySessionStore,
   UnsupportedTypeError,
   MissingTransformerError,
+  SessionLifecycleManager,
+  ContextRestorer,
+  ContextUsageTracker,
+  type SummaryProvider,
+  type StderrProvider,
+  type SessionLifecycleEvents,
 } from '@kynetic-bot/messaging';
 import {
   KbotShadow,
@@ -94,6 +100,14 @@ export interface BotOptions {
   conversationStore?: ConversationStore;
   /** MessageTransformer for platform message normalization/denormalization (optional) */
   transformer?: MessageTransformer;
+  /** SessionLifecycleManager for per-conversation session management (optional) */
+  sessionLifecycle?: SessionLifecycleManager;
+  /** ContextRestorer for session rotation/recovery context restoration (optional) */
+  contextRestorer?: ContextRestorer;
+  /** ContextUsageTracker for tracking context usage (optional) */
+  contextUsageTracker?: ContextUsageTracker;
+  /** SummaryProvider for context restoration summarization (optional, null disables) */
+  summaryProvider?: SummaryProvider | null;
 }
 
 /**
@@ -120,6 +134,9 @@ export class Bot extends EventEmitter {
   private readonly memorySessionStore: MemorySessionStore;
   private readonly conversationStore: ConversationStore;
   private readonly transformer: MessageTransformer;
+  private readonly sessionLifecycle: SessionLifecycleManager;
+  private readonly contextRestorer: ContextRestorer;
+  private readonly contextUsageTracker: ContextUsageTracker;
   private channelLifecycle: ChannelLifecycle | null = null;
 
   private lastActiveChannel: string | null = null;
@@ -157,6 +174,25 @@ export class Bot extends EventEmitter {
 
     // AC: @transform-integration - MessageTransformer for platform normalization
     this.transformer = options.transformer ?? new MessageTransformer();
+
+    // AC: @mem-session-lifecycle - Session lifecycle management components
+    this.sessionLifecycle =
+      options.sessionLifecycle ??
+      new SessionLifecycleManager({
+        rotationThreshold: 0.7,
+        recentConversationMaxAgeMs: 30 * 60 * 1000, // 30 minutes
+      });
+
+    this.contextRestorer =
+      options.contextRestorer ??
+      new ContextRestorer(options.summaryProvider ?? null, { logger: this.log });
+
+    this.contextUsageTracker =
+      options.contextUsageTracker ??
+      new ContextUsageTracker({
+        timeout: 10000,
+        debounceInterval: 30000,
+      });
 
     this.setupAgentEventHandlers();
   }
@@ -246,10 +282,22 @@ export class Bot extends EventEmitter {
       // 2. Wait for in-flight messages
       await this.waitForInflightMessages(this.config.shutdownTimeout);
 
-      // 3. Stop agent gracefully
+      // 3. End all active sessions
+      for (const session of this.sessionLifecycle.getAllSessions()) {
+        try {
+          await this.memorySessionStore.updateSessionStatus(session.acpSessionId, 'completed');
+          this.sessionLifecycle.endSession(session.sessionKey);
+        } catch {
+          this.log.warn('Failed to end session during shutdown', {
+            sessionKey: session.sessionKey,
+          });
+        }
+      }
+
+      // 4. Stop agent gracefully
       await this.agent.stop();
 
-      // 4. Shutdown shadow (final commit)
+      // 5. Shutdown shadow (final commit)
       await this.shadow.shutdown();
 
       this.transitionState('stopped');
@@ -337,41 +385,99 @@ export class Bot extends EventEmitter {
         throw new Error('Agent client not available after ready check');
       }
 
-      // 4. Create session if needed, then prompt
-      let sessionId = this.agent.getSessionId();
-      if (!sessionId) {
-        sessionId = await client.newSession({
-          cwd: process.cwd(),
-          mcpServers: [],
-        });
-
-        // AC: @bot-storage-integration ac-3 - Create session record
-        if (conversation) {
-          try {
+      // 4. AC: @mem-session-lifecycle - Per-conversation session management
+      const lifecycleResult = await this.sessionLifecycle.withLock(sessionKey, async () => {
+        // Adapt SessionStore to SessionMemoryStore interface
+        const sessionStoreAdapter = {
+          createSession: async (params: {
+            id: string;
+            agent_type: string;
+            conversation_id: string;
+            session_key: string;
+          }) => {
             await this.memorySessionStore.createSession({
-              id: sessionId,
-              agent_type: 'claude',
-              conversation_id: conversation.id,
-              session_key: sessionKey,
+              id: params.id,
+              agent_type: params.agent_type,
+              conversation_id: params.conversation_id,
+              session_key: params.session_key,
             });
-          } catch (err) {
-            const error = err instanceof Error ? err : new Error(String(err));
-            this.log.error('Failed to create session record', {
-              error: error.message,
-              messageId: msg.id,
-            });
-          }
-        }
+          },
+          completeSession: async (sessionId: string) => {
+            await this.memorySessionStore.updateSessionStatus(sessionId, 'completed');
+          },
+        };
+        return await this.sessionLifecycle.getOrCreateSession(
+          sessionKey,
+          client,
+          this.conversationStore,
+          sessionStoreAdapter
+        );
+      });
 
-        // AC: @bot-identity ac-1, ac-2 - Send identity as system prompt for new sessions
-        if (this.identityPrompt) {
-          this.log.debug('Sending identity prompt to new session');
-          await client.prompt({
+      const { state: sessionState, isNew, wasRotated, wasRecovered } = lifecycleResult;
+      const sessionId = sessionState.acpSessionId;
+      let contextRestored = false;
+
+      // AC: @bot-storage-integration ac-3 - Create session record if new session with conversation
+      // SessionLifecycleManager creates session without conversation_id when there's no recovery,
+      // so we need to create the session record here with the actual conversation_id
+      if (isNew && !sessionState.conversationId && conversation) {
+        this.sessionLifecycle.setConversationId(sessionKey, conversation.id);
+        try {
+          await this.memorySessionStore.createSession({
+            id: sessionId,
+            agent_type: 'claude',
+            conversation_id: conversation.id,
+            session_key: sessionKey,
+          });
+        } catch (err) {
+          const error = err instanceof Error ? err : new Error(String(err));
+          this.log.error('Failed to create session record', {
+            error: error.message,
             sessionId,
-            prompt: [{ type: 'text', text: this.identityPrompt }],
-            promptSource: 'system',
           });
         }
+      }
+
+      // AC: @mem-context-restore - Restore context on rotation or recovery
+      if ((wasRotated || wasRecovered) && sessionState.conversationId) {
+        try {
+          const turns = await this.conversationStore.readTurns(sessionState.conversationId);
+          if (turns.length > 0) {
+            const restoration = await this.contextRestorer.generateRestorationPrompt(
+              turns,
+              sessionState.conversationId,
+              path.join(getGitRoot(), this.config.kbotDataDir)
+            );
+            if (!restoration.skipped) {
+              this.log.info('Injecting context restoration', {
+                recentTurns: restoration.stats.recentTurns,
+                summarizedTurns: restoration.stats.summarizedTurns,
+              });
+              await client.prompt({
+                sessionId,
+                prompt: [{ type: 'text', text: restoration.prompt }],
+                promptSource: 'system',
+              });
+              contextRestored = true;
+            }
+          }
+        } catch (err) {
+          const error = err instanceof Error ? err : new Error(String(err));
+          this.log.warn('Context restoration failed, continuing without', { error: error.message });
+          this.emit('session:restore:error', { sessionKey, error });
+        }
+      }
+
+      // AC: @bot-identity ac-1, ac-2 - Send identity prompt for new sessions WITHOUT prior history
+      // Don't send if context was restored (would be redundant)
+      if (isNew && !contextRestored && this.identityPrompt) {
+        this.log.debug('Sending identity prompt to new session');
+        await client.prompt({
+          sessionId,
+          prompt: [{ type: 'text', text: this.identityPrompt }],
+          promptSource: 'system',
+        });
       }
 
       // 5. Set up streaming response delivery
@@ -486,6 +592,21 @@ export class Bot extends EventEmitter {
           });
         }
       }
+
+      // AC: @mem-context-usage - Track context usage for rotation decisions (async, non-blocking)
+      // AgentLifecycle implements StderrProvider via onStderr() method
+      this.contextUsageTracker
+        .checkUsage(sessionId, client, this.agent as unknown as StderrProvider)
+        .then((usage) => {
+          if (usage) {
+            this.sessionLifecycle.updateContextUsage(sessionKey, usage);
+          }
+        })
+        .catch((err) => {
+          // AC: @mem-session-lifecycle ac-7 - Continue with stale data on usage errors
+          const error = err instanceof Error ? err : new Error(String(err));
+          this.log.warn('Usage check failed, continuing with stale data', { error: error.message });
+        });
 
       // @trait-observable: Emit message:processed event
       this.emit('message:processed', msg, Date.now() - startTime);
@@ -662,6 +783,35 @@ export class Bot extends EventEmitter {
     // Log spawn events
     this.agent.on('agent:spawned', (pid: number) => {
       this.log.info('Agent process spawned', { pid });
+    });
+
+    // AC: @mem-session-lifecycle - Forward session lifecycle events
+    this.sessionLifecycle.on(
+      'session:created',
+      (data: SessionLifecycleEvents['session:created']) => {
+        this.log.info('Session created', { sessionKey: data.sessionKey });
+        this.emit('session:created', data);
+      }
+    );
+
+    this.sessionLifecycle.on(
+      'session:rotated',
+      (data: SessionLifecycleEvents['session:rotated']) => {
+        this.log.info('Session rotated', { sessionKey: data.sessionKey });
+        this.emit('session:rotated', data);
+      }
+    );
+
+    this.sessionLifecycle.on(
+      'session:recovered',
+      (data: SessionLifecycleEvents['session:recovered']) => {
+        this.log.info('Session recovered', { sessionKey: data.sessionKey });
+        this.emit('session:recovered', data);
+      }
+    );
+
+    this.contextUsageTracker.on('usage:error', (data: unknown) => {
+      this.emit('usage:error', data);
     });
   }
 

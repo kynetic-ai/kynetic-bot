@@ -22,6 +22,7 @@ import {
   MessageTransformer,
   UnsupportedTypeError,
   MissingTransformerError,
+  SessionLifecycleManager,
   type PlatformTransformer,
 } from '@kynetic-bot/messaging';
 import type { BotConfig } from '../src/config.js';
@@ -88,6 +89,8 @@ vi.mock('@kynetic-bot/memory', () => {
     appendTurn = vi.fn().mockResolvedValue({ ts: Date.now(), seq: 0, role: 'user', content: '' });
     readTurns = vi.fn().mockResolvedValue([]);
     getConversation = vi.fn().mockResolvedValue(null);
+    // Required by SessionLifecycleManager for recovery detection
+    getConversationBySessionKey = vi.fn().mockResolvedValue(null);
   }
 
   return {
@@ -102,8 +105,7 @@ const mockExecSync = vi.mocked(execSync);
 /**
  * Delay helper for async tests
  */
-const delay = (ms: number): Promise<void> =>
-  new Promise((resolve) => setTimeout(resolve, ms));
+const delay = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
  * Create a mock NormalizedMessage
@@ -268,7 +270,9 @@ describe('Bot', () => {
       agent: mockAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
       router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
       shadow: mockShadow as unknown as Parameters<typeof Bot.createWithDependencies>[0]['shadow'],
-      registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
+      registry: mockRegistry as unknown as Parameters<
+        typeof Bot.createWithDependencies
+      >[0]['registry'],
     });
   });
 
@@ -287,7 +291,9 @@ describe('Bot', () => {
       // Use createWithDependencies to test the wiring without real git
       const createdBot = Bot.createWithDependencies({
         config,
-        shadow: freshShadow as unknown as Parameters<typeof Bot.createWithDependencies>[0]['shadow'],
+        shadow: freshShadow as unknown as Parameters<
+          typeof Bot.createWithDependencies
+        >[0]['shadow'],
       });
 
       // Manually call initialize to simulate Bot.create behavior
@@ -314,7 +320,9 @@ describe('Bot', () => {
       vi.spyOn(Bot, 'create').mockImplementation(async (cfg) => {
         const b = Bot.createWithDependencies({
           config: cfg,
-          shadow: failingShadow as unknown as Parameters<typeof Bot.createWithDependencies>[0]['shadow'],
+          shadow: failingShadow as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['shadow'],
         });
         await failingShadow.initialize();
         return b;
@@ -337,7 +345,9 @@ describe('Bot', () => {
       // Arrange
       const msg = createMockMessage();
       const lifecycle = createMockChannelLifecycle();
-      bot.setChannelLifecycle(lifecycle as unknown as Parameters<typeof bot.setChannelLifecycle>[0]);
+      bot.setChannelLifecycle(
+        lifecycle as unknown as Parameters<typeof bot.setChannelLifecycle>[0]
+      );
 
       // Act
       await bot.handleMessage(msg);
@@ -353,17 +363,17 @@ describe('Bot', () => {
       // Arrange
       const msg = createMockMessage();
       const lifecycle = createMockChannelLifecycle();
-      bot.setChannelLifecycle(lifecycle as unknown as Parameters<typeof bot.setChannelLifecycle>[0]);
+      bot.setChannelLifecycle(
+        lifecycle as unknown as Parameters<typeof bot.setChannelLifecycle>[0]
+      );
 
       // Act
       await bot.handleMessage(msg);
 
       // Assert
-      expect(lifecycle.sendMessage).toHaveBeenCalledWith(
-        msg.channel,
-        'Hello, user!',
-        { replyTo: msg.id },
-      );
+      expect(lifecycle.sendMessage).toHaveBeenCalledWith(msg.channel, 'Hello, user!', {
+        replyTo: msg.id,
+      });
     });
 
     it('waits for agent to become healthy', async () => {
@@ -414,7 +424,9 @@ describe('Bot', () => {
       // Arrange
       const msg = createMockMessage();
       const lifecycle = createMockChannelLifecycle();
-      bot.setChannelLifecycle(lifecycle as unknown as Parameters<typeof bot.setChannelLifecycle>[0]);
+      bot.setChannelLifecycle(
+        lifecycle as unknown as Parameters<typeof bot.setChannelLifecycle>[0]
+      );
 
       // Act
       await bot.handleMessage(msg);
@@ -427,7 +439,9 @@ describe('Bot', () => {
       // Arrange
       const msg = createMockMessage();
       const lifecycle = createMockChannelLifecycle();
-      bot.setChannelLifecycle(lifecycle as unknown as Parameters<typeof bot.setChannelLifecycle>[0]);
+      bot.setChannelLifecycle(
+        lifecycle as unknown as Parameters<typeof bot.setChannelLifecycle>[0]
+      );
 
       const callOrder: string[] = [];
       lifecycle.sendTyping.mockImplementation(async () => {
@@ -508,7 +522,7 @@ describe('Bot', () => {
         expect.objectContaining({
           reason: 'Test escalation reason',
           metadata: { detail: 'some-detail' },
-        }),
+        })
       );
     });
 
@@ -532,7 +546,9 @@ describe('Bot', () => {
     it('stops channel lifecycle first', async () => {
       // Arrange
       const lifecycle = createMockChannelLifecycle();
-      bot.setChannelLifecycle(lifecycle as unknown as Parameters<typeof bot.setChannelLifecycle>[0]);
+      bot.setChannelLifecycle(
+        lifecycle as unknown as Parameters<typeof bot.setChannelLifecycle>[0]
+      );
       await bot.start();
 
       const callOrder: string[] = [];
@@ -610,7 +626,9 @@ describe('Bot', () => {
         agent: mockAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
         router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
         shadow: mockShadow as unknown as Parameters<typeof Bot.createWithDependencies>[0]['shadow'],
-        registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
+        registry: mockRegistry as unknown as Parameters<
+          typeof Bot.createWithDependencies
+        >[0]['registry'],
       });
       await bot.start();
 
@@ -719,7 +737,9 @@ describe('Bot', () => {
         agent: mockAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
         router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
         shadow: mockShadow as unknown as Parameters<typeof Bot.createWithDependencies>[0]['shadow'],
-        registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
+        registry: mockRegistry as unknown as Parameters<
+          typeof Bot.createWithDependencies
+        >[0]['registry'],
       });
 
       const escalationListener = vi.fn();
@@ -825,7 +845,7 @@ describe('Bot', () => {
       // Assert
       expect(errorListener).toHaveBeenCalledWith(
         expect.any(Error),
-        expect.objectContaining({ source: 'process' }),
+        expect.objectContaining({ source: 'process' })
       );
     });
 
@@ -880,15 +900,16 @@ describe('Bot', () => {
         config,
         agent: mockAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
         router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
-        registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
+        registry: mockRegistry as unknown as Parameters<
+          typeof Bot.createWithDependencies
+        >[0]['registry'],
         // Note: NOT providing shadow, so getGitRoot() is called
       });
 
       // Assert - execSync was called with git command
-      expect(mockExecSync).toHaveBeenCalledWith(
-        'git rev-parse --show-toplevel',
-        { encoding: 'utf8' },
-      );
+      expect(mockExecSync).toHaveBeenCalledWith('git rev-parse --show-toplevel', {
+        encoding: 'utf8',
+      });
 
       // Assert - KbotShadow received the git root as projectRoot
       expect(capturedShadowOptions).toBeDefined();
@@ -907,15 +928,16 @@ describe('Bot', () => {
         config,
         agent: mockAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
         router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
-        registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
+        registry: mockRegistry as unknown as Parameters<
+          typeof Bot.createWithDependencies
+        >[0]['registry'],
         // Note: NOT providing shadow, so getGitRoot() is called
       });
 
       // Assert - execSync was attempted
-      expect(mockExecSync).toHaveBeenCalledWith(
-        'git rev-parse --show-toplevel',
-        { encoding: 'utf8' },
-      );
+      expect(mockExecSync).toHaveBeenCalledWith('git rev-parse --show-toplevel', {
+        encoding: 'utf8',
+      });
 
       // Assert - KbotShadow received cwd as fallback projectRoot
       expect(capturedShadowOptions).toBeDefined();
@@ -944,7 +966,9 @@ describe('Bot', () => {
         config: customConfig,
         agent: mockAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
         router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
-        registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
+        registry: mockRegistry as unknown as Parameters<
+          typeof Bot.createWithDependencies
+        >[0]['registry'],
         // Note: NOT providing shadow, so KbotShadow is constructed with our args
       });
 
@@ -964,7 +988,9 @@ describe('Bot', () => {
         config: defaultConfig,
         agent: mockAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
         router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
-        registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
+        registry: mockRegistry as unknown as Parameters<
+          typeof Bot.createWithDependencies
+        >[0]['registry'],
       });
 
       // Assert - KbotShadow received default '.kbot' as worktreeDir
@@ -982,7 +1008,9 @@ describe('Bot', () => {
         config: configWithRelative,
         agent: mockAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
         router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
-        registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
+        registry: mockRegistry as unknown as Parameters<
+          typeof Bot.createWithDependencies
+        >[0]['registry'],
       });
 
       // Assert - worktreeDir is relative (no leading /), projectRoot is absolute
@@ -1010,8 +1038,12 @@ describe('Bot', () => {
         Bot.createWithDependencies({
           config,
           agent: mockAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
-          router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
-          registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
+          router: mockRouter as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['router'],
+          registry: mockRegistry as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['registry'],
           // NOT providing memorySessionStore or conversationStore
         });
 
@@ -1027,8 +1059,12 @@ describe('Bot', () => {
         Bot.createWithDependencies({
           config,
           agent: mockAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
-          router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
-          registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
+          router: mockRouter as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['router'],
+          registry: mockRegistry as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['registry'],
         });
 
         // Assert - ConversationStore received sessionStore
@@ -1055,16 +1091,26 @@ describe('Bot', () => {
             updated_at: new Date().toISOString(),
             turn_count: 0,
           }),
-          appendTurn: vi.fn().mockResolvedValue({ ts: Date.now(), seq: 0, role: 'user', content: '' }),
+          appendTurn: vi
+            .fn()
+            .mockResolvedValue({ ts: Date.now(), seq: 0, role: 'user', content: '' }),
         };
 
         bot = Bot.createWithDependencies({
           config,
           agent: mockAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
-          router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
-          shadow: mockShadow as unknown as Parameters<typeof Bot.createWithDependencies>[0]['shadow'],
-          registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
-          conversationStore: mockConversationStore as unknown as Parameters<typeof Bot.createWithDependencies>[0]['conversationStore'],
+          router: mockRouter as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['router'],
+          shadow: mockShadow as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['shadow'],
+          registry: mockRegistry as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['registry'],
+          conversationStore: mockConversationStore as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['conversationStore'],
         });
         await bot.start();
       });
@@ -1100,16 +1146,20 @@ describe('Bot', () => {
     describe('AC-3: Session record created on new ACP session', () => {
       let mockMemorySessionStore: {
         createSession: ReturnType<typeof vi.fn>;
+        updateSessionStatus: ReturnType<typeof vi.fn>;
       };
       let mockConversationStore: {
         getOrCreateConversation: ReturnType<typeof vi.fn>;
         appendTurn: ReturnType<typeof vi.fn>;
+        getConversationBySessionKey: ReturnType<typeof vi.fn>;
+        readTurns: ReturnType<typeof vi.fn>;
       };
 
       beforeEach(async () => {
         vi.clearAllMocks();
         mockMemorySessionStore = {
           createSession: vi.fn().mockResolvedValue({ id: 'acp-session-123', agent_type: 'claude' }),
+          updateSessionStatus: vi.fn().mockResolvedValue(null),
         };
         mockConversationStore = {
           getOrCreateConversation: vi.fn().mockResolvedValue({
@@ -1121,6 +1171,12 @@ describe('Bot', () => {
             turn_count: 0,
           }),
           appendTurn: vi.fn().mockResolvedValue({ ts: Date.now(), seq: 0 }),
+          // Required by SessionLifecycleManager - return conversation for session creation
+          getConversationBySessionKey: vi.fn().mockResolvedValue({
+            id: 'conv-test-456',
+            updated_at: new Date().toISOString(),
+          }),
+          readTurns: vi.fn().mockResolvedValue([]),
         };
 
         // Make agent return no existing session to trigger new session creation
@@ -1129,11 +1185,21 @@ describe('Bot', () => {
         bot = Bot.createWithDependencies({
           config,
           agent: mockAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
-          router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
-          shadow: mockShadow as unknown as Parameters<typeof Bot.createWithDependencies>[0]['shadow'],
-          registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
-          memorySessionStore: mockMemorySessionStore as unknown as Parameters<typeof Bot.createWithDependencies>[0]['memorySessionStore'],
-          conversationStore: mockConversationStore as unknown as Parameters<typeof Bot.createWithDependencies>[0]['conversationStore'],
+          router: mockRouter as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['router'],
+          shadow: mockShadow as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['shadow'],
+          registry: mockRegistry as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['registry'],
+          memorySessionStore: mockMemorySessionStore as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['memorySessionStore'],
+          conversationStore: mockConversationStore as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['conversationStore'],
         });
         await bot.start();
       });
@@ -1160,6 +1226,8 @@ describe('Bot', () => {
       let mockConversationStore: {
         getOrCreateConversation: ReturnType<typeof vi.fn>;
         appendTurn: ReturnType<typeof vi.fn>;
+        getConversationBySessionKey: ReturnType<typeof vi.fn>;
+        readTurns: ReturnType<typeof vi.fn>;
       };
 
       beforeEach(async () => {
@@ -1174,15 +1242,26 @@ describe('Bot', () => {
             turn_count: 0,
           }),
           appendTurn: vi.fn().mockResolvedValue({ ts: Date.now(), seq: 0 }),
+          // Required by SessionLifecycleManager
+          getConversationBySessionKey: vi.fn().mockResolvedValue(null),
+          readTurns: vi.fn().mockResolvedValue([]),
         };
 
         bot = Bot.createWithDependencies({
           config,
           agent: mockAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
-          router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
-          shadow: mockShadow as unknown as Parameters<typeof Bot.createWithDependencies>[0]['shadow'],
-          registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
-          conversationStore: mockConversationStore as unknown as Parameters<typeof Bot.createWithDependencies>[0]['conversationStore'],
+          router: mockRouter as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['router'],
+          shadow: mockShadow as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['shadow'],
+          registry: mockRegistry as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['registry'],
+          conversationStore: mockConversationStore as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['conversationStore'],
         });
         await bot.start();
       });
@@ -1191,7 +1270,9 @@ describe('Bot', () => {
         // Arrange
         const msg = createMockMessage();
         const lifecycle = createMockChannelLifecycle();
-        bot.setChannelLifecycle(lifecycle as unknown as Parameters<typeof bot.setChannelLifecycle>[0]);
+        bot.setChannelLifecycle(
+          lifecycle as unknown as Parameters<typeof bot.setChannelLifecycle>[0]
+        );
 
         // Act
         await bot.handleMessage(msg);
@@ -1211,7 +1292,12 @@ describe('Bot', () => {
     describe('AC-5: Persistence across restart', () => {
       it('previous turns available via readTurns after bot restart', async () => {
         // Arrange - create a stateful mock store that persists data
-        const storedTurns: Array<{ role: string; content: string; message_id?: string; agent_session_id?: string }> = [];
+        const storedTurns: Array<{
+          role: string;
+          content: string;
+          message_id?: string;
+          agent_session_id?: string;
+        }> = [];
         const conversationData = {
           id: 'conv-persist-test',
           session_key: 'session-key',
@@ -1223,11 +1309,15 @@ describe('Bot', () => {
 
         const statefulConversationStore = {
           getOrCreateConversation: vi.fn().mockResolvedValue(conversationData),
-          appendTurn: vi.fn().mockImplementation(async (_convId: string, turn: typeof storedTurns[0]) => {
-            storedTurns.push(turn);
-            return { ts: Date.now(), seq: storedTurns.length - 1, ...turn };
-          }),
+          appendTurn: vi
+            .fn()
+            .mockImplementation(async (_convId: string, turn: (typeof storedTurns)[0]) => {
+              storedTurns.push(turn);
+              return { ts: Date.now(), seq: storedTurns.length - 1, ...turn };
+            }),
           readTurns: vi.fn().mockImplementation(async () => storedTurns),
+          // Required by SessionLifecycleManager
+          getConversationBySessionKey: vi.fn().mockResolvedValue(null),
         };
 
         vi.clearAllMocks();
@@ -1236,27 +1326,47 @@ describe('Bot', () => {
         const bot1 = Bot.createWithDependencies({
           config,
           agent: mockAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
-          router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
-          shadow: mockShadow as unknown as Parameters<typeof Bot.createWithDependencies>[0]['shadow'],
-          registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
-          conversationStore: statefulConversationStore as unknown as Parameters<typeof Bot.createWithDependencies>[0]['conversationStore'],
+          router: mockRouter as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['router'],
+          shadow: mockShadow as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['shadow'],
+          registry: mockRegistry as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['registry'],
+          conversationStore: statefulConversationStore as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['conversationStore'],
         });
         await bot1.start();
 
         const msg = createMockMessage({ id: 'msg-persist-1', text: 'First message' });
         const lifecycle = createMockChannelLifecycle();
-        bot1.setChannelLifecycle(lifecycle as unknown as Parameters<typeof bot1.setChannelLifecycle>[0]);
+        bot1.setChannelLifecycle(
+          lifecycle as unknown as Parameters<typeof bot1.setChannelLifecycle>[0]
+        );
         await bot1.handleMessage(msg);
         await bot1.stop();
 
         // Act - "restart" by creating a new bot with same store
         const bot2 = Bot.createWithDependencies({
           config,
-          agent: createMockAgent() as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
-          router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
-          shadow: mockShadow as unknown as Parameters<typeof Bot.createWithDependencies>[0]['shadow'],
-          registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
-          conversationStore: statefulConversationStore as unknown as Parameters<typeof Bot.createWithDependencies>[0]['conversationStore'],
+          agent: createMockAgent() as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['agent'],
+          router: mockRouter as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['router'],
+          shadow: mockShadow as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['shadow'],
+          registry: mockRegistry as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['registry'],
+          conversationStore: statefulConversationStore as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['conversationStore'],
         });
 
         // Assert - previous turns available via readTurns
@@ -1274,7 +1384,8 @@ describe('Bot', () => {
         });
 
         // Verify getOrCreateConversation returns same conversation on "restart"
-        const resumedConversation = await statefulConversationStore.getOrCreateConversation('session-key');
+        const resumedConversation =
+          await statefulConversationStore.getOrCreateConversation('session-key');
         expect(resumedConversation.id).toBe('conv-persist-test');
       });
     });
@@ -1284,6 +1395,8 @@ describe('Bot', () => {
       let mockConversationStore: {
         getOrCreateConversation: ReturnType<typeof vi.fn>;
         appendTurn: ReturnType<typeof vi.fn>;
+        getConversationBySessionKey: ReturnType<typeof vi.fn>;
+        readTurns: ReturnType<typeof vi.fn>;
       };
 
       beforeEach(async () => {
@@ -1291,15 +1404,26 @@ describe('Bot', () => {
         mockConversationStore = {
           getOrCreateConversation: vi.fn().mockRejectedValue(new Error('Storage failure')),
           appendTurn: vi.fn().mockRejectedValue(new Error('Append failure')),
+          // Required by SessionLifecycleManager - returns null to indicate no recovery
+          getConversationBySessionKey: vi.fn().mockResolvedValue(null),
+          readTurns: vi.fn().mockResolvedValue([]),
         };
 
         bot = Bot.createWithDependencies({
           config,
           agent: mockAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
-          router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
-          shadow: mockShadow as unknown as Parameters<typeof Bot.createWithDependencies>[0]['shadow'],
-          registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
-          conversationStore: mockConversationStore as unknown as Parameters<typeof Bot.createWithDependencies>[0]['conversationStore'],
+          router: mockRouter as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['router'],
+          shadow: mockShadow as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['shadow'],
+          registry: mockRegistry as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['registry'],
+          conversationStore: mockConversationStore as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['conversationStore'],
         });
         await bot.start();
       });
@@ -1308,7 +1432,9 @@ describe('Bot', () => {
         // Arrange
         const msg = createMockMessage();
         const lifecycle = createMockChannelLifecycle();
-        bot.setChannelLifecycle(lifecycle as unknown as Parameters<typeof bot.setChannelLifecycle>[0]);
+        bot.setChannelLifecycle(
+          lifecycle as unknown as Parameters<typeof bot.setChannelLifecycle>[0]
+        );
         const processedListener = vi.fn();
         bot.on('message:processed', processedListener);
 
@@ -1338,15 +1464,23 @@ describe('Bot', () => {
         const testBot = Bot.createWithDependencies({
           config,
           agent: mockAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
-          router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
-          shadow: mockShadow as unknown as Parameters<typeof Bot.createWithDependencies>[0]['shadow'],
-          registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
+          router: mockRouter as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['router'],
+          shadow: mockShadow as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['shadow'],
+          registry: mockRegistry as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['registry'],
         });
         await testBot.start();
 
         const msg = createMockMessage();
         const lifecycle = createMockChannelLifecycle();
-        testBot.setChannelLifecycle(lifecycle as unknown as Parameters<typeof testBot.setChannelLifecycle>[0]);
+        testBot.setChannelLifecycle(
+          lifecycle as unknown as Parameters<typeof testBot.setChannelLifecycle>[0]
+        );
 
         // Act
         await testBot.handleMessage(msg);
@@ -1381,15 +1515,23 @@ describe('Bot', () => {
         const testBot = Bot.createWithDependencies({
           config,
           agent: mockAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
-          router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
-          shadow: mockShadow as unknown as Parameters<typeof Bot.createWithDependencies>[0]['shadow'],
-          registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
+          router: mockRouter as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['router'],
+          shadow: mockShadow as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['shadow'],
+          registry: mockRegistry as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['registry'],
         });
         await testBot.start();
 
         const msg = createMockMessage();
         const lifecycle = createMockChannelLifecycle();
-        testBot.setChannelLifecycle(lifecycle as unknown as Parameters<typeof testBot.setChannelLifecycle>[0]);
+        testBot.setChannelLifecycle(
+          lifecycle as unknown as Parameters<typeof testBot.setChannelLifecycle>[0]
+        );
 
         // Act
         await testBot.handleMessage(msg);
@@ -1413,32 +1555,49 @@ describe('Bot', () => {
       });
 
       it('does not send identity prompt on existing session', async () => {
-        // Arrange - agent already has a session
-        mockAgent.getSessionId.mockReturnValue('existing-session-123');
+        // Arrange - create SessionLifecycleManager with pre-existing session
+        const sessionLifecycle = new SessionLifecycleManager();
+        // Pre-populate the session so getOrCreateSession returns existing session
+        // We do this by sending a first message, then checking the second
 
         const testBot = Bot.createWithDependencies({
           config,
           agent: mockAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
-          router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
-          shadow: mockShadow as unknown as Parameters<typeof Bot.createWithDependencies>[0]['shadow'],
-          registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
+          router: mockRouter as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['router'],
+          shadow: mockShadow as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['shadow'],
+          registry: mockRegistry as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['registry'],
+          sessionLifecycle,
         });
         await testBot.start();
 
         const msg = createMockMessage();
         const lifecycle = createMockChannelLifecycle();
-        testBot.setChannelLifecycle(lifecycle as unknown as Parameters<typeof testBot.setChannelLifecycle>[0]);
+        testBot.setChannelLifecycle(
+          lifecycle as unknown as Parameters<typeof testBot.setChannelLifecycle>[0]
+        );
 
-        // Act
+        // Act - first message creates session with identity prompt
         await testBot.handleMessage(msg);
 
-        // Assert - only user message, no identity prompt
+        // Clear mocks to track only second message
+        mockAgent._mockClient.prompt.mockClear();
+
+        // Act - second message should reuse session, no identity prompt
+        await testBot.handleMessage(msg);
+
+        // Assert - only user message, no identity prompt on second call
         expect(mockAgent._mockClient.prompt).toHaveBeenCalledTimes(1);
         expect(mockAgent._mockClient.prompt).toHaveBeenCalledWith(
           expect.objectContaining({
             promptSource: 'user',
             prompt: [{ type: 'text', text: 'Hello, bot!' }],
-          }),
+          })
         );
 
         await testBot.stop();
@@ -1486,7 +1645,9 @@ describe('Bot', () => {
 
         const rawMessage = { id: 'raw-123', text: 'Hello from platform' };
         const lifecycle = createMockChannelLifecycle();
-        bot.setChannelLifecycle(lifecycle as unknown as Parameters<typeof bot.setChannelLifecycle>[0]);
+        bot.setChannelLifecycle(
+          lifecycle as unknown as Parameters<typeof bot.setChannelLifecycle>[0]
+        );
 
         // Act
         await bot.handleRawMessage('test-platform', rawMessage);
@@ -1509,7 +1670,9 @@ describe('Bot', () => {
 
         const rawDiscordMessage = { content: 'Discord message', author: { id: '123' } };
         const lifecycle = createMockChannelLifecycle();
-        bot.setChannelLifecycle(lifecycle as unknown as Parameters<typeof bot.setChannelLifecycle>[0]);
+        bot.setChannelLifecycle(
+          lifecycle as unknown as Parameters<typeof bot.setChannelLifecycle>[0]
+        );
 
         // Act
         await bot.handleRawMessage('discord', rawDiscordMessage);
@@ -1602,9 +1765,15 @@ describe('Bot', () => {
         const customBot = Bot.createWithDependencies({
           config,
           agent: mockAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
-          router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
-          shadow: mockShadow as unknown as Parameters<typeof Bot.createWithDependencies>[0]['shadow'],
-          registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
+          router: mockRouter as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['router'],
+          shadow: mockShadow as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['shadow'],
+          registry: mockRegistry as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['registry'],
           transformer: customTransformer,
         });
 
@@ -1676,15 +1845,24 @@ describe('Bot', () => {
         vi.clearAllMocks();
         const streamingClient = createStreamingMockACPClient(['Hello, ', 'world!']);
         streamingAgent = createMockAgent();
-        streamingAgent._mockClient = streamingClient as unknown as typeof streamingAgent._mockClient;
+        streamingAgent._mockClient =
+          streamingClient as unknown as typeof streamingAgent._mockClient;
         streamingAgent.getClient.mockReturnValue(streamingClient);
 
         streamingBot = Bot.createWithDependencies({
           config,
-          agent: streamingAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
-          router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
-          shadow: mockShadow as unknown as Parameters<typeof Bot.createWithDependencies>[0]['shadow'],
-          registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
+          agent: streamingAgent as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['agent'],
+          router: mockRouter as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['router'],
+          shadow: mockShadow as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['shadow'],
+          registry: mockRegistry as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['registry'],
         });
         await streamingBot.start();
       });
@@ -1701,7 +1879,9 @@ describe('Bot', () => {
           sender: { id: 'user-456', platform: 'discord', displayName: 'Test User' },
         });
         const lifecycle = createMockChannelLifecycleWithEdit();
-        streamingBot.setChannelLifecycle(lifecycle as unknown as Parameters<typeof streamingBot.setChannelLifecycle>[0]);
+        streamingBot.setChannelLifecycle(
+          lifecycle as unknown as Parameters<typeof streamingBot.setChannelLifecycle>[0]
+        );
 
         // Act
         await streamingBot.handleMessage(msg);
@@ -1719,10 +1899,18 @@ describe('Bot', () => {
 
         const multiBot = Bot.createWithDependencies({
           config,
-          agent: multiChunkAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
-          router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
-          shadow: mockShadow as unknown as Parameters<typeof Bot.createWithDependencies>[0]['shadow'],
-          registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
+          agent: multiChunkAgent as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['agent'],
+          router: mockRouter as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['router'],
+          shadow: mockShadow as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['shadow'],
+          registry: mockRegistry as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['registry'],
         });
         await multiBot.start();
 
@@ -1730,7 +1918,9 @@ describe('Bot', () => {
           sender: { id: 'user-456', platform: 'discord', displayName: 'Test User' },
         });
         const lifecycle = createMockChannelLifecycleWithEdit();
-        multiBot.setChannelLifecycle(lifecycle as unknown as Parameters<typeof multiBot.setChannelLifecycle>[0]);
+        multiBot.setChannelLifecycle(
+          lifecycle as unknown as Parameters<typeof multiBot.setChannelLifecycle>[0]
+        );
 
         // Act
         await multiBot.handleMessage(msg);
@@ -1762,10 +1952,18 @@ describe('Bot', () => {
         // Arrange
         const streamingBot = Bot.createWithDependencies({
           config,
-          agent: streamingAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
-          router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
-          shadow: mockShadow as unknown as Parameters<typeof Bot.createWithDependencies>[0]['shadow'],
-          registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
+          agent: streamingAgent as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['agent'],
+          router: mockRouter as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['router'],
+          shadow: mockShadow as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['shadow'],
+          registry: mockRegistry as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['registry'],
         });
         await streamingBot.start();
 
@@ -1773,7 +1971,9 @@ describe('Bot', () => {
           sender: { id: 'user-456', platform: 'discord', displayName: 'Test User' },
         });
         const lifecycle = createMockChannelLifecycleWithEdit();
-        streamingBot.setChannelLifecycle(lifecycle as unknown as Parameters<typeof streamingBot.setChannelLifecycle>[0]);
+        streamingBot.setChannelLifecycle(
+          lifecycle as unknown as Parameters<typeof streamingBot.setChannelLifecycle>[0]
+        );
 
         // Act
         await streamingBot.handleMessage(msg);
@@ -1802,10 +2002,18 @@ describe('Bot', () => {
         // Arrange
         const streamingBot = Bot.createWithDependencies({
           config,
-          agent: streamingAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
-          router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
-          shadow: mockShadow as unknown as Parameters<typeof Bot.createWithDependencies>[0]['shadow'],
-          registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
+          agent: streamingAgent as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['agent'],
+          router: mockRouter as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['router'],
+          shadow: mockShadow as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['shadow'],
+          registry: mockRegistry as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['registry'],
         });
         await streamingBot.start();
 
@@ -1813,7 +2021,9 @@ describe('Bot', () => {
           sender: { id: 'user-456', platform: 'slack', displayName: 'Test User' },
         });
         const lifecycle = createMockChannelLifecycleWithEdit();
-        streamingBot.setChannelLifecycle(lifecycle as unknown as Parameters<typeof streamingBot.setChannelLifecycle>[0]);
+        streamingBot.setChannelLifecycle(
+          lifecycle as unknown as Parameters<typeof streamingBot.setChannelLifecycle>[0]
+        );
 
         // Act
         await streamingBot.handleMessage(msg);
@@ -1846,10 +2056,18 @@ describe('Bot', () => {
 
         const streamingBot = Bot.createWithDependencies({
           config,
-          agent: streamingAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
-          router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
-          shadow: mockShadow as unknown as Parameters<typeof Bot.createWithDependencies>[0]['shadow'],
-          registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
+          agent: streamingAgent as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['agent'],
+          router: mockRouter as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['router'],
+          shadow: mockShadow as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['shadow'],
+          registry: mockRegistry as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['registry'],
         });
         await streamingBot.start();
 
@@ -1857,7 +2075,9 @@ describe('Bot', () => {
           sender: { id: 'user-456', platform: 'discord', displayName: 'Test User' },
         });
         const lifecycle = createMockChannelLifecycleWithEdit();
-        streamingBot.setChannelLifecycle(lifecycle as unknown as Parameters<typeof streamingBot.setChannelLifecycle>[0]);
+        streamingBot.setChannelLifecycle(
+          lifecycle as unknown as Parameters<typeof streamingBot.setChannelLifecycle>[0]
+        );
 
         const errorListener = vi.fn();
         streamingBot.on('message:error', errorListener);
@@ -1895,10 +2115,18 @@ describe('Bot', () => {
 
         const streamingBot = Bot.createWithDependencies({
           config,
-          agent: streamingAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
-          router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
-          shadow: mockShadow as unknown as Parameters<typeof Bot.createWithDependencies>[0]['shadow'],
-          registry: mockRegistry as unknown as Parameters<typeof Bot.createWithDependencies>[0]['registry'],
+          agent: streamingAgent as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['agent'],
+          router: mockRouter as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['router'],
+          shadow: mockShadow as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['shadow'],
+          registry: mockRegistry as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['registry'],
         });
         await streamingBot.start();
 
@@ -1906,7 +2134,9 @@ describe('Bot', () => {
           sender: { id: 'user-456', platform: 'discord', displayName: 'Test User' },
         });
         const lifecycle = createMockChannelLifecycleWithEdit();
-        streamingBot.setChannelLifecycle(lifecycle as unknown as Parameters<typeof streamingBot.setChannelLifecycle>[0]);
+        streamingBot.setChannelLifecycle(
+          lifecycle as unknown as Parameters<typeof streamingBot.setChannelLifecycle>[0]
+        );
 
         // Act
         await streamingBot.handleMessage(msg);

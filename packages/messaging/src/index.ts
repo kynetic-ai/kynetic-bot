@@ -64,6 +64,15 @@ export {
   type TurnSelectionResult,
 } from './context/index.js';
 
+// Context Restoration
+export {
+  ContextRestorer,
+  type ContextRestorationResult,
+  type ContextRestorationStats,
+  type ContextRestorerOptions,
+  type ContextRestorerLogger,
+} from './context/index.js';
+
 // Session Lifecycle
 export {
   SessionLifecycleManager,

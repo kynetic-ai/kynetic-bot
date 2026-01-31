@@ -43,6 +43,8 @@ export interface GetSessionResult {
   isNew: boolean;
   /** Whether session was rotated (previous exceeded threshold) */
   wasRotated: boolean;
+  /** Whether session was recovered from a recent conversation after restart */
+  wasRecovered: boolean;
 }
 
 /**
@@ -101,7 +103,7 @@ export interface SessionLifecycleEvents {
 // ============================================================================
 
 /** Default rotation threshold: 70% context usage */
-const DEFAULT_ROTATION_THRESHOLD = 0.70;
+const DEFAULT_ROTATION_THRESHOLD = 0.7;
 
 /** Default max age for recent conversations: 30 minutes */
 const DEFAULT_RECENT_MAX_AGE_MS = 30 * 60 * 1000;
@@ -192,7 +194,7 @@ export class SessionLifecycleManager extends EventEmitter {
           sessionKey,
           acpSessionId: existing.acpSessionId,
         });
-        return { state: existing, isNew: false, wasRotated: false };
+        return { state: existing, isNew: false, wasRotated: false, wasRecovered: false };
       }
 
       // AC-2: Threshold exceeded, rotate
@@ -209,7 +211,7 @@ export class SessionLifecycleManager extends EventEmitter {
         sessionStore
       );
 
-      return { state: newState, isNew: true, wasRotated: true };
+      return { state: newState, isNew: true, wasRotated: true, wasRecovered: false };
     }
 
     // No in-memory session - check for recovery
@@ -278,7 +280,7 @@ export class SessionLifecycleManager extends EventEmitter {
       this.emit('session:created', { sessionKey, state });
     }
 
-    return { state, isNew: true, wasRotated: false };
+    return { state, isNew: true, wasRotated: false, wasRecovered: isRecovery };
   }
 
   /**
@@ -410,7 +412,10 @@ export class SessionLifecycleManager extends EventEmitter {
     const release = createDeferred<void>();
 
     // Set our lock (chained to existing)
-    this.locks.set(sessionKey, existing.then(() => release.promise));
+    this.locks.set(
+      sessionKey,
+      existing.then(() => release.promise)
+    );
 
     // Wait for existing lock to complete
     await existing;

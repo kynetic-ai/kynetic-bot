@@ -219,3 +219,8 @@ features:
             given: Agent executes a tool call (bash, read, write, etc.)
             when: tool_call event received from ACP
             then: Discord message shows compact widget with tool type icon, key parameters, and status
+          - id: ac-2
+            given: Bash command completes
+            when: tool_call_update received with result
+            then: Widget shows exit code, duration, and first 10 lines of output with expand button for full
+              output

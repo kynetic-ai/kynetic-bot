@@ -383,3 +383,10 @@ inbox:
     created_at: 2026-01-31T08:56:44.785Z
     tags: []
     added_by: Test
+  - _ulid: 01KG9M9R7X1S9C1V1BCZDZMK4Q
+    text: "Webhook security research: Stateless middleman pattern for webhook delivery without opening
+      bot to internet. WebSocket registration, JWT auth, best practices. Needed for trigger system
+      Phase 3 webhook implementation."
+    created_at: 2026-01-31T08:56:47.102Z
+    tags: []
+    added_by: Test

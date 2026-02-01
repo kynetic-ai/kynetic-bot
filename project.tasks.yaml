@@ -13272,7 +13272,7 @@
   type: task
   spec_ref: "@discord-tool-widgets"
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -13445,6 +13445,9 @@
         - ac-20: Status updates when condensed tools complete
       supersedes: null
   todos: []
+  completed_at: 2026-02-01T23:15:57.144Z
+  closed_reason: "PR #70 merged. Implemented CondensedToolDisplay for DM tool widgets with full AC
+    coverage (ac-18, ac-19, ac-20). 30 tests passing."
 - _ulid: 01KGDBRCYYJBNW3JDQDXVMX17W
   slugs: []
   title: Integrate ThreadTracker into Discord adapter

@@ -13280,6 +13280,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-01T19:44:25.726Z
+  started_at: 2026-02-01T20:37:28.301Z
   notes:
     - _ulid: 01KGDBSD2N8KZ69C9J00THFRDQ
       created_at: 2026-02-01T19:45:00.501Z
@@ -13416,8 +13417,34 @@
 
         - ac-20: Status updates on completion
       supersedes: null
+    - _ulid: 01KGDEXFCJRYY71HD4MGBFGV7C
+      created_at: 2026-02-01T20:39:39.667Z
+      author: "@claude"
+      content: |-
+        Implemented CondensedToolDisplay class with full test coverage:
+
+        ## Implementation
+        - packages/channels/src/adapters/discord/tool-widgets/CondensedToolDisplay.ts (NEW)
+        - Updated index.ts to export new class
+
+        ## Features
+        - Tracks first 5 tools as visible (full widgets), 6th+ as condensed
+        - Progressive status text: tool names for small overflow (<=3), counts for large
+        - Status icons in progressive mode (✓ for completed, ✗ for failed)
+        - Session isolation by sessionId:channelId composite key
+        - Status message ID tracking for updates
+        - Session cleanup
+
+        ## Tests
+        - 30 passing tests covering AC-18, AC-19, AC-20
+        - All 124 tool-widgets tests pass
+
+        ## AC Coverage
+        - ac-18: First 5 tools as widgets, 6th+ condensed
+        - ac-19: Progressive names then counts for overflow status
+        - ac-20: Status updates when condensed tools complete
+      supersedes: null
   todos: []
-  started_at: 2026-02-01T20:37:28.301Z
 - _ulid: 01KGDBRCYYJBNW3JDQDXVMX17W
   slugs: []
   title: Integrate ThreadTracker into Discord adapter

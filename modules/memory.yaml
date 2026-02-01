@@ -66,7 +66,8 @@ features:
     title: Conversation Storage
     type: feature
     tags: []
-    description: "Event-sourced conversation tracking: turns are pointers to session event ranges, content reconstructed on demand"
+    description: "Event-sourced conversation tracking: turns are pointers to session event ranges,
+      content reconstructed on demand"
     depends_on: []
     implements: []
     relates_to: []
@@ -125,7 +126,7 @@ features:
         then: logs error with context including conversation_id, role, and session_id
     status:
       maturity: draft
-      implementation: not_started
+      implementation: in_progress
     features:
       - _ulid: 01KGBGNJ9X5K4TBWVF6YJQH8MN
         slugs:
@@ -133,7 +134,8 @@ features:
         title: Turn Reconstruction
         type: feature
         tags: []
-        description: Reconstruct structured turn content from session events. Supports options for including/summarizing tool calls and filtering by event range.
+        description: Reconstruct structured turn content from session events. Supports options for
+          including/summarizing tool calls and filtering by event range.
         depends_on:
           - "@mem-agent-sessions"
         implements: []
@@ -225,8 +227,8 @@ features:
         type: feature
         tags: []
         description: Generate context restoration prompt when rotating sessions - uses TurnReconstructor to
-          rebuild structured turns from session events, with summary of older turns and file reference
-          for full history access.
+          rebuild structured turns from session events, with summary of older turns and file
+          reference for full history access.
         depends_on:
           - "@mem-session-lifecycle"
           - "@mem-context-window"

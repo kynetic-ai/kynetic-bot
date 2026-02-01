@@ -13454,7 +13454,7 @@
   type: task
   spec_ref: "@discord-tool-widgets"
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on:
     - "@01KGDBQM"
@@ -13706,6 +13706,9 @@
         - ac-20: Condensed tool update ✓
       supersedes: null
   todos: []
+  completed_at: 2026-02-01T23:40:14.776Z
+  closed_reason: "PR #71 merged. ThreadTracker integrated into Discord adapter with full AC coverage
+    for ac-10 through ac-20."
 - _ulid: 01KGDBRET9XTWJCH9F42HD14A8
   slugs: []
   title: Add thread and condensed display tests

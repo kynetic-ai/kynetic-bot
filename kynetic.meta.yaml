@@ -487,4 +487,12 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KGBYB803SX72Q93M5K585H48
+    type: success
+    content: Detailed task notes with code patterns enabled smooth session handoff. Previous session
+      documented exact file:line references and before/after code examples for the next agent.
+    created_at: 2026-02-01T06:30:50.627Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

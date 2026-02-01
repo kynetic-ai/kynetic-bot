@@ -9,7 +9,7 @@ export type {
   ParsedSessionKey,
   PeerKind,
 } from './types/session-key.js';
-export type { ChannelAdapter } from './types/channel-adapter.js';
+export type { ChannelAdapter, EditMessageResult } from './types/channel-adapter.js';
 
 // Utilities - Logger
 export { createLogger, type Logger } from './utils/logger.js';

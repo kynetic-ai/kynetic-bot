@@ -5,7 +5,7 @@
  */
 import { TypingIndicatorManager } from './typing-indicator-manager.js';
 
-import type { ChannelAdapter } from '@kynetic-bot/core';
+import type { ChannelAdapter, EditMessageResult } from '@kynetic-bot/core';
 
 /**
  * Configuration options for channel lifecycle management
@@ -186,12 +186,19 @@ export class ChannelLifecycle {
    * Used for streaming responses where messages are updated incrementally.
    * Only works if the underlying adapter supports editMessage.
    *
+   * For adapters that support message splitting (e.g., Discord), may return
+   * an EditMessageResult with overflow message IDs when content exceeds limits.
+   *
    * @param channel - Channel identifier
    * @param messageId - ID of the message to edit
    * @param newText - New message text
-   * @returns Optional message ID from the underlying adapter
+   * @returns Message ID, EditMessageResult with overflow IDs, or void
    */
-  async editMessage(channel: string, messageId: string, newText: string): Promise<string | void> {
+  async editMessage(
+    channel: string,
+    messageId: string,
+    newText: string
+  ): Promise<string | EditMessageResult | void> {
     // Check if adapter supports editMessage
     if (!this.adapter.editMessage) {
       return;

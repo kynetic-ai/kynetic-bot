@@ -575,4 +575,13 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KGDCXD5D2HP2XVYRFTAWJAER
+    type: success
+    content: Promise deduplication pattern for race conditions - using a Map of pending promises
+      prevents duplicate async operations when multiple callers arrive before first completes (used
+      in ThreadTracker)
+    created_at: 2026-02-01T20:04:40.238Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

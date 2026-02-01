@@ -12597,7 +12597,8 @@
       supersedes: null
   todos: []
 - _ulid: 01KGD148TG0VA6RB0D6D1VEJ90
-  slugs: []
+  slugs:
+    - block-boundary-detection
   title: Implement message block boundary detection
   type: task
   spec_ref: "@discord-channel-adapter"

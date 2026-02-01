@@ -80,10 +80,10 @@ describe('Conversation Types', () => {
 
     it('rejects invalid session key formats', () => {
       const invalidKeys = [
-        'nocolon',            // No colon
-        'single:',            // Empty segment
-        ':invalid',           // Empty first segment
-        'has space:segment',  // Space not allowed
+        'nocolon', // No colon
+        'single:', // Empty segment
+        ':invalid', // Empty first segment
+        'has space:segment', // Space not allowed
       ];
       for (const key of invalidKeys) {
         expect(SESSION_KEY_PATTERN.test(key)).toBe(false);
@@ -111,7 +111,9 @@ describe('Conversation Types', () => {
       const result = ConversationMetadataSchema.safeParse(invalidKey);
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues.some((i) => i.message.includes('Invalid session key format'))).toBe(true);
+        expect(
+          result.error.issues.some((i) => i.message.includes('Invalid session key format'))
+        ).toBe(true);
       }
     });
 
@@ -271,7 +273,12 @@ describe('Conversation Types', () => {
 
     // AC: @mem-conversation ac-8 - rejects missing required fields
     it('rejects missing session_id', () => {
-      const noSessionId = { ts: Date.now(), seq: 0, role: 'user', event_range: { start_seq: 0, end_seq: 0 } };
+      const noSessionId = {
+        ts: Date.now(),
+        seq: 0,
+        role: 'user',
+        event_range: { start_seq: 0, end_seq: 0 },
+      };
       const result = ConversationTurnSchema.safeParse(noSessionId);
       expect(result.success).toBe(false);
     });
@@ -681,12 +688,28 @@ describe('Conversation Types', () => {
 
     it('validates any typed event', () => {
       const events = [
-        { ...baseEvent, type: 'conversation_created' as const, data: { session_key: 'discord:dm:user' } },
+        {
+          ...baseEvent,
+          type: 'conversation_created' as const,
+          data: { session_key: 'discord:dm:user' },
+        },
         { ...baseEvent, type: 'conversation_updated' as const, data: { updated_fields: ['x'] } },
         { ...baseEvent, type: 'conversation_archived' as const, data: { final_turn_count: 10 } },
-        { ...baseEvent, type: 'turn_appended' as const, data: { seq: 0, role: 'user' as const, session_id: '01SESSION' } },
-        { ...baseEvent, type: 'turn_updated' as const, data: { seq: 1, session_id: '01SESSION', new_end_seq: 5 } },
-        { ...baseEvent, type: 'turn_recovered' as const, data: { turns_recovered: 5, lines_skipped: 0 } },
+        {
+          ...baseEvent,
+          type: 'turn_appended' as const,
+          data: { seq: 0, role: 'user' as const, session_id: '01SESSION' },
+        },
+        {
+          ...baseEvent,
+          type: 'turn_updated' as const,
+          data: { seq: 1, session_id: '01SESSION', new_end_seq: 5 },
+        },
+        {
+          ...baseEvent,
+          type: 'turn_recovered' as const,
+          data: { turns_recovered: 5, lines_skipped: 0 },
+        },
       ];
 
       for (const event of events) {

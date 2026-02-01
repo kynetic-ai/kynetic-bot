@@ -263,9 +263,21 @@ describe('ConversationStore', () => {
     it('increments seq for each turn', async () => {
       const conversation = await store.createConversation('discord:dm:user123');
 
-      const t1 = await store.appendTurn(conversation.id, { role: 'user', session_id: '01SESSION', event_range: { start_seq: 0, end_seq: 0 } });
-      const t2 = await store.appendTurn(conversation.id, { role: 'assistant', session_id: '01SESSION', event_range: { start_seq: 1, end_seq: 5 } });
-      const t3 = await store.appendTurn(conversation.id, { role: 'user', session_id: '01SESSION', event_range: { start_seq: 6, end_seq: 6 } });
+      const t1 = await store.appendTurn(conversation.id, {
+        role: 'user',
+        session_id: '01SESSION',
+        event_range: { start_seq: 0, end_seq: 0 },
+      });
+      const t2 = await store.appendTurn(conversation.id, {
+        role: 'assistant',
+        session_id: '01SESSION',
+        event_range: { start_seq: 1, end_seq: 5 },
+      });
+      const t3 = await store.appendTurn(conversation.id, {
+        role: 'user',
+        session_id: '01SESSION',
+        event_range: { start_seq: 6, end_seq: 6 },
+      });
 
       expect(t1.seq).toBe(0);
       expect(t2.seq).toBe(1);
@@ -355,7 +367,12 @@ describe('ConversationStore', () => {
       });
 
       // Delete the index file to simulate recovery scenario
-      const indexPath = path.join(tempDir, 'conversations', conversation.id, 'message-id-index.json');
+      const indexPath = path.join(
+        tempDir,
+        'conversations',
+        conversation.id,
+        'message-id-index.json'
+      );
       await fs.unlink(indexPath);
 
       // Create new store instance (simulates restart)
@@ -431,12 +448,20 @@ describe('ConversationStore', () => {
       const conversation = await store.createConversation('discord:dm:user123');
       expect(conversation.turn_count).toBe(0);
 
-      await store.appendTurn(conversation.id, { role: 'user', session_id: '01SESSION', event_range: { start_seq: 0, end_seq: 0 } });
+      await store.appendTurn(conversation.id, {
+        role: 'user',
+        session_id: '01SESSION',
+        event_range: { start_seq: 0, end_seq: 0 },
+      });
 
       const updated = await store.getConversation(conversation.id);
       expect(updated?.turn_count).toBe(1);
 
-      await store.appendTurn(conversation.id, { role: 'assistant', session_id: '01SESSION', event_range: { start_seq: 1, end_seq: 5 } });
+      await store.appendTurn(conversation.id, {
+        role: 'assistant',
+        session_id: '01SESSION',
+        event_range: { start_seq: 1, end_seq: 5 },
+      });
 
       const updated2 = await store.getConversation(conversation.id);
       expect(updated2?.turn_count).toBe(2);
@@ -448,7 +473,7 @@ describe('ConversationStore', () => {
           role: 'user',
           session_id: '01SESSION',
           event_range: { start_seq: 0, end_seq: 0 },
-        }),
+        })
       ).rejects.toThrow(ConversationStoreError);
     });
 
@@ -461,7 +486,7 @@ describe('ConversationStore', () => {
           role: 'invalid-role' as any,
           session_id: '01SESSION',
           event_range: { start_seq: 0, end_seq: 0 },
-        }),
+        })
       ).rejects.toThrow(ConversationValidationError);
     });
 
@@ -483,7 +508,7 @@ describe('ConversationStore', () => {
           role: 'assistant',
           session_id: 'nonexistent-session',
           event_range: { start_seq: 0, end_seq: 0 },
-        }),
+        })
       ).rejects.toThrow(ConversationStoreError);
     });
 
@@ -566,7 +591,7 @@ describe('ConversationStore', () => {
           role: 'user',
           session_id: '01SESSION',
           event_range: { start_seq: i, end_seq: i },
-        }),
+        })
       );
 
       const results = await Promise.all(concurrentAppends);
@@ -725,8 +750,16 @@ describe('ConversationStore', () => {
     it('returns last turn by seq', async () => {
       const conversation = await store.createConversation('discord:dm:user123');
 
-      await store.appendTurn(conversation.id, { role: 'user', session_id: '01SESSION', event_range: { start_seq: 0, end_seq: 0 } });
-      await store.appendTurn(conversation.id, { role: 'assistant', session_id: '01SESSION', event_range: { start_seq: 1, end_seq: 5 } });
+      await store.appendTurn(conversation.id, {
+        role: 'user',
+        session_id: '01SESSION',
+        event_range: { start_seq: 0, end_seq: 0 },
+      });
+      await store.appendTurn(conversation.id, {
+        role: 'assistant',
+        session_id: '01SESSION',
+        event_range: { start_seq: 1, end_seq: 5 },
+      });
 
       const lastTurn = await store.getLastTurn(conversation.id);
 
@@ -749,10 +782,18 @@ describe('ConversationStore', () => {
 
       expect(await store.getTurnCount(conversation.id)).toBe(0);
 
-      await store.appendTurn(conversation.id, { role: 'user', session_id: '01SESSION', event_range: { start_seq: 0, end_seq: 0 } });
+      await store.appendTurn(conversation.id, {
+        role: 'user',
+        session_id: '01SESSION',
+        event_range: { start_seq: 0, end_seq: 0 },
+      });
       expect(await store.getTurnCount(conversation.id)).toBe(1);
 
-      await store.appendTurn(conversation.id, { role: 'assistant', session_id: '01SESSION', event_range: { start_seq: 1, end_seq: 5 } });
+      await store.appendTurn(conversation.id, {
+        role: 'assistant',
+        session_id: '01SESSION',
+        event_range: { start_seq: 1, end_seq: 5 },
+      });
       expect(await store.getTurnCount(conversation.id)).toBe(2);
     });
 

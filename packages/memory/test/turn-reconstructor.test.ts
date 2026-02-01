@@ -7,7 +7,10 @@
  */
 
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { TurnReconstructor, type TurnReconstructorLogger } from '../src/store/turn-reconstructor.js';
+import {
+  TurnReconstructor,
+  type TurnReconstructorLogger,
+} from '../src/store/turn-reconstructor.js';
 import type { SessionStore } from '../src/store/session-store.js';
 import type { SessionEvent } from '../src/types/session.js';
 
@@ -25,10 +28,9 @@ describe('TurnReconstructor', () => {
     mockLogger = {
       warn: vi.fn(),
     };
-    reconstructor = new TurnReconstructor(
-      mockSessionStore as unknown as SessionStore,
-      { logger: mockLogger }
-    );
+    reconstructor = new TurnReconstructor(mockSessionStore as unknown as SessionStore, {
+      logger: mockLogger,
+    });
   });
 
   describe('reconstructContent', () => {

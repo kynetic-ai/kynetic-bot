@@ -132,11 +132,7 @@ export class TurnReconstructor {
    *
    * AC: @mem-conversation ac-5 - [gap] markers for missing events
    */
-  private buildContentWithGaps(
-    events: SessionEvent[],
-    startSeq: number,
-    endSeq: number
-  ): string {
+  private buildContentWithGaps(events: SessionEvent[], startSeq: number, endSeq: number): string {
     if (events.length === 0) {
       // All events missing
       return '[gap: all events missing]';

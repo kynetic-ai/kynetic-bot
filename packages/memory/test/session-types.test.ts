@@ -608,8 +608,16 @@ describe('Session Types', () => {
     it('validates any typed event', () => {
       const events = [
         { ...baseEvent, type: 'session.start' as const, data: {} },
-        { ...baseEvent, type: 'session.end' as const, data: { final_status: 'completed' as const } },
-        { ...baseEvent, type: 'session.update' as const, data: { update_type: 'agent_message_chunk', payload: {} } },
+        {
+          ...baseEvent,
+          type: 'session.end' as const,
+          data: { final_status: 'completed' as const },
+        },
+        {
+          ...baseEvent,
+          type: 'session.update' as const,
+          data: { update_type: 'agent_message_chunk', payload: {} },
+        },
         { ...baseEvent, type: 'prompt.sent' as const, data: { content: 'hi' } },
         { ...baseEvent, type: 'message.chunk' as const, data: { content: 'chunk' } },
         { ...baseEvent, type: 'tool.call' as const, data: { tool_name: 'test', arguments: {} } },

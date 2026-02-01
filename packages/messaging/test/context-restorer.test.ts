@@ -189,15 +189,31 @@ describe('ContextRestorer', () => {
       expect(result.prompt).not.toContain('<function_results>');
     });
 
-    // AC: @mem-context-restore ac-4 - Includes session file reference
-    it('includes session file reference', async () => {
+    // AC: @mem-context-restore ac-4 - Includes turns.jsonl file reference
+    it('includes turns.jsonl file reference in archived history', async () => {
       const restorer = new ContextRestorer(mockProvider, { turnReconstructor: mockReconstructor });
-
       const turns = [createTurn(1, 'Hello', 'user')];
 
       const result = await restorer.generateRestorationPrompt(turns, conversationId, baseDir);
 
       expect(result.prompt).toContain('.kbot/conversations/01ABC123/turns.jsonl');
+      expect(result.prompt).toContain('### Archived History');
+    });
+
+    // AC: @mem-context-restore ac-10 - Includes turn pointer resolution instructions
+    it('includes instructions for resolving turn pointers to content', async () => {
+      const restorer = new ContextRestorer(mockProvider, { turnReconstructor: mockReconstructor });
+      const turns = [createTurn(1, 'Hello', 'user')];
+
+      const result = await restorer.generateRestorationPrompt(turns, conversationId, baseDir);
+
+      // Verify instruction blurb explains pointer structure
+      expect(result.prompt).toContain('session_id');
+      expect(result.prompt).toContain('event_range');
+      expect(result.prompt).toContain('.kbot/sessions/');
+      expect(result.prompt).toContain('events.jsonl');
+      expect(result.prompt).toContain('start_seq');
+      expect(result.prompt).toContain('end_seq');
     });
 
     // AC: @mem-context-restore ac-5 - Format has sections: Summary, Recent History, Archived History

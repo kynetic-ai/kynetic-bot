@@ -354,10 +354,19 @@ export class ContextRestorer {
     sections.push(formattedTurns);
     sections.push('---');
 
-    // Archived history reference
+    // Archived history reference with turn pointer resolution instructions
+    // AC: @mem-context-restore ac-4 - File reference to turns.jsonl
+    // AC: @mem-context-restore ac-10 - Instructions for resolving turn pointers
     sections.push('');
     sections.push('### Archived History');
     sections.push(`Full conversation history: ${sessionFileRef}`);
+    sections.push('');
+    sections.push('**Note**: Turns contain pointers (session_id, event_range), not raw content.');
+    sections.push('To resolve turn content:');
+    sections.push('1. Read turn to get session_id and event_range (start_seq, end_seq)');
+    sections.push('2. Read `.kbot/sessions/{session_id}/events.jsonl`');
+    sections.push('3. Filter events where seq >= start_seq AND seq <= end_seq');
+    sections.push('');
     sections.push('Read this file if you need earlier context not included above.');
 
     // Footer

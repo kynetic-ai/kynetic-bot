@@ -11192,6 +11192,23 @@
         - ac-6: Given event_range has start_seq > end_seq, when validated, then returns error
         indicating invalid range
       supersedes: null
+    - _ulid: 01KGBS5TX17MY35TN1N4F8SX53
+      created_at: 2026-02-01T05:00:30.498Z
+      author: "@claude"
+      content: |-
+        Implementation approach:
+
+        **New file**: packages/messaging/src/context/turn-reconstructor.ts
+
+        **Features**:
+        - reconstructTurns(sessionId, options) - main API
+        - Options: includeTools, summarizeTools, startSeq, endSeq
+        - Group events into logical turns (prompt.sent = user, session.update = assistant)
+        - Handle missing events with [gap] markers
+        - Emit reconstruction_completed event with stats
+
+        **AC coverage**: @mem-turn-reconstruct ac-1 through ac-6
+      supersedes: null
   todos: []
 - _ulid: 01KGBS559FN57DQBK457E0V8P5
   slugs: []

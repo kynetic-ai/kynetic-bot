@@ -187,6 +187,21 @@ traits:
         given: type mismatch
         when: detected
         then: includes expected type in error
+  - _ulid: 01KGDBK2GCHSG4WEK5PAC4587R
+    slugs:
+      - graceful-degradation
+    title: Graceful Degradation
+    type: trait
+    tags: []
+    description: Component degrades to reduced functionality when non-critical features fail, without
+      blocking core operation
+    depends_on: []
+    implements: []
+    relates_to: []
+    tests: []
+    traits: []
+    notes: []
+    created: 2026-02-01T19:41:33.068Z
 includes:
   - modules/main.yaml
   - modules/messaging.yaml

@@ -73,10 +73,22 @@ vi.mock('@kynetic-bot/memory', () => {
     getConversationBySessionKey = vi.fn().mockResolvedValue(null);
   }
 
+  // Mock TurnReconstructor for context restoration
+  class MockTurnReconstructor {
+    getContent = vi.fn().mockResolvedValue('');
+    reconstructContent = vi.fn().mockResolvedValue({
+      content: '',
+      hasGaps: false,
+      eventsRead: 0,
+      eventsMissing: 0,
+    });
+  }
+
   return {
     KbotShadow: MockKbotShadow,
     SessionStore: MockSessionStore,
     ConversationStore: MockConversationStore,
+    TurnReconstructor: MockTurnReconstructor,
   };
 });
 

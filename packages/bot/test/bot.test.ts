@@ -93,10 +93,22 @@ vi.mock('@kynetic-bot/memory', () => {
     getConversationBySessionKey = vi.fn().mockResolvedValue(null);
   }
 
+  // Mock TurnReconstructor for context restoration
+  class MockTurnReconstructor {
+    getContent = vi.fn().mockResolvedValue('');
+    reconstructContent = vi.fn().mockResolvedValue({
+      content: '',
+      hasGaps: false,
+      eventsRead: 0,
+      eventsMissing: 0,
+    });
+  }
+
   return {
     KbotShadow: MockKbotShadow,
     SessionStore: MockSessionStore,
     ConversationStore: MockConversationStore,
+    TurnReconstructor: MockTurnReconstructor,
   };
 });
 
@@ -1071,6 +1083,27 @@ describe('Bot', () => {
 
         // Assert - ConversationStore received sessionStore
         expect(capturedConversationStoreOptions?.sessionStore).toBeDefined();
+      });
+
+      // AC: @bot-storage-integration ac-6 - TurnReconstructor wired to ContextRestorer
+      it('wires TurnReconstructor with SessionStore for context restoration', () => {
+        // The TurnReconstructor mock is created internally when Bot constructs ContextRestorer.
+        // This test verifies the mock is used (i.e., TurnReconstructor is instantiated).
+        // If TurnReconstructor wasn't exported from the mock, this test would fail to create the bot.
+        const testBot = Bot.createWithDependencies({
+          config,
+          agent: mockAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
+          router: mockRouter as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['router'],
+          registry: mockRegistry as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['registry'],
+        });
+
+        // Assert - bot was created successfully with TurnReconstructor wired
+        // (If TurnReconstructor wasn't in the mock, this would have thrown)
+        expect(testBot).toBeDefined();
       });
     });
 

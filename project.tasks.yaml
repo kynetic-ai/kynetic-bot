@@ -11887,6 +11887,44 @@
       content: "Continuing: updating turn-selector.test.ts to use new schema with session_id + event_range
         instead of content. Will inject MockTurnReconstructor and update all async calls."
       supersedes: null
+    - _ulid: 01KGBYYW45ZRX6183EYGYD2FRG
+      created_at: 2026-02-01T06:41:33.829Z
+      author: "@claude"
+      content: >-
+        Test updates complete! All messaging package tests now pass (224 tests).
+
+
+        **Summary:**
+
+        - turn-selector.test.ts: Updated 24 tests to use new async API with MockTurnReconstructor
+
+        - history.test.ts: Updated 35 tests to use new TurnInput schema (session_id + event_range)
+
+        - context-window.test.ts: Updated 23 tests with MockTurnReconstructor injection
+
+        - context-restorer.test.ts: Updated 22 tests with MockTurnReconstructor injection
+
+
+        **Test helper additions:**
+
+        - Enhanced MockTurnReconstructor with createTestTurn, createTestTurnInput,
+        createTurnWithContent helpers
+
+        - Added TEST_SESSION_ID constant for consistent test session IDs
+
+
+        **Current state:**
+
+        - packages/memory: BUILD PASSES, 254 tests PASS
+
+        - packages/messaging: BUILD PASSES, 224 tests PASS
+
+        - packages/bot: BUILD FAILS (2 type errors - expected, that's @01KGBS55 scope)
+
+
+        The schema changes are complete. The messaging tests now properly test the event-sourced
+        turn architecture.
+      supersedes: null
   todos: []
 - _ulid: 01KGBS58Q2S4S4JKG044Y5HXNS
   slugs: []

@@ -12178,19 +12178,183 @@
         All 225 messaging package tests pass."
       supersedes: null
   todos: []
-- title: Fix tool call display in context restoration
+- _ulid: 01KGCB1R8PF9307NZSQJJC27SZ
+  slugs: []
+  title: Fix tool call display in context restoration
   type: task
   spec_ref: "@mem-context-restore"
   meta_ref: null
-  priority: 2
-  slugs: []
-  tags: []
-  depends_on: []
-  _ulid: 01KGCB1R8PF9307NZSQJJC27SZ
   status: pending
   blocked_by: []
+  depends_on: []
   context: []
+  priority: 2
+  tags: []
   vcs_refs: []
   created_at: 2026-02-01T10:12:51.093Z
-  notes: []
+  notes:
+    - _ulid: 01KGCB2HHR3DHNB6KAWA4XMSYS
+      created_at: 2026-02-01T10:13:16.985Z
+      author: "@claude"
+      content: >-
+        ## Investigation Findings
+
+
+        ### Root Cause Analysis
+
+
+        The issue is that tool call information is being stored but NOT reconstructed during context
+        restoration. Here's the flow:
+
+
+        **1. Event Storage (Working)**
+
+        Bot.ts stores ALL ACP SessionUpdates as `session.update` events (line 567-573):
+
+        ```typescript
+
+        eventQueue.push({
+          type: 'session.update',
+          session_id: sessionId,
+          data: { update_type: update.sessionUpdate, payload: update },
+        });
+
+        ```
+
+
+        This includes `tool_call` and `tool_call_update` session updates, which get wrapped as
+        `session.update` events.
+
+
+        **2. Turn Reconstruction (The Problem)**
+
+        TurnReconstructor.extractContent() (turn-reconstructor.ts lines 337-404) handles these event
+        types:
+
+        - `prompt.sent` - extracts user content
+
+        - `message.chunk` - extracts streaming response chunks  
+
+        - `session.update` - ONLY extracts `agent_message_chunk` text content (lines 353-370)
+
+        - `tool.call` - formats tool summaries WHEN `summarizeTools: true`
+
+
+        The critical issue: **Tool calls are stored as `session.update` events with `update_type:
+        'tool_call'`, NOT as `tool.call` events.**
+
+
+        TurnReconstructor only looks for native `tool.call` events, but Bot.ts never creates these -
+        it wraps everything as `session.update`.
+
+
+        **3. Context Restoration (Shows Missing Tools)**
+
+        ContextRestorer.formatRecentTurns() (context-restorer.ts lines 240-273):
+
+        - Gets content via TurnReconstructor
+
+        - Runs through ToolSummarizer.isToolCall() to detect XML patterns
+
+        - But content from reconstruction has NO tool info because TurnReconstructor skipped the
+        `session.update` events with `update_type: 'tool_call'`
+
+
+        ### Gap in the Pipeline
+
+
+        | Stage | What Happens | Problem |
+
+        |-------|--------------|---------|
+
+        | Bot stores event | `type: 'session.update', data: { update_type: 'tool_call', payload:
+        {...} }` | - |
+
+        | TurnReconstructor reads | Looks for `tool.call` event type | Mismatch\! |
+
+        | Content extraction | Only handles `agent_message_chunk` from session.update | Tool_call
+        updates silently dropped |
+
+        | Context restoration | Sees text only, no tool calls | Shows "[User]: message"
+        "[Assistant]: response" with no tools |
+
+
+        ### Solution Options
+
+
+        **Option A: Store tool.call events separately**
+
+        Bot.ts would need to detect `update.sessionUpdate === 'tool_call'` and also append a native
+        `tool.call` event:
+
+        ```typescript
+
+        if (update.sessionUpdate === 'tool_call') {
+          await this.memorySessionStore.appendEvent({
+            type: 'tool.call',
+            session_id: sessionId,
+            data: { tool_name: update.name, arguments: update.input, call_id: update.callId },
+          });
+        }
+
+        ```
+
+
+        **Option B: Enhance TurnReconstructor to extract from session.update**
+
+        TurnReconstructor.extractContent() would check for `update_type === 'tool_call'` and format
+        appropriately:
+
+        ```typescript
+
+        case 'session.update': {
+          const data = event.data as { update_type?: string; payload?: unknown };
+          if (data.update_type === 'agent_message_chunk') {
+            // existing text handling
+          } else if (data.update_type === 'tool_call' && this.summarizeTools) {
+            // extract from payload and format
+          } else if (data.update_type === 'tool_call_update' && this.summarizeTools) {
+            // extract result from payload
+          }
+        }
+
+        ```
+
+
+        ### Recommendation
+
+
+        **Option B is preferred** because:
+
+        1. The data is already stored correctly - just not being read
+
+        2. No migration needed for existing sessions
+
+        3. Single point of change (TurnReconstructor)
+
+        4. session.update events preserve full ACP payload which may be useful
+
+
+        ### Files to Modify
+
+
+        1. **packages/memory/src/store/turn-reconstructor.ts** - Enhance `extractContent()` case for
+        `session.update` to handle `tool_call` and `tool_call_update` update types
+
+
+        2. **packages/memory/test/turn-reconstructor.test.ts** - Add tests for session.update events
+        with tool_call/tool_call_update types
+
+
+        ### Acceptance Criteria
+
+
+        - [ ] Tool calls stored as session.update events appear in reconstructed content
+
+        - [ ] Format matches existing tool.call handling: `[tool: name | input | status | outcome]`
+
+        - [ ] tool_call_update events are correlated with their tool_call events
+
+        - [ ] Tests cover session.update-based tool calls
+      supersedes: null
   todos: []

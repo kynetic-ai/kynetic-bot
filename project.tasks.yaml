@@ -13465,6 +13465,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-01T19:44:27.614Z
+  started_at: 2026-02-01T23:19:23.859Z
   notes:
     - _ulid: 01KGDBT14BMNPE593C5BP7HCHT
       created_at: 2026-02-01T19:45:21.035Z
@@ -13640,8 +13641,71 @@
 
         - ac-10, ac-11, ac-12, ac-14, ac-15, ac-16, ac-17, ac-18, ac-19, ac-20
       supersedes: null
+    - _ulid: 01KGDRDE43SSF2SVWFYVY2X5A8
+      created_at: 2026-02-01T23:25:39.843Z
+      author: "@claude"
+      content: >-
+        ## Implementation Complete
+
+
+        ### Changes Made
+
+
+        **packages/channels/src/adapters/discord/adapter.ts:**
+
+        - Added ThreadTracker and CondensedToolDisplay imports and instances
+
+        - Modified `handleToolCall` to route tools based on channel type:
+          - DM channels: Uses condensed display (ac-18)
+          - Guild channels: Creates threads attached to response messages (ac-10, ac-11, ac-14, ac-16)
+          - Falls back to condensed display on thread creation failure (ac-12, ac-17)
+        - Added `sendToolWidgetToThread` method for thread routing
+
+        - Added `handleToolCallCondensed` method for DM/fallback handling
+
+        - Added `updateOrCreateStatusMessage` for condensed display status updates
+
+        - Modified `handleToolCallUpdate` to update condensed display status (ac-20)
+
+        - Added `cleanupSession` public method for session cleanup (ac-9, ac-13)
+
+
+        **packages/channels/test/adapters/discord/adapter.test.ts:**
+
+        - Added tests for `setupBotEventListeners` covering:
+          - Tool:call and tool:update handler registration
+          - DM channel condensed display (ac-18)
+          - Guild channel thread creation (ac-10, ac-14)
+          - Thread reuse for subsequent calls (ac-11)
+          - Fallback on thread creation failure (ac-12)
+        - Added tests for `cleanupSession` (ac-9, ac-13)
+
+
+        ### AC Coverage
+
+        - ac-10: Thread creation on first tool_call ✓
+
+        - ac-11: Reuse existing thread ✓
+
+        - ac-12: Fallback on permission error ✓
+
+        - ac-13: Session cleanup ✓
+
+        - ac-14: Placeholder message for tool before text ✓
+
+        - ac-15: Expand button in thread (handled by interaction.reply) ✓
+
+        - ac-16: Per-response thread isolation ✓
+
+        - ac-17: Deleted thread fallback ✓
+
+        - ac-18: DM condensed display ✓
+
+        - ac-19: Status message progressive naming ✓
+
+        - ac-20: Condensed tool update ✓
+      supersedes: null
   todos: []
-  started_at: 2026-02-01T23:19:23.859Z
 - _ulid: 01KGDBRET9XTWJCH9F42HD14A8
   slugs: []
   title: Add thread and condensed display tests

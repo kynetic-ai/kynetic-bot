@@ -520,3 +520,12 @@ inbox:
       - dx
       - testing
     added_by: "@claude"
+  - _ulid: 01KGDSY3EM9726H4566X9Z43QB
+    text: Task merge/absorb command - when work for task A gets done as part of task B, provide a way to
+      absorb A into B (transferring notes, linking in completion reason). Avoids zombie tasks that
+      require verification ceremony for no actual work.
+    created_at: 2026-02-01T23:52:14.548Z
+    tags:
+      - reflection
+      - kspec-cli
+    added_by: "@claude"

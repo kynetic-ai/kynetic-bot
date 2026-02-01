@@ -478,4 +478,13 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KGBYB6F1T6QXJ32B1RS5NY0W
+    type: friction
+    content: Lefthook formats files during commit but leaves changes unstaged, requiring follow-up
+      commits for formatting. Consider adding --add-to-staged flag or accepting this as expected
+      behavior.
+    created_at: 2026-02-01T06:30:49.057Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

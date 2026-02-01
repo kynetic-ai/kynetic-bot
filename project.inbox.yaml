@@ -485,3 +485,11 @@ inbox:
       - bug
       - tool-display
     added_by: "@claude"
+  - _ulid: 01KGD394AJ23JQSB4YNFJ6R3FA
+    text: "Add dedicated regression test for splitMessage/splitMessageToEmbeds code block continuation
+      prefix fix - ensure prefix is added when remaining text fits in final chunk (bug fixed in PR
+      #64)"
+    created_at: 2026-02-01T17:16:18.642Z
+    tags:
+      - testing,discord,regression
+    added_by: "@claude"

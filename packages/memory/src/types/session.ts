@@ -30,15 +30,19 @@ export type AgentSessionStatus = z.infer<typeof AgentSessionStatusSchema>;
  * Valid session event types
  * - session.start: Session began
  * - session.end: Session completed/abandoned
+ * - session.update: ACP SessionUpdate notification (used for event-sourced turns)
  * - prompt.sent: LLM prompt was sent
  * - message.chunk: Streaming response chunk received
  * - tool.call: Tool invocation requested
  * - tool.result: Tool execution completed
  * - note: Informational/debug event
+ *
+ * AC: @mem-agent-sessions ac-8 - session.update persists ACP SessionUpdate
  */
 export const SessionEventTypeSchema = z.enum([
   'session.start',
   'session.end',
+  'session.update',
   'prompt.sent',
   'message.chunk',
   'tool.call',
@@ -167,6 +171,21 @@ export const SessionEndDataSchema = z.object({
 export type SessionEndData = z.infer<typeof SessionEndDataSchema>;
 
 /**
+ * Data payload for session.update events
+ *
+ * Stores ACP SessionUpdate notifications for event-sourced turn reconstruction.
+ *
+ * AC: @mem-agent-sessions ac-8 - Persist full SessionUpdate
+ */
+export const SessionUpdateDataSchema = z.object({
+  /** Type of the ACP SessionUpdate (e.g., 'agent_message_chunk', 'tool_use', etc.) */
+  update_type: z.string(),
+  /** Full SessionUpdate payload from ACP */
+  payload: z.unknown(),
+});
+export type SessionUpdateData = z.infer<typeof SessionUpdateDataSchema>;
+
+/**
  * Data payload for prompt.sent events
  */
 export const PromptSentDataSchema = z.object({
@@ -262,6 +281,17 @@ export const SessionEndEventSchema = SessionEventSchema.extend({
 export type SessionEndEvent = z.infer<typeof SessionEndEventSchema>;
 
 /**
+ * Session update event with typed data
+ *
+ * AC: @mem-agent-sessions ac-8 - Persist full SessionUpdate
+ */
+export const SessionUpdateEventSchema = SessionEventSchema.extend({
+  type: z.literal('session.update'),
+  data: SessionUpdateDataSchema,
+});
+export type SessionUpdateEvent = z.infer<typeof SessionUpdateEventSchema>;
+
+/**
  * Prompt sent event with typed data
  */
 export const PromptSentEventSchema = SessionEventSchema.extend({
@@ -312,6 +342,7 @@ export type NoteEvent = z.infer<typeof NoteEventSchema>;
 export const TypedSessionEventSchema = z.union([
   SessionStartEventSchema,
   SessionEndEventSchema,
+  SessionUpdateEventSchema,
   PromptSentEventSchema,
   MessageChunkEventSchema,
   ToolCallEventSchema,

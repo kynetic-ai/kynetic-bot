@@ -21,3 +21,10 @@ export {
   type ListConversationsOptions,
   type ConversationStoreEvents,
 } from './conversation-store.js';
+
+export {
+  TurnReconstructor,
+  type ReconstructionResult,
+  type TurnReconstructorOptions,
+  type TurnReconstructorLogger,
+} from './turn-reconstructor.js';

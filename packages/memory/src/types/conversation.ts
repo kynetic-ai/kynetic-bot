@@ -74,20 +74,38 @@ export const ConversationMetadataSchema = z.object({
 export type ConversationMetadata = z.infer<typeof ConversationMetadataSchema>;
 
 // ============================================================================
+// Event Range
+// ============================================================================
+
+/**
+ * Event range schema for referencing session events.
+ * Turns store pointers to event ranges instead of content.
+ *
+ * AC: @mem-conversation ac-1, ac-2 - Turn uses event_range to reference session events
+ */
+export const EventRangeSchema = z.object({
+  /** Starting sequence number (inclusive) */
+  start_seq: z.number().int().nonnegative(),
+  /** Ending sequence number (inclusive) */
+  end_seq: z.number().int().nonnegative(),
+});
+export type EventRange = z.infer<typeof EventRangeSchema>;
+
+// ============================================================================
 // Conversation Turn
 // ============================================================================
 
 /**
  * Conversation turn schema (turns.jsonl entries)
  *
- * AC: @mem-conversation ac-1 - Turn fields: role, content, ts, seq
- * AC: @mem-conversation ac-2 - agent_session_id links to agent sessions
- * AC: @mem-conversation ac-4 - message_id for idempotency/dedup
- * AC: @mem-conversation ac-6 - Zod validation for turns
+ * AC: @mem-conversation ac-1 - User turn with (role, session_id, event_range)
+ * AC: @mem-conversation ac-2 - Assistant turn with (role, session_id, event_range)
+ * AC: @mem-conversation ac-4 - Content reconstructed from events via TurnReconstructor
+ * AC: @mem-conversation ac-6 - Same message_id persisted twice = only one turn (idempotent)
+ * AC: @mem-conversation ac-8 - Rejects with Zod validation error
  *
- * Note: content allows empty strings for system messages (e.g., function call
- * results where the content may be encoded in metadata). User and assistant
- * turns typically have non-empty content.
+ * Note: Content is NOT stored in turns - it's reconstructed from session events.
+ * Turns are pointers to event ranges, enabling event-sourced conversation tracking.
  */
 export const ConversationTurnSchema = z.object({
   /** Unix timestamp in milliseconds (auto-assigned if not provided) */
@@ -96,10 +114,10 @@ export const ConversationTurnSchema = z.object({
   seq: z.number().int().nonnegative(),
   /** Role of the message author */
   role: TurnRoleSchema,
-  /** Content of the turn/message (empty allowed for system messages with metadata) */
-  content: z.string(),
-  /** Links to AgentSession that generated this turn (for assistant turns) */
-  agent_session_id: z.string().optional(),
+  /** Session ID that contains the events for this turn (source of truth) */
+  session_id: z.string().min(1),
+  /** Pointer to session events (start_seq to end_seq inclusive) */
+  event_range: EventRangeSchema,
   /** Platform message ID for idempotency/deduplication */
   message_id: z.string().optional(),
   /** Optional platform-specific or custom metadata */
@@ -135,6 +153,8 @@ export type ConversationMetadataInput = z.infer<typeof ConversationMetadataInput
 /**
  * Input schema for appending turns.
  * Omits auto-assigned ts and seq fields.
+ *
+ * AC: @mem-conversation ac-1, ac-2 - Turn input requires session_id and event_range
  */
 export const ConversationTurnInputSchema = ConversationTurnSchema.omit({
   ts: true,
@@ -154,13 +174,14 @@ export type ConversationTurnInput = z.infer<typeof ConversationTurnInputSchema>;
 /**
  * Event types emitted by conversation operations
  *
- * AC: @mem-conversation ac-5 - Structured events for turn operations
+ * AC: @mem-conversation ac-7 - Structured events for turn operations
  */
 export const ConversationEventTypeSchema = z.enum([
   'conversation_created',
   'conversation_updated',
   'conversation_archived',
   'turn_appended',
+  'turn_updated',
   'turn_recovered',
 ]);
 export type ConversationEventType = z.infer<typeof ConversationEventTypeSchema>;
@@ -220,7 +241,7 @@ export type ConversationArchivedData = z.infer<typeof ConversationArchivedDataSc
 /**
  * Data payload for turn_appended events
  *
- * AC: @mem-conversation ac-5 - turn_appended event
+ * AC: @mem-conversation ac-7 - turn_appended event
  */
 export const TurnAppendedDataSchema = z.object({
   /** Sequence number of the appended turn */
@@ -229,15 +250,31 @@ export const TurnAppendedDataSchema = z.object({
   role: TurnRoleSchema,
   /** Whether this was a duplicate (idempotent append) */
   was_duplicate: z.boolean().optional(),
-  /** Agent session ID if assistant turn */
-  agent_session_id: z.string().optional(),
+  /** Session ID containing the events for this turn */
+  session_id: z.string().min(1),
 });
 export type TurnAppendedData = z.infer<typeof TurnAppendedDataSchema>;
 
 /**
+ * Data payload for turn_updated events
+ *
+ * AC: @mem-conversation ac-7 - turn_updated event
+ * AC: @mem-conversation ac-3 - event_range.end_seq updated for subsequent events
+ */
+export const TurnUpdatedDataSchema = z.object({
+  /** Sequence number of the updated turn */
+  seq: z.number().int().nonnegative(),
+  /** Session ID containing the events for this turn */
+  session_id: z.string().min(1),
+  /** New end_seq value after update */
+  new_end_seq: z.number().int().nonnegative(),
+});
+export type TurnUpdatedData = z.infer<typeof TurnUpdatedDataSchema>;
+
+/**
  * Data payload for turn_recovered events
  *
- * AC: @mem-conversation ac-3 - Recovery on restart
+ * AC: @mem-conversation ac-10 - Recovery on restart
  */
 export const TurnRecoveredDataSchema = z.object({
   /** Number of turns recovered */
@@ -290,6 +327,17 @@ export const TurnAppendedEventSchema = ConversationEventSchema.extend({
 export type TurnAppendedEvent = z.infer<typeof TurnAppendedEventSchema>;
 
 /**
+ * Turn updated event with typed data
+ *
+ * AC: @mem-conversation ac-7 - turn_updated event
+ */
+export const TurnUpdatedEventSchema = ConversationEventSchema.extend({
+  type: z.literal('turn_updated'),
+  data: TurnUpdatedDataSchema,
+});
+export type TurnUpdatedEvent = z.infer<typeof TurnUpdatedEventSchema>;
+
+/**
  * Turn recovered event with typed data
  */
 export const TurnRecoveredEventSchema = ConversationEventSchema.extend({
@@ -306,6 +354,7 @@ export const TypedConversationEventSchema = z.union([
   ConversationUpdatedEventSchema,
   ConversationArchivedEventSchema,
   TurnAppendedEventSchema,
+  TurnUpdatedEventSchema,
   TurnRecoveredEventSchema,
 ]);
 export type TypedConversationEvent = z.infer<typeof TypedConversationEventSchema>;

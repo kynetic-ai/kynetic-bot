@@ -37,7 +37,7 @@ import type { SessionStore } from './session-store.js';
 export interface ConversationStoreOptions {
   /** Base directory for conversation storage (e.g., .kbot/) */
   baseDir: string;
-  /** SessionStore for validating agent_session_id references (optional) */
+  /** SessionStore for validating session_id references (optional) */
   sessionStore?: SessionStore;
   /** Event emitter for observability (optional) */
   emitter?: EventEmitter;
@@ -669,15 +669,14 @@ export class ConversationStore {
   /**
    * Append a turn to a conversation's turn log.
    *
-   * AC: @mem-conversation ac-1 - Creates turn with role, content, ts, seq
-   * AC: @mem-conversation ac-2 - Links assistant turns to agent sessions
-   * AC: @mem-conversation ac-4 - Idempotent by message_id
-   * AC: @mem-conversation ac-5 - Emits turn_appended event
-   * AC: @mem-conversation ac-6 - Rejects with Zod validation error
-   * AC: @mem-conversation ac-7 - Validates agent_session_id references
+   * AC: @mem-conversation ac-1 - User turn with (role, session_id, event_range)
+   * AC: @mem-conversation ac-2 - Assistant turn with (role, session_id, event_range)
+   * AC: @mem-conversation ac-6 - Idempotent by message_id
+   * AC: @mem-conversation ac-7 - Emits turn_appended event
+   * AC: @mem-conversation ac-8 - Rejects with Zod validation error
    *
    * @param conversationId - Conversation ID to append turn to
-   * @param input - Turn input data
+   * @param input - Turn input data (must include session_id and event_range)
    * @returns Created turn with ts and seq assigned
    * @throws ConversationStoreError if conversation not found or session validation fails
    * @throws ConversationValidationError if input validation fails
@@ -704,15 +703,15 @@ export class ConversationStore {
       );
     }
 
-    // Validate agent_session_id if provided (AC-7)
-    if (validInput.agent_session_id && this.sessionStore) {
-      const session = await this.sessionStore.getSession(validInput.agent_session_id);
+    // Validate session_id references a valid session
+    if (this.sessionStore) {
+      const session = await this.sessionStore.getSession(validInput.session_id);
       if (!session) {
         throw new ConversationStoreError(
-          `Invalid agent_session_id: session not found: ${validInput.agent_session_id}`,
+          `Invalid session_id: session not found: ${validInput.session_id}`,
           'INVALID_SESSION_REF',
           conversationId,
-          { agent_session_id: validInput.agent_session_id },
+          { session_id: validInput.session_id },
         );
       }
     }
@@ -753,12 +752,13 @@ export class ConversationStore {
       }
 
       // Build full turn with auto-assigned fields
+      // AC: @mem-conversation ac-1, ac-2 - Turn with session_id and event_range
       const turn: ConversationTurn = {
         ts: validInput.ts ?? Date.now(),
         seq: validInput.seq ?? seq,
         role: validInput.role,
-        content: validInput.content,
-        agent_session_id: validInput.agent_session_id,
+        session_id: validInput.session_id,
+        event_range: validInput.event_range,
         message_id: validInput.message_id,
         metadata: validInput.metadata,
       };

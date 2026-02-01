@@ -21,12 +21,15 @@ import {
   ConversationTurnSchema,
   ConversationUpdatedDataSchema,
   ConversationUpdatedEventSchema,
+  EventRangeSchema,
   SESSION_KEY_PATTERN,
   TurnAppendedDataSchema,
   TurnAppendedEventSchema,
   TurnRecoveredDataSchema,
   TurnRecoveredEventSchema,
   TurnRoleSchema,
+  TurnUpdatedDataSchema,
+  TurnUpdatedEventSchema,
   TypedConversationEventSchema,
 } from '../src/types/conversation.js';
 
@@ -151,41 +154,83 @@ describe('Conversation Types', () => {
     });
   });
 
+  describe('EventRangeSchema', () => {
+    // AC: @mem-conversation ac-1, ac-2 - event_range for referencing session events
+    it('validates valid event range', () => {
+      const validRange = { start_seq: 0, end_seq: 5 };
+      const result = EventRangeSchema.safeParse(validRange);
+      expect(result.success).toBe(true);
+    });
+
+    it('allows same start and end (single event)', () => {
+      const singleEvent = { start_seq: 3, end_seq: 3 };
+      const result = EventRangeSchema.safeParse(singleEvent);
+      expect(result.success).toBe(true);
+    });
+
+    it('rejects negative start_seq', () => {
+      const negativeStart = { start_seq: -1, end_seq: 5 };
+      const result = EventRangeSchema.safeParse(negativeStart);
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects negative end_seq', () => {
+      const negativeEnd = { start_seq: 0, end_seq: -1 };
+      const result = EventRangeSchema.safeParse(negativeEnd);
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects missing start_seq', () => {
+      const missingStart = { end_seq: 5 };
+      const result = EventRangeSchema.safeParse(missingStart);
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects missing end_seq', () => {
+      const missingEnd = { start_seq: 0 };
+      const result = EventRangeSchema.safeParse(missingEnd);
+      expect(result.success).toBe(false);
+    });
+  });
+
   describe('ConversationTurnSchema', () => {
     const validTurn = {
       ts: Date.now(),
       seq: 0,
       role: 'user' as const,
-      content: 'Hello, how are you?',
+      session_id: '01SESSION123',
+      event_range: { start_seq: 0, end_seq: 0 },
     };
 
-    // AC: @mem-conversation ac-1 - turn fields: role, content, ts, seq
+    // AC: @mem-conversation ac-1 - turn fields: role, session_id, event_range, ts, seq
     it('validates turn structure with required fields', () => {
       const result = ConversationTurnSchema.safeParse(validTurn);
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.role).toBe('user');
-        expect(result.data.content).toBe('Hello, how are you?');
+        expect(result.data.session_id).toBe('01SESSION123');
+        expect(result.data.event_range).toEqual({ start_seq: 0, end_seq: 0 });
         expect(result.data.ts).toBe(validTurn.ts);
         expect(result.data.seq).toBe(0);
       }
     });
 
-    // AC: @mem-conversation ac-2 - agent_session_id links to agent sessions
-    it('accepts optional agent_session_id for assistant turns', () => {
+    // AC: @mem-conversation ac-2 - assistant turns also use session_id and event_range
+    it('validates assistant turns with session_id and event_range', () => {
       const assistantTurn = {
         ...validTurn,
         role: 'assistant' as const,
-        agent_session_id: '01SESSION123',
+        event_range: { start_seq: 1, end_seq: 5 },
       };
       const result = ConversationTurnSchema.safeParse(assistantTurn);
       expect(result.success).toBe(true);
       if (result.success) {
-        expect(result.data.agent_session_id).toBe('01SESSION123');
+        expect(result.data.session_id).toBe('01SESSION123');
+        expect(result.data.event_range).toEqual({ start_seq: 1, end_seq: 5 });
       }
     });
 
-    // AC: @mem-conversation ac-4 - message_id for idempotency
+    // AC: @mem-conversation ac-6 - message_id for idempotency
     it('accepts optional message_id for deduplication', () => {
       const withMessageId = {
         ...validTurn,
@@ -207,7 +252,7 @@ describe('Conversation Types', () => {
       expect(result.success).toBe(true);
     });
 
-    // AC: @mem-conversation ac-6 - rejects invalid turn data
+    // AC: @mem-conversation ac-8 - rejects invalid turn data
     it('rejects negative sequence numbers', () => {
       const negativeSeq = { ...validTurn, seq: -1 };
       const result = ConversationTurnSchema.safeParse(negativeSeq);
@@ -224,16 +269,22 @@ describe('Conversation Types', () => {
       expect(result2.success).toBe(false);
     });
 
-    // Empty content allowed for system messages (e.g., function results in metadata)
-    it('allows empty content for system messages', () => {
-      const systemTurn = { ...validTurn, role: 'system' as const, content: '', metadata: { fn_result: 'ok' } };
-      const result = ConversationTurnSchema.safeParse(systemTurn);
-      expect(result.success).toBe(true);
+    // AC: @mem-conversation ac-8 - rejects missing required fields
+    it('rejects missing session_id', () => {
+      const noSessionId = { ts: Date.now(), seq: 0, role: 'user', event_range: { start_seq: 0, end_seq: 0 } };
+      const result = ConversationTurnSchema.safeParse(noSessionId);
+      expect(result.success).toBe(false);
     });
 
-    it('rejects missing content', () => {
-      const noContent = { ts: Date.now(), seq: 0, role: 'user' };
-      const result = ConversationTurnSchema.safeParse(noContent);
+    it('rejects missing event_range', () => {
+      const noEventRange = { ts: Date.now(), seq: 0, role: 'user', session_id: '01SESSION' };
+      const result = ConversationTurnSchema.safeParse(noEventRange);
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects invalid event_range', () => {
+      const invalidRange = { ...validTurn, event_range: { start_seq: -1, end_seq: 0 } };
+      const result = ConversationTurnSchema.safeParse(invalidRange);
       expect(result.success).toBe(false);
     });
   });
@@ -275,10 +326,22 @@ describe('Conversation Types', () => {
   });
 
   describe('ConversationTurnInputSchema', () => {
+    // AC: @mem-conversation ac-1, ac-2 - Turn input requires session_id and event_range
+    it('requires session_id and event_range', () => {
+      const input = {
+        role: 'user' as const,
+        session_id: '01SESSION',
+        event_range: { start_seq: 0, end_seq: 0 },
+      };
+      const result = ConversationTurnInputSchema.safeParse(input);
+      expect(result.success).toBe(true);
+    });
+
     it('allows omitting ts and seq', () => {
       const input = {
         role: 'user' as const,
-        content: 'Hello!',
+        session_id: '01SESSION',
+        event_range: { start_seq: 0, end_seq: 0 },
       };
       const result = ConversationTurnInputSchema.safeParse(input);
       expect(result.success).toBe(true);
@@ -289,8 +352,8 @@ describe('Conversation Types', () => {
         ts: 1706522400000,
         seq: 5,
         role: 'assistant' as const,
-        content: 'Hi there!',
-        agent_session_id: '01SESSION',
+        session_id: '01SESSION',
+        event_range: { start_seq: 1, end_seq: 10 },
       };
       const result = ConversationTurnInputSchema.safeParse(input);
       expect(result.success).toBe(true);
@@ -299,16 +362,35 @@ describe('Conversation Types', () => {
         expect(result.data.seq).toBe(5);
       }
     });
+
+    it('rejects missing session_id', () => {
+      const input = {
+        role: 'user' as const,
+        event_range: { start_seq: 0, end_seq: 0 },
+      };
+      const result = ConversationTurnInputSchema.safeParse(input);
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects missing event_range', () => {
+      const input = {
+        role: 'user' as const,
+        session_id: '01SESSION',
+      };
+      const result = ConversationTurnInputSchema.safeParse(input);
+      expect(result.success).toBe(false);
+    });
   });
 
   describe('ConversationEventTypeSchema', () => {
-    // AC: @mem-conversation ac-5 - event types for turn operations
+    // AC: @mem-conversation ac-7 - event types for turn operations
     it('accepts all event types', () => {
       const validTypes = [
         'conversation_created',
         'conversation_updated',
         'conversation_archived',
         'turn_appended',
+        'turn_updated',
         'turn_recovered',
       ];
 
@@ -405,17 +487,21 @@ describe('Conversation Types', () => {
     });
 
     describe('TurnAppendedDataSchema', () => {
-      // AC: @mem-conversation ac-5 - turn_appended event data
-      it('requires seq and role', () => {
+      // AC: @mem-conversation ac-7 - turn_appended event data
+      it('requires seq, role, and session_id', () => {
         const result = TurnAppendedDataSchema.safeParse({});
         expect(result.success).toBe(false);
+
+        const missingSessionId = { seq: 0, role: 'user' };
+        const result2 = TurnAppendedDataSchema.safeParse(missingSessionId);
+        expect(result2.success).toBe(false);
       });
 
       it('accepts turn appended data', () => {
         const data = {
           seq: 5,
           role: 'assistant' as const,
-          agent_session_id: '01SESSION',
+          session_id: '01SESSION',
         };
         const result = TurnAppendedDataSchema.safeParse(data);
         expect(result.success).toBe(true);
@@ -426,6 +512,7 @@ describe('Conversation Types', () => {
         const data = {
           seq: 3,
           role: 'user' as const,
+          session_id: '01SESSION',
           was_duplicate: true,
         };
         const result = TurnAppendedDataSchema.safeParse(data);
@@ -436,8 +523,34 @@ describe('Conversation Types', () => {
       });
     });
 
+    describe('TurnUpdatedDataSchema', () => {
+      // AC: @mem-conversation ac-7 - turn_updated event data
+      // AC: @mem-conversation ac-3 - event_range.end_seq updated
+      it('requires seq, session_id, and new_end_seq', () => {
+        const result = TurnUpdatedDataSchema.safeParse({});
+        expect(result.success).toBe(false);
+
+        const missingFields = { seq: 0 };
+        const result2 = TurnUpdatedDataSchema.safeParse(missingFields);
+        expect(result2.success).toBe(false);
+      });
+
+      it('accepts valid turn updated data', () => {
+        const data = {
+          seq: 1,
+          session_id: '01SESSION',
+          new_end_seq: 10,
+        };
+        const result = TurnUpdatedDataSchema.safeParse(data);
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.data.new_end_seq).toBe(10);
+        }
+      });
+    });
+
     describe('TurnRecoveredDataSchema', () => {
-      // AC: @mem-conversation ac-3 - recovery event data
+      // AC: @mem-conversation ac-10 - recovery event data
       it('requires recovery counts', () => {
         const result = TurnRecoveredDataSchema.safeParse({});
         expect(result.success).toBe(false);
@@ -521,20 +634,33 @@ describe('Conversation Types', () => {
     });
 
     describe('TurnAppendedEventSchema', () => {
-      // AC: @mem-conversation ac-5 - turn_appended event
+      // AC: @mem-conversation ac-7 - turn_appended event
       it('validates turn appended event', () => {
         const event = {
           ...baseEvent,
           type: 'turn_appended' as const,
-          data: { seq: 0, role: 'user' as const },
+          data: { seq: 0, role: 'user' as const, session_id: '01SESSION' },
         };
         const result = TurnAppendedEventSchema.safeParse(event);
         expect(result.success).toBe(true);
       });
     });
 
+    describe('TurnUpdatedEventSchema', () => {
+      // AC: @mem-conversation ac-7 - turn_updated event
+      it('validates turn updated event', () => {
+        const event = {
+          ...baseEvent,
+          type: 'turn_updated' as const,
+          data: { seq: 1, session_id: '01SESSION', new_end_seq: 10 },
+        };
+        const result = TurnUpdatedEventSchema.safeParse(event);
+        expect(result.success).toBe(true);
+      });
+    });
+
     describe('TurnRecoveredEventSchema', () => {
-      // AC: @mem-conversation ac-3 - turn_recovered event
+      // AC: @mem-conversation ac-10 - turn_recovered event
       it('validates turn recovered event', () => {
         const event = {
           ...baseEvent,
@@ -558,7 +684,8 @@ describe('Conversation Types', () => {
         { ...baseEvent, type: 'conversation_created' as const, data: { session_key: 'discord:dm:user' } },
         { ...baseEvent, type: 'conversation_updated' as const, data: { updated_fields: ['x'] } },
         { ...baseEvent, type: 'conversation_archived' as const, data: { final_turn_count: 10 } },
-        { ...baseEvent, type: 'turn_appended' as const, data: { seq: 0, role: 'user' as const } },
+        { ...baseEvent, type: 'turn_appended' as const, data: { seq: 0, role: 'user' as const, session_id: '01SESSION' } },
+        { ...baseEvent, type: 'turn_updated' as const, data: { seq: 1, session_id: '01SESSION', new_end_seq: 5 } },
         { ...baseEvent, type: 'turn_recovered' as const, data: { turns_recovered: 5, lines_skipped: 0 } },
       ];
 

@@ -11217,6 +11217,37 @@
       content: "Spec updated with AC-7 (input truncation) and AC-8 (orphaned calls). Tool format: [tool:
         name | input | status | outcome]. All inputs truncated to 100 chars."
       supersedes: null
+    - _ulid: 01KGC7HW6PK02W89ZWH1ZCSJES
+      created_at: 2026-02-01T09:11:45.110Z
+      author: "@claude"
+      content: |-
+        Implementation complete:
+
+        **Phase 1 (AC-5, AC-6)**: Added TurnReconstructorValidationError class and input validation:
+        - Empty session_id throws with field='session_id'
+        - start_seq > end_seq throws with field='event_range'
+
+        **Phase 2 (AC-3)**: Added event emission:
+        - Optional emitter in TurnReconstructorOptions
+        - Emits 'reconstruction:completed' with stats on success
+        - Emits 'error' event before throwing validation errors
+
+        **Phase 3 (AC-4, AC-7, AC-8)**: Added tool summarization:
+        - Format: [tool: name | input | status | outcome]
+        - summarizeTools option (default false)
+        - Input truncated to 100 chars with ellipsis
+        - File paths truncated from start (keeps filename visible)
+        - Commands truncated from end
+        - Orphaned tool.call shows 'pending' status
+        - Malformed tool data logged and skipped
+
+        **Tests added**: 20 new tests covering all ACs with annotations:
+        - 5 validation tests (AC-5, AC-6)
+        - 3 event emission tests (AC-3)
+        - 12 tool summarization tests (AC-4, AC-7, AC-8)
+
+        All 34 tests pass, TypeScript and lint clean.
+      supersedes: null
   todos: []
 - _ulid: 01KGBS559FN57DQBK457E0V8P5
   slugs: []

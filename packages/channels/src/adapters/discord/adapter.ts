@@ -410,14 +410,28 @@ export class DiscordAdapter implements ChannelAdapter {
     on: (event: string, handler: (...args: any[]) => void) => void;
   }): void {
     // Register listeners
-    bot.on('tool:call', (sessionId: string, channelId: string, toolCall: ToolCall) => {
-      void this.handleToolCall(sessionId, channelId, toolCall);
-    });
+    // AC: @discord-tool-widgets ac-10, ac-11, ac-14 - parentMessageId enables thread isolation
+    bot.on(
+      'tool:call',
+      (
+        sessionId: string,
+        channelId: string,
+        toolCall: ToolCall,
+        parentMessageId: string | undefined
+      ) => {
+        void this.handleToolCall(sessionId, channelId, toolCall, parentMessageId);
+      }
+    );
 
     bot.on(
       'tool:update',
-      (sessionId: string, channelId: string, toolCallUpdate: ToolCallUpdate) => {
-        void this.handleToolCallUpdate(sessionId, channelId, toolCallUpdate);
+      (
+        sessionId: string,
+        channelId: string,
+        toolCallUpdate: ToolCallUpdate,
+        parentMessageId: string | undefined
+      ) => {
+        void this.handleToolCallUpdate(sessionId, channelId, toolCallUpdate, parentMessageId);
       }
     );
 
@@ -428,16 +442,19 @@ export class DiscordAdapter implements ChannelAdapter {
    * Handle tool call event
    *
    * AC: @discord-tool-widgets ac-1
+   * AC: @discord-tool-widgets ac-10, ac-11, ac-14 - parentMessageId enables thread isolation
    */
   private async handleToolCall(
     sessionId: string,
     channelId: string,
-    toolCall: ToolCall
+    toolCall: ToolCall,
+    parentMessageId: string | undefined
   ): Promise<void> {
     this.logger.debug('Tool call received', {
       toolCallId: toolCall.toolCallId,
       title: toolCall.title,
       sessionId,
+      parentMessageId,
     });
 
     try {
@@ -468,16 +485,19 @@ export class DiscordAdapter implements ChannelAdapter {
    * Handle tool call update event
    *
    * AC: @discord-tool-widgets ac-2, ac-3, ac-5, ac-6
+   * AC: @discord-tool-widgets ac-10, ac-11, ac-14 - parentMessageId enables thread isolation
    */
   private async handleToolCallUpdate(
     sessionId: string,
     channelId: string,
-    toolCallUpdate: ToolCallUpdate
+    toolCallUpdate: ToolCallUpdate,
+    parentMessageId: string | undefined
   ): Promise<void> {
     this.logger.debug('Tool call update received', {
       toolCallId: toolCallUpdate.toolCallId,
       status: toolCallUpdate.status,
       sessionId,
+      parentMessageId,
     });
 
     try {

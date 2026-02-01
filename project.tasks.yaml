@@ -11925,6 +11925,16 @@
         The schema changes are complete. The messaging tests now properly test the event-sourced
         turn architecture.
       supersedes: null
+    - _ulid: 01KGBZ17Y00H0BT9GDARTSC4ZM
+      created_at: 2026-02-01T06:42:51.456Z
+      author: "@claude"
+      content: >-
+        PR created: https://github.com/kynetic-ai/kynetic-bot/pull/58
+
+
+        Task is now pending_review. The bot package type errors (2) are expected and will be
+        addressed in @01KGBS55.
+      supersedes: null
   todos: []
 - _ulid: 01KGBS58Q2S4S4JKG044Y5HXNS
   slugs: []

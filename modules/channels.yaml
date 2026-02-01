@@ -209,86 +209,115 @@ features:
     status:
       maturity: draft
       implementation: implemented
-    requirements:
-      - _ulid: 01KG93A3GEVCRNZQ8HY1A2VQGX
-        slugs:
-          - discord-tool-widgets
-        title: Rich Tool Call Display
-        type: requirement
-        tags:
-          - discord
-          - ui
-        description: Display agent tool calls and results as rich Discord embeds with interactive
-          components. Shows what the agent is doing in a compact, readable format with expand
-          buttons for full details. Uses ACP tool_call/tool_call_update events to track and present
-          tool execution.
-        depends_on: []
-        implements: []
-        relates_to: []
-        tests: []
-        traits:
-          - trait-observable
-          - graceful-degradation
-        notes: []
-        created: 2026-01-31T03:59:52.847Z
-        acceptance_criteria:
-          - id: ac-1
-            given: Agent executes a tool call (bash, read, write, etc.)
-            when: tool_call event received from ACP
-            then: Discord message shows compact widget with tool type icon, key parameters, and status
-          - id: ac-2
-            given: Bash command completes
-            when: tool_call_update received with result
-            then: Widget shows exit code, duration, and first 10 lines of output with expand button for full
-              output
-          - id: ac-3
-            given: File edit/write tool completes
-            when: tool_call_update received with diff
-            then: Widget shows syntax-highlighted diff with +/- prefixes, line ranges, and expand button for
-              full content
-          - id: ac-4
-            given: User clicks expand button on a widget
-            when: Discord component interaction received
-            then: Bot sends follow-up message with full tool output (auto-deleted after 60 seconds), handles
-              Discord rate limits
-          - id: ac-5
-            given: Multiple tool calls executing rapidly
-            when: tool_call_update events stream in
-            then: ToolCallTracker batches message updates, MessageUpdateBatcher respects Discord rate limits (5
-              edits per 5 seconds per message)
-          - id: ac-6
-            given: Tool call fails with error (bash exit code != 0, file read permission denied, etc.)
-            when: tool_call_update received with error status
-            then: Widget shows red embed border, ❌ icon, error message summary (first 100 chars), expand button
-              for full error details
-          - id: ac-7
-            given: More than 10 concurrent tool calls executing
-            when: rendering widgets in Discord message
-            then: Splits across multiple messages with max 10 embeds per message, maintains chronological order
-          - id: ac-8
-            given: File edit/write operates on binary file (PNG, PDF, etc.)
-            when: tool_call_update received with diff
-            then: Widget shows '(binary file changed, X bytes)' instead of diff content
-          - id: ac-9
-            given: Session ends (completed, cancelled, or crash) with pending tool calls
-            when: session cleanup triggered
-            then: All pending widgets updated to final state (completed/cancelled/timed out), ToolCallTracker
-              clears tracking data
-        status:
-          maturity: draft
-          implementation: in_progress
-  - _ulid: 01KGDBMBQJ38MSR9QYEH1MYFJ7
+  - _ulid: 01KG93A3GEVCRNZQ8HY1A2VQGX
     slugs:
       - discord-tool-widgets
     title: Discord Tool Widgets
     type: feature
-    tags: []
-    depends_on: []
+    tags:
+      - discord
+      - ui
+    description: Display agent tool calls and results as rich Discord embeds with interactive
+      components. Shows what the agent is doing in a compact, readable format with expand
+      buttons for full details. Uses ACP tool_call/tool_call_update events to track and present
+      tool execution. Supports thread-based isolation for guild channels and condensed display for DMs.
+    depends_on:
+      - "@discord-channel-adapter"
     implements: []
     relates_to: []
     tests: []
     traits:
-      - trait-observable
-      - graceful-degradation
+      - "@trait-observable"
+      - "@graceful-degradation"
     notes: []
-    created: 2026-02-01T19:42:15.283Z
+    created: 2026-01-31T03:59:52.847Z
+    acceptance_criteria:
+      - id: ac-1
+        given: Agent executes a tool call (bash, read, write, etc.)
+        when: tool_call event received from ACP
+        then: Discord message shows compact widget with tool type icon, key parameters, and status
+      - id: ac-2
+        given: Bash command completes
+        when: tool_call_update received with result
+        then: Widget shows exit code, duration, and first 10 lines of output with expand button for full
+          output
+      - id: ac-3
+        given: File edit/write tool completes
+        when: tool_call_update received with diff
+        then: Widget shows syntax-highlighted diff with +/- prefixes, line ranges, and expand button for
+          full content
+      - id: ac-4
+        given: User clicks expand button on a widget
+        when: Discord component interaction received
+        then: Bot sends follow-up message with full tool output (auto-deleted after 60 seconds), handles
+          Discord rate limits
+      - id: ac-5
+        given: Multiple tool calls executing rapidly
+        when: tool_call_update events stream in
+        then: ToolCallTracker batches message updates, MessageUpdateBatcher respects Discord rate limits (5
+          edits per 5 seconds per message)
+      - id: ac-6
+        given: Tool call fails with error (bash exit code != 0, file read permission denied, etc.)
+        when: tool_call_update received with error status
+        then: Widget shows red embed border, ❌ icon, error message summary (first 100 chars), expand button
+          for full error details
+      - id: ac-7
+        given: More than 10 concurrent tool calls executing
+        when: rendering widgets in Discord message
+        then: Splits across multiple messages with max 10 embeds per message, maintains chronological order
+      - id: ac-8
+        given: File edit/write operates on binary file (PNG, PDF, etc.)
+        when: tool_call_update received with diff
+        then: Widget shows '(binary file changed, X bytes)' instead of diff content
+      - id: ac-9
+        given: Session ends (completed, cancelled, or crash) with pending tool calls
+        when: session cleanup triggered
+        then: All pending widgets updated to final state (completed/cancelled/timed out), ToolCallTracker
+          clears tracking data
+      - id: ac-10
+        given: Agent executes tool call in guild channel
+        when: first tool_call event for a response message
+        then: Thread created attached to bot's response message (name 'Tools', 1hr auto-archive), widget sent to thread
+      - id: ac-11
+        given: Subsequent tool calls for same response message
+        when: tool_call events received
+        then: Widgets sent to existing thread for that response (no new thread created)
+      - id: ac-12
+        given: Bot lacks CREATE_PUBLIC_THREADS permission
+        when: thread API returns permission error
+        then: Falls back to condensed display in channel (graceful degradation)
+      - id: ac-13
+        given: Session ends with active tool thread
+        when: session cleanup triggered
+        then: Thread tracking cleared; Discord auto-archives thread per settings
+      - id: ac-14
+        given: Tool call arrives BEFORE any text response
+        when: first tool_call with no response message yet
+        then: Create placeholder message 'Working...', spawn thread from it
+      - id: ac-15
+        given: User clicks expand button in thread
+        when: component interaction received
+        then: Follow-up sent to SAME thread (not main channel)
+      - id: ac-16
+        given: Multiple user messages trigger tools
+        when: tool_calls for different response messages
+        then: Each response message gets its own thread (per-response isolation)
+      - id: ac-17
+        given: Discord thread is deleted mid-session
+        when: subsequent tool_call for deleted thread
+        then: Fall back to condensed display in channel, log warning
+      - id: ac-18
+        given: Tool calls in DM channel (no thread support)
+        when: tool_call events in DM
+        then: First 5 tools shown as full widgets, 6th+ condensed into status message
+      - id: ac-19
+        given: DM status message with overflow
+        when: more than 5 tools in DM
+        then: Status shows tool names progressively, switches to counts when >8 total
+      - id: ac-20
+        given: DM tool completes while condensed
+        when: tool_call_update for condensed tool
+        then: Status message updates counts
+    status:
+      maturity: draft
+      implementation: in_progress

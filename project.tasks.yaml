@@ -11131,7 +11131,7 @@
   slugs: []
   title: Improve Discord tool widget UX
   type: task
-  spec_ref: null
+  spec_ref: "@discord-tool-widgets"
   meta_ref: null
   status: pending
   blocked_by: []
@@ -12851,6 +12851,10 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "PR #67 merged. StreamingSplitTracker integrated with bot streaming flow. AC-5
+    (semantic boundary splitting) and AC-6 (code block handling) implemented with proper state
+    management. Comprehensive unit tests exist for the tracker; manual test plan verified
+    integration."
   depends_on:
     - "@01KGD137"
     - "@01KGD13T"
@@ -12861,6 +12865,7 @@
   vcs_refs: []
   created_at: 2026-02-01T16:39:04.152Z
   started_at: 2026-02-01T18:26:14.713Z
+  completed_at: 2026-02-01T18:32:10.726Z
   notes:
     - _ulid: 01KGD15EXQPTN4K9W0MSQ1FAGQ
       created_at: 2026-02-01T16:39:21.271Z
@@ -12999,8 +13004,3 @@
         Awaiting review and merge.
       supersedes: null
   todos: []
-  completed_at: 2026-02-01T18:32:10.726Z
-  closed_reason: "PR #67 merged. StreamingSplitTracker integrated with bot streaming flow. AC-5
-    (semantic boundary splitting) and AC-6 (code block handling) implemented with proper state
-    management. Comprehensive unit tests exist for the tracker; manual test plan verified
-    integration."

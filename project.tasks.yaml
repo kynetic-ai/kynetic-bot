@@ -11219,6 +11219,9 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "Merged in PR #58. Wired ACP event logging to SessionStore: prompt.sent logged before
+    agent call (ac-9), session.update events queued and flushed after coalescer.complete() (ac-8).
+    Turns created with event pointers. All 135 bot tests pass."
   depends_on: []
   context: []
   priority: 1
@@ -11226,6 +11229,7 @@
   vcs_refs: []
   created_at: 2026-02-01T05:00:08.367Z
   started_at: 2026-02-01T08:10:27.737Z
+  completed_at: 2026-02-01T08:21:16.716Z
   notes:
     - _ulid: 01KGBS5K5WZ1KJHXM6NEN3XQ5M
       created_at: 2026-02-01T05:00:22.588Z
@@ -11462,10 +11466,6 @@
         - Tests: all packages pass (memory: 254, messaging: 224, bot: 135)
       supersedes: null
   todos: []
-  completed_at: 2026-02-01T08:21:16.716Z
-  closed_reason: "Merged in PR #58. Wired ACP event logging to SessionStore: prompt.sent logged before
-    agent call (ac-9), session.update events queued and flushed after coalescer.complete() (ac-8).
-    Turns created with event pointers. All 135 bot tests pass."
 - _ulid: 01KGBS56ZWP3CKZQ37HB0XYEMZ
   slugs: []
   title: Update ConversationTurn schema for event pointers
@@ -12008,7 +12008,7 @@
   type: task
   spec_ref: "@mem-conversation"
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on:
     - "@01KGBS56"
@@ -12034,6 +12034,7 @@
         **AC coverage**: @mem-conversation ac-3
       supersedes: null
   todos: []
+  started_at: 2026-02-01T08:24:03.698Z
 - _ulid: 01KGBS5ADJZ2BW63P7RE4Y04J0
   slugs: []
   title: Update ContextRestorer for event-sourced turns

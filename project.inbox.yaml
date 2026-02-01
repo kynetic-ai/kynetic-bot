@@ -419,3 +419,13 @@ inbox:
       - workflow
       - pr-review
     added_by: "@claude"
+  - _ulid: 01KGCC7TKVXB2QBPR3PMCAM5FG
+    text: "local-review skill: Validate test AC comments reference valid spec items. Pattern match '//
+      AC: @spec-item ac-N' comments against kspec item list to catch incorrect references before
+      PR."
+    created_at: 2026-02-01T10:33:38.684Z
+    tags:
+      - reflection
+      - workflow
+      - local-review
+    added_by: "@claude"

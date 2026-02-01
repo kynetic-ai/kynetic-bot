@@ -13023,7 +13023,7 @@
   type: task
   spec_ref: "@discord-tool-widgets"
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -13136,6 +13136,9 @@
         All 355 tests in channels package pass.
       supersedes: null
   todos: []
+  completed_at: 2026-02-01T19:57:19.504Z
+  closed_reason: "ThreadTracker implemented with race condition prevention, per-response isolation,
+    and session cleanup. PR #68 merged."
 - _ulid: 01KGDBR994DE170TTC4THFT6RW
   slugs: []
   title: Add parentMessageId to Bot tool events

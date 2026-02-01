@@ -2,24 +2,7 @@ pre-commit:
   parallel: true
   jobs:
     - name: git-sanity
-      run: |
-        # Check for bare repo corruption
-        if git config --get core.bare 2>/dev/null | grep -q "true"; then
-          echo "ERROR: Repository is set to bare mode (core.bare=true)"
-          echo "This is likely test pollution. Fix with: git config core.bare false"
-          exit 1
-        fi
-        # Check for test user config pollution
-        if git config --get user.name 2>/dev/null | grep -q "^Test$"; then
-          echo "ERROR: Test user.name detected in git config"
-          echo "Fix with: git config --unset user.name"
-          exit 1
-        fi
-        if git config --get user.email 2>/dev/null | grep -q "test@test.com"; then
-          echo "ERROR: Test user.email detected in git config"
-          echo "Fix with: git config --unset user.email"
-          exit 1
-        fi
+      run: ./scripts/git-sanity.sh
 
     - name: lint
       glob: '*.{ts,tsx,js,jsx}'
@@ -32,24 +15,7 @@ pre-commit:
 pre-push:
   jobs:
     - name: git-sanity
-      run: |
-        # Check for bare repo corruption
-        if git config --get core.bare 2>/dev/null | grep -q "true"; then
-          echo "ERROR: Repository is set to bare mode (core.bare=true)"
-          echo "This is likely test pollution. Fix with: git config core.bare false"
-          exit 1
-        fi
-        # Check for test user config pollution
-        if git config --get user.name 2>/dev/null | grep -q "^Test$"; then
-          echo "ERROR: Test user.name detected in git config"
-          echo "Fix with: git config --unset user.name"
-          exit 1
-        fi
-        if git config --get user.email 2>/dev/null | grep -q "test@test.com"; then
-          echo "ERROR: Test user.email detected in git config"
-          echo "Fix with: git config --unset user.email"
-          exit 1
-        fi
+      run: ./scripts/git-sanity.sh
 
     - name: typecheck
       run: pnpm build

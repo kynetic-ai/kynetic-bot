@@ -12184,7 +12184,7 @@
   type: task
   spec_ref: "@mem-context-restore"
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -12424,3 +12424,6 @@
         - Missing toolCallId warning
       supersedes: null
   todos: []
+  completed_at: 2026-02-01T10:32:09.010Z
+  closed_reason: "PR #63 merged. TurnReconstructor now extracts tool calls from ACP session.update
+    events for context restoration."

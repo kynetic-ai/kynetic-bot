@@ -11468,7 +11468,7 @@
   type: task
   spec_ref: "@mem-conversation"
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -11993,6 +11993,11 @@
         addressed in @01KGBS55.
       supersedes: null
   todos: []
+  completed_at: 2026-02-01T08:21:14.749Z
+  closed_reason: "Merged in PR #58. Updated ConversationTurn schema to use session_id + event_range
+    instead of content. Added TurnReconstructor for content reconstruction from events. All 254
+    memory tests and 224 messaging tests pass. AC coverage verified for ac-1 through ac-8 and
+    ac-10."
 - _ulid: 01KGBS58Q2S4S4JKG044Y5HXNS
   slugs: []
   title: Add updateLastTurnEndSeq to ConversationStore

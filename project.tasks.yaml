@@ -12701,6 +12701,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-01T16:38:42.255Z
+  started_at: 2026-02-01T17:41:39.655Z
   notes:
     - _ulid: 01KGD14SKZDQYMXPD0S3XQ6ZTN
       created_at: 2026-02-01T16:38:59.456Z
@@ -12804,8 +12805,38 @@
 
         ```
       supersedes: null
+    - _ulid: 01KGD4XYYX9W04YZWT1FZEYQ6Y
+      created_at: 2026-02-01T17:45:09.853Z
+      author: "@claude"
+      content: >-
+        Implemented AC-7 block boundary detection in bot.ts streaming handler:
+
+
+        **Key changes:**
+
+        - Added `blocks: string[]` and `currentBlockText` tracking at line 504-505
+
+        - In `updateHandler` (line 603-617): when empty string received, finalize current block and
+        return early (don't push to coalescer)
+
+        - Non-empty chunks accumulate into `currentBlockText`
+
+        - In `onChunk` callback: display joined blocks with double newline separation
+
+        - In `onComplete`: finalize any remaining block and use block-joined text as final response
+
+
+        **Test coverage:**
+
+        - Added 4 AC-7 tests in bot.test.ts:
+          - `should not create message on first empty string chunk`
+          - `should finalize block on subsequent empty string boundaries`
+          - `should join multiple blocks with double newline separation`
+          - `should handle incremental chunks within a block`
+
+        All tests pass, linting clean, TypeScript compiles.
+      supersedes: null
   todos: []
-  started_at: 2026-02-01T17:41:39.655Z
 - _ulid: 01KGD14Y6SNV4F0FHRWWF8AKV7
   slugs:
     - streaming-splitter-integration

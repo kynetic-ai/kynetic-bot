@@ -284,6 +284,11 @@ features:
             given: Turn pointer references session events
             when: Context restoration needs content
             then: Uses TurnReconstructor to rebuild structured turn from events
+          - id: ac-10
+            given: Archived History section generated
+            when: Agent reads the section
+            then: Includes instruction explaining turns contain (session_id, event_range) pointers and how to
+              resolve content via sessions/{session_id}/events.jsonl filtering by seq range
         features:
           - _ulid: 01KG8FZFY22TQ2WVM307GY4SH3
             slugs:

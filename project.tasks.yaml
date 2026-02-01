@@ -13549,5 +13549,91 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-01T19:44:29.512Z
-  notes: []
+  notes:
+    - _ulid: 01KGDBTAZ38PZKYMADGWA92629
+      created_at: 2026-02-01T19:45:31.107Z
+      author: "@claude"
+      content: |-
+        ## Overview
+        Add comprehensive tests for thread-based and condensed tool widget behavior.
+
+        ## Files
+        - packages/channels/test/adapters/discord/tool-widgets/ThreadTracker.test.ts (NEW)
+        - packages/channels/test/adapters/discord/tool-widgets/CondensedToolDisplay.test.ts (NEW)
+        - packages/channels/test/adapters/discord/adapter.test.ts (extend)
+
+        ## ThreadTracker Unit Tests
+        ```typescript
+        describe('ThreadTracker', () => {
+          describe('getOrCreateThread', () => {
+            it('creates thread on first call');
+            it('returns existing thread on subsequent calls');
+            it('handles concurrent calls with promise deduplication');
+            it('handles creation failure gracefully');
+            it('returns null when createFn throws');
+          });
+
+          describe('cleanupSession', () => {
+            it('removes all tracking for session');
+            it('handles cleanup of non-existent session');
+          });
+
+          describe('getThreadId', () => {
+            it('returns threadId when exists');
+            it('returns null when not exists');
+          });
+        });
+        ```
+
+        ## CondensedToolDisplay Unit Tests
+        ```typescript
+        describe('CondensedToolDisplay', () => {
+          describe('addToolCall', () => {
+            it('returns widget for first 5 tools');
+            it('returns condensed for 6th+ tool');
+          });
+
+          describe('getStatusText', () => {
+            it('shows tool names for small overflow (<=3 condensed)');
+            it('shows counts for large overflow (>3 condensed)');
+            it('includes completion status icons');
+            it('updates when tools complete');
+          });
+
+          describe('updateToolCall', () => {
+            it('updates status when condensed tool completes');
+            it('handles tool not found gracefully');
+          });
+
+          describe('cleanupSession', () => {
+            it('removes all state for session');
+          });
+        });
+        ```
+
+        ## Integration Tests
+        ```typescript
+        describe('DiscordAdapter tool widget threads', () => {
+          it('creates thread on first tool_call in guild channel');
+          it('sends subsequent tool widgets to existing thread');
+          it('expand button response goes to thread');
+          it('cleans up thread tracking on session end');
+          it('falls back to condensed when thread deleted mid-session');
+        });
+
+        describe('DiscordAdapter condensed display', () => {
+          it('uses condensed display in DM');
+          it('shows first 5 tools as widgets');
+          it('shows 6th+ in status message');
+          it('status shows progressive tool names for small overflow');
+          it('status shows counts for large overflow');
+          it('updates status when condensed tools complete');
+          it('uses condensed display on permission error');
+        });
+        ```
+
+        ## AC Coverage
+        All new thread ACs (ac-10 through ac-20).
+        Ensure existing ac-1 through ac-9 still pass.
+      supersedes: null
   todos: []

@@ -12720,7 +12720,10 @@
   meta_ref: null
   status: pending
   blocked_by: []
-  depends_on: []
+  depends_on:
+    - "@01KGD137"
+    - "@01KGD13T"
+    - "@01KGD148"
   context: []
   priority: 2
   tags: []

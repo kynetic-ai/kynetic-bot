@@ -12860,6 +12860,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-01T16:39:04.152Z
+  started_at: 2026-02-01T18:26:14.713Z
   notes:
     - _ulid: 01KGD15EXQPTN4K9W0MSQ1FAGQ
       created_at: 2026-02-01T16:39:21.271Z
@@ -12956,5 +12957,37 @@
 
         - [ ] Manual: Multiple content blocks - proper `\n\n` separation
       supersedes: null
+    - _ulid: 01KGD7CMT75YNT53PTBCZYW09V
+      created_at: 2026-02-01T18:28:08.135Z
+      author: "@claude"
+      content: >-
+        Integrated StreamingSplitTracker with bot streaming flow:
+
+
+        **Exports added:**
+
+        - `StreamingSplitTracker` and `SplitDecision` now exported from @kynetic-bot/channels
+
+
+        **Bot integration:**
+
+        - Created tracker at start of streaming for Discord platform
+
+        - In onChunk callback, pass displayText through tracker to get split decisions
+
+        - When action='split': edit current message with first chunk, send overflow as new messages,
+        reset blocks/currentBlockText/tracker
+
+        - In onComplete callback, finalize tracker and handle any remaining splits
+
+
+        **Behavior:**
+
+        - AC-5: Splits at semantic boundaries when content exceeds Discord limit
+
+        - AC-6: Buffers code blocks, preemptively splits before them when near limit
+
+
+        All tests passing.
+      supersedes: null
   todos: []
-  started_at: 2026-02-01T18:26:14.713Z

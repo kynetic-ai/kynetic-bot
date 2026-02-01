@@ -12712,19 +12712,114 @@
         ```
       supersedes: null
   todos: []
-- title: Integrate StreamingSplitTracker with streaming flow
+- _ulid: 01KGD14Y6SNV4F0FHRWWF8AKV7
+  slugs: []
+  title: Integrate StreamingSplitTracker with streaming flow
   type: task
   spec_ref: "@discord-channel-adapter"
   meta_ref: null
-  priority: 2
-  slugs: []
-  tags: []
-  depends_on: []
-  _ulid: 01KGD14Y6SNV4F0FHRWWF8AKV7
   status: pending
   blocked_by: []
+  depends_on: []
   context: []
+  priority: 2
+  tags: []
   vcs_refs: []
   created_at: 2026-02-01T16:39:04.152Z
-  notes: []
+  notes:
+    - _ulid: 01KGD15EXQPTN4K9W0MSQ1FAGQ
+      created_at: 2026-02-01T16:39:21.271Z
+      author: "@claude"
+      content: >-
+        **Spec ref:** @discord-channel-adapter AC-5, AC-6, AC-7
+
+
+        **Depends on:** Task 1 (StreamingSplitTracker), Task 2 (editMessage splitting), Task 3
+        (block boundary detection)
+
+
+        **Description:** Wire up the StreamingSplitTracker to the bot streaming handler:
+
+        - Create tracker at start of streaming
+
+        - Pass the JOINED display text (not individual chunks) through tracker
+
+        - Handle split decisions (send overflow messages)
+
+        - Combine with block boundary detection
+
+
+        **How splitting interacts with block tracking:**
+
+
+        The display text is `[...blocks, currentBlockText].join('\n\n')`. The tracker operates on
+        THIS joined text, not individual blocks.
+
+
+        When a split is needed:
+
+        1. Tracker returns `{ action: 'split', chunks: [first, ...rest] }`
+
+        2. Edit current message with `first` chunk
+
+        3. Send `rest` chunks as overflow messages
+
+        4. **Reset for next message:** `blocks = []`, `currentBlockText = ''` (new message starts
+        fresh)
+
+        5. If mid-code-block, tracker handles close/reopen via `splitMessage()`
+
+
+        ```typescript
+
+        const splitTracker = new StreamingSplitTracker();
+
+
+        onChunk: async (chunk) => {
+          // ... block boundary detection (Task 3) ...
+
+          const displayText = [...blocks, currentBlockText].join('\n\n');
+          const decision = splitTracker.push(displayText);
+
+          if (decision.action === 'split') {
+            // Edit first message with first chunk
+            await this.channelLifecycle.editMessage?.(..., decision.chunks[0]);
+
+            // Send overflow as new messages
+            for (const overflow of decision.chunks.slice(1)) {
+              await this.channelLifecycle.sendMessage(..., overflow);
+            }
+
+            // Reset for continuation (new message starts fresh)
+            blocks = [];
+            currentBlockText = '';
+            splitTracker.confirmSplit(decision.chunks.join('').length);
+          } else {
+            // Normal display update
+            await this.channelLifecycle.editMessage?.(..., displayText);
+          }
+        }
+
+        ```
+
+
+        **Files:**
+
+        - `packages/bot/src/bot.ts` - Integrate tracker
+
+
+        **Verification:**
+
+        - [ ] `pnpm test --filter @kynetic-bot/channels` passes
+
+        - [ ] `pnpm test --filter @kynetic-bot/bot` passes
+
+        - [ ] Manual: Short response - single message, no split
+
+        - [ ] Manual: Long response (>2000 chars) - splits correctly
+
+        - [ ] Manual: Code block near limit - preemptive split
+
+        - [ ] Manual: Multiple content blocks - proper `\n\n` separation
+      supersedes: null
   todos: []

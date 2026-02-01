@@ -11225,6 +11225,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-01T05:00:08.367Z
+  started_at: 2026-02-01T08:10:27.737Z
   notes:
     - _ulid: 01KGBS5K5WZ1KJHXM6NEN3XQ5M
       created_at: 2026-02-01T05:00:22.588Z
@@ -11404,8 +11405,63 @@
 
         5. Manual: Trigger context restoration, verify content reconstructed
       supersedes: null
+    - _ulid: 01KGC4CYC63DN1Z8D56DMTZDAB
+      created_at: 2026-02-01T08:16:37.766Z
+      author: "@claude"
+      content: >-
+        ## Event-Sourced Turn Wiring Complete
+
+
+        ### Changes Made
+
+
+        **packages/bot/src/bot.ts:**
+
+        1. Added `SessionEventInput` import from memory package
+
+        2. Before sending prompt: log `prompt.sent` event and capture seq
+
+        3. In `updateHandler`: queue `session.update` events for all ACP SessionUpdates
+
+        4. After `coalescer.complete()`: flush event queue and capture seqs
+
+        5. User turn now created with `session_id + event_range` pointing to prompt.sent event
+
+        6. Assistant turn now created with `session_id + event_range` pointing to session.update
+        events
+
+
+        **packages/bot/test/bot.test.ts:**
+
+        - Updated AC-2, AC-3, AC-4, AC-5 tests to use new event-sourced schema
+
+        - Added `mockMemorySessionStore.appendEvent` mock with seq counter
+
+        - Added missing `getConversationBySessionKey` and `readTurns` to mocks
+
+        - Updated expected turn structure from `{content, agent_session_id}` to `{session_id,
+        event_range}`
+
+
+        ### AC Coverage
+
+        - @mem-agent-sessions ac-8: Persist full SessionUpdate as session.update event via
+        appendEvent
+
+        - @mem-agent-sessions ac-9: Log prompt.sent event before sending to agent
+
+        - @mem-conversation ac-1: User turn with (role, session_id, event_range)
+
+        - @mem-conversation ac-2: Assistant turn with (role, session_id, event_range)
+
+
+        ### Verification
+
+        - Build: all 6 packages build successfully
+
+        - Tests: all packages pass (memory: 254, messaging: 224, bot: 135)
+      supersedes: null
   todos: []
-  started_at: 2026-02-01T08:10:27.737Z
 - _ulid: 01KGBS56ZWP3CKZQ37HB0XYEMZ
   slugs: []
   title: Update ConversationTurn schema for event pointers

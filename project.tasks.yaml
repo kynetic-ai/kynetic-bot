@@ -11881,6 +11881,12 @@
 
         Task remains in_progress until messaging tests are fixed.
       supersedes: null
+    - _ulid: 01KGBYDVZ7P8SJT4KBPZC77F35
+      created_at: 2026-02-01T06:32:16.616Z
+      author: "@claude"
+      content: "Continuing: updating turn-selector.test.ts to use new schema with session_id + event_range
+        instead of content. Will inject MockTurnReconstructor and update all async calls."
+      supersedes: null
   todos: []
 - _ulid: 01KGBS58Q2S4S4JKG044Y5HXNS
   slugs: []

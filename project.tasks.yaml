@@ -13097,7 +13097,23 @@
         - ac-17: Handle deleted thread
       supersedes: null
   todos: []
-- title: Add parentMessageId to Bot tool events
+- _ulid: 01KGDBR994DE170TTC4THFT6RW
+  slugs: []
+  title: Add parentMessageId to Bot tool events
+  type: task
+  spec_ref: "@discord-tool-widgets"
+  meta_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  priority: 2
+  tags: []
+  vcs_refs: []
+  created_at: 2026-02-01T19:44:23.844Z
+  notes: []
+  todos: []
+- title: Implement condensed tool display for DMs
   type: task
   spec_ref: "@discord-tool-widgets"
   meta_ref: null
@@ -13105,11 +13121,11 @@
   slugs: []
   tags: []
   depends_on: []
-  _ulid: 01KGDBR994DE170TTC4THFT6RW
+  _ulid: 01KGDBRB3YT72A2BVXVCER1G6E
   status: pending
   blocked_by: []
   context: []
   vcs_refs: []
-  created_at: 2026-02-01T19:44:23.844Z
+  created_at: 2026-02-01T19:44:25.726Z
   notes: []
   todos: []

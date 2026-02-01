@@ -12515,19 +12515,82 @@
         ```
       supersedes: null
   todos: []
-- title: Add splitting to editMessage
+- _ulid: 01KGD13T7HA2E3BD2H2DFTQA7T
+  slugs: []
+  title: Add splitting to editMessage
   type: task
   spec_ref: "@discord-channel-adapter"
   meta_ref: null
-  priority: 2
-  slugs: []
-  tags: []
-  depends_on: []
-  _ulid: 01KGD13T7HA2E3BD2H2DFTQA7T
   status: pending
   blocked_by: []
+  depends_on: []
   context: []
+  priority: 2
+  tags: []
   vcs_refs: []
   created_at: 2026-02-01T16:38:27.312Z
-  notes: []
+  notes:
+    - _ulid: 01KGD144T74WP9G8STKRFT78NQ
+      created_at: 2026-02-01T16:38:38.151Z
+      author: "@claude"
+      content: >-
+        **Spec ref:** @discord-channel-adapter AC-5
+
+
+        **Description:** Update Discord adapter's `editMessage()` to handle long content:
+
+        - If text <= 2000 chars, edit normally
+
+        - If text > 2000 chars, use `splitMessage()` to split
+
+        - Edit first message with first chunk
+
+        - Send remaining chunks as follow-up messages
+
+        - Return `{ editedId, overflowIds }` for tracking
+
+
+        **Return type change (breaking change pattern):**
+
+        ```typescript
+
+        // Old: Promise<string | void>
+
+        // New: Promise<string | { editedId: string; overflowIds: string[] } | void>
+
+
+        // ChannelLifecycle normalizes both patterns for backward compatibility
+
+        ```
+
+
+        Note: This affects the `ChannelAdapter` interface. Future adapters (Slack, etc.) should
+        conform to new pattern.
+
+
+        **Files:**
+
+        - `packages/channels/src/adapters/discord/adapter.ts` - Update editMessage
+
+        - `packages/core/src/types/channel-adapter.ts` - Update return type (union for compat)
+
+        - `packages/channels/src/lifecycle.ts` - Normalize return type
+
+        - `packages/channels/test/adapters/discord/adapter.test.ts` - Add tests
+
+
+        **AC coverage tests:**
+
+        ```typescript
+
+        // AC: @discord-channel-adapter ac-5
+
+        it('should split long messages when editing')
+
+        it('should not split messages under limit')
+
+        it('should return overflow IDs')
+
+        ```
+      supersedes: null
   todos: []

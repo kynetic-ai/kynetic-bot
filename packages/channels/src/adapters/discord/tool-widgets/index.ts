@@ -12,3 +12,6 @@ export type { ToolCallState, MessageState } from './ToolCallTracker.js';
 
 export { MessageUpdateBatcher } from './MessageUpdateBatcher.js';
 export type { MessageEditFn } from './MessageUpdateBatcher.js';
+
+export { ThreadTracker } from './ThreadTracker.js';
+export type { ThreadState } from './ThreadTracker.js';

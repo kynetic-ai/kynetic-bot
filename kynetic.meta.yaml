@@ -532,4 +532,13 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KGCB6DQCMSVV7PQC8RPE6AAH
+    type: success
+    content: Real-world testing caught integration bug that unit tests missed - all 1273 tests passed
+      but actual bot testing revealed TurnReconstructor wasn't wired to ContextRestorer. Mocked
+      dependencies create blind spots; manual testing remains valuable for integration verification.
+    created_at: 2026-02-01T10:15:24.140Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

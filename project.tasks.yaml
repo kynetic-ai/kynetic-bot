@@ -12442,6 +12442,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-01T16:38:08.552Z
+  started_at: 2026-02-01T17:01:15.920Z
   notes:
     - _ulid: 01KGD13NQRYY7JE3CG29CNK0HA
       created_at: 2026-02-01T16:38:22.713Z
@@ -12515,8 +12516,52 @@
 
         ```
       supersedes: null
+    - _ulid: 01KGD2TTZ09YR1ET54A2ZB41ZP
+      created_at: 2026-02-01T17:08:30.304Z
+      author: "@claude"
+      content: >-
+        Implemented StreamingSplitTracker class in splitter.ts.
+
+
+        **Implementation details:**
+
+        - Added `StreamingSplitTracker` class with `push()`, `reset()`, `finalize()`, `getText()`,
+        `isInCodeBlock()` methods
+
+        - Added `SplitDecision` type with three actions: `continue`, `buffer`, `split`
+
+        - Added constants: `DISCORD_MESSAGE_MAX` (2000), `DEFAULT_SOFT_LIMIT` (1800)
+
+
+        **Behavior:**
+
+        - Under soft limit: returns `{ action: 'continue' }`
+
+        - Between soft/hard limit with code block just started: preemptively splits BEFORE the code
+        block
+
+        - Between soft/hard limit inside code block: returns `{ action: 'buffer' }` to let it
+        complete
+
+        - Over hard limit: returns `{ action: 'split', chunks: [...] }` using `splitMessage()`
+
+
+        **Bug fix included:**
+
+        - Fixed pre-existing bug in `splitMessage()` where code block continuation prefix was not
+        added when remaining text fits in final chunk
+
+        - Same fix applied to `splitMessageToEmbeds()`
+
+
+        **Tests added with AC annotations:**
+
+        - AC-5: split when over max limit, continue when under soft limit
+
+        - AC-6: buffer when inside code block, split BEFORE code block, close/reopen when must split
+        mid-block
+      supersedes: null
   todos: []
-  started_at: 2026-02-01T17:01:15.920Z
 - _ulid: 01KGD13T7HA2E3BD2H2DFTQA7T
   slugs:
     - edit-message-splitting

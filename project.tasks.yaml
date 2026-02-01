@@ -12427,19 +12427,91 @@
         - Missing toolCallId warning
       supersedes: null
   todos: []
-- title: Implement StreamingSplitTracker
+- _ulid: 01KGD137X8NY8RZ5T9R507EG10
+  slugs: []
+  title: Implement StreamingSplitTracker
   type: task
   spec_ref: "@discord-channel-adapter"
   meta_ref: null
-  priority: 2
-  slugs: []
-  tags: []
-  depends_on: []
-  _ulid: 01KGD137X8NY8RZ5T9R507EG10
   status: pending
   blocked_by: []
+  depends_on: []
   context: []
+  priority: 2
+  tags: []
   vcs_refs: []
   created_at: 2026-02-01T16:38:08.552Z
-  notes: []
+  notes:
+    - _ulid: 01KGD13NQRYY7JE3CG29CNK0HA
+      created_at: 2026-02-01T16:38:22.713Z
+      author: "@claude"
+      content: >-
+        **Spec ref:** @discord-channel-adapter AC-5, AC-6
+
+
+        **Description:** Create a new `StreamingSplitTracker` class in splitter.ts that:
+
+        - Tracks semantic state (in code block, etc.) during streaming
+
+        - Detects when approaching 2000 char limit
+
+        - Decides whether to buffer (wait for code block to close) or split
+
+        - Handles preemptive splitting before code blocks near limit
+
+        - Uses existing `splitMessage()` for actual splitting with code block preservation
+
+
+        **Interface:**
+
+        ```typescript
+
+        type SplitDecision =
+          | { action: 'continue' }           // Keep accumulating
+          | { action: 'buffer' }             // Near limit but in code block, wait
+          | { action: 'split'; chunks: string[] };  // Split now, return chunks
+
+        class StreamingSplitTracker {
+          constructor(maxLength = 2000, softLimit = 1800);
+          push(chunk: string): SplitDecision;  // Process chunk, get decision
+          getText(): string;                    // Get accumulated text
+          confirmSplit(consumedLength: number): void;  // After split, reset tracker
+          finalize(): string[];                 // Get remaining chunks on completion
+        }
+
+        ```
+
+
+        **Thresholds:** Soft limit 1800 chars (start considering splits), hard limit 2000 chars
+        (must split).
+
+
+        **Files:**
+
+        - `packages/channels/src/adapters/discord/splitter.ts` - Add class
+
+        - `packages/channels/test/adapters/discord/splitter.test.ts` - Add tests
+
+
+        **AC coverage tests:**
+
+        ```typescript
+
+        // AC: @discord-channel-adapter ac-5
+
+        it('should split when over max limit')
+
+        it('should continue when under soft limit')
+
+
+        // AC: @discord-channel-adapter ac-6
+
+        it('should buffer when inside code block near limit')
+
+        it('should split BEFORE code block when block starts near limit')
+
+        it('should close and reopen code block when must split')
+
+        ```
+      supersedes: null
   todos: []

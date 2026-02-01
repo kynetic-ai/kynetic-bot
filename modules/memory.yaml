@@ -174,7 +174,7 @@ features:
             then: returns error indicating invalid range
         status:
           maturity: draft
-          implementation: not_started
+          implementation: in_progress
   - _ulid: 01KG1RDP884TBCZV7QH03CV53M
     slugs:
       - mem-context-window

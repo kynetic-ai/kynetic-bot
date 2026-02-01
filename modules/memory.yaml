@@ -162,8 +162,8 @@ features:
             then: emits reconstruction_completed event with stats
           - id: ac-4
             given: reconstruction options include summarizeTools
-            when: tool events processed
-            then: tool calls compressed to [Tool name] brief format
+            when: tool.call and tool.result events processed
+            then: "tool calls formatted as [tool: name | input_summary | status | outcome]"
           - id: ac-5
             given: invalid session_id or event_range provided
             when: reconstruction requested

@@ -11133,7 +11133,7 @@
   type: task
   spec_ref: "@discord-tool-widgets"
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -11195,6 +11195,11 @@
         All 392 channels tests passing. Implementation complete across PRs #68-71.
       supersedes: null
   todos: []
+  completed_at: 2026-02-01T23:55:22.335Z
+  closed_reason: "All sub-tasks completed: ThreadTracker, parentMessageId, CondensedToolDisplay,
+    Integration, and Tests. All 20 acceptance criteria covered with tests. PRs #68-71 merged.
+    Implementation includes guild channel thread isolation, DM condensed display, placeholder
+    messages for early tool calls, and comprehensive test coverage."
 - _ulid: 01KGBS4Y0J7V7JWWPWNVGWTF3D
   slugs:
     - task-turn-reconstruction

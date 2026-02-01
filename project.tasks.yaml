@@ -11665,6 +11665,13 @@
 
         Option 1 is recommended to maintain repo buildability.
       supersedes: null
+    - _ulid: 01KGBX82V9GF983F78KM589TDS
+      created_at: 2026-02-01T06:11:38.473Z
+      author: "@claude"
+      content: "Continuing task: analyzing the scope of messaging package updates. Need to inject
+        TurnReconstructor into components that need turn content, making some methods async where
+        needed."
+      supersedes: null
   todos: []
 - _ulid: 01KGBS58Q2S4S4JKG044Y5HXNS
   slugs: []

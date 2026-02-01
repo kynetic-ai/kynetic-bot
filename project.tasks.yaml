@@ -11141,7 +11141,20 @@
   tags: []
   vcs_refs: []
   created_at: 2026-01-31T23:55:35.002Z
-  notes: []
+  notes:
+    - _ulid: 01KGDBV0C0WAJ5ERMZGVTJWPTT
+      created_at: 2026-02-01T19:45:53.024Z
+      author: "@claude"
+      content: |-
+        Refined into implementation tasks for thread isolation and condensed display:
+        - @01KGDBQM: ThreadTracker for guild channel threads
+        - @01KGDBR9: parentMessageId for tool event routing
+        - @01KGDBRB: CondensedToolDisplay for DMs/fallback
+        - @01KGDBRC: Integration into DiscordAdapter
+        - @01KGDBRE: Comprehensive tests
+
+        See @discord-tool-widgets spec updates (ac-10 through ac-20).
+      supersedes: null
   todos: []
 - _ulid: 01KGBS4Y0J7V7JWWPWNVGWTF3D
   slugs:

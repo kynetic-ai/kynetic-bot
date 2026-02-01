@@ -12695,6 +12695,10 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "Merged in PR #66. Implemented AC-7 for @discord-channel-adapter: message block
+    boundary detection for streaming responses. Empty string chunks signal block boundaries, blocks
+    tracked separately from coalescer, joined with double newline separation. All 4 AC-7 tests pass
+    with proper annotations."
   depends_on: []
   context: []
   priority: 2
@@ -12702,6 +12706,7 @@
   vcs_refs: []
   created_at: 2026-02-01T16:38:42.255Z
   started_at: 2026-02-01T17:41:39.655Z
+  completed_at: 2026-02-01T18:20:29.655Z
   notes:
     - _ulid: 01KGD14SKZDQYMXPD0S3XQ6ZTN
       created_at: 2026-02-01T16:38:59.456Z
@@ -12837,11 +12842,6 @@
         All tests pass, linting clean, TypeScript compiles.
       supersedes: null
   todos: []
-  completed_at: 2026-02-01T18:20:29.655Z
-  closed_reason: "Merged in PR #66. Implemented AC-7 for @discord-channel-adapter: message block
-    boundary detection for streaming responses. Empty string chunks signal block boundaries, blocks
-    tracked separately from coalescer, joined with double newline separation. All 4 AC-7 tests pass
-    with proper annotations."
 - _ulid: 01KGD14Y6SNV4F0FHRWWF8AKV7
   slugs:
     - streaming-splitter-integration
@@ -12849,7 +12849,7 @@
   type: task
   spec_ref: "@discord-channel-adapter"
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on:
     - "@01KGD137"
@@ -12957,3 +12957,4 @@
         - [ ] Manual: Multiple content blocks - proper `\n\n` separation
       supersedes: null
   todos: []
+  started_at: 2026-02-01T18:26:14.713Z

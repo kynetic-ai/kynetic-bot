@@ -399,3 +399,13 @@ inbox:
       - testing
       - dx
     added_by: "@claude"
+  - _ulid: 01KGCB5M4NBK2P6C72X89CT4A9
+    text: Consolidate package mocks into shared test utilities - create shared mock factories for
+      frequently-mocked packages (@kynetic-bot/memory, etc.) so adding new exports only requires
+      updating one file instead of hunting through multiple test files with inline vi.mock()
+      definitions
+    created_at: 2026-02-01T10:14:57.941Z
+    tags:
+      - reflection
+      - testing
+    added_by: "@claude"

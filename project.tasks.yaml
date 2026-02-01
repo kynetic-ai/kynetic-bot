@@ -11193,19 +11193,35 @@
         indicating invalid range
       supersedes: null
   todos: []
-- title: Wire ACP event logging to SessionStore
+- _ulid: 01KGBS559FN57DQBK457E0V8P5
+  slugs: []
+  title: Wire ACP event logging to SessionStore
   type: task
   spec_ref: "@mem-agent-sessions"
+  meta_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  priority: 1
+  tags: []
+  vcs_refs: []
+  created_at: 2026-02-01T05:00:08.367Z
+  notes: []
+  todos: []
+- title: Update ConversationTurn schema for event pointers
+  type: task
+  spec_ref: "@mem-conversation"
   meta_ref: null
   priority: 1
   slugs: []
   tags: []
   depends_on: []
-  _ulid: 01KGBS559FN57DQBK457E0V8P5
+  _ulid: 01KGBS56ZWP3CKZQ37HB0XYEMZ
   status: pending
   blocked_by: []
   context: []
   vcs_refs: []
-  created_at: 2026-02-01T05:00:08.367Z
+  created_at: 2026-02-01T05:00:10.107Z
   notes: []
   todos: []

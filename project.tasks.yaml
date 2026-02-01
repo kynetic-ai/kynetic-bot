@@ -13359,7 +13359,181 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-01T19:44:27.614Z
-  notes: []
+  notes:
+    - _ulid: 01KGDBT14BMNPE593C5BP7HCHT
+      created_at: 2026-02-01T19:45:21.035Z
+      author: "@claude"
+      content: >-
+        ## Overview
+
+        Modify DiscordAdapter to use ThreadTracker for routing tool widgets to threads, with
+        condensed fallback for DMs.
+
+
+        ## File
+
+        packages/channels/src/adapters/discord/adapter.ts
+
+
+        ## Changes
+
+
+        ### Add ThreadTracker and CondensedToolDisplay Instances
+
+        ```typescript
+
+        private threadTracker!: ThreadTracker;
+
+        private condensedDisplay!: CondensedToolDisplay;
+
+
+        // In constructor after toolCallTracker init:
+
+        this.threadTracker = new ThreadTracker(this.logger);
+
+        this.condensedDisplay = new CondensedToolDisplay(this.logger);
+
+        ```
+
+
+        ### Modify Event Listener Setup (setupBotEventListeners)
+
+        Update to receive and pass parentMessageId:
+
+        ```typescript
+
+        bot.on('tool:call', (sessionId, channelId, toolCall, parentMessageId) => {
+          void this.handleToolCall(sessionId, channelId, toolCall, parentMessageId);
+        });
+
+        ```
+
+
+        ### Modify handleToolCall (lines 432-465)
+
+        ```typescript
+
+        private async handleToolCall(
+          sessionId: string,
+          channelId: string,
+          toolCall: ToolCall,
+          parentMessageId?: string
+        ): Promise<void> {
+          const channel = await this.fetchChannel(channelId);
+
+          // DM or fallback: use condensed display (ac-18)
+          if (channel.isDMBased()) {
+            return this.handleToolCallCondensed(sessionId, channelId, toolCall);
+          }
+
+          // Guild channel: try thread creation
+          let messageId = parentMessageId;
+          if (!messageId) {
+            const placeholder = await channel.send('Working...');
+            messageId = placeholder.id;
+          }
+
+          try {
+            const threadId = await this.threadTracker.getOrCreateThread(
+              sessionId, channelId, messageId,
+              async () => {
+                const message = await channel.messages.fetch(messageId!);
+                const thread = await message.startThread({
+                  name: 'Tools',
+                  autoArchiveDuration: ThreadAutoArchiveDuration.OneHour,
+                  reason: 'Agent tool execution',
+                });
+                return thread.id;
+              }
+            );
+
+            if (threadId) {
+              await this.sendToolWidgetToThread(toolCall, sessionId, threadId);
+              return;
+            }
+          } catch (error) {
+            this.logger.warn('Thread creation failed, using condensed display', { error });
+          }
+
+          // Fallback: condensed display (ac-12)
+          return this.handleToolCallCondensed(sessionId, channelId, toolCall);
+        }
+
+
+        // Condensed display handler for DMs and fallback
+
+        private async handleToolCallCondensed(
+          sessionId: string,
+          channelId: string,
+          toolCall: ToolCall
+        ): Promise<void> {
+          const displayMode = this.condensedDisplay.addToolCall(sessionId, channelId, toolCall);
+
+          if (displayMode === 'widget') {
+            // First 5: show as full widget
+            await this.sendToolWidgetDirect(sessionId, channelId, toolCall);
+          } else {
+            // 6th+: update or create status message
+            const statusText = this.condensedDisplay.getStatusText(sessionId, channelId);
+            await this.updateOrCreateStatusMessage(sessionId, channelId, statusText);
+          }
+        }
+
+        ```
+
+
+        ### Add Thread Cleanup
+
+        In session cleanup flow, call both cleanups:
+
+        ```typescript
+
+        this.threadTracker.cleanupSession(sessionId);
+
+        this.condensedDisplay.cleanupSession(sessionId);
+
+        ```
+
+
+        ### Modify Button Interaction Handler (line 524+)
+
+        Ensure expand button responses go to the thread (ac-15).
+
+
+        ## Edge Cases
+
+        - DM channel: Condensed display
+
+        - Missing CREATE_PUBLIC_THREADS permission: Condensed display
+
+        - Parent message deleted: Condensed display
+
+        - Thread deleted mid-session: Switch to condensed display (ac-17)
+
+        - Multiple responses with tools: Each gets own thread (keyed by parentMessageId)
+
+
+        ## Tests
+
+        Extend packages/channels/test/adapters/discord/adapter.test.ts:
+
+        - Guild channel: tools route to thread
+
+        - DM channel: first 5 as widgets, overflow condensed
+
+        - Permission error: graceful fallback to condensed
+
+        - Tool before text: placeholder created, thread spawned
+
+        - Expand button in thread: response in thread
+
+        - Status message updates when condensed tools complete
+
+
+        ## AC Coverage
+
+        - ac-10, ac-11, ac-12, ac-14, ac-15, ac-16, ac-17, ac-18, ac-19, ac-20
+      supersedes: null
   todos: []
 - _ulid: 01KGDBRET9XTWJCH9F42HD14A8
   slugs: []

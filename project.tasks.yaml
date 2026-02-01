@@ -11672,6 +11672,182 @@
         TurnReconstructor into components that need turn content, making some methods async where
         needed."
       supersedes: null
+    - _ulid: 01KGBY510HEKMN2MJVGCFTG81C
+      created_at: 2026-02-01T06:27:26.866Z
+      author: "@claude"
+      content: >-
+        ## Session Summary: Messaging Package Updated, Tests Need Fixing
+
+
+        ### Current State
+
+        - **Memory package**: BUILDS, all 254 tests PASS
+
+        - **Messaging package**: BUILDS (was 14 type errors, now 0), but 72 tests FAIL
+
+        - **Bot package**: Has 2 type errors (expected - that's task @01KGBS55 scope)
+
+
+        ### What Was Done This Session
+
+
+        **1. Updated messaging/src/history.ts**
+
+        - Added TurnReconstructor as optional dependency
+
+        - Changed addTurn() signature from `{role, content}` to `TurnInput` (session_id +
+        event_range)
+
+        - Made analyzeHistory(), detectBoundary(), extractTopic() async for content reconstruction
+
+        - Added getTurnContent() helper method
+
+        - Exported new TurnInput type from index.ts
+
+
+        **2. Updated messaging/src/context/turn-selector.ts**
+
+        - Added TurnReconstructor as optional dependency
+
+        - Made estimateTurn() async - returns Promise<EstimatedTurn>
+
+        - Made selectTurns() async - returns Promise<TurnSelectionResult>
+
+        - Made selectTurnsWithBudget() async
+
+        - Made getStatistics() async
+
+        - Added estimateTurnWithContent() for sync usage with pre-fetched content
+
+        - Added prefetchTurnContent() helper
+
+
+        **3. Updated messaging/src/context/context-restorer.ts**
+
+        - Added TurnReconstructor as optional dependency (passed to TurnSelector)
+
+        - Made formatRecentTurns() async
+
+        - Added getTurnContent() helper
+
+
+        **4. Updated messaging/src/context/haiku-summary-provider.ts**
+
+        - Added TurnReconstructor to HaikuSummaryProvider
+
+        - Updated summarize() to use async content retrieval
+
+        - Updated MockSummaryProvider with content map support and optional TurnReconstructor
+
+
+        **5. Updated messaging/src/context/context-window.ts**
+
+        - Added TurnReconstructor as optional dependency
+
+        - Made estimateContextTokens() and estimateHistoryTokens() async
+
+        - Updated addMessage() to use TurnInput type
+
+        - Added getTurnContent() helper
+
+
+        **6. Created test helper (INCOMPLETE)**
+
+        - Started packages/messaging/test/helpers/mock-turn-reconstructor.ts
+
+        - MockTurnReconstructor class with setContent(), getContent() methods
+
+
+        ### What Remains (for this task to complete)
+
+
+        **Test Updates Required** - All 72 failing tests need updates:
+
+
+        1. **packages/messaging/test/turn-selector.test.ts** (~20 tests failing)
+           - createTurn() helper uses old schema with `content` field
+           - Need to change to: `{ ts, seq, role, session_id, event_range }`
+           - All selectTurns() calls need `await`
+           - All estimateTurn() calls need `await`
+           - Need to inject MockTurnReconstructor into TurnSelector
+           - Use mockReconstructor.setContentBySeq() to provide test content
+
+        2. **packages/messaging/test/history.test.ts** (~30 tests failing)
+           - All addTurn() calls use old signature with content
+           - Need to change to: `{ role, session_id, event_range }`
+           - Need mock SessionStore for TurnReconstructor
+           - Or update tests to not rely on content-based boundary detection
+
+        3. **packages/messaging/test/context-window.test.ts** (~15 tests failing)
+           - Similar issues: addTurn() with content, missing TurnReconstructor
+
+        4. **packages/messaging/test/context-restorer.test.ts** (~7 tests failing)
+           - Need TurnReconstructor injection
+           - Mock turns need new schema
+
+        ### Key Pattern for Test Updates
+
+
+        ```typescript
+
+        // OLD (doesn't work)
+
+        const turn = { ts: 1000, seq: 0, role: 'user', content: 'Hello' };
+
+        const result = selector.selectTurns([turn]);
+
+
+        // NEW (required pattern)
+
+        const mockReconstructor = new MockTurnReconstructor();
+
+        const turn = { 
+          ts: 1000, 
+          seq: 0, 
+          role: 'user', 
+          session_id: 'test-session',
+          event_range: { start_seq: 0, end_seq: 0 }
+        };
+
+        mockReconstructor.setContentBySeq('test-session', 0, 'Hello');
+
+        const selector = new TurnSelector({ turnReconstructor: mockReconstructor });
+
+        const result = await selector.selectTurns([turn]);
+
+        ```
+
+
+        ### Decision Point for Next Agent
+
+
+        The test updates are substantial. Options:
+
+        A) Update all tests to use new schema (proper fix, ~2-3 hours work)
+
+        B) Add backward-compat content field to ConversationTurn (contradicts spec)
+
+
+        Option A is recommended to align with spec @mem-conversation which explicitly states turns
+        store event pointers, not content.
+
+
+        ### Files Modified
+
+        - packages/messaging/src/history.ts
+
+        - packages/messaging/src/index.ts  
+
+        - packages/messaging/src/context/turn-selector.ts
+
+        - packages/messaging/src/context/context-restorer.ts
+
+        - packages/messaging/src/context/haiku-summary-provider.ts
+
+        - packages/messaging/src/context/context-window.ts
+
+        - packages/messaging/test/helpers/mock-turn-reconstructor.ts (NEW, incomplete)
+      supersedes: null
   todos: []
 - _ulid: 01KGBS58Q2S4S4JKG044Y5HXNS
   slugs: []

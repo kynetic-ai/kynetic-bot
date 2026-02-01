@@ -11207,7 +11207,23 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-01T05:00:08.367Z
-  notes: []
+  notes:
+    - _ulid: 01KGBS5K5WZ1KJHXM6NEN3XQ5M
+      created_at: 2026-02-01T05:00:22.588Z
+      author: "@claude"
+      content: |-
+        Implementation approach:
+
+        **Files**: packages/bot/src/bot.ts
+
+        **Changes**:
+        1. Before client.prompt() - log prompt.sent event with user message
+        2. In updateHandler - log session.update for all ACP SessionUpdate notifications
+        3. Preserve full SessionUpdate in data field (following lifeline/ralph pattern)
+        4. Use trace_id for tool call correlation
+
+        **AC coverage**: @mem-agent-sessions ac-8, ac-9
+      supersedes: null
   todos: []
 - _ulid: 01KGBS56ZWP3CKZQ37HB0XYEMZ
   slugs: []
@@ -11241,18 +11257,18 @@
   created_at: 2026-02-01T05:00:11.874Z
   notes: []
   todos: []
-- title: Update ContextRestorer for event-sourced turns
+- _ulid: 01KGBS5ADJZ2BW63P7RE4Y04J0
+  slugs: []
+  title: Update ContextRestorer for event-sourced turns
   type: task
   spec_ref: "@mem-context-restore"
   meta_ref: null
-  priority: 2
-  slugs: []
-  tags: []
-  depends_on: []
-  _ulid: 01KGBS5ADJZ2BW63P7RE4Y04J0
   status: pending
   blocked_by: []
+  depends_on: []
   context: []
+  priority: 2
+  tags: []
   vcs_refs: []
   created_at: 2026-02-01T05:00:13.617Z
   notes: []

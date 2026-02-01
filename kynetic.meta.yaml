@@ -592,4 +592,13 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KGDDSHPFPJRDB37YSY4EM0PX
+    type: success
+    content: When testing streaming behavior involving streamingMessageId, use text > 1500 chars to
+      trigger immediate coalescer flush. Shorter text buffers until 1000ms idle timeout. This is
+      critical for tests that need to verify parentMessageId is set before tool events fire.
+    created_at: 2026-02-01T20:20:02.383Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

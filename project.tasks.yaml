@@ -12517,7 +12517,8 @@
       supersedes: null
   todos: []
 - _ulid: 01KGD13T7HA2E3BD2H2DFTQA7T
-  slugs: []
+  slugs:
+    - edit-message-splitting
   title: Add splitting to editMessage
   type: task
   spec_ref: "@discord-channel-adapter"

@@ -601,4 +601,13 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KGDQZBA3M9Z2DVA4NQVK8NPX
+    type: success
+    content: Reading existing similar code before implementing new features (e.g., ThreadTracker before
+      CondensedToolDisplay) leads to consistent patterns, faster implementation, and smoother PR
+      reviews. The new code matched project conventions without explicit guidance.
+    created_at: 2026-02-01T23:17:58.211Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

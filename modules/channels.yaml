@@ -218,9 +218,9 @@ features:
       - discord
       - ui
     description: Display agent tool calls and results as rich Discord embeds with interactive
-      components. Shows what the agent is doing in a compact, readable format with expand
-      buttons for full details. Uses ACP tool_call/tool_call_update events to track and present
-      tool execution. Supports thread-based isolation for guild channels and condensed display for DMs.
+      components. Shows what the agent is doing in a compact, readable format with expand buttons
+      for full details. Uses ACP tool_call/tool_call_update events to track and present tool
+      execution. Supports thread-based isolation for guild channels and condensed display for DMs.
     depends_on:
       - "@discord-channel-adapter"
     implements: []
@@ -277,7 +277,8 @@ features:
       - id: ac-10
         given: Agent executes tool call in guild channel
         when: first tool_call event for a response message
-        then: Thread created attached to bot's response message (name 'Tools', 1hr auto-archive), widget sent to thread
+        then: Thread created attached to bot's response message (name 'Tools', 1hr auto-archive), widget
+          sent to thread
       - id: ac-11
         given: Subsequent tool calls for same response message
         when: tool_call events received
@@ -320,4 +321,4 @@ features:
         then: Status message updates counts
     status:
       maturity: draft
-      implementation: in_progress
+      implementation: implemented

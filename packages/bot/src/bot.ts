@@ -39,6 +39,7 @@ import {
   ConversationStore,
   SessionStore as MemorySessionStore,
   type ConversationMetadata,
+  type SessionEventInput,
 } from '@kynetic-bot/memory';
 import type { BotConfig } from './config.js';
 import { buildIdentityPrompt } from './identity.js';
@@ -368,17 +369,13 @@ export class Bot extends EventEmitter {
       const sessionKey = sessionResult.value.key;
       let conversation: ConversationMetadata | undefined;
 
-      // AC: @bot-storage-integration ac-2 - Get or create conversation, append user turn
+      // AC: @bot-storage-integration ac-2 - Get or create conversation
+      // Note: User turn creation moved to after session lifecycle (needs session_id for event-sourced turns)
       try {
         conversation = await this.conversationStore.getOrCreateConversation(sessionKey);
-        await this.conversationStore.appendTurn(conversation.id, {
-          role: 'user',
-          content: msg.text,
-          message_id: msg.id,
-        });
       } catch (err) {
         const error = err instanceof Error ? err : new Error(String(err));
-        this.log.error('Failed to persist user turn', { error: error.message, messageId: msg.id });
+        this.log.error('Failed to get/create conversation', { error: error.message, messageId: msg.id });
       }
 
       // 2. Ensure agent is healthy
@@ -493,6 +490,13 @@ export class Bot extends EventEmitter {
       let cumulativeText = ''; // Track cumulative text for edit-based streaming
       let coalescer: StreamCoalescer | BufferedCoalescer;
 
+      // AC: @mem-agent-sessions ac-8, ac-9 - Event queue for session.update events
+      // Events are queued synchronously in updateHandler, flushed after coalescer.complete()
+      const eventQueue: SessionEventInput[] = [];
+      let promptEventSeq: number | undefined;
+      let firstAgentEventSeq: number | undefined;
+      let lastAgentEventSeq: number | undefined;
+
       if (isStreamingPlatform && this.channelLifecycle) {
         // AC-2: Streaming platform - use StreamCoalescer for incremental delivery
         coalescer = new StreamCoalescer({
@@ -547,7 +551,15 @@ export class Bot extends EventEmitter {
       }
 
       // 6. Set up update handler to feed chunks through coalescer
+      // AC: @mem-agent-sessions ac-8 - Queue session.update events for all ACP SessionUpdates
       const updateHandler = (_sid: string, update: SessionUpdate) => {
+        // Queue session.update event for persistence (flushed after coalescer.complete())
+        eventQueue.push({
+          type: 'session.update',
+          session_id: sessionId,
+          data: { update_type: update.sessionUpdate, payload: update },
+        });
+
         if (update.sessionUpdate === 'agent_message_chunk' && update.content?.type === 'text') {
           const text = update.content.text ?? '';
           if (coalescer instanceof StreamCoalescer) {
@@ -584,6 +596,14 @@ export class Bot extends EventEmitter {
       client.on('update', updateHandler);
 
       try {
+        // AC: @mem-agent-sessions ac-9 - Log prompt.sent event before sending to agent
+        const promptEvent = await this.memorySessionStore.appendEvent({
+          type: 'prompt.sent',
+          session_id: sessionId,
+          data: { content: msg.text },
+        });
+        promptEventSeq = promptEvent.seq;
+
         // 7. Send prompt to agent and wait for completion
         await client.prompt({
           sessionId,
@@ -593,6 +613,16 @@ export class Bot extends EventEmitter {
 
         // 8. Complete the coalescer to flush any remaining buffered content
         await coalescer.complete();
+
+        // 9. Flush event queue and capture sequence numbers for turn creation
+        // AC: @mem-agent-sessions ac-8 - Persist full SessionUpdate as session.update events
+        for (const eventInput of eventQueue) {
+          const event = await this.memorySessionStore.appendEvent(eventInput);
+          if (firstAgentEventSeq === undefined) {
+            firstAgentEventSeq = event.seq;
+          }
+          lastAgentEventSeq = event.seq;
+        }
       } catch (err) {
         // AC-4: Abort coalescer on error/disconnect
         if (coalescer instanceof StreamCoalescer) {
@@ -603,13 +633,38 @@ export class Bot extends EventEmitter {
         client.off('update', updateHandler);
       }
 
-      // AC: @bot-storage-integration ac-4 - Append assistant turn
-      if (responseText && conversation) {
+      // AC: @mem-conversation ac-1 - Append user turn with event pointer
+      // AC: @bot-storage-integration ac-2 - User turn persisted
+      if (conversation && promptEventSeq !== undefined) {
+        try {
+          await this.conversationStore.appendTurn(conversation.id, {
+            role: 'user',
+            session_id: sessionId,
+            event_range: { start_seq: promptEventSeq, end_seq: promptEventSeq },
+            message_id: msg.id,
+          });
+        } catch (err) {
+          const error = err instanceof Error ? err : new Error(String(err));
+          this.log.error('Failed to persist user turn', {
+            error: error.message,
+            messageId: msg.id,
+          });
+        }
+      }
+
+      // AC: @mem-conversation ac-2 - Append assistant turn with event pointer
+      // AC: @bot-storage-integration ac-4 - Assistant turn persisted
+      if (
+        conversation &&
+        firstAgentEventSeq !== undefined &&
+        lastAgentEventSeq !== undefined &&
+        responseText
+      ) {
         try {
           await this.conversationStore.appendTurn(conversation.id, {
             role: 'assistant',
-            content: responseText,
-            agent_session_id: sessionId,
+            session_id: sessionId,
+            event_range: { start_seq: firstAgentEventSeq, end_seq: lastAgentEventSeq },
           });
         } catch (err) {
           const error = err instanceof Error ? err : new Error(String(err));

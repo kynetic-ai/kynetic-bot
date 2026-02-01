@@ -1075,14 +1075,24 @@ describe('Bot', () => {
     });
 
     // AC: @bot-storage-integration ac-2
+    // AC: @mem-conversation ac-1 - User turn with event pointer
     describe('AC-2: User turn appended on message', () => {
       let mockConversationStore: {
         getOrCreateConversation: ReturnType<typeof vi.fn>;
         appendTurn: ReturnType<typeof vi.fn>;
+        getConversationBySessionKey: ReturnType<typeof vi.fn>;
+        readTurns: ReturnType<typeof vi.fn>;
       };
+      let mockMemorySessionStore: {
+        createSession: ReturnType<typeof vi.fn>;
+        updateSessionStatus: ReturnType<typeof vi.fn>;
+        appendEvent: ReturnType<typeof vi.fn>;
+      };
+      let eventSeqCounter: number;
 
       beforeEach(async () => {
         vi.clearAllMocks();
+        eventSeqCounter = 0;
         // Create a mock conversation store that we can inspect
         mockConversationStore = {
           getOrCreateConversation: vi.fn().mockResolvedValue({
@@ -1093,9 +1103,20 @@ describe('Bot', () => {
             updated_at: new Date().toISOString(),
             turn_count: 0,
           }),
-          appendTurn: vi
-            .fn()
-            .mockResolvedValue({ ts: Date.now(), seq: 0, role: 'user', content: '' }),
+          appendTurn: vi.fn().mockResolvedValue({ ts: Date.now(), seq: 0, role: 'user' }),
+          // Required by SessionLifecycleManager
+          getConversationBySessionKey: vi.fn().mockResolvedValue(null),
+          readTurns: vi.fn().mockResolvedValue([]),
+        };
+        // Event-sourced turns require SessionStore for event logging
+        mockMemorySessionStore = {
+          createSession: vi.fn().mockResolvedValue({ id: 'session-123', agent_type: 'claude' }),
+          updateSessionStatus: vi.fn().mockResolvedValue(null),
+          appendEvent: vi.fn().mockImplementation(async (input) => ({
+            ts: Date.now(),
+            seq: eventSeqCounter++,
+            ...input,
+          })),
         };
 
         bot = Bot.createWithDependencies({
@@ -1110,6 +1131,9 @@ describe('Bot', () => {
           registry: mockRegistry as unknown as Parameters<
             typeof Bot.createWithDependencies
           >[0]['registry'],
+          memorySessionStore: mockMemorySessionStore as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['memorySessionStore'],
           conversationStore: mockConversationStore as unknown as Parameters<
             typeof Bot.createWithDependencies
           >[0]['conversationStore'],
@@ -1135,10 +1159,11 @@ describe('Bot', () => {
         // Act
         await bot.handleMessage(msg);
 
-        // Assert
+        // Assert - user turn appended with event pointer (session_id + event_range)
         expect(mockConversationStore.appendTurn).toHaveBeenCalledWith('conv-test-123', {
           role: 'user',
-          content: 'Hello!',
+          session_id: 'session-123',
+          event_range: { start_seq: 0, end_seq: 0 }, // prompt.sent event at seq 0
           message_id: 'unique-msg-id',
         });
       });
@@ -1149,6 +1174,7 @@ describe('Bot', () => {
       let mockMemorySessionStore: {
         createSession: ReturnType<typeof vi.fn>;
         updateSessionStatus: ReturnType<typeof vi.fn>;
+        appendEvent: ReturnType<typeof vi.fn>;
       };
       let mockConversationStore: {
         getOrCreateConversation: ReturnType<typeof vi.fn>;
@@ -1156,12 +1182,19 @@ describe('Bot', () => {
         getConversationBySessionKey: ReturnType<typeof vi.fn>;
         readTurns: ReturnType<typeof vi.fn>;
       };
+      let eventSeqCounter: number;
 
       beforeEach(async () => {
         vi.clearAllMocks();
+        eventSeqCounter = 0;
         mockMemorySessionStore = {
           createSession: vi.fn().mockResolvedValue({ id: 'acp-session-123', agent_type: 'claude' }),
           updateSessionStatus: vi.fn().mockResolvedValue(null),
+          appendEvent: vi.fn().mockImplementation(async (input) => ({
+            ts: Date.now(),
+            seq: eventSeqCounter++,
+            ...input,
+          })),
         };
         mockConversationStore = {
           getOrCreateConversation: vi.fn().mockResolvedValue({
@@ -1224,16 +1257,24 @@ describe('Bot', () => {
     });
 
     // AC: @bot-storage-integration ac-4
-    describe('AC-4: Assistant turn appended with agent_session_id', () => {
+    // AC: @mem-conversation ac-2 - Assistant turn with event pointer
+    describe('AC-4: Assistant turn appended with session_id and event_range', () => {
       let mockConversationStore: {
         getOrCreateConversation: ReturnType<typeof vi.fn>;
         appendTurn: ReturnType<typeof vi.fn>;
         getConversationBySessionKey: ReturnType<typeof vi.fn>;
         readTurns: ReturnType<typeof vi.fn>;
       };
+      let mockMemorySessionStore: {
+        createSession: ReturnType<typeof vi.fn>;
+        updateSessionStatus: ReturnType<typeof vi.fn>;
+        appendEvent: ReturnType<typeof vi.fn>;
+      };
+      let eventSeqCounter: number;
 
       beforeEach(async () => {
         vi.clearAllMocks();
+        eventSeqCounter = 0;
         mockConversationStore = {
           getOrCreateConversation: vi.fn().mockResolvedValue({
             id: 'conv-test-789',
@@ -1248,6 +1289,15 @@ describe('Bot', () => {
           getConversationBySessionKey: vi.fn().mockResolvedValue(null),
           readTurns: vi.fn().mockResolvedValue([]),
         };
+        mockMemorySessionStore = {
+          createSession: vi.fn().mockResolvedValue({ id: 'session-123', agent_type: 'claude' }),
+          updateSessionStatus: vi.fn().mockResolvedValue(null),
+          appendEvent: vi.fn().mockImplementation(async (input) => ({
+            ts: Date.now(),
+            seq: eventSeqCounter++,
+            ...input,
+          })),
+        };
 
         bot = Bot.createWithDependencies({
           config,
@@ -1261,6 +1311,9 @@ describe('Bot', () => {
           registry: mockRegistry as unknown as Parameters<
             typeof Bot.createWithDependencies
           >[0]['registry'],
+          memorySessionStore: mockMemorySessionStore as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['memorySessionStore'],
           conversationStore: mockConversationStore as unknown as Parameters<
             typeof Bot.createWithDependencies
           >[0]['conversationStore'],
@@ -1281,24 +1334,33 @@ describe('Bot', () => {
 
         // Assert - should have both user and assistant turns
         expect(mockConversationStore.appendTurn).toHaveBeenCalledTimes(2);
-        // Second call is assistant turn
+        // First call is user turn with event pointer
+        expect(mockConversationStore.appendTurn).toHaveBeenNthCalledWith(1, 'conv-test-789', {
+          role: 'user',
+          session_id: 'session-123',
+          event_range: { start_seq: 0, end_seq: 0 }, // prompt.sent event at seq 0
+          message_id: 'msg-123',
+        });
+        // Second call is assistant turn with event pointer
+        // Session.update events start at seq 1 (after prompt.sent at seq 0)
         expect(mockConversationStore.appendTurn).toHaveBeenNthCalledWith(2, 'conv-test-789', {
           role: 'assistant',
-          content: 'Hello, user!',
-          agent_session_id: 'session-123',
+          session_id: 'session-123',
+          event_range: { start_seq: 1, end_seq: 1 }, // single session.update event at seq 1
         });
       });
     });
 
     // AC: @bot-storage-integration ac-5
+    // AC: @mem-conversation ac-1, ac-2 - Turns with event pointers
     describe('AC-5: Persistence across restart', () => {
       it('previous turns available via readTurns after bot restart', async () => {
         // Arrange - create a stateful mock store that persists data
         const storedTurns: Array<{
           role: string;
-          content: string;
+          session_id: string;
+          event_range: { start_seq: number; end_seq: number };
           message_id?: string;
-          agent_session_id?: string;
         }> = [];
         const conversationData = {
           id: 'conv-persist-test',
@@ -1322,6 +1384,18 @@ describe('Bot', () => {
           getConversationBySessionKey: vi.fn().mockResolvedValue(null),
         };
 
+        // Event-sourced turns require SessionStore for event logging
+        let eventSeqCounter = 0;
+        const statefulMemorySessionStore = {
+          createSession: vi.fn().mockResolvedValue({ id: 'session-123', agent_type: 'claude' }),
+          updateSessionStatus: vi.fn().mockResolvedValue(null),
+          appendEvent: vi.fn().mockImplementation(async (input) => ({
+            ts: Date.now(),
+            seq: eventSeqCounter++,
+            ...input,
+          })),
+        };
+
         vi.clearAllMocks();
 
         // Create first bot instance and process a message
@@ -1337,6 +1411,9 @@ describe('Bot', () => {
           registry: mockRegistry as unknown as Parameters<
             typeof Bot.createWithDependencies
           >[0]['registry'],
+          memorySessionStore: statefulMemorySessionStore as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['memorySessionStore'],
           conversationStore: statefulConversationStore as unknown as Parameters<
             typeof Bot.createWithDependencies
           >[0]['conversationStore'],
@@ -1366,6 +1443,9 @@ describe('Bot', () => {
           registry: mockRegistry as unknown as Parameters<
             typeof Bot.createWithDependencies
           >[0]['registry'],
+          memorySessionStore: statefulMemorySessionStore as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['memorySessionStore'],
           conversationStore: statefulConversationStore as unknown as Parameters<
             typeof Bot.createWithDependencies
           >[0]['conversationStore'],
@@ -1374,15 +1454,18 @@ describe('Bot', () => {
         // Assert - previous turns available via readTurns
         const turns = await statefulConversationStore.readTurns('conv-persist-test');
         expect(turns).toHaveLength(2); // user turn + assistant turn
+        // User turn with event pointer to prompt.sent event
         expect(turns[0]).toMatchObject({
           role: 'user',
-          content: 'First message',
+          session_id: 'session-123',
+          event_range: { start_seq: 0, end_seq: 0 },
           message_id: 'msg-persist-1',
         });
+        // Assistant turn with event pointer to session.update events
         expect(turns[1]).toMatchObject({
           role: 'assistant',
-          content: 'Hello, user!',
-          agent_session_id: 'session-123',
+          session_id: 'session-123',
+          event_range: { start_seq: 1, end_seq: 1 },
         });
 
         // Verify getOrCreateConversation returns same conversation on "restart"

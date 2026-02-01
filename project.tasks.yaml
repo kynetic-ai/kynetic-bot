@@ -12133,7 +12133,7 @@
   type: task
   spec_ref: "@mem-context-restore"
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on:
     - "@task-turn-reconstruction"
@@ -12175,3 +12175,6 @@
         All 225 messaging package tests pass."
       supersedes: null
   todos: []
+  completed_at: 2026-02-01T09:35:28.160Z
+  closed_reason: "Merged in PR #61. Implemented AC-4 (turns.jsonl file reference in Archived History)
+    and AC-10 (turn pointer resolution instructions). All tests pass with proper AC annotations."

@@ -11217,7 +11217,7 @@
   type: task
   spec_ref: "@mem-agent-sessions"
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -11405,6 +11405,7 @@
         5. Manual: Trigger context restoration, verify content reconstructed
       supersedes: null
   todos: []
+  started_at: 2026-02-01T08:10:27.737Z
 - _ulid: 01KGBS56ZWP3CKZQ37HB0XYEMZ
   slugs: []
   title: Update ConversationTurn schema for event pointers

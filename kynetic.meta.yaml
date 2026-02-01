@@ -523,4 +523,13 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KGC93QR3RD9FYY10YH0P1E4J
+    type: success
+    content: Spec-first review caught AC-4 documentation mismatch - spec incorrectly said events.jsonl
+      when implementation correctly used turns.jsonl. Updating spec before implementing ensured
+      accurate documentation.
+    created_at: 2026-02-01T09:38:58.948Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

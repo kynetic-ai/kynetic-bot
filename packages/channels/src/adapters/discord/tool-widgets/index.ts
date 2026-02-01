@@ -15,3 +15,6 @@ export type { MessageEditFn } from './MessageUpdateBatcher.js';
 
 export { ThreadTracker } from './ThreadTracker.js';
 export type { ThreadState } from './ThreadTracker.js';
+
+export { CondensedToolDisplay } from './CondensedToolDisplay.js';
+export type { CondensedToolCall, CondensedDisplayState } from './CondensedToolDisplay.js';

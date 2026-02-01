@@ -11150,7 +11150,7 @@
   type: task
   spec_ref: "@mem-turn-reconstruct"
   derivation: auto
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on:
     - "@conversation-types"
@@ -11257,6 +11257,12 @@
         All tests pass (1272 total, 34 turn-reconstructor tests). Ready for review.
       supersedes: null
   todos: []
+  completed_at: 2026-02-01T09:16:19.388Z
+  closed_reason: "Merged in PR #60. Implemented turn reconstruction with input validation (AC-5,
+    AC-6), event emission for observability (AC-3), and tool summarization with format [tool: name |
+    input | status | outcome] (AC-4, AC-7, AC-8). All 8 acceptance criteria covered with 20 new
+    tests. Implementation extends existing TurnReconstructor with TurnReconstructorValidationError,
+    optional EventEmitter, and summarizeTools option."
 - _ulid: 01KGBS559FN57DQBK457E0V8P5
   slugs: []
   title: Wire ACP event logging to SessionStore

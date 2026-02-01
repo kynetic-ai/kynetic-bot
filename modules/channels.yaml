@@ -277,3 +277,16 @@ features:
         status:
           maturity: draft
           implementation: in_progress
+  - _ulid: 01KGDBMBQJ38MSR9QYEH1MYFJ7
+    slugs:
+      - discord-tool-widgets
+    title: Discord Tool Widgets
+    type: feature
+    tags: []
+    depends_on: []
+    implements: []
+    relates_to: []
+    tests: []
+    traits: []
+    notes: []
+    created: 2026-02-01T19:42:15.283Z

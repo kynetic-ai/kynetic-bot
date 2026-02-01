@@ -11160,6 +11160,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-01T05:00:00.914Z
+  started_at: 2026-02-01T09:06:43.748Z
   notes:
     - _ulid: 01KGBS4Y0HWGXGKCXBP15VPV0C
       created_at: 2026-02-01T05:00:00.914Z
@@ -11210,8 +11211,13 @@
 
         **AC coverage**: @mem-turn-reconstruct ac-1 through ac-6
       supersedes: null
+    - _ulid: 01KGC798YCPSD3H4F02Z3J6RN0
+      created_at: 2026-02-01T09:07:03.244Z
+      author: "@claude"
+      content: "Spec updated with AC-7 (input truncation) and AC-8 (orphaned calls). Tool format: [tool:
+        name | input | status | outcome]. All inputs truncated to 100 chars."
+      supersedes: null
   todos: []
-  started_at: 2026-02-01T09:06:43.748Z
 - _ulid: 01KGBS559FN57DQBK457E0V8P5
   slugs: []
   title: Wire ACP event logging to SessionStore

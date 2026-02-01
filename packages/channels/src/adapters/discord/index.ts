@@ -8,10 +8,7 @@
 export { DiscordAdapter, type DiscordSendOptions } from './adapter.js';
 
 // Configuration
-export {
-  DiscordAdapterConfigSchema,
-  type DiscordAdapterConfig,
-} from './config.js';
+export { DiscordAdapterConfigSchema, type DiscordAdapterConfig } from './config.js';
 
 // Errors
 export {
@@ -22,15 +19,13 @@ export {
 } from './errors.js';
 
 // Parser (for advanced use cases)
-export {
-  parseIncoming,
-  parseAttachments,
-  type DiscordMessageMetadata,
-} from './parser.js';
+export { parseIncoming, parseAttachments, type DiscordMessageMetadata } from './parser.js';
 
 // Splitter (for testing or custom splitting)
 export {
   splitMessage,
   splitMessageToEmbeds,
   EMBED_DESCRIPTION_MAX,
+  StreamingSplitTracker,
+  type SplitDecision,
 } from './splitter.js';

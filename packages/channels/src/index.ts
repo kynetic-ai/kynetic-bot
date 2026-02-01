@@ -42,6 +42,8 @@ export {
   DiscordChannelNotFoundError,
   DiscordPermissionError,
   type DiscordMessageMetadata,
+  StreamingSplitTracker,
+  type SplitDecision,
 } from './adapters/discord/index.js';
 
 // Typing Indicator

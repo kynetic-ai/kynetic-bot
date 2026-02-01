@@ -495,4 +495,14 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KGC3RDBBDCH047ER5WC7VKN5
+    type: friction
+    content: Schema changes require manual tracing across packages to find all affected code. When
+      ConversationTurn schema changed (content -> session_id + event_range), had to manually trace
+      type errors across memory, messaging, and bot packages - 72+ test failures discovered only
+      after running tests.
+    created_at: 2026-02-01T08:05:24.971Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

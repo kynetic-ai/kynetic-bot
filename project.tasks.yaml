@@ -11331,6 +11331,150 @@
 
         - Turn creation with event pointers
       supersedes: null
+    - _ulid: 01KGBWZ5W0F8TYEX031E7TB3ES
+      created_at: 2026-02-01T06:06:46.656Z
+      author: "@claude"
+      content: >-
+        ## Status: Schema Changes COMPLETE, Downstream Updates INCOMPLETE
+
+
+        ### What Was Done (memory package - all tests pass)
+
+
+        **1. ConversationTurn Schema Updated** (packages/memory/src/types/conversation.ts)
+
+        - Added EventRangeSchema: { start_seq: number, end_seq: number }
+
+        - Replaced 'content: string' with 'session_id: string' + 'event_range: EventRangeSchema'
+
+        - Removed 'agent_session_id' field (replaced by session_id)
+
+        - Updated ConversationTurnInputSchema to match
+
+        - Updated TurnAppendedDataSchema: now requires session_id instead of optional
+        agent_session_id
+
+
+        **2. Added turn_updated Event Type** (for AC-3 end_seq updates)
+
+        - Added TurnUpdatedDataSchema: { seq, session_id, new_end_seq }
+
+        - Added TurnUpdatedEventSchema
+
+        - Added 'turn_updated' to ConversationEventTypeSchema
+
+        - Updated TypedConversationEventSchema union
+
+
+        **3. Added session.update Event Type** (packages/memory/src/types/session.ts)
+
+        - Added 'session.update' to SessionEventTypeSchema
+
+        - Added SessionUpdateDataSchema: { update_type: string, payload: unknown }
+
+        - Added SessionUpdateEventSchema
+
+        - Updated TypedSessionEventSchema union
+
+
+        **4. Added TurnReconstructor** (packages/memory/src/store/turn-reconstructor.ts)
+
+        - Reconstructs turn content from session events
+
+        - Handles prompt.sent, message.chunk, and session.update (agent_message_chunk) events
+
+        - Implements gap detection with [gap: events X-Y missing] markers
+
+        - Exported from packages/memory/src/store/index.ts
+
+
+        **5. Updated ConversationStore** (packages/memory/src/store/conversation-store.ts)
+
+        - appendTurn now expects session_id + event_range instead of content + agent_session_id
+
+        - Session validation now checks session_id instead of agent_session_id
+
+
+        **6. All Tests Updated and Passing** (254 tests)
+
+        - packages/memory/test/conversation-types.test.ts - updated for new schema
+
+        - packages/memory/test/conversation-store.test.ts - updated all appendTurn calls
+
+        - packages/memory/test/session-types.test.ts - added session.update tests
+
+        - packages/memory/test/turn-reconstructor.test.ts - new file, 14 tests
+
+
+        ### What Remains (messaging package - BUILD FAILS)
+
+
+        The codebase currently does NOT build because packages/messaging still uses turn.content
+        which no longer exists. These files need updating:
+
+
+        **packages/messaging/src/context/context-restorer.ts:229**
+
+        - formatRecentTurns() accesses turn.content
+
+        - Need to inject TurnReconstructor and use it to get content
+
+
+        **packages/messaging/src/context/turn-selector.ts:159**
+
+        - estimateTurnTokens() accesses turn.content
+
+        - Need TurnReconstructor or a content provider interface
+
+
+        **packages/messaging/src/context/haiku-summary-provider.ts:121,188,192,194**
+
+        - formatTurns() and other methods access turn.content
+
+        - Need TurnReconstructor
+
+
+        **packages/messaging/src/context/context-window.ts:527,543**
+
+        - estimateHistoryTokens() accesses turn.content
+
+        - Need content reconstruction
+
+
+        **packages/messaging/src/history.ts:167,209,415,423,444**
+
+        - Multiple methods use turn.content
+
+        - Line 167,209: appendTurn calls pass content which no longer exists in schema
+
+        - Lines 415,423,444: Pattern matching on content
+
+
+        ### Recommended Approach for Next Session
+
+
+        Option A (Simpler): Add async content reconstruction to each consumer
+
+        - Each class that needs content calls TurnReconstructor.getContent()
+
+        - Requires making some methods async
+
+        - ContextRestorer, TurnSelector, HaikuSummaryProvider, ContextWindow all need
+        TurnReconstructor injected
+
+
+        Option B (Interface): Create ContentProvider interface
+
+        - Abstract the content retrieval behind an interface
+
+        - Allows sync mock for tests, async real implementation
+
+        - More complex but cleaner architecture
+
+
+        The plan document at the start of this session has detailed implementation guidance for
+        Option A.
+      supersedes: null
   todos: []
 - _ulid: 01KGBS58Q2S4S4JKG044Y5HXNS
   slugs: []

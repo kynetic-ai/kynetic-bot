@@ -287,6 +287,8 @@ features:
     implements: []
     relates_to: []
     tests: []
-    traits: []
+    traits:
+      - trait-observable
+      - graceful-degradation
     notes: []
     created: 2026-02-01T19:42:15.283Z

@@ -11241,6 +11241,15 @@
 
         **AC coverage**: @mem-agent-sessions ac-8, ac-9
       supersedes: null
+    - _ulid: 01KGBSAT9BV64HZZ24AAQH9FBC
+      created_at: 2026-02-01T05:03:13.707Z
+      author: "@claude"
+      content: |-
+        Additional AC coverage (bot turn storage integration):
+        - @mem-conversation ac-1 (user turn with session_id, event_range)
+        - @mem-conversation ac-2 (assistant turn on first event)
+        - @mem-conversation ac-3 (update end_seq via updateLastTurnEndSeq)
+      supersedes: null
   todos: []
 - _ulid: 01KGBS56ZWP3CKZQ37HB0XYEMZ
   slugs: []

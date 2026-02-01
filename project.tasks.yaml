@@ -13145,7 +13145,7 @@
   type: task
   spec_ref: "@discord-tool-widgets"
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -13260,6 +13260,12 @@
            - Tests verify the correct value is passed based on streaming state
       supersedes: null
   todos: []
+  completed_at: 2026-02-01T20:17:01.530Z
+  closed_reason: "Merged in PR #69. Added parentMessageId to Bot tool events (tool:call and
+    tool:update) to enable thread isolation for Discord tool widgets. Changes: Bot passes
+    streamingMessageId as 4th event argument, Discord adapter handlers updated to receive it. Tests
+    verify parentMessageId is passed when text arrives first, and undefined when tool arrives before
+    text (ac-14 case). Enables ac-10, ac-11, ac-14."
 - _ulid: 01KGDBRB3YT72A2BVXVCER1G6E
   slugs: []
   title: Implement condensed tool display for DMs

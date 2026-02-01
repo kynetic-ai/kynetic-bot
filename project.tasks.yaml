@@ -13274,6 +13274,8 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "PR #70 merged. Implemented CondensedToolDisplay for DM tool widgets with full AC
+    coverage (ac-18, ac-19, ac-20). 30 tests passing."
   depends_on: []
   context: []
   priority: 2
@@ -13281,6 +13283,7 @@
   vcs_refs: []
   created_at: 2026-02-01T19:44:25.726Z
   started_at: 2026-02-01T20:37:28.301Z
+  completed_at: 2026-02-01T23:15:57.144Z
   notes:
     - _ulid: 01KGDBSD2N8KZ69C9J00THFRDQ
       created_at: 2026-02-01T19:45:00.501Z
@@ -13445,16 +13448,13 @@
         - ac-20: Status updates when condensed tools complete
       supersedes: null
   todos: []
-  completed_at: 2026-02-01T23:15:57.144Z
-  closed_reason: "PR #70 merged. Implemented CondensedToolDisplay for DM tool widgets with full AC
-    coverage (ac-18, ac-19, ac-20). 30 tests passing."
 - _ulid: 01KGDBRCYYJBNW3JDQDXVMX17W
   slugs: []
   title: Integrate ThreadTracker into Discord adapter
   type: task
   spec_ref: "@discord-tool-widgets"
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on:
     - "@01KGDBQM"
@@ -13641,6 +13641,7 @@
         - ac-10, ac-11, ac-12, ac-14, ac-15, ac-16, ac-17, ac-18, ac-19, ac-20
       supersedes: null
   todos: []
+  started_at: 2026-02-01T23:19:23.859Z
 - _ulid: 01KGDBRET9XTWJCH9F42HD14A8
   slugs: []
   title: Add thread and condensed display tests

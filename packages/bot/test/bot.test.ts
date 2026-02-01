@@ -2268,5 +2268,224 @@ describe('Bot', () => {
         await streamingBot.stop();
       });
     });
+
+    // AC: @discord-channel-adapter ac-7 - Block boundary detection
+    describe('AC-7: Block boundary detection', () => {
+      /**
+       * Create a mock ACP client that streams chunks with block boundaries
+       */
+      function createBlockBoundaryMockACPClient(chunks: string[]) {
+        const clientEmitter = new EventEmitter();
+        const mockClient = Object.assign(clientEmitter, {
+          newSession: vi.fn().mockResolvedValue('session-123'),
+          prompt: vi.fn().mockImplementation(async () => {
+            // Emit chunks sequentially
+            for (const chunk of chunks) {
+              clientEmitter.emit('update', 'session-123', {
+                sessionUpdate: 'agent_message_chunk',
+                content: { type: 'text', text: chunk },
+              });
+            }
+            return { stopReason: 'end_turn' };
+          }),
+          getSession: vi.fn().mockReturnValue({ id: 'session-123', status: 'idle' }),
+        });
+        return mockClient;
+      }
+
+      // AC: @discord-channel-adapter ac-7
+      it('should not create message on first empty string chunk', async () => {
+        // Arrange - first chunk in Claude stream is always empty string
+        const blockBoundaryClient = createBlockBoundaryMockACPClient(['']);
+        const streamingAgent = createMockAgent();
+        streamingAgent.getClient.mockReturnValue(blockBoundaryClient);
+
+        const streamingBot = Bot.createWithDependencies({
+          config,
+          agent: streamingAgent as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['agent'],
+          router: mockRouter as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['router'],
+          shadow: mockShadow as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['shadow'],
+          registry: mockRegistry as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['registry'],
+        });
+        await streamingBot.start();
+
+        const msg = createMockMessage({
+          sender: { id: 'user-456', platform: 'discord', displayName: 'Test User' },
+        });
+        const lifecycle = createMockChannelLifecycleWithEdit();
+        streamingBot.setChannelLifecycle(
+          lifecycle as unknown as Parameters<typeof streamingBot.setChannelLifecycle>[0]
+        );
+
+        // Act
+        await streamingBot.handleMessage(msg);
+
+        // Assert - sendMessage should not be called for just an empty string
+        expect(lifecycle.sendMessage).not.toHaveBeenCalled();
+
+        await streamingBot.stop();
+      });
+
+      // AC: @discord-channel-adapter ac-7
+      it('should finalize block on subsequent empty string boundaries', async () => {
+        // Arrange - empty string signals block boundary after content
+        // First empty is initial boundary, then content, then another empty to finalize
+        const blockBoundaryClient = createBlockBoundaryMockACPClient([
+          '', // Initial boundary (skipped)
+          "I'll read the file.", // First block content
+          '', // Block boundary - finalizes first block
+          "Here's what I found:", // Second block content
+        ]);
+        const streamingAgent = createMockAgent();
+        streamingAgent.getClient.mockReturnValue(blockBoundaryClient);
+
+        const streamingBot = Bot.createWithDependencies({
+          config,
+          agent: streamingAgent as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['agent'],
+          router: mockRouter as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['router'],
+          shadow: mockShadow as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['shadow'],
+          registry: mockRegistry as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['registry'],
+        });
+        await streamingBot.start();
+
+        const msg = createMockMessage({
+          sender: { id: 'user-456', platform: 'discord', displayName: 'Test User' },
+        });
+        const lifecycle = createMockChannelLifecycleWithEdit();
+        streamingBot.setChannelLifecycle(
+          lifecycle as unknown as Parameters<typeof streamingBot.setChannelLifecycle>[0]
+        );
+
+        // Act
+        await streamingBot.handleMessage(msg);
+
+        // Assert - final edit should join blocks with double newline
+        const editCalls = lifecycle.editMessage.mock.calls;
+        const lastEditCall = editCalls[editCalls.length - 1];
+        expect(lastEditCall[2]).toBe("I'll read the file.\n\nHere's what I found:");
+
+        await streamingBot.stop();
+      });
+
+      // AC: @discord-channel-adapter ac-7
+      it('should join multiple blocks with double newline separation', async () => {
+        // Arrange - three blocks with boundaries
+        const blockBoundaryClient = createBlockBoundaryMockACPClient([
+          '', // Initial boundary
+          'First block', // Block 1
+          '', // Boundary
+          'Second block', // Block 2
+          '', // Boundary
+          'Third block', // Block 3
+        ]);
+        const streamingAgent = createMockAgent();
+        streamingAgent.getClient.mockReturnValue(blockBoundaryClient);
+
+        const streamingBot = Bot.createWithDependencies({
+          config,
+          agent: streamingAgent as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['agent'],
+          router: mockRouter as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['router'],
+          shadow: mockShadow as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['shadow'],
+          registry: mockRegistry as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['registry'],
+        });
+        await streamingBot.start();
+
+        const msg = createMockMessage({
+          sender: { id: 'user-456', platform: 'discord', displayName: 'Test User' },
+        });
+        const lifecycle = createMockChannelLifecycleWithEdit();
+        streamingBot.setChannelLifecycle(
+          lifecycle as unknown as Parameters<typeof streamingBot.setChannelLifecycle>[0]
+        );
+
+        // Act
+        await streamingBot.handleMessage(msg);
+
+        // Assert - final message should have all blocks joined with double newlines
+        const editCalls = lifecycle.editMessage.mock.calls;
+        const lastEditCall = editCalls[editCalls.length - 1];
+        expect(lastEditCall[2]).toBe('First block\n\nSecond block\n\nThird block');
+
+        await streamingBot.stop();
+      });
+
+      // AC: @discord-channel-adapter ac-7
+      it('should handle incremental chunks within a block', async () => {
+        // Arrange - multiple small chunks building up a block
+        const blockBoundaryClient = createBlockBoundaryMockACPClient([
+          '', // Initial boundary
+          'Hello, ', // Part 1 of block
+          'world!', // Part 2 of block (same block)
+        ]);
+        const streamingAgent = createMockAgent();
+        streamingAgent.getClient.mockReturnValue(blockBoundaryClient);
+
+        const streamingBot = Bot.createWithDependencies({
+          config,
+          agent: streamingAgent as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['agent'],
+          router: mockRouter as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['router'],
+          shadow: mockShadow as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['shadow'],
+          registry: mockRegistry as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['registry'],
+        });
+        await streamingBot.start();
+
+        const msg = createMockMessage({
+          sender: { id: 'user-456', platform: 'discord', displayName: 'Test User' },
+        });
+        const lifecycle = createMockChannelLifecycleWithEdit();
+        streamingBot.setChannelLifecycle(
+          lifecycle as unknown as Parameters<typeof streamingBot.setChannelLifecycle>[0]
+        );
+
+        // Act
+        await streamingBot.handleMessage(msg);
+
+        // Assert - chunks within same block concatenated without separator
+        // The final message (via sendMessage or last edit) should be the complete content
+        if (lifecycle.editMessage.mock.calls.length > 0) {
+          const lastEditCall =
+            lifecycle.editMessage.mock.calls[lifecycle.editMessage.mock.calls.length - 1];
+          expect(lastEditCall[2]).toBe('Hello, world!');
+        } else {
+          // If no edits (coalescer buffered everything), check sendMessage
+          const sendCall = lifecycle.sendMessage.mock.calls[0];
+          expect(sendCall[1]).toBe('Hello, world!');
+        }
+
+        await streamingBot.stop();
+      });
+    });
   });
 });

@@ -196,6 +196,11 @@ features:
         when: editMessage called
         then: Splits at semantic boundaries (before code blocks when possible) AND sends overflow as
           follow-up message(s) AND returns all message IDs
+      - id: ac-6
+        given: Streaming response contains code blocks
+        when: Content approaches limit mid-code-block
+        then: Buffers until code block completes (if fits) OR preemptively splits BEFORE the code block OR
+          closes and reopens code block when unavoidable
     status:
       maturity: draft
       implementation: implemented

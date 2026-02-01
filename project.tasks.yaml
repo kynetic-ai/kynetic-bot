@@ -11127,19 +11127,69 @@
         specification exactly."
       supersedes: null
   todos: []
-- title: Improve Discord tool widget UX
+- _ulid: 01KGB7QG6VX57GFRFFHCWZ34H8
+  slugs: []
+  title: Improve Discord tool widget UX
   type: task
   spec_ref: null
   meta_ref: null
-  priority: 2
-  slugs: []
-  tags: []
+  status: pending
+  blocked_by: []
   depends_on: []
-  _ulid: 01KGB7QG6VX57GFRFFHCWZ34H8
+  context: []
+  priority: 2
+  tags: []
+  vcs_refs: []
+  created_at: 2026-01-31T23:55:35.002Z
+  notes: []
+  todos: []
+- title: "Implement: Turn Reconstruction"
+  type: task
+  spec_ref: "@mem-turn-reconstruct"
+  derivation: auto
+  priority: 3
+  slugs:
+    - task-turn-reconstruction
+  tags: []
+  depends_on:
+    - "@conversation-types"
+  notes:
+    - _ulid: 01KGBS4Y0HWGXGKCXBP15VPV0C
+      created_at: 2026-02-01T05:00:00.914Z
+      author: "@claude"
+      content: >-
+        Implementation notes (auto-generated from spec):
+
+
+        Reconstruct structured turn content from session events. Supports options for
+        including/summarizing tool calls and filtering by event range.
+
+
+
+        Acceptance Criteria:
+
+        - ac-1: Given turn with valid event_range, when reconstruction requested, then returns
+        structured content from session events
+
+        - ac-2: Given referenced events partially missing, when reconstruction attempted, then
+        returns partial content with [gap] markers and emits warning
+
+        - ac-3: Given reconstruction completes, when result returned, then emits
+        reconstruction_completed event with stats
+
+        - ac-4: Given reconstruction options include summarizeTools, when tool events processed,
+        then tool calls compressed to [Tool name] brief format
+
+        - ac-5: Given invalid session_id or event_range provided, when reconstruction requested,
+        then returns structured validation error with field details
+
+        - ac-6: Given event_range has start_seq > end_seq, when validated, then returns error
+        indicating invalid range
+      supersedes: null
+  _ulid: 01KGBS4Y0J7V7JWWPWNVGWTF3D
   status: pending
   blocked_by: []
   context: []
   vcs_refs: []
-  created_at: 2026-01-31T23:55:35.002Z
-  notes: []
+  created_at: 2026-02-01T05:00:00.914Z
   todos: []

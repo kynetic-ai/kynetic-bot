@@ -11150,7 +11150,7 @@
   type: task
   spec_ref: "@mem-turn-reconstruct"
   derivation: auto
-  status: in_progress
+  status: pending_review
   blocked_by: []
   depends_on:
     - "@conversation-types"

@@ -13111,7 +13111,88 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-01T19:44:23.844Z
-  notes: []
+  notes:
+    - _ulid: 01KGDBRW7Q089WF7HD1RV465W9
+      created_at: 2026-02-01T19:44:43.255Z
+      author: "@claude"
+      content: >-
+        ## Overview
+
+        Modify Bot to include the streaming message ID when emitting tool events, so adapters know
+        which message to attach threads to.
+
+
+        ## File
+
+        packages/bot/src/bot.ts
+
+
+        ## Changes
+
+
+        ### Event Emission (lines 663-680)
+
+        Current:
+
+        ```typescript
+
+        this.emit('tool:call', sessionId, msg.channel, update as ToolCall & { sessionUpdate: string
+        });
+
+        this.emit('tool:update', sessionId, msg.channel, update as ToolCallUpdate & { sessionUpdate:
+        string });
+
+        ```
+
+
+        New:
+
+        ```typescript
+
+        this.emit('tool:call', sessionId, msg.channel, update as ToolCall & { sessionUpdate: string
+        }, streamingMessageId);
+
+        this.emit('tool:update', sessionId, msg.channel, update as ToolCallUpdate & { sessionUpdate:
+        string }, streamingMessageId);
+
+        ```
+
+
+        ## Context
+
+        - `streamingMessageId` is defined at line 501
+
+        - It's set when first text content is sent (line 562)
+
+        - It may be undefined if tool_call arrives before any text response
+
+        - Adapter must handle undefined case (ac-14)
+
+
+        ## Important Note
+
+        This is a LOCAL event extension only - no changes to @agentclientprotocol/sdk needed. The
+        parentMessageId is a channel-specific concept, not part of ACP protocol.
+
+
+        ## Type Updates
+
+        May need to update event type definitions in packages/bot/src/types.ts if they exist.
+
+
+        ## Tests
+
+        - Verify tool:call events include parentMessageId when available
+
+        - Verify tool:update events include parentMessageId when available
+
+        - Verify events work with undefined parentMessageId (backward compatible)
+
+
+        ## AC Coverage
+
+        - Enables ac-10, ac-11, ac-14
+      supersedes: null
   todos: []
 - _ulid: 01KGDBRB3YT72A2BVXVCER1G6E
   slugs: []
@@ -13145,18 +13226,18 @@
   created_at: 2026-02-01T19:44:27.614Z
   notes: []
   todos: []
-- title: Add thread and condensed display tests
+- _ulid: 01KGDBRET9XTWJCH9F42HD14A8
+  slugs: []
+  title: Add thread and condensed display tests
   type: task
   spec_ref: "@discord-tool-widgets"
   meta_ref: null
-  priority: 3
-  slugs: []
-  tags: []
-  depends_on: []
-  _ulid: 01KGDBRET9XTWJCH9F42HD14A8
   status: pending
   blocked_by: []
+  depends_on: []
   context: []
+  priority: 3
+  tags: []
   vcs_refs: []
   created_at: 2026-02-01T19:44:29.512Z
   notes: []

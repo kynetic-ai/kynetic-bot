@@ -11319,5 +11319,21 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-01T05:00:13.617Z
-  notes: []
+  notes:
+    - _ulid: 01KGBSARK39PBG9G2776CBNV8Q
+      created_at: 2026-02-01T05:03:11.972Z
+      author: "@claude"
+      content: |-
+        Implementation approach:
+
+        **Files**: packages/messaging/src/context/context-restorer.ts
+
+        **Changes**:
+        1. Inject TurnReconstructor dependency in constructor
+        2. Replace direct turn reading with TurnReconstructor.reconstructTurns()
+        3. Update file reference from turns.jsonl to sessions/{id}/events.jsonl
+        4. Use reconstruction options: includeTools, summarizeTools for token budget
+
+        **AC coverage**: @mem-context-restore ac-1, ac-4, ac-9
+      supersedes: null
   todos: []

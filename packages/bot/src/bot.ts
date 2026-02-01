@@ -660,22 +660,26 @@ export class Bot extends EventEmitter {
 
         // AC: @discord-tool-widgets - Emit tool call events for channel adapters
         // When sessionUpdate is 'tool_call', the update object IS the ToolCall (with sessionUpdate added)
+        // AC: @discord-tool-widgets ac-10, ac-11, ac-14 - Pass parentMessageId for thread isolation
         if (update.sessionUpdate === 'tool_call') {
           this.emit(
             'tool:call',
             sessionId,
             msg.channel,
-            update as ToolCall & { sessionUpdate: string }
+            update as ToolCall & { sessionUpdate: string },
+            streamingMessageId
           );
         }
 
         // When sessionUpdate is 'tool_call_update', the update object IS the ToolCallUpdate
+        // AC: @discord-tool-widgets ac-10, ac-11, ac-14 - Pass parentMessageId for thread isolation
         if (update.sessionUpdate === 'tool_call_update') {
           this.emit(
             'tool:update',
             sessionId,
             msg.channel,
-            update as ToolCallUpdate & { sessionUpdate: string }
+            update as ToolCallUpdate & { sessionUpdate: string },
+            streamingMessageId
           );
         }
       };

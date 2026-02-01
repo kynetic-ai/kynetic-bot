@@ -2487,5 +2487,248 @@ describe('Bot', () => {
         await streamingBot.stop();
       });
     });
+
+    // AC: @discord-tool-widgets ac-10, ac-11, ac-14 - Tool events include parentMessageId
+    describe('Tool events with parentMessageId', () => {
+      /**
+       * Create a mock ACP client that emits tool events
+       */
+      function createToolEventMockClient(options: {
+        textFirst?: boolean;
+        emitToolCall?: boolean;
+        emitToolUpdate?: boolean;
+        textLength?: number; // Text length to emit (default 10 chars, use >1500 to trigger immediate flush)
+      }) {
+        const clientEmitter = new EventEmitter();
+        // Generate text of specified length (default short text that won't trigger flush)
+        const textToEmit = options.textLength ? 'A'.repeat(options.textLength) : 'Thinking...';
+
+        const mockClient = Object.assign(clientEmitter, {
+          newSession: vi.fn().mockResolvedValue('session-123'),
+          prompt: vi.fn().mockImplementation(async () => {
+            if (options.textFirst) {
+              // Emit text first - will only establish streamingMessageId if text > minChars (1500)
+              clientEmitter.emit('update', 'session-123', {
+                sessionUpdate: 'agent_message_chunk',
+                content: { type: 'text', text: textToEmit },
+              });
+              // Allow microtasks to settle so sendMessage completes and sets streamingMessageId
+              await new Promise((resolve) => setImmediate(resolve));
+            }
+
+            if (options.emitToolCall) {
+              clientEmitter.emit('update', 'session-123', {
+                sessionUpdate: 'tool_call',
+                toolCallId: 'tool-123',
+                title: 'Bash',
+                status: 'running',
+              });
+            }
+
+            if (options.emitToolUpdate) {
+              // Allow microtasks to settle between tool_call and tool_update
+              await new Promise((resolve) => setImmediate(resolve));
+              clientEmitter.emit('update', 'session-123', {
+                sessionUpdate: 'tool_call_update',
+                toolCallId: 'tool-123',
+                status: 'completed',
+                output: 'command output',
+              });
+            }
+
+            return { stopReason: 'end_turn' };
+          }),
+          getSession: vi.fn().mockReturnValue({ id: 'session-123', status: 'idle' }),
+        });
+        return mockClient;
+      }
+
+      it('emits tool:call with parentMessageId when text sent first', async () => {
+        // AC: @discord-tool-widgets ac-10, ac-11 - parentMessageId enables thread isolation
+        // Arrange - use text > 1500 chars to trigger immediate flush and set streamingMessageId
+        const toolClient = createToolEventMockClient({
+          textFirst: true,
+          emitToolCall: true,
+          textLength: 1600,
+        });
+        const toolAgent = createMockAgent();
+        toolAgent.getClient.mockReturnValue(toolClient);
+
+        const toolBot = Bot.createWithDependencies({
+          config,
+          agent: toolAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
+          router: mockRouter as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['router'],
+          shadow: mockShadow as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['shadow'],
+          registry: mockRegistry as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['registry'],
+        });
+        await toolBot.start();
+
+        const msg = createMockMessage({
+          sender: { id: 'user-456', platform: 'discord', displayName: 'Test User' },
+        });
+
+        const lifecycle = {
+          start: vi.fn().mockResolvedValue(undefined),
+          stop: vi.fn().mockResolvedValue(undefined),
+          sendMessage: vi.fn().mockResolvedValue({ messageId: 'streaming-msg-id' }),
+          sendTyping: vi.fn().mockResolvedValue(undefined),
+          startTypingLoop: vi.fn().mockResolvedValue(undefined),
+          stopTypingLoop: vi.fn(),
+          editMessage: vi.fn().mockResolvedValue('streaming-msg-id'),
+          getState: vi.fn().mockReturnValue('healthy'),
+          isHealthy: vi.fn().mockReturnValue(true),
+        };
+
+        toolBot.setChannelLifecycle(
+          lifecycle as unknown as Parameters<typeof toolBot.setChannelLifecycle>[0]
+        );
+
+        const toolCallListener = vi.fn();
+        toolBot.on('tool:call', toolCallListener);
+
+        // Act
+        await toolBot.handleMessage(msg);
+
+        // Assert
+        expect(toolCallListener).toHaveBeenCalledTimes(1);
+        const [sessionId, channelId, toolCall, parentMessageId] = toolCallListener.mock.calls[0];
+        expect(sessionId).toBe('session-123');
+        expect(channelId).toBe('channel-789');
+        expect(toolCall.toolCallId).toBe('tool-123');
+        expect(parentMessageId).toBe('streaming-msg-id');
+
+        await toolBot.stop();
+      });
+
+      it('emits tool:update with parentMessageId when text sent first', async () => {
+        // AC: @discord-tool-widgets ac-10, ac-11 - parentMessageId enables thread isolation
+        // Arrange - use text > 1500 chars to trigger immediate flush and set streamingMessageId
+        const toolClient = createToolEventMockClient({
+          textFirst: true,
+          emitToolCall: true,
+          emitToolUpdate: true,
+          textLength: 1600,
+        });
+        const toolAgent = createMockAgent();
+        toolAgent.getClient.mockReturnValue(toolClient);
+
+        const toolBot = Bot.createWithDependencies({
+          config,
+          agent: toolAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
+          router: mockRouter as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['router'],
+          shadow: mockShadow as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['shadow'],
+          registry: mockRegistry as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['registry'],
+        });
+        await toolBot.start();
+
+        const msg = createMockMessage({
+          sender: { id: 'user-456', platform: 'discord', displayName: 'Test User' },
+        });
+
+        const lifecycle = {
+          start: vi.fn().mockResolvedValue(undefined),
+          stop: vi.fn().mockResolvedValue(undefined),
+          sendMessage: vi.fn().mockResolvedValue({ messageId: 'streaming-msg-id' }),
+          sendTyping: vi.fn().mockResolvedValue(undefined),
+          startTypingLoop: vi.fn().mockResolvedValue(undefined),
+          stopTypingLoop: vi.fn(),
+          editMessage: vi.fn().mockResolvedValue('streaming-msg-id'),
+          getState: vi.fn().mockReturnValue('healthy'),
+          isHealthy: vi.fn().mockReturnValue(true),
+        };
+
+        toolBot.setChannelLifecycle(
+          lifecycle as unknown as Parameters<typeof toolBot.setChannelLifecycle>[0]
+        );
+
+        const toolUpdateListener = vi.fn();
+        toolBot.on('tool:update', toolUpdateListener);
+
+        // Act
+        await toolBot.handleMessage(msg);
+
+        // Assert
+        expect(toolUpdateListener).toHaveBeenCalledTimes(1);
+        const [sessionId, channelId, toolUpdate, parentMessageId] =
+          toolUpdateListener.mock.calls[0];
+        expect(sessionId).toBe('session-123');
+        expect(channelId).toBe('channel-789');
+        expect(toolUpdate.toolCallId).toBe('tool-123');
+        expect(parentMessageId).toBe('streaming-msg-id');
+
+        await toolBot.stop();
+      });
+
+      it('emits tool:call with undefined parentMessageId when tool arrives before text', async () => {
+        // AC: @discord-tool-widgets ac-14 - tool arrives before text response
+        // Arrange
+        const toolClient = createToolEventMockClient({ textFirst: false, emitToolCall: true });
+        const toolAgent = createMockAgent();
+        toolAgent.getClient.mockReturnValue(toolClient);
+
+        const toolBot = Bot.createWithDependencies({
+          config,
+          agent: toolAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
+          router: mockRouter as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['router'],
+          shadow: mockShadow as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['shadow'],
+          registry: mockRegistry as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['registry'],
+        });
+        await toolBot.start();
+
+        const msg = createMockMessage({
+          sender: { id: 'user-456', platform: 'discord', displayName: 'Test User' },
+        });
+
+        const lifecycle = {
+          start: vi.fn().mockResolvedValue(undefined),
+          stop: vi.fn().mockResolvedValue(undefined),
+          sendMessage: vi.fn().mockResolvedValue({ messageId: 'streaming-msg-id' }),
+          sendTyping: vi.fn().mockResolvedValue(undefined),
+          startTypingLoop: vi.fn().mockResolvedValue(undefined),
+          stopTypingLoop: vi.fn(),
+          editMessage: vi.fn().mockResolvedValue('streaming-msg-id'),
+          getState: vi.fn().mockReturnValue('healthy'),
+          isHealthy: vi.fn().mockReturnValue(true),
+        };
+
+        toolBot.setChannelLifecycle(
+          lifecycle as unknown as Parameters<typeof toolBot.setChannelLifecycle>[0]
+        );
+
+        const toolCallListener = vi.fn();
+        toolBot.on('tool:call', toolCallListener);
+
+        // Act
+        await toolBot.handleMessage(msg);
+
+        // Assert
+        expect(toolCallListener).toHaveBeenCalledTimes(1);
+        const [sessionId, channelId, toolCall, parentMessageId] = toolCallListener.mock.calls[0];
+        expect(sessionId).toBe('session-123');
+        expect(channelId).toBe('channel-789');
+        expect(toolCall.toolCallId).toBe('tool-123');
+        expect(parentMessageId).toBeUndefined();
+
+        await toolBot.stop();
+      });
+    });
   });
 });

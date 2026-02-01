@@ -499,7 +499,10 @@ export class Bot extends EventEmitter {
       const isStreamingPlatform = this.supportsStreaming(msg.sender.platform);
       let responseText = '';
       let streamingMessageId: string | undefined;
-      let cumulativeText = ''; // Track cumulative text for edit-based streaming
+      // AC: @discord-channel-adapter ac-7 - Track message blocks for multi-block streaming
+      // Empty string chunks signal block boundaries in Claude's streaming API
+      const blocks: string[] = [];
+      let currentBlockText = '';
       let coalescer: StreamCoalescer | BufferedCoalescer;
 
       // AC: @mem-agent-sessions ac-8, ac-9 - Event queue for session.update events
@@ -514,13 +517,16 @@ export class Bot extends EventEmitter {
         coalescer = new StreamCoalescer({
           minChars: 1500,
           idleMs: 1000,
-          onChunk: async (chunk) => {
+          onChunk: async () => {
             if (!this.channelLifecycle) return;
-            // Accumulate text for edit-based streaming (Discord edits full message)
-            cumulativeText += chunk;
+            // AC: @discord-channel-adapter ac-7 - Display all finalized blocks + current block
+            // Block boundaries are handled in updateHandler, not here
+            const displayText = [...blocks, currentBlockText].filter(Boolean).join('\n\n');
+            if (!displayText) return;
+
             if (!streamingMessageId) {
-              // First chunk - send initial message and capture ID for edits
-              const result = await this.channelLifecycle.sendMessage(msg.channel, cumulativeText, {
+              // First actual content - send initial message and capture ID for edits
+              const result = await this.channelLifecycle.sendMessage(msg.channel, displayText, {
                 replyTo: msg.id,
               });
               streamingMessageId = result?.messageId;
@@ -531,15 +537,26 @@ export class Bot extends EventEmitter {
               await this.channelLifecycle.editMessage?.(
                 msg.channel,
                 streamingMessageId,
-                cumulativeText
+                displayText
               );
             }
           },
           onComplete: async (fullText) => {
-            responseText = fullText;
+            // AC: @discord-channel-adapter ac-7 - Finalize any remaining block
+            if (currentBlockText.trim()) {
+              blocks.push(currentBlockText);
+              currentBlockText = '';
+            }
+            // Join all blocks with double newline for final display
+            const finalDisplayText = blocks.filter(Boolean).join('\n\n');
+            responseText = finalDisplayText || fullText;
             // Final edit to ensure complete message is displayed
-            if (this.channelLifecycle && streamingMessageId && fullText) {
-              await this.channelLifecycle.editMessage?.(msg.channel, streamingMessageId, fullText);
+            if (this.channelLifecycle && streamingMessageId && responseText) {
+              await this.channelLifecycle.editMessage?.(
+                msg.channel,
+                streamingMessageId,
+                responseText
+              );
             }
           },
           onError: (error) => {
@@ -574,6 +591,24 @@ export class Bot extends EventEmitter {
 
         if (update.sessionUpdate === 'agent_message_chunk' && update.content?.type === 'text') {
           const text = update.content.text ?? '';
+
+          // AC: @discord-channel-adapter ac-7 - Block boundary detection
+          // Empty string signals block boundary in Claude's streaming API
+          if (text === '' && isStreamingPlatform) {
+            // Finalize current block if it has content
+            if (currentBlockText.trim()) {
+              blocks.push(currentBlockText);
+              currentBlockText = '';
+            }
+            // Don't push empty string to coalescer - it's just a boundary signal
+            return;
+          }
+
+          // Accumulate text into current block for streaming platforms
+          if (isStreamingPlatform) {
+            currentBlockText += text;
+          }
+
           if (coalescer instanceof StreamCoalescer) {
             // AC-1: Pass through coalescer for streaming
             coalescer.push(text).catch((err: unknown) => {

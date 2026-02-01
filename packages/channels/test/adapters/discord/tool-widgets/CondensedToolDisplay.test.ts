@@ -90,7 +90,11 @@ describe('CondensedToolDisplay', () => {
   describe('updateToolCall()', () => {
     // AC: @discord-tool-widgets ac-20 - Status updates when condensed tool completes
     it('should update visible tool status', () => {
-      display.addToolCall('session-1', 'channel-1', createToolCall('tool-1', 'bash', 'in_progress'));
+      display.addToolCall(
+        'session-1',
+        'channel-1',
+        createToolCall('tool-1', 'bash', 'in_progress')
+      );
 
       const updated = display.updateToolCall('session-1', 'channel-1', 'tool-1', 'completed');
 
@@ -106,7 +110,11 @@ describe('CondensedToolDisplay', () => {
         display.addToolCall('session-1', 'channel-1', createToolCall(`tool-${i}`));
       }
       // Add condensed
-      display.addToolCall('session-1', 'channel-1', createToolCall('tool-6', 'read', 'in_progress'));
+      display.addToolCall(
+        'session-1',
+        'channel-1',
+        createToolCall('tool-6', 'read', 'in_progress')
+      );
 
       const updated = display.updateToolCall('session-1', 'channel-1', 'tool-6', 'completed');
 
@@ -191,7 +199,11 @@ describe('CondensedToolDisplay', () => {
         display.addToolCall('session-1', 'channel-1', createToolCall(`tool-${i}`));
       }
       // Add 2 condensed
-      display.addToolCall('session-1', 'channel-1', createToolCall('tool-6', 'read', 'in_progress'));
+      display.addToolCall(
+        'session-1',
+        'channel-1',
+        createToolCall('tool-6', 'read', 'in_progress')
+      );
       display.addToolCall(
         'session-1',
         'channel-1',
@@ -212,7 +224,11 @@ describe('CondensedToolDisplay', () => {
       // Add condensed with different statuses
       display.addToolCall('session-1', 'channel-1', createToolCall('tool-6', 'read', 'completed'));
       display.addToolCall('session-1', 'channel-1', createToolCall('tool-7', 'write', 'failed'));
-      display.addToolCall('session-1', 'channel-1', createToolCall('tool-8', 'edit', 'in_progress'));
+      display.addToolCall(
+        'session-1',
+        'channel-1',
+        createToolCall('tool-8', 'edit', 'in_progress')
+      );
 
       const status = display.getStatusText('session-1', 'channel-1');
 

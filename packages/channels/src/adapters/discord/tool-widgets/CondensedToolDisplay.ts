@@ -82,7 +82,9 @@ export class CondensedToolDisplay {
 
     // Check if this tool is already tracked (idempotent)
     const existsInVisible = state.visibleTools.some((t) => t.toolCallId === toolCall.toolCallId);
-    const existsInCondensed = state.condensedTools.some((t) => t.toolCallId === toolCall.toolCallId);
+    const existsInCondensed = state.condensedTools.some(
+      (t) => t.toolCallId === toolCall.toolCallId
+    );
 
     if (existsInVisible || existsInCondensed) {
       this.logger.debug('Tool call already tracked', { toolCallId: toolCall.toolCallId });
@@ -215,7 +217,10 @@ export class CondensedToolDisplay {
     const failed = allTools.filter((t) => t.status === 'failed').length;
 
     // Use counts when total is large (>8) or condensed list is large (>3)
-    if (totalCount > STATUS_COUNT_THRESHOLD || state.condensedTools.length > PROGRESSIVE_NAME_LIMIT) {
+    if (
+      totalCount > STATUS_COUNT_THRESHOLD ||
+      state.condensedTools.length > PROGRESSIVE_NAME_LIMIT
+    ) {
       return this.formatCountStatus(completed, running, failed);
     }
 

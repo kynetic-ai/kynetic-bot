@@ -1,16 +1,22 @@
 pre-commit:
   parallel: true
   jobs:
+    - name: git-sanity
+      run: ./scripts/git-sanity.sh
+
     - name: lint
-      glob: "*.{ts,tsx,js,jsx}"
+      glob: '*.{ts,tsx,js,jsx}'
       run: pnpm lint:fix {staged_files}
 
     - name: format
-      glob: "*.{ts,tsx,js,jsx,json,md,yml,yaml}"
+      glob: '*.{ts,tsx,js,jsx,json,md,yml,yaml}'
       run: pnpm prettier --write {staged_files}
 
 pre-push:
   jobs:
+    - name: git-sanity
+      run: ./scripts/git-sanity.sh
+
     - name: typecheck
       run: pnpm build
 

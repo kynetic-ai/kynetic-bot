@@ -182,7 +182,7 @@ features:
             then: "formats as [tool: name | input | pending]"
         status:
           maturity: draft
-          implementation: in_progress
+          implementation: implemented
   - _ulid: 01KG1RDP884TBCZV7QH03CV53M
     slugs:
       - mem-context-window

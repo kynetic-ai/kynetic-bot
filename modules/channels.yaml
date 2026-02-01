@@ -208,7 +208,7 @@ features:
           visual separation (double newline)
     status:
       maturity: draft
-      implementation: in_progress
+      implementation: implemented
     requirements:
       - _ulid: 01KG93A3GEVCRNZQ8HY1A2VQGX
         slugs:

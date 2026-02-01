@@ -7,31 +7,20 @@
  */
 
 import type { ConversationTurn } from '@kynetic-bot/memory';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, beforeEach } from 'vitest';
 
 import { ContextRestorer, type ContextRestorerLogger } from '../src/context/context-restorer.js';
 import { MockSummaryProvider } from '../src/context/haiku-summary-provider.js';
 import type { SummaryProvider } from '../src/context/context-window.js';
+import {
+  MockTurnReconstructor,
+  TEST_SESSION_ID,
+  createTurnWithContent,
+} from './helpers/mock-turn-reconstructor.js';
 
 // ============================================================================
 // Test Helpers
 // ============================================================================
-
-/**
- * Create a mock conversation turn
- */
-function createTurn(
-  seq: number,
-  content: string,
-  role: 'user' | 'assistant' | 'system' = 'user'
-): ConversationTurn {
-  return {
-    ts: Date.now() - (100 - seq) * 1000,
-    seq,
-    role,
-    content,
-  };
-}
 
 /**
  * Create content of approximately N tokens (assuming 4 chars/token)
@@ -84,11 +73,31 @@ function createMockLogger(): ContextRestorerLogger & {
 describe('ContextRestorer', () => {
   const conversationId = '01ABC123';
   const baseDir = '.kbot';
+  let mockReconstructor: MockTurnReconstructor;
+  let mockProvider: MockSummaryProvider;
+
+  beforeEach(() => {
+    mockReconstructor = new MockTurnReconstructor();
+    mockProvider = new MockSummaryProvider({ turnReconstructor: mockReconstructor });
+  });
+
+  /**
+   * Helper to create a turn with content registered in the mock
+   */
+  function createTurn(
+    seq: number,
+    content: string,
+    role: 'user' | 'assistant' | 'system' = 'user'
+  ): ConversationTurn {
+    const turn = createTurnWithContent(seq, content, mockReconstructor, role);
+    mockProvider.setContent(seq, content);
+    return turn;
+  }
 
   describe('generateRestorationPrompt', () => {
     // AC: @mem-context-restore ac-7 - No restoration if no prior turns
     it('returns skipped=true for empty turns', async () => {
-      const restorer = new ContextRestorer(new MockSummaryProvider());
+      const restorer = new ContextRestorer(mockProvider, { turnReconstructor: mockReconstructor });
 
       const result = await restorer.generateRestorationPrompt([], conversationId, baseDir);
 
@@ -100,11 +109,13 @@ describe('ContextRestorer', () => {
 
     // AC: @mem-context-restore ac-1 - Recent turns replayed verbatim up to 30% token budget
     it('replays recent turns within 30% token budget', async () => {
-      const restorer = new ContextRestorer(new MockSummaryProvider(), {
+      const restorer = new ContextRestorer(mockProvider, {
+        turnReconstructor: mockReconstructor,
         turnSelectorOptions: {
           maxContextTokens: 1000,
           budgetFraction: 0.3,
           charsPerToken: 4,
+          turnReconstructor: mockReconstructor,
         },
       });
 
@@ -126,12 +137,13 @@ describe('ContextRestorer', () => {
 
     // AC: @mem-context-restore ac-2 - Older turns summarized via HaikuSummaryProvider
     it('summarizes older turns via summary provider', async () => {
-      const summaryProvider = new MockSummaryProvider();
-      const restorer = new ContextRestorer(summaryProvider, {
+      const restorer = new ContextRestorer(mockProvider, {
+        turnReconstructor: mockReconstructor,
         turnSelectorOptions: {
           maxContextTokens: 1000,
           budgetFraction: 0.3,
           charsPerToken: 4,
+          turnReconstructor: mockReconstructor,
         },
       });
 
@@ -153,14 +165,14 @@ describe('ContextRestorer', () => {
       expect(result.prompt).toContain('Summary of Earlier Conversation');
 
       // Verify summary provider was called
-      const summaryCalls = summaryProvider.getSummaryCalls();
+      const summaryCalls = mockProvider.getSummaryCalls();
       expect(summaryCalls).toHaveLength(1);
       expect(summaryCalls[0].turns).toHaveLength(2);
     });
 
     // AC: @mem-context-restore ac-3 - Tool calls summarized to [Tool: {name}] {brief_result}
     it('summarizes tool calls in recent turns', async () => {
-      const restorer = new ContextRestorer(new MockSummaryProvider());
+      const restorer = new ContextRestorer(mockProvider, { turnReconstructor: mockReconstructor });
 
       const turns = [
         createTurn(1, 'Please read the file', 'user'),
@@ -179,7 +191,7 @@ describe('ContextRestorer', () => {
 
     // AC: @mem-context-restore ac-4 - Includes session file reference
     it('includes session file reference', async () => {
-      const restorer = new ContextRestorer(new MockSummaryProvider());
+      const restorer = new ContextRestorer(mockProvider, { turnReconstructor: mockReconstructor });
 
       const turns = [createTurn(1, 'Hello', 'user')];
 
@@ -190,11 +202,13 @@ describe('ContextRestorer', () => {
 
     // AC: @mem-context-restore ac-5 - Format has sections: Summary, Recent History, Archived History
     it('has required sections in prompt', async () => {
-      const restorer = new ContextRestorer(new MockSummaryProvider(), {
+      const restorer = new ContextRestorer(mockProvider, {
+        turnReconstructor: mockReconstructor,
         turnSelectorOptions: {
           maxContextTokens: 1000,
           budgetFraction: 0.1, // Small budget to force summarization
           charsPerToken: 4,
+          turnReconstructor: mockReconstructor,
         },
       });
 
@@ -215,11 +229,13 @@ describe('ContextRestorer', () => {
 
     // AC: @mem-context-restore ac-5 - Skips summary section when all turns are recent
     it('omits summary section when no older turns', async () => {
-      const restorer = new ContextRestorer(new MockSummaryProvider(), {
+      const restorer = new ContextRestorer(mockProvider, {
+        turnReconstructor: mockReconstructor,
         turnSelectorOptions: {
           maxContextTokens: 100000, // Large enough to fit all turns
           budgetFraction: 0.3,
           charsPerToken: 4,
+          turnReconstructor: mockReconstructor,
         },
       });
 
@@ -237,10 +253,12 @@ describe('ContextRestorer', () => {
       const logger = createMockLogger();
       const restorer = new ContextRestorer(null, {
         logger,
+        turnReconstructor: mockReconstructor,
         turnSelectorOptions: {
           maxContextTokens: 100, // Very small context window
           budgetFraction: 0.1, // 10 token budget
           charsPerToken: 4,
+          turnReconstructor: mockReconstructor,
         },
       });
 
@@ -263,10 +281,12 @@ describe('ContextRestorer', () => {
       const logger = createMockLogger();
       const restorer = new ContextRestorer(new FailingSummaryProvider(), {
         logger,
+        turnReconstructor: mockReconstructor,
         turnSelectorOptions: {
           maxContextTokens: 1000,
           budgetFraction: 0.1,
           charsPerToken: 4,
+          turnReconstructor: mockReconstructor,
         },
       });
 
@@ -285,8 +305,9 @@ describe('ContextRestorer', () => {
 
     // AC: @mem-context-restore ac-8 - Turn truncated with [truncated] marker
     it('truncates oversized turns with marker', async () => {
-      const restorer = new ContextRestorer(new MockSummaryProvider(), {
+      const restorer = new ContextRestorer(mockProvider, {
         maxTurnChars: 100, // Very small limit
+        turnReconstructor: mockReconstructor,
       });
 
       const turns = [
@@ -301,8 +322,9 @@ describe('ContextRestorer', () => {
 
     // AC: @mem-context-restore ac-8 - Does not truncate turns within limit
     it('does not truncate turns within limit', async () => {
-      const restorer = new ContextRestorer(new MockSummaryProvider(), {
+      const restorer = new ContextRestorer(mockProvider, {
         maxTurnChars: 1000,
+        turnReconstructor: mockReconstructor,
       });
 
       const turns = [createTurn(1, 'Short message', 'user')];
@@ -316,7 +338,7 @@ describe('ContextRestorer', () => {
 
   describe('prompt format', () => {
     it('includes role labels for each turn', async () => {
-      const restorer = new ContextRestorer(new MockSummaryProvider());
+      const restorer = new ContextRestorer(mockProvider, { turnReconstructor: mockReconstructor });
 
       const turns = [
         createTurn(1, 'User message', 'user'),
@@ -332,7 +354,7 @@ describe('ContextRestorer', () => {
     });
 
     it('includes footer instructions', async () => {
-      const restorer = new ContextRestorer(new MockSummaryProvider());
+      const restorer = new ContextRestorer(mockProvider, { turnReconstructor: mockReconstructor });
 
       const turns = [createTurn(1, 'Hello', 'user')];
 
@@ -343,7 +365,7 @@ describe('ContextRestorer', () => {
     });
 
     it('includes archived history reference with file path', async () => {
-      const restorer = new ContextRestorer(new MockSummaryProvider());
+      const restorer = new ContextRestorer(mockProvider, { turnReconstructor: mockReconstructor });
 
       const turns = [createTurn(1, 'Hello', 'user')];
 
@@ -358,8 +380,9 @@ describe('ContextRestorer', () => {
 
   describe('statistics', () => {
     it('tracks total tokens estimate', async () => {
-      const restorer = new ContextRestorer(new MockSummaryProvider(), {
+      const restorer = new ContextRestorer(mockProvider, {
         charsPerToken: 4,
+        turnReconstructor: mockReconstructor,
       });
 
       const turns = [createTurn(1, 'x'.repeat(400), 'user')]; // ~100 tokens
@@ -371,11 +394,13 @@ describe('ContextRestorer', () => {
     });
 
     it('correctly counts recent vs summarized turns', async () => {
-      const restorer = new ContextRestorer(new MockSummaryProvider(), {
+      const restorer = new ContextRestorer(mockProvider, {
+        turnReconstructor: mockReconstructor,
         turnSelectorOptions: {
           maxContextTokens: 1000,
           budgetFraction: 0.2, // 200 token budget
           charsPerToken: 4,
+          turnReconstructor: mockReconstructor,
         },
       });
 
@@ -398,7 +423,7 @@ describe('ContextRestorer', () => {
 
   describe('edge cases', () => {
     it('handles single turn conversation', async () => {
-      const restorer = new ContextRestorer(new MockSummaryProvider());
+      const restorer = new ContextRestorer(mockProvider, { turnReconstructor: mockReconstructor });
 
       const turns = [createTurn(1, 'Only message', 'user')];
 
@@ -411,7 +436,7 @@ describe('ContextRestorer', () => {
     });
 
     it('handles turns with empty content', async () => {
-      const restorer = new ContextRestorer(new MockSummaryProvider());
+      const restorer = new ContextRestorer(mockProvider, { turnReconstructor: mockReconstructor });
 
       const turns = [createTurn(1, '', 'system')];
 
@@ -422,11 +447,13 @@ describe('ContextRestorer', () => {
     });
 
     it('handles very large conversation', async () => {
-      const restorer = new ContextRestorer(new MockSummaryProvider(), {
+      const restorer = new ContextRestorer(mockProvider, {
+        turnReconstructor: mockReconstructor,
         turnSelectorOptions: {
           maxContextTokens: 1000,
           budgetFraction: 0.3, // 300 token budget
           charsPerToken: 4,
+          turnReconstructor: mockReconstructor,
         },
       });
 
@@ -443,7 +470,7 @@ describe('ContextRestorer', () => {
     });
 
     it('handles special characters in content', async () => {
-      const restorer = new ContextRestorer(new MockSummaryProvider());
+      const restorer = new ContextRestorer(mockProvider, { turnReconstructor: mockReconstructor });
 
       const turns = [createTurn(1, 'Message with <tags> and "quotes" and \\backslashes', 'user')];
 
@@ -458,7 +485,7 @@ describe('ContextRestorer', () => {
   describe('tool call handling', () => {
     // AC: @mem-context-restore ac-3 - Tool calls formatted properly
     it('formats multiple tool calls in sequence', async () => {
-      const restorer = new ContextRestorer(new MockSummaryProvider());
+      const restorer = new ContextRestorer(mockProvider, { turnReconstructor: mockReconstructor });
 
       const turns = [
         createTurn(1, 'Run some commands', 'user'),
@@ -478,7 +505,7 @@ describe('ContextRestorer', () => {
     });
 
     it('preserves non-tool assistant messages', async () => {
-      const restorer = new ContextRestorer(new MockSummaryProvider());
+      const restorer = new ContextRestorer(mockProvider, { turnReconstructor: mockReconstructor });
 
       const turns = [
         createTurn(1, 'Hello', 'user'),

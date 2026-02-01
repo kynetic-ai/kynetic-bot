@@ -4,7 +4,74 @@
  * Provides a simple content map for testing purposes.
  */
 
-import type { TurnReconstructor, EventRange, ReconstructionResult } from '@kynetic-bot/memory';
+import type {
+  TurnReconstructor,
+  EventRange,
+  ReconstructionResult,
+  ConversationTurn,
+  ConversationTurnInput,
+} from '@kynetic-bot/memory';
+
+/**
+ * Default session ID for test turns
+ */
+export const TEST_SESSION_ID = 'test-session';
+
+/**
+ * Create a test turn with the new event-pointer schema.
+ *
+ * @param seq - Sequence number
+ * @param role - Turn role (default: 'user')
+ * @param ts - Timestamp (default: calculated from seq)
+ */
+export function createTestTurn(
+  seq: number,
+  role: 'user' | 'assistant' | 'system' = 'user',
+  ts?: number
+): ConversationTurn {
+  return {
+    ts: ts ?? Date.now() - (100 - seq) * 1000,
+    seq,
+    role,
+    session_id: TEST_SESSION_ID,
+    event_range: { start_seq: seq, end_seq: seq },
+  };
+}
+
+/**
+ * Create a test turn input (for appendTurn/addTurn calls).
+ *
+ * @param role - Turn role
+ * @param seq - Sequence number (used for event_range)
+ * @param message_id - Optional message ID for idempotency
+ */
+export function createTestTurnInput(
+  role: 'user' | 'assistant' | 'system',
+  seq: number,
+  message_id?: string
+): ConversationTurnInput {
+  return {
+    role,
+    session_id: TEST_SESSION_ID,
+    event_range: { start_seq: seq, end_seq: seq },
+    message_id,
+  };
+}
+
+/**
+ * Create a turn and register its content in a MockTurnReconstructor.
+ */
+export function createTurnWithContent(
+  seq: number,
+  content: string,
+  mock: MockTurnReconstructor,
+  role: 'user' | 'assistant' | 'system' = 'user',
+  ts?: number
+): ConversationTurn {
+  const turn = createTestTurn(seq, role, ts);
+  mock.setContent(TEST_SESSION_ID, turn.event_range, content);
+  return turn;
+}
 
 /**
  * MockTurnReconstructor stores content by session_id and event_range key.

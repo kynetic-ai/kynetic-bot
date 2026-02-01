@@ -11155,6 +11155,44 @@
 
         See @discord-tool-widgets spec updates (ac-10 through ac-20).
       supersedes: null
+    - _ulid: 01KGDT3BYEE6JKSBGYF08PWG0H
+      created_at: 2026-02-01T23:55:07.086Z
+      author: "@claude"
+      content: >-
+        Verified all child tasks completed and AC coverage:
+
+
+        Completed sub-tasks:
+
+        - @01KGDBQM: ThreadTracker (completed)
+
+        - @01KGDBR9: parentMessageId (completed)  
+
+        - @01KGDBRB: CondensedToolDisplay (completed)
+
+        - @01KGDBRC: Integration (completed)
+
+        - @01KGDBRE: Tests (completed)
+
+
+        AC coverage verified:
+
+        - ac-1 through ac-9: Original widget system (ToolWidgetBuilder, ToolCallTracker,
+        MessageUpdateBatcher)
+
+        - ac-10, ac-11, ac-12, ac-13: Thread management (ThreadTracker)
+
+        - ac-14: Placeholder message for early tool calls
+
+        - ac-15: Expand in thread (implicit via Discord interaction.reply behavior)
+
+        - ac-16, ac-17: Per-response isolation, deleted thread fallback
+
+        - ac-18, ac-19, ac-20: Condensed display for DMs
+
+
+        All 392 channels tests passing. Implementation complete across PRs #68-71.
+      supersedes: null
   todos: []
 - _ulid: 01KGBS4Y0J7V7JWWPWNVGWTF3D
   slugs:
@@ -13717,6 +13755,10 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "Tests already implemented. ThreadTracker.test.ts (27 tests) and
+    CondensedToolDisplay.test.ts (24 tests) were added with their respective feature implementations
+    (PRs #68 and #70). Integration tests in adapter.test.ts cover ac-9 through ac-20 (PR #71). All
+    392 tests pass."
   depends_on:
     - "@01KGDBRC"
   context: []
@@ -13725,6 +13767,7 @@
   vcs_refs: []
   created_at: 2026-02-01T19:44:29.512Z
   started_at: 2026-02-01T23:46:03.858Z
+  completed_at: 2026-02-01T23:46:19.127Z
   notes:
     - _ulid: 01KGDBTAZ38PZKYMADGWA92629
       created_at: 2026-02-01T19:45:31.107Z
@@ -13821,8 +13864,3 @@
         ac-20 (added in PR #71). All 392 tests pass."
       supersedes: null
   todos: []
-  completed_at: 2026-02-01T23:46:19.127Z
-  closed_reason: "Tests already implemented. ThreadTracker.test.ts (27 tests) and
-    CondensedToolDisplay.test.ts (24 tests) were added with their respective feature implementations
-    (PRs #68 and #70). Integration tests in adapter.test.ts cover ac-9 through ac-20 (PR #71). All
-    392 tests pass."

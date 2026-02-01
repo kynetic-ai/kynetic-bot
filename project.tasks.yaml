@@ -11209,7 +11209,23 @@
   created_at: 2026-02-01T05:00:08.367Z
   notes: []
   todos: []
-- title: Update ConversationTurn schema for event pointers
+- _ulid: 01KGBS56ZWP3CKZQ37HB0XYEMZ
+  slugs: []
+  title: Update ConversationTurn schema for event pointers
+  type: task
+  spec_ref: "@mem-conversation"
+  meta_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  priority: 1
+  tags: []
+  vcs_refs: []
+  created_at: 2026-02-01T05:00:10.107Z
+  notes: []
+  todos: []
+- title: Add updateLastTurnEndSeq to ConversationStore
   type: task
   spec_ref: "@mem-conversation"
   meta_ref: null
@@ -11217,11 +11233,11 @@
   slugs: []
   tags: []
   depends_on: []
-  _ulid: 01KGBS56ZWP3CKZQ37HB0XYEMZ
+  _ulid: 01KGBS58Q2S4S4JKG044Y5HXNS
   status: pending
   blocked_by: []
   context: []
   vcs_refs: []
-  created_at: 2026-02-01T05:00:10.107Z
+  created_at: 2026-02-01T05:00:11.874Z
   notes: []
   todos: []

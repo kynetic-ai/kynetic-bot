@@ -12186,6 +12186,8 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "PR #63 merged. TurnReconstructor now extracts tool calls from ACP session.update
+    events for context restoration."
   depends_on: []
   context: []
   priority: 2
@@ -12193,6 +12195,7 @@
   vcs_refs: []
   created_at: 2026-02-01T10:12:51.093Z
   started_at: 2026-02-01T10:17:02.277Z
+  completed_at: 2026-02-01T10:32:09.010Z
   notes:
     - _ulid: 01KGCB2HHR3DHNB6KAWA4XMSYS
       created_at: 2026-02-01T10:13:16.985Z
@@ -12424,6 +12427,19 @@
         - Missing toolCallId warning
       supersedes: null
   todos: []
-  completed_at: 2026-02-01T10:32:09.010Z
-  closed_reason: "PR #63 merged. TurnReconstructor now extracts tool calls from ACP session.update
-    events for context restoration."
+- title: Implement StreamingSplitTracker
+  type: task
+  spec_ref: "@discord-channel-adapter"
+  meta_ref: null
+  priority: 2
+  slugs: []
+  tags: []
+  depends_on: []
+  _ulid: 01KGD137X8NY8RZ5T9R507EG10
+  status: pending
+  blocked_by: []
+  context: []
+  vcs_refs: []
+  created_at: 2026-02-01T16:38:08.552Z
+  notes: []
+  todos: []

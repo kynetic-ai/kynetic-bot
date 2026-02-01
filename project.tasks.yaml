@@ -11152,6 +11152,11 @@
   derivation: auto
   status: completed
   blocked_by: []
+  closed_reason: "Merged in PR #60. Implemented turn reconstruction with input validation (AC-5,
+    AC-6), event emission for observability (AC-3), and tool summarization with format [tool: name |
+    input | status | outcome] (AC-4, AC-7, AC-8). All 8 acceptance criteria covered with 20 new
+    tests. Implementation extends existing TurnReconstructor with TurnReconstructorValidationError,
+    optional EventEmitter, and summarizeTools option."
   depends_on:
     - "@conversation-types"
     - "@01KGBS55"
@@ -11161,6 +11166,7 @@
   vcs_refs: []
   created_at: 2026-02-01T05:00:00.914Z
   started_at: 2026-02-01T09:06:43.748Z
+  completed_at: 2026-02-01T09:16:19.388Z
   notes:
     - _ulid: 01KGBS4Y0HWGXGKCXBP15VPV0C
       created_at: 2026-02-01T05:00:00.914Z
@@ -11257,12 +11263,6 @@
         All tests pass (1272 total, 34 turn-reconstructor tests). Ready for review.
       supersedes: null
   todos: []
-  completed_at: 2026-02-01T09:16:19.388Z
-  closed_reason: "Merged in PR #60. Implemented turn reconstruction with input validation (AC-5,
-    AC-6), event emission for observability (AC-3), and tool summarization with format [tool: name |
-    input | status | outcome] (AC-4, AC-7, AC-8). All 8 acceptance criteria covered with 20 new
-    tests. Implementation extends existing TurnReconstructor with TurnReconstructorValidationError,
-    optional EventEmitter, and summarizeTools option."
 - _ulid: 01KGBS559FN57DQBK457E0V8P5
   slugs: []
   title: Wire ACP event logging to SessionStore
@@ -12133,7 +12133,7 @@
   type: task
   spec_ref: "@mem-context-restore"
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on:
     - "@task-turn-reconstruction"
@@ -12160,3 +12160,4 @@
         **AC coverage**: @mem-context-restore ac-1, ac-4, ac-9
       supersedes: null
   todos: []
+  started_at: 2026-02-01T09:32:09.833Z

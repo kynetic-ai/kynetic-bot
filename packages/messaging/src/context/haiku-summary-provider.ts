@@ -39,7 +39,10 @@ export interface ACPPromptClient {
    */
   on(
     event: 'update',
-    handler: (sessionId: string, update: { sessionUpdate?: string; content?: { type?: string; text?: string } }) => void,
+    handler: (
+      sessionId: string,
+      update: { sessionUpdate?: string; content?: { type?: string; text?: string } }
+    ) => void
   ): void;
 
   /**
@@ -47,7 +50,10 @@ export interface ACPPromptClient {
    */
   off(
     event: 'update',
-    handler: (sessionId: string, update: { sessionUpdate?: string; content?: { type?: string; text?: string } }) => void,
+    handler: (
+      sessionId: string,
+      update: { sessionUpdate?: string; content?: { type?: string; text?: string } }
+    ) => void
   ): void;
 }
 
@@ -159,7 +165,7 @@ Provide a concise summary (max ~${this.maxSummaryTokens} tokens) following the f
     const responseChunks: string[] = [];
     const updateHandler = (
       _sid: string,
-      update: { sessionUpdate?: string; content?: { type?: string; text?: string } },
+      update: { sessionUpdate?: string; content?: { type?: string; text?: string } }
     ) => {
       if (update.sessionUpdate === 'agent_message_chunk' && update.content?.type === 'text') {
         responseChunks.push(update.content.text ?? '');

@@ -303,7 +303,10 @@ export class TurnSelector {
    * @param customBudget - Custom token budget to use
    * @returns Selection result
    */
-  async selectTurnsWithBudget(turns: ConversationTurn[], customBudget: number): Promise<TurnSelectionResult> {
+  async selectTurnsWithBudget(
+    turns: ConversationTurn[],
+    customBudget: number
+  ): Promise<TurnSelectionResult> {
     const margin = Math.floor(customBudget * this.marginFraction);
     const maxAllowed = customBudget + margin;
 

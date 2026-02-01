@@ -10,7 +10,10 @@ import type { TurnReconstructor, EventRange, ReconstructionResult } from '@kynet
  * MockTurnReconstructor stores content by session_id and event_range key.
  * Content can be set directly for testing.
  */
-export class MockTurnReconstructor implements Pick<TurnReconstructor, 'getContent' | 'reconstructContent'> {
+export class MockTurnReconstructor implements Pick<
+  TurnReconstructor,
+  'getContent' | 'reconstructContent'
+> {
   private contentMap: Map<string, string> = new Map();
 
   /**
@@ -45,7 +48,10 @@ export class MockTurnReconstructor implements Pick<TurnReconstructor, 'getConten
   /**
    * Reconstruct content with full result
    */
-  async reconstructContent(sessionId: string, eventRange: EventRange): Promise<ReconstructionResult> {
+  async reconstructContent(
+    sessionId: string,
+    eventRange: EventRange
+  ): Promise<ReconstructionResult> {
     const content = await this.getContent(sessionId, eventRange);
     return {
       content,

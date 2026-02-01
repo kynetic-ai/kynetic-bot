@@ -98,9 +98,14 @@ export interface SummaryProvider {
  */
 export interface ContextWindowEvents {
   'compaction:started': { sessionKey: string; currentTokens: number; threshold: 'soft' | 'hard' };
-  'compaction:completed': { sessionKey: string; tokensBefore: number; tokensAfter: number; turnsSummarized: number };
+  'compaction:completed': {
+    sessionKey: string;
+    tokensBefore: number;
+    tokensAfter: number;
+    turnsSummarized: number;
+  };
   'context:retrieved': { sessionKey: string; totalTokens: number; entryCount: number };
-  'error': { error: Error; operation: string; sessionKey?: string };
+  error: { error: Error; operation: string; sessionKey?: string };
 }
 
 // ============================================================================
@@ -165,7 +170,7 @@ export class ContextWindowManager {
     store: ConversationStore,
     history: ConversationHistory,
     summaryProvider?: SummaryProvider,
-    options: ContextWindowOptions = {},
+    options: ContextWindowOptions = {}
   ) {
     this.store = store;
     this.history = history;
@@ -212,7 +217,10 @@ export class ContextWindowManager {
   /**
    * Internal implementation with recursion guard
    */
-  private async getContextInternal(sessionKey: string, afterCompaction: boolean): Promise<ContextResult> {
+  private async getContextInternal(
+    sessionKey: string,
+    afterCompaction: boolean
+  ): Promise<ContextResult> {
     try {
       // Get history with semantic boundary markers
       const historyEntries = await this.history.getHistory(sessionKey);
@@ -229,9 +237,8 @@ export class ContextWindowManager {
       }
 
       // Filter out turns that are covered by summaries
-      const coveredUntil = summaries.length > 0
-        ? Math.max(...summaries.map((s) => s.timestampRange.end))
-        : 0;
+      const coveredUntil =
+        summaries.length > 0 ? Math.max(...summaries.map((s) => s.timestampRange.end)) : 0;
 
       // Get only turns NOT covered by summaries
       const uncoveredEntries = historyEntries.filter((entry) => entry.turn.ts > coveredUntil);
@@ -246,7 +253,12 @@ export class ContextWindowManager {
       const compactionLevel = this.shouldCompact(totalTokens);
       let compacted = false;
 
-      if (!afterCompaction && compactionLevel !== 'none' && this.summaryProvider && uncoveredEntries.length >= 4) {
+      if (
+        !afterCompaction &&
+        compactionLevel !== 'none' &&
+        this.summaryProvider &&
+        uncoveredEntries.length >= 4
+      ) {
         compacted = await this.compact(sessionKey, uncoveredEntries, compactionLevel);
       }
 
@@ -281,10 +293,7 @@ export class ContextWindowManager {
    * @param input - Turn input with event pointers
    * @returns The created history entry
    */
-  async addMessage(
-    sessionKey: string,
-    input: TurnInput,
-  ): Promise<HistoryEntry> {
+  async addMessage(sessionKey: string, input: TurnInput): Promise<HistoryEntry> {
     try {
       // Add the turn via history
       const entry = await this.history.addTurn(sessionKey, input);
@@ -380,7 +389,7 @@ export class ContextWindowManager {
   private async compact(
     sessionKey: string,
     entries: HistoryEntry[],
-    level: 'soft' | 'hard',
+    level: 'soft' | 'hard'
   ): Promise<boolean> {
     if (!this.summaryProvider || entries.length < 4) {
       return false;
@@ -421,7 +430,8 @@ export class ContextWindowManager {
       cachedSummaries.push(summary);
       this.summaryCache.set(sessionKey, cachedSummaries);
 
-      const tokensAfter = summary.tokens + await this.estimateHistoryTokens(entries.slice(boundaryIndex));
+      const tokensAfter =
+        summary.tokens + (await this.estimateHistoryTokens(entries.slice(boundaryIndex)));
 
       this.emit('compaction:completed', {
         sessionKey,
@@ -470,7 +480,7 @@ export class ContextWindowManager {
   private parseSummary(
     summaryText: string,
     turns: ConversationTurn[],
-    sessionFileRef: string,
+    sessionFileRef: string
   ): CompactedSummary {
     // Extract topics and instructions from summary text
     // The summary format from the provider should include these sections
@@ -478,7 +488,10 @@ export class ContextWindowManager {
     const keyInstructions: string[] = [];
 
     // Simple parsing - look for bullet points or numbered items
-    const lines = summaryText.split('\n').map((l) => l.trim()).filter((l) => l);
+    const lines = summaryText
+      .split('\n')
+      .map((l) => l.trim())
+      .filter((l) => l);
     let inTopics = false;
     let inInstructions = false;
 
@@ -576,10 +589,7 @@ export class ContextWindowManager {
    *
    * @trait-observable - Structured event emission
    */
-  private emit<K extends keyof ContextWindowEvents>(
-    event: K,
-    data: ContextWindowEvents[K],
-  ): void {
+  private emit<K extends keyof ContextWindowEvents>(event: K, data: ContextWindowEvents[K]): void {
     if (this.emitter) {
       this.emitter.emit(event, data);
     }

@@ -12142,6 +12142,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-01T05:00:13.617Z
+  started_at: 2026-02-01T09:32:09.833Z
   notes:
     - _ulid: 01KGBSARK39PBG9G2776CBNV8Q
       created_at: 2026-02-01T05:03:11.972Z
@@ -12159,5 +12160,11 @@
 
         **AC coverage**: @mem-context-restore ac-1, ac-4, ac-9
       supersedes: null
+    - _ulid: 01KGC8QTMJYCSNQ7SD8C97GTXG
+      created_at: 2026-02-01T09:32:28.691Z
+      author: "@claude"
+      content: "Spec updated: AC-4 corrected to reference turns.jsonl (was incorrectly
+        sessions/{id}/events.jsonl). Added AC-10 for instruction blurb explaining turn pointer
+        resolution pattern."
+      supersedes: null
   todos: []
-  started_at: 2026-02-01T09:32:09.833Z

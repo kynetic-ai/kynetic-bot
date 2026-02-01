@@ -776,6 +776,152 @@ describe('ConversationStore', () => {
     });
   });
 
+  describe('updateLastTurnEndSeq', () => {
+    // AC: @mem-conversation ac-3 - updates existing assistant turn's event_range.end_seq
+    it('updates the end_seq of the last turn', async () => {
+      const conversation = await store.createConversation('discord:dm:user123');
+
+      await store.appendTurn(conversation.id, {
+        role: 'user',
+        session_id: '01SESSION',
+        event_range: { start_seq: 0, end_seq: 0 },
+      });
+      await store.appendTurn(conversation.id, {
+        role: 'assistant',
+        session_id: '01SESSION',
+        event_range: { start_seq: 1, end_seq: 5 },
+      });
+
+      await store.updateLastTurnEndSeq(conversation.id, 10);
+
+      const lastTurn = await store.getLastTurn(conversation.id);
+      expect(lastTurn?.event_range.end_seq).toBe(10);
+      // start_seq should remain unchanged
+      expect(lastTurn?.event_range.start_seq).toBe(1);
+    });
+
+    it('persists the update to turns.jsonl', async () => {
+      const conversation = await store.createConversation('discord:dm:user123');
+
+      await store.appendTurn(conversation.id, {
+        role: 'assistant',
+        session_id: '01SESSION',
+        event_range: { start_seq: 1, end_seq: 5 },
+      });
+
+      await store.updateLastTurnEndSeq(conversation.id, 20);
+
+      // Read directly from file to verify persistence
+      const turnsPath = path.join(tempDir, 'conversations', conversation.id, 'turns.jsonl');
+      const content = readFileSync(turnsPath, 'utf-8');
+      const parsed = JSON.parse(content.trim());
+      expect(parsed.event_range.end_seq).toBe(20);
+    });
+
+    // AC: @mem-conversation ac-7 - emits turn_updated event
+    it('emits turn:updated event', async () => {
+      const conversation = await store.createConversation('discord:dm:user123');
+
+      await store.appendTurn(conversation.id, {
+        role: 'assistant',
+        session_id: '01SESSION_ABC',
+        event_range: { start_seq: 1, end_seq: 5 },
+      });
+
+      const events: Array<{
+        conversationId: string;
+        seq: number;
+        sessionId: string;
+        newEndSeq: number;
+      }> = [];
+      emitter.on('turn:updated', (data) => events.push(data));
+
+      await store.updateLastTurnEndSeq(conversation.id, 15);
+
+      expect(events).toHaveLength(1);
+      expect(events[0].conversationId).toBe(conversation.id);
+      expect(events[0].seq).toBe(0);
+      expect(events[0].sessionId).toBe('01SESSION_ABC');
+      expect(events[0].newEndSeq).toBe(15);
+    });
+
+    it('throws ConversationStoreError for non-existent conversation', async () => {
+      await expect(store.updateLastTurnEndSeq('nonexistent', 10)).rejects.toThrow(
+        ConversationStoreError
+      );
+    });
+
+    it('throws ConversationStoreError when conversation has no turns', async () => {
+      const conversation = await store.createConversation('discord:dm:user123');
+
+      await expect(store.updateLastTurnEndSeq(conversation.id, 10)).rejects.toThrow(
+        ConversationStoreError
+      );
+    });
+
+    it('can be called multiple times to extend event range', async () => {
+      const conversation = await store.createConversation('discord:dm:user123');
+
+      await store.appendTurn(conversation.id, {
+        role: 'assistant',
+        session_id: '01SESSION',
+        event_range: { start_seq: 1, end_seq: 1 },
+      });
+
+      // Simulate streaming: update end_seq as events arrive
+      await store.updateLastTurnEndSeq(conversation.id, 2);
+      await store.updateLastTurnEndSeq(conversation.id, 5);
+      await store.updateLastTurnEndSeq(conversation.id, 10);
+
+      const lastTurn = await store.getLastTurn(conversation.id);
+      expect(lastTurn?.event_range).toEqual({ start_seq: 1, end_seq: 10 });
+    });
+
+    it('preserves other turn fields when updating', async () => {
+      const conversation = await store.createConversation('discord:dm:user123');
+
+      await store.appendTurn(conversation.id, {
+        role: 'assistant',
+        session_id: '01SESSION123',
+        event_range: { start_seq: 5, end_seq: 10 },
+        message_id: 'msg-456',
+        metadata: { custom: 'data' },
+      });
+
+      await store.updateLastTurnEndSeq(conversation.id, 25);
+
+      const lastTurn = await store.getLastTurn(conversation.id);
+      expect(lastTurn?.role).toBe('assistant');
+      expect(lastTurn?.session_id).toBe('01SESSION123');
+      expect(lastTurn?.message_id).toBe('msg-456');
+      expect(lastTurn?.metadata).toEqual({ custom: 'data' });
+      expect(lastTurn?.event_range.start_seq).toBe(5);
+      expect(lastTurn?.event_range.end_seq).toBe(25);
+    });
+
+    it('does not affect previous turns', async () => {
+      const conversation = await store.createConversation('discord:dm:user123');
+
+      await store.appendTurn(conversation.id, {
+        role: 'user',
+        session_id: '01SESSION',
+        event_range: { start_seq: 0, end_seq: 0 },
+      });
+      await store.appendTurn(conversation.id, {
+        role: 'assistant',
+        session_id: '01SESSION',
+        event_range: { start_seq: 1, end_seq: 5 },
+      });
+
+      await store.updateLastTurnEndSeq(conversation.id, 100);
+
+      const turns = await store.readTurns(conversation.id);
+      expect(turns).toHaveLength(2);
+      expect(turns[0].event_range).toEqual({ start_seq: 0, end_seq: 0 });
+      expect(turns[1].event_range).toEqual({ start_seq: 1, end_seq: 100 });
+    });
+  });
+
   describe('getTurnCount', () => {
     it('returns number of turns', async () => {
       const conversation = await store.createConversation('discord:dm:user123');

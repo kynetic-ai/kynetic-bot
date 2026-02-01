@@ -97,12 +97,14 @@ export class ConversationValidationError extends KyneticError {
  * Events emitted by ConversationStore for observability
  *
  * AC: @mem-conversation ac-5 - Emits structured event for observability
+ * AC: @mem-conversation ac-7 - Emits turn_appended and turn_updated events
  */
 export interface ConversationStoreEvents {
   'conversation:created': { conversation: ConversationMetadata };
   'conversation:updated': { conversationId: string; turnCount: number };
   'conversation:archived': { conversationId: string };
   'turn:appended': { conversationId: string; turn: ConversationTurn; wasDuplicate: boolean };
+  'turn:updated': { conversationId: string; seq: number; sessionId: string; newEndSeq: number };
   error: { error: Error; operation: string; conversationId?: string };
 }
 
@@ -918,6 +920,102 @@ export class ConversationStore {
   async getLastTurn(conversationId: string): Promise<ConversationTurn | null> {
     const turns = await this.readTurns(conversationId);
     return turns.length > 0 ? turns[turns.length - 1] : null;
+  }
+
+  /**
+   * Update the end_seq of the last turn in a conversation.
+   *
+   * Used during streaming to extend the assistant turn's event_range as new events arrive.
+   * Pattern: appendTurn on first event, updateLastTurnEndSeq on subsequent events.
+   *
+   * AC: @mem-conversation ac-3 - Updates existing assistant turn's event_range.end_seq
+   * AC: @mem-conversation ac-7 - Emits turn_updated event
+   *
+   * @param conversationId - Conversation ID containing the turn to update
+   * @param endSeq - New end_seq value
+   * @throws ConversationStoreError if conversation not found or has no turns
+   */
+  async updateLastTurnEndSeq(conversationId: string, endSeq: number): Promise<void> {
+    // Check conversation exists
+    if (!existsSync(this.conversationDir(conversationId))) {
+      throw new ConversationStoreError(
+        `Conversation not found: ${conversationId}`,
+        'CONVERSATION_NOT_FOUND',
+        conversationId
+      );
+    }
+
+    // Acquire lock for thread-safe operations
+    if (!(await this.acquireLock(conversationId))) {
+      throw new ConversationStoreError(
+        `Failed to acquire lock for conversation: ${conversationId}`,
+        'LOCK_FAILED',
+        conversationId
+      );
+    }
+
+    try {
+      const turnsPath = this.turnsJsonlPath(conversationId);
+
+      if (!existsSync(turnsPath)) {
+        throw new ConversationStoreError(
+          `No turns to update for conversation: ${conversationId}`,
+          'NO_TURNS',
+          conversationId
+        );
+      }
+
+      const content = readFileSync(turnsPath, 'utf-8');
+      const lines = content.split('\n').filter((line) => line.trim());
+
+      if (lines.length === 0) {
+        throw new ConversationStoreError(
+          `No turns to update for conversation: ${conversationId}`,
+          'NO_TURNS',
+          conversationId
+        );
+      }
+
+      // Parse and update the last turn
+      const lastLine = lines[lines.length - 1];
+      let lastTurn: ConversationTurn;
+      try {
+        const parsed: unknown = JSON.parse(lastLine);
+        const result = ConversationTurnSchema.safeParse(parsed);
+        if (!result.success) {
+          throw new ConversationStoreError(
+            `Invalid last turn in conversation: ${conversationId}`,
+            'INVALID_TURN',
+            conversationId
+          );
+        }
+        lastTurn = result.data;
+      } catch (err) {
+        if (err instanceof ConversationStoreError) throw err;
+        throw new ConversationStoreError(
+          `Failed to parse last turn in conversation: ${conversationId}`,
+          'PARSE_ERROR',
+          conversationId
+        );
+      }
+
+      // Update the end_seq
+      lastTurn.event_range.end_seq = endSeq;
+
+      // Rewrite the file with updated last line
+      const updatedLines = [...lines.slice(0, -1), JSON.stringify(lastTurn)];
+      writeFileSync(turnsPath, updatedLines.join('\n') + '\n', 'utf-8');
+
+      // AC: @mem-conversation ac-7 - Emit turn_updated event
+      this.emit('turn:updated', {
+        conversationId,
+        seq: lastTurn.seq,
+        sessionId: lastTurn.session_id,
+        newEndSeq: endSeq,
+      });
+    } finally {
+      this.releaseLock(conversationId);
+    }
   }
 
   /**

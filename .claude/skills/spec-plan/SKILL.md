@@ -19,6 +19,7 @@ After a plan is approved, translate it into durable kspec artifacts before imple
 ### 1. Identify Spec Items from Plan
 
 Review the approved plan and extract:
+
 - **Features**: Major capabilities being added
 - **Requirements**: Specific behaviors under features
 - **Acceptance Criteria**: Testable outcomes (Given/When/Then)
@@ -59,6 +60,7 @@ kspec item add \
 ```
 
 For requirements under features:
+
 ```bash
 kspec item add \
   --under @feature-slug \
@@ -79,6 +81,7 @@ kspec item ac add @spec-slug \
 ```
 
 **Tips:**
+
 - Each AC should be independently testable
 - Use concrete examples, not abstract descriptions
 - Cover happy path and key edge cases
@@ -218,10 +221,12 @@ both depending on `@task-auto-docs`.
 - **Missing notes**: Plan context gets lost
 - **Wrong parent**: Check item fits under parent's domain
 - **Too granular**: Not every plan bullet needs its own spec
+- **Using internal task tracker**: Tasks must be created in kspec with `kspec task add` or `kspec derive`, not Claude Code's TaskCreate tool. The internal tracker can be used for immediate sub-tasks or scratch work, but kspec is the authoritative task list.
 
 ## Integration
 
 This skill pairs with:
+
 - **Plan mode**: Use after plan approval
 - **`/kspec`**: For ongoing task/spec management
 - **`/meta`**: Track session focus and capture observations during implementation

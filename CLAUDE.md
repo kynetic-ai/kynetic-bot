@@ -41,6 +41,7 @@ kspec validate
 2. **Add notes** - Document what you do in task notes for future context
 3. **Check dependencies** - Tasks have `depends_on` relationships; complete prerequisites first
 4. **Spec is source of truth** - `.kspec/` defines what to build; code implements it
+5. **Tasks in kspec, not internal tracker** - Use `kspec task add` for all tracked work. Claude Code's internal TaskCreate/TaskUpdate tools can be used for immediate sub-tasks or scratch tracking, but the authoritative task list lives in kspec.
 
 ## Plan Mode Workflow
 

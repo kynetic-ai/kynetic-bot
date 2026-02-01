@@ -12594,3 +12594,19 @@
         ```
       supersedes: null
   todos: []
+- title: Implement message block boundary detection
+  type: task
+  spec_ref: "@discord-channel-adapter"
+  meta_ref: null
+  priority: 2
+  slugs: []
+  tags: []
+  depends_on: []
+  _ulid: 01KGD148TG0VA6RB0D6D1VEJ90
+  status: pending
+  blocked_by: []
+  context: []
+  vcs_refs: []
+  created_at: 2026-02-01T16:38:42.255Z
+  notes: []
+  todos: []

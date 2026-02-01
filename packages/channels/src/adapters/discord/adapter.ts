@@ -10,6 +10,7 @@ import {
   Client,
   Events,
   ChannelType,
+  ThreadAutoArchiveDuration,
   type Message,
   type TextChannel,
   type DMChannel,
@@ -33,7 +34,10 @@ import {
   ToolWidgetBuilder,
   ToolCallTracker,
   MessageUpdateBatcher,
+  ThreadTracker,
+  CondensedToolDisplay,
   type MessageEditFn,
+  type CondensedToolCall,
 } from './tool-widgets/index.js';
 
 /**
@@ -74,6 +78,8 @@ export class DiscordAdapter implements ChannelAdapter {
   private toolWidgetBuilder!: ToolWidgetBuilder;
   private toolCallTracker!: ToolCallTracker;
   private messageUpdateBatcher!: MessageUpdateBatcher;
+  private threadTracker!: ThreadTracker;
+  private condensedDisplay!: CondensedToolDisplay;
   private isStarted = false;
 
   constructor(config: DiscordAdapterConfig) {
@@ -112,6 +118,8 @@ export class DiscordAdapter implements ChannelAdapter {
     this.messageUpdateBatcher = new MessageUpdateBatcher(editMessageFn);
     this.toolWidgetBuilder = new ToolWidgetBuilder();
     this.toolCallTracker = new ToolCallTracker(this.messageUpdateBatcher, this.toolWidgetBuilder);
+    this.threadTracker = new ThreadTracker(this.logger);
+    this.condensedDisplay = new CondensedToolDisplay(this.logger);
   }
 
   /**
@@ -174,6 +182,30 @@ export class DiscordAdapter implements ChannelAdapter {
     this.logger.info('Discord adapter stopped');
 
     return Promise.resolve();
+  }
+
+  /**
+   * Clean up session resources (threads, condensed display, tool tracking)
+   *
+   * Should be called when a session ends (completed, cancelled, or crash).
+   *
+   * AC: @discord-tool-widgets ac-9, ac-13
+   *
+   * @param sessionId - Session ID to clean up
+   */
+  async cleanupSession(sessionId: string): Promise<void> {
+    this.logger.info('Cleaning up session', { sessionId });
+
+    // Clean up tool call tracking (updates widgets to final state)
+    await this.toolCallTracker.cleanupSession(sessionId);
+
+    // Clean up thread tracking
+    this.threadTracker.cleanupSession(sessionId);
+
+    // Clean up condensed display tracking
+    this.condensedDisplay.cleanupSession(sessionId);
+
+    this.logger.debug('Session cleanup complete', { sessionId });
   }
 
   /**
@@ -442,7 +474,7 @@ export class DiscordAdapter implements ChannelAdapter {
    * Handle tool call event
    *
    * AC: @discord-tool-widgets ac-1
-   * AC: @discord-tool-widgets ac-10, ac-11, ac-14 - parentMessageId enables thread isolation
+   * AC: @discord-tool-widgets ac-10, ac-11, ac-14, ac-18 - Thread routing and DM fallback
    */
   private async handleToolCall(
     sessionId: string,
@@ -458,10 +490,110 @@ export class DiscordAdapter implements ChannelAdapter {
     });
 
     try {
-      // Build widget
-      const widgetResult = this.toolWidgetBuilder.buildWidget(toolCall);
+      const channel = await this.fetchChannel(channelId);
 
-      // Track and send
+      // AC: @discord-tool-widgets ac-18 - DM channels use condensed display
+      if (channel.isDMBased()) {
+        await this.handleToolCallCondensed(sessionId, channelId, toolCall);
+        return;
+      }
+
+      // Guild channel: try thread-based isolation
+      // AC: @discord-tool-widgets ac-14 - Create placeholder if no parent message
+      let messageId = parentMessageId;
+      if (!messageId) {
+        const placeholder = await channel.send('Working...');
+        messageId = placeholder.id;
+      }
+
+      try {
+        // AC: @discord-tool-widgets ac-10, ac-11, ac-16 - Get or create thread
+        const parentMsgId = messageId; // Capture for closure
+        const threadId = await this.threadTracker.getOrCreateThread(
+          sessionId,
+          channelId,
+          parentMsgId,
+          async () => {
+            const message = await channel.messages.fetch(parentMsgId);
+            const thread = await message.startThread({
+              name: 'Tools',
+              autoArchiveDuration: ThreadAutoArchiveDuration.OneHour,
+              reason: 'Agent tool execution',
+            });
+            return thread.id;
+          }
+        );
+
+        if (threadId) {
+          await this.sendToolWidgetToThread(sessionId, threadId, toolCall);
+          return;
+        }
+      } catch (error) {
+        // AC: @discord-tool-widgets ac-12, ac-17 - Fallback on thread creation failure
+        this.logger.warn('Thread creation failed, using condensed display', {
+          error: error instanceof Error ? error.message : String(error),
+          sessionId,
+          channelId,
+          parentMessageId: messageId,
+        });
+      }
+
+      // Fallback: condensed display in channel
+      await this.handleToolCallCondensed(sessionId, channelId, toolCall);
+    } catch (error) {
+      this.logger.error('Failed to handle tool call', {
+        error: error instanceof Error ? error.message : String(error),
+        toolCallId: toolCall.toolCallId,
+      });
+    }
+  }
+
+  /**
+   * Send tool widget to a thread
+   *
+   * AC: @discord-tool-widgets ac-10, ac-11
+   */
+  private async sendToolWidgetToThread(
+    sessionId: string,
+    threadId: string,
+    toolCall: ToolCall
+  ): Promise<void> {
+    const widgetResult = this.toolWidgetBuilder.buildWidget(toolCall);
+
+    await this.toolCallTracker.trackToolCall(
+      toolCall,
+      sessionId,
+      threadId, // Use thread ID as the channel
+      widgetResult,
+      async (embeds, components) => {
+        const thread = await this.fetchChannel(threadId);
+        const message = await thread.send({ embeds, components });
+        return message.id;
+      }
+    );
+  }
+
+  /**
+   * Handle tool call with condensed display (DMs and fallback)
+   *
+   * AC: @discord-tool-widgets ac-18, ac-19
+   */
+  private async handleToolCallCondensed(
+    sessionId: string,
+    channelId: string,
+    toolCall: ToolCall
+  ): Promise<void> {
+    const condensedToolCall: CondensedToolCall = {
+      toolCallId: toolCall.toolCallId,
+      toolName: toolCall.title || 'Tool',
+      status: (toolCall.status as CondensedToolCall['status']) || 'pending',
+    };
+
+    const displayMode = this.condensedDisplay.addToolCall(sessionId, channelId, condensedToolCall);
+
+    if (displayMode === 'widget') {
+      // First 5: show as full widget
+      const widgetResult = this.toolWidgetBuilder.buildWidget(toolCall);
       await this.toolCallTracker.trackToolCall(
         toolCall,
         sessionId,
@@ -473,10 +605,43 @@ export class DiscordAdapter implements ChannelAdapter {
           return message.id;
         }
       );
+    } else {
+      // 6th+: update or create status message
+      const statusText = this.condensedDisplay.getStatusText(sessionId, channelId);
+      if (statusText) {
+        await this.updateOrCreateStatusMessage(sessionId, channelId, statusText);
+      }
+    }
+  }
+
+  /**
+   * Update or create status message for condensed display
+   *
+   * AC: @discord-tool-widgets ac-19
+   */
+  private async updateOrCreateStatusMessage(
+    sessionId: string,
+    channelId: string,
+    statusText: string
+  ): Promise<void> {
+    const existingMessageId = this.condensedDisplay.getStatusMessageId(sessionId, channelId);
+    const channel = await this.fetchChannel(channelId);
+
+    try {
+      if (existingMessageId) {
+        // Edit existing status message
+        const message = await channel.messages.fetch(existingMessageId);
+        await message.edit(statusText);
+      } else {
+        // Create new status message
+        const message = await channel.send(statusText);
+        this.condensedDisplay.setStatusMessageId(sessionId, channelId, message.id);
+      }
     } catch (error) {
-      this.logger.error('Failed to handle tool call', {
+      this.logger.warn('Failed to update status message', {
         error: error instanceof Error ? error.message : String(error),
-        toolCallId: toolCall.toolCallId,
+        sessionId,
+        channelId,
       });
     }
   }
@@ -485,7 +650,7 @@ export class DiscordAdapter implements ChannelAdapter {
    * Handle tool call update event
    *
    * AC: @discord-tool-widgets ac-2, ac-3, ac-5, ac-6
-   * AC: @discord-tool-widgets ac-10, ac-11, ac-14 - parentMessageId enables thread isolation
+   * AC: @discord-tool-widgets ac-20 - Update status for condensed tools
    */
   private async handleToolCallUpdate(
     sessionId: string,
@@ -501,6 +666,29 @@ export class DiscordAdapter implements ChannelAdapter {
     });
 
     try {
+      // AC: @discord-tool-widgets ac-20 - Check if this is a condensed tool
+      if (
+        this.condensedDisplay.isCondensed(sessionId, channelId, toolCallUpdate.toolCallId) ||
+        this.condensedDisplay.hasCondensedTools(sessionId, channelId)
+      ) {
+        // Update condensed display status
+        const status = toolCallUpdate.status as 'pending' | 'in_progress' | 'completed' | 'failed';
+        this.condensedDisplay.updateToolCall(
+          sessionId,
+          channelId,
+          toolCallUpdate.toolCallId,
+          status
+        );
+
+        // Update status message if there are condensed tools
+        if (this.condensedDisplay.hasCondensedTools(sessionId, channelId)) {
+          const statusText = this.condensedDisplay.getStatusText(sessionId, channelId);
+          if (statusText) {
+            await this.updateOrCreateStatusMessage(sessionId, channelId, statusText);
+          }
+        }
+      }
+
       // Get the original tool call to build updated widget
       const allToolCalls = this.toolCallTracker.getAllToolCalls();
       const toolCallState = allToolCalls.find((tc) => tc.toolCallId === toolCallUpdate.toolCallId);

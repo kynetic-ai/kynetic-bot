@@ -598,6 +598,269 @@ describe('DiscordAdapter', () => {
   });
 });
 
+describe('setupBotEventListeners()', () => {
+  let adapter: DiscordAdapter;
+
+  beforeEach(async () => {
+    (globalThis as Record<string, unknown>).__mockClientRef = null;
+    adapter = new DiscordAdapter({ token: 'test-token' });
+
+    const startPromise = adapter.start();
+    setImmediate(() => {
+      const client = getMockClient();
+      client?.emit(Events.ClientReady, client);
+    });
+    await startPromise;
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+    (globalThis as Record<string, unknown>).__mockClientRef = null;
+  });
+
+  it('should register tool:call and tool:update handlers', () => {
+    const mockBot = new EventEmitter();
+
+    adapter.setupBotEventListeners(mockBot);
+
+    expect(mockBot.listenerCount('tool:call')).toBe(1);
+    expect(mockBot.listenerCount('tool:update')).toBe(1);
+  });
+
+  // AC: @discord-tool-widgets ac-18 - DM channels use condensed display
+  it('should handle tool calls in DM channel with condensed display', async () => {
+    const mockBot = new EventEmitter();
+    adapter.setupBotEventListeners(mockBot);
+
+    const dmChannel = {
+      id: 'dm-channel-123',
+      type: ChannelType.DM,
+      isTextBased: () => true,
+      isDMBased: () => true,
+      send: vi.fn().mockResolvedValue({ id: 'widget-msg-id' }),
+      messages: { fetch: vi.fn() },
+    };
+
+    getMockClient().channels.fetch = vi.fn().mockResolvedValue(dmChannel);
+
+    const toolCall = {
+      toolCallId: 'tool-1',
+      title: 'bash',
+      status: 'in_progress',
+      content: [],
+    };
+
+    // Emit tool:call for DM channel
+    mockBot.emit('tool:call', 'session-1', 'dm-channel-123', toolCall, undefined);
+
+    // Wait for async handling
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    // Should send to DM channel (first 5 get widgets)
+    expect(dmChannel.send).toHaveBeenCalled();
+  });
+
+  // AC: @discord-tool-widgets ac-10, ac-14 - Guild channel creates thread
+  it('should create placeholder and thread for tool call without parent message', async () => {
+    const mockBot = new EventEmitter();
+    adapter.setupBotEventListeners(mockBot);
+
+    const mockThread = {
+      id: 'thread-123',
+      type: ChannelType.PublicThread,
+      send: vi.fn().mockResolvedValue({ id: 'widget-msg-id' }),
+      isTextBased: () => true,
+      isDMBased: () => false,
+    };
+
+    const placeholderMessage = {
+      id: 'placeholder-123',
+      startThread: vi.fn().mockResolvedValue(mockThread),
+    };
+
+    const guildChannel = {
+      id: 'guild-channel-123',
+      type: ChannelType.GuildText,
+      isTextBased: () => true,
+      isDMBased: () => false,
+      send: vi.fn().mockResolvedValue(placeholderMessage),
+      messages: { fetch: vi.fn().mockResolvedValue(placeholderMessage) },
+    };
+
+    getMockClient().channels.fetch = vi.fn().mockImplementation((id: string) => {
+      if (id === 'thread-123') return Promise.resolve(mockThread);
+      return Promise.resolve(guildChannel);
+    });
+
+    const toolCall = {
+      toolCallId: 'tool-1',
+      title: 'bash',
+      status: 'in_progress',
+      content: [],
+    };
+
+    // Emit tool:call without parentMessageId
+    mockBot.emit('tool:call', 'session-1', 'guild-channel-123', toolCall, undefined);
+
+    // Wait for async handling (longer wait for multiple async operations)
+    await new Promise((resolve) => setTimeout(resolve, 150));
+
+    // Should create placeholder message
+    expect(guildChannel.send).toHaveBeenCalledWith('Working...');
+
+    // Should start thread from placeholder
+    expect(placeholderMessage.startThread).toHaveBeenCalledWith({
+      name: 'Tools',
+      autoArchiveDuration: 60,
+      reason: 'Agent tool execution',
+    });
+
+    // Should send widget to thread
+    expect(mockThread.send).toHaveBeenCalled();
+  });
+
+  // AC: @discord-tool-widgets ac-11 - Subsequent calls use existing thread
+  it('should reuse existing thread for subsequent tool calls', async () => {
+    const mockBot = new EventEmitter();
+    adapter.setupBotEventListeners(mockBot);
+
+    const mockThread = {
+      id: 'thread-123',
+      type: ChannelType.PublicThread,
+      send: vi.fn().mockResolvedValue({ id: 'widget-msg-id' }),
+      isTextBased: () => true,
+      isDMBased: () => false,
+    };
+
+    const parentMessage = {
+      id: 'parent-msg-123',
+      startThread: vi.fn().mockResolvedValue(mockThread),
+    };
+
+    const guildChannel = {
+      id: 'guild-channel-123',
+      type: ChannelType.GuildText,
+      isTextBased: () => true,
+      isDMBased: () => false,
+      send: vi.fn().mockResolvedValue({ id: 'some-msg-id' }),
+      messages: { fetch: vi.fn().mockResolvedValue(parentMessage) },
+    };
+
+    getMockClient().channels.fetch = vi.fn().mockImplementation((id: string) => {
+      if (id === 'thread-123') return Promise.resolve(mockThread);
+      return Promise.resolve(guildChannel);
+    });
+
+    const toolCall1 = {
+      toolCallId: 'tool-1',
+      title: 'bash',
+      status: 'in_progress',
+      content: [],
+    };
+
+    const toolCall2 = {
+      toolCallId: 'tool-2',
+      title: 'read',
+      status: 'in_progress',
+      content: [],
+    };
+
+    // Emit first tool call
+    mockBot.emit('tool:call', 'session-1', 'guild-channel-123', toolCall1, 'parent-msg-123');
+    await new Promise((resolve) => setTimeout(resolve, 150));
+
+    // Emit second tool call with same parent message
+    mockBot.emit('tool:call', 'session-1', 'guild-channel-123', toolCall2, 'parent-msg-123');
+    await new Promise((resolve) => setTimeout(resolve, 150));
+
+    // Thread should only be created once
+    expect(parentMessage.startThread).toHaveBeenCalledTimes(1);
+
+    // First widget creates a message in the thread, second widget is batched into same message
+    // (ToolCallTracker batches widgets up to 10 embeds per message)
+    expect(mockThread.send).toHaveBeenCalledTimes(1);
+  });
+
+  // AC: @discord-tool-widgets ac-12 - Fallback to condensed on permission error
+  it('should fall back to condensed display when thread creation fails', async () => {
+    const mockBot = new EventEmitter();
+    adapter.setupBotEventListeners(mockBot);
+
+    const parentMessage = {
+      id: 'parent-msg-123',
+      startThread: vi.fn().mockRejectedValue(new Error('Missing Permissions')),
+    };
+
+    const guildChannel = {
+      id: 'guild-channel-123',
+      type: ChannelType.GuildText,
+      isTextBased: () => true,
+      isDMBased: () => false,
+      send: vi.fn().mockResolvedValue({ id: 'widget-msg-id' }),
+      messages: { fetch: vi.fn().mockResolvedValue(parentMessage) },
+    };
+
+    getMockClient().channels.fetch = vi.fn().mockResolvedValue(guildChannel);
+
+    const toolCall = {
+      toolCallId: 'tool-1',
+      title: 'bash',
+      status: 'in_progress',
+      content: [],
+    };
+
+    // Emit tool call
+    mockBot.emit('tool:call', 'session-1', 'guild-channel-123', toolCall, 'parent-msg-123');
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    // Should fall back to condensed display in channel
+    // First 5 tools get full widgets via CondensedDisplay
+    expect(guildChannel.send).toHaveBeenCalled();
+  });
+});
+
+describe('cleanupSession()', () => {
+  let adapter: DiscordAdapter;
+
+  beforeEach(() => {
+    (globalThis as Record<string, unknown>).__mockClientRef = null;
+    adapter = new DiscordAdapter({ token: 'test-token' });
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+    (globalThis as Record<string, unknown>).__mockClientRef = null;
+  });
+
+  // AC: @discord-tool-widgets ac-9, ac-13
+  it('should cleanup session without error', async () => {
+    const startPromise = adapter.start();
+    setImmediate(() => {
+      const client = getMockClient();
+      client?.emit(Events.ClientReady, client);
+    });
+    await startPromise;
+
+    // Should not throw
+    await expect(adapter.cleanupSession('session-123')).resolves.not.toThrow();
+  });
+
+  // AC: @discord-tool-widgets ac-13
+  it('should cleanup thread tracking for session', async () => {
+    const startPromise = adapter.start();
+    setImmediate(() => {
+      const client = getMockClient();
+      client?.emit(Events.ClientReady, client);
+    });
+    await startPromise;
+
+    // cleanupSession should work even if no threads existed
+    await adapter.cleanupSession('session-123');
+
+    // No assertion needed - just verifying it doesn't throw
+  });
+});
+
 describe('Discord error types', () => {
   it('DiscordConnectionError should have correct code', () => {
     const error = new DiscordConnectionError('Connection failed');

@@ -12192,6 +12192,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-01T10:12:51.093Z
+  started_at: 2026-02-01T10:17:02.277Z
   notes:
     - _ulid: 01KGCB2HHR3DHNB6KAWA4XMSYS
       created_at: 2026-02-01T10:13:16.985Z
@@ -12357,5 +12358,69 @@
 
         - [ ] Tests cover session.update-based tool calls
       supersedes: null
+    - _ulid: 01KGCBK76B6XJKFFQWH5E2DYWY
+      created_at: 2026-02-01T10:22:23.435Z
+      author: "@claude"
+      content: >-
+        ## Implementation Complete
+
+
+        ### Changes Made
+
+
+        **packages/memory/src/store/turn-reconstructor.ts:**
+
+        - Enhanced `buildToolResultMap()` to also track `session.update` events with `update_type:
+        'tool_call_update'`
+
+        - Added skip logic in `buildContentWithGaps()` for `tool_call_update` events when
+        summarizing
+
+        - Updated `extractContent()` to handle `tool_call` update type via new helper method
+
+        - Added `extractToolCallFromSessionUpdate()` - main handler for ACP tool_call events
+
+        - Added `extractToolNameFromMcp()` - extracts tool name from MCP format (e.g.,
+        'mcp__acp__Read' -> 'read')
+
+        - Added `extractToolNameFromTitle()` - extracts tool name from title patterns
+
+        - Added `normalizeKind()` - maps ACP kind values to tool names (e.g., 'execute' -> 'bash')
+
+        - Added `extractRawOutputText()` - handles rawOutput as array of content blocks
+
+        - Enhanced `extractToolInputFromAcp()` - handles empty rawInput, falls back to title
+
+
+        ### Key Format Mappings
+
+
+        ACP events use this structure:
+
+        - `_meta.claudeCode.toolName`: MCP tool name (e.g., 'mcp__acp__Read')
+
+        - `kind`: Tool type (read, execute, write, search)
+
+        - `rawOutput`: Array of content blocks [{type: 'text', text: '...'}]
+
+        - `status`: 'pending' | 'in_progress' | 'completed' | 'failed'
+
+
+        ### Test Coverage
+
+
+        Added 10 new tests in `session.update tool_call events` describe block:
+
+        - MCP tool name extraction
+
+        - Status handling (pending, completed, failed)
+
+        - Text + tool call combination
+
+        - Empty rawInput fallback to title
+
+        - rawOutput array parsing
+
+        - Missing toolCallId warning
+      supersedes: null
   todos: []
-  started_at: 2026-02-01T10:17:02.277Z

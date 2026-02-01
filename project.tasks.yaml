@@ -11313,6 +11313,24 @@
         All memory package tests pass (254 tests). Downstream packages (messaging, bot) have type
         errors accessing turn.content - these will be fixed in @01KGBS55 using TurnReconstructor.
       supersedes: null
+    - _ulid: 01KGBWSR95XDT8VR9KC6JEKA1H
+      created_at: 2026-02-01T06:03:48.902Z
+      author: "@claude"
+      content: >-
+        Decision: Submitting schema changes as complete. The messaging package updates (Step 4 in
+        plan) require TurnReconstructor injection into ContextRestorer which is a constructor change
+        affecting the bot. This is better done atomically with the wiring task (@01KGBS55) to avoid
+        broken intermediate states.
+
+
+        Next task @01KGBS55 scope expanded to include:
+
+        - Messaging package updates (TurnReconstructor injection)
+
+        - Bot wiring for event logging
+
+        - Turn creation with event pointers
+      supersedes: null
   todos: []
 - _ulid: 01KGBS58Q2S4S4JKG044Y5HXNS
   slugs: []

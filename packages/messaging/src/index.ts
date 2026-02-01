@@ -24,6 +24,7 @@ export {
   type HistoryEntry,
   type HistoryOptions,
   type CleanupResult,
+  type TurnInput,
 } from './history.js';
 
 // Context Window Management

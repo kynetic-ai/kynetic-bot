@@ -375,7 +375,10 @@ export class Bot extends EventEmitter {
         conversation = await this.conversationStore.getOrCreateConversation(sessionKey);
       } catch (err) {
         const error = err instanceof Error ? err : new Error(String(err));
-        this.log.error('Failed to get/create conversation', { error: error.message, messageId: msg.id });
+        this.log.error('Failed to get/create conversation', {
+          error: error.message,
+          messageId: msg.id,
+        });
       }
 
       // 2. Ensure agent is healthy

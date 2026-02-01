@@ -2501,9 +2501,7 @@ describe('Bot', () => {
       }) {
         const clientEmitter = new EventEmitter();
         // Generate text of specified length (default short text that won't trigger flush)
-        const textToEmit = options.textLength
-          ? 'A'.repeat(options.textLength)
-          : 'Thinking...';
+        const textToEmit = options.textLength ? 'A'.repeat(options.textLength) : 'Thinking...';
 
         const mockClient = Object.assign(clientEmitter, {
           newSession: vi.fn().mockResolvedValue('session-123'),
@@ -2559,8 +2557,12 @@ describe('Bot', () => {
         const toolBot = Bot.createWithDependencies({
           config,
           agent: toolAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
-          router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
-          shadow: mockShadow as unknown as Parameters<typeof Bot.createWithDependencies>[0]['shadow'],
+          router: mockRouter as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['router'],
+          shadow: mockShadow as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['shadow'],
           registry: mockRegistry as unknown as Parameters<
             typeof Bot.createWithDependencies
           >[0]['registry'],
@@ -2619,8 +2621,12 @@ describe('Bot', () => {
         const toolBot = Bot.createWithDependencies({
           config,
           agent: toolAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
-          router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
-          shadow: mockShadow as unknown as Parameters<typeof Bot.createWithDependencies>[0]['shadow'],
+          router: mockRouter as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['router'],
+          shadow: mockShadow as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['shadow'],
           registry: mockRegistry as unknown as Parameters<
             typeof Bot.createWithDependencies
           >[0]['registry'],
@@ -2655,7 +2661,8 @@ describe('Bot', () => {
 
         // Assert
         expect(toolUpdateListener).toHaveBeenCalledTimes(1);
-        const [sessionId, channelId, toolUpdate, parentMessageId] = toolUpdateListener.mock.calls[0];
+        const [sessionId, channelId, toolUpdate, parentMessageId] =
+          toolUpdateListener.mock.calls[0];
         expect(sessionId).toBe('session-123');
         expect(channelId).toBe('channel-789');
         expect(toolUpdate.toolCallId).toBe('tool-123');
@@ -2674,8 +2681,12 @@ describe('Bot', () => {
         const toolBot = Bot.createWithDependencies({
           config,
           agent: toolAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
-          router: mockRouter as unknown as Parameters<typeof Bot.createWithDependencies>[0]['router'],
-          shadow: mockShadow as unknown as Parameters<typeof Bot.createWithDependencies>[0]['shadow'],
+          router: mockRouter as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['router'],
+          shadow: mockShadow as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['shadow'],
           registry: mockRegistry as unknown as Parameters<
             typeof Bot.createWithDependencies
           >[0]['registry'],

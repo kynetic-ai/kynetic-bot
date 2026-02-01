@@ -198,6 +198,10 @@ features:
         given: bot restarts
         when: conversation resumed by same session key
         then: previous turns are available via ConversationStore.readTurns()
+      - id: ac-6
+        given: Bot initialized
+        when: ContextRestorer created
+        then: TurnReconstructor is wired with SessionStore for content retrieval during context restoration
     status:
       maturity: draft
       implementation: implemented

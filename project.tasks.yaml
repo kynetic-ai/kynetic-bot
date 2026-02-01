@@ -13025,6 +13025,8 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "ThreadTracker implemented with race condition prevention, per-response isolation,
+    and session cleanup. PR #68 merged."
   depends_on: []
   context: []
   priority: 2
@@ -13032,6 +13034,7 @@
   vcs_refs: []
   created_at: 2026-02-01T19:44:02.612Z
   started_at: 2026-02-01T19:48:53.668Z
+  completed_at: 2026-02-01T19:57:19.504Z
   notes:
     - _ulid: 01KGDBR4DR9G68YHM2D9T1D18H
       created_at: 2026-02-01T19:44:18.872Z
@@ -13136,16 +13139,13 @@
         All 355 tests in channels package pass.
       supersedes: null
   todos: []
-  completed_at: 2026-02-01T19:57:19.504Z
-  closed_reason: "ThreadTracker implemented with race condition prevention, per-response isolation,
-    and session cleanup. PR #68 merged."
 - _ulid: 01KGDBR994DE170TTC4THFT6RW
   slugs: []
   title: Add parentMessageId to Bot tool events
   type: task
   spec_ref: "@discord-tool-widgets"
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -13236,6 +13236,7 @@
         - Enables ac-10, ac-11, ac-14
       supersedes: null
   todos: []
+  started_at: 2026-02-01T20:05:47.399Z
 - _ulid: 01KGDBRB3YT72A2BVXVCER1G6E
   slugs: []
   title: Implement condensed tool display for DMs

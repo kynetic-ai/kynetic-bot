@@ -454,6 +454,10 @@ observations:
       updating your todo list' which led to using the wrong system.
     created_at: 2026-02-01T05:11:50.979Z
     author: "@claude"
-    resolved: false
-    resolution: null
+    resolved: true
+    resolution: "Added guidance to CLAUDE.md (Important section #5) and /spec-plan skill (Common
+      Mistakes) clarifying that kspec is authoritative for tasks, internal tracker is for
+      scratch/sub-tasks."
+    resolved_at: 2026-02-01T05:14:22.936Z
+    resolved_by: "@claude"
 includes: []

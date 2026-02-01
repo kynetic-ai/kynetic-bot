@@ -240,14 +240,15 @@ describe('ConversationStore', () => {
   });
 
   describe('appendTurn', () => {
-    // AC: @mem-conversation ac-1 - creates turn with role, content, ts, seq
+    // AC: @mem-conversation ac-1 - creates turn with role, session_id, event_range, ts, seq
     it('appends turn with auto-assigned ts and seq', async () => {
       const conversation = await store.createConversation('discord:dm:user123');
 
       const beforeTs = Date.now();
       const turn = await store.appendTurn(conversation.id, {
         role: 'user',
-        content: 'Hello!',
+        session_id: '01SESSION123',
+        event_range: { start_seq: 0, end_seq: 0 },
       });
       const afterTs = Date.now();
 
@@ -255,53 +256,69 @@ describe('ConversationStore', () => {
       expect(turn.ts).toBeGreaterThanOrEqual(beforeTs);
       expect(turn.ts).toBeLessThanOrEqual(afterTs);
       expect(turn.role).toBe('user');
-      expect(turn.content).toBe('Hello!');
+      expect(turn.session_id).toBe('01SESSION123');
+      expect(turn.event_range).toEqual({ start_seq: 0, end_seq: 0 });
     });
 
     it('increments seq for each turn', async () => {
       const conversation = await store.createConversation('discord:dm:user123');
 
-      const t1 = await store.appendTurn(conversation.id, { role: 'user', content: 'Hi' });
-      const t2 = await store.appendTurn(conversation.id, { role: 'assistant', content: 'Hello!' });
-      const t3 = await store.appendTurn(conversation.id, { role: 'user', content: 'How are you?' });
+      const t1 = await store.appendTurn(conversation.id, {
+        role: 'user',
+        session_id: '01SESSION',
+        event_range: { start_seq: 0, end_seq: 0 },
+      });
+      const t2 = await store.appendTurn(conversation.id, {
+        role: 'assistant',
+        session_id: '01SESSION',
+        event_range: { start_seq: 1, end_seq: 5 },
+      });
+      const t3 = await store.appendTurn(conversation.id, {
+        role: 'user',
+        session_id: '01SESSION',
+        event_range: { start_seq: 6, end_seq: 6 },
+      });
 
       expect(t1.seq).toBe(0);
       expect(t2.seq).toBe(1);
       expect(t3.seq).toBe(2);
     });
 
-    // AC: @mem-conversation ac-2 - links assistant turns to agent sessions
-    it('accepts agent_session_id for assistant turns', async () => {
+    // AC: @mem-conversation ac-2 - assistant turns use session_id and event_range
+    it('stores assistant turns with session_id and event_range', async () => {
       const conversation = await store.createConversation('discord:dm:user123');
 
       const turn = await store.appendTurn(conversation.id, {
         role: 'assistant',
-        content: 'Hello!',
-        agent_session_id: '01SESSION123',
+        session_id: '01SESSION123',
+        event_range: { start_seq: 1, end_seq: 10 },
       });
 
-      expect(turn.agent_session_id).toBe('01SESSION123');
+      expect(turn.session_id).toBe('01SESSION123');
+      expect(turn.event_range).toEqual({ start_seq: 1, end_seq: 10 });
     });
 
-    // AC: @mem-conversation ac-4 - idempotent by message_id
+    // AC: @mem-conversation ac-6 - idempotent by message_id
     it('returns existing turn for duplicate message_id', async () => {
       const conversation = await store.createConversation('discord:dm:user123');
 
       const turn1 = await store.appendTurn(conversation.id, {
         role: 'user',
-        content: 'Hello!',
+        session_id: '01SESSION',
+        event_range: { start_seq: 0, end_seq: 0 },
         message_id: 'msg-123',
       });
 
       const turn2 = await store.appendTurn(conversation.id, {
         role: 'user',
-        content: 'Different content',
+        session_id: '01SESSION',
+        event_range: { start_seq: 1, end_seq: 1 },
         message_id: 'msg-123',
       });
 
       // Should return the original turn
       expect(turn2.seq).toBe(turn1.seq);
-      expect(turn2.content).toBe(turn1.content);
+      expect(turn2.event_range).toEqual(turn1.event_range);
 
       // Should only have one turn
       const turns = await store.readTurns(conversation.id);
@@ -313,7 +330,8 @@ describe('ConversationStore', () => {
 
       await store.appendTurn(conversation.id, {
         role: 'user',
-        content: 'Hello!',
+        session_id: '01SESSION',
+        event_range: { start_seq: 0, end_seq: 0 },
         message_id: 'msg-123',
       });
 
@@ -322,7 +340,8 @@ describe('ConversationStore', () => {
 
       await store.appendTurn(conversation.id, {
         role: 'user',
-        content: 'Different',
+        session_id: '01SESSION',
+        event_range: { start_seq: 1, end_seq: 1 },
         message_id: 'msg-123',
       });
 
@@ -336,17 +355,24 @@ describe('ConversationStore', () => {
       // Add some turns with message_ids
       await store.appendTurn(conversation.id, {
         role: 'user',
-        content: 'First',
+        session_id: '01SESSION',
+        event_range: { start_seq: 0, end_seq: 0 },
         message_id: 'msg-001',
       });
       await store.appendTurn(conversation.id, {
         role: 'assistant',
-        content: 'Reply',
+        session_id: '01SESSION',
+        event_range: { start_seq: 1, end_seq: 5 },
         message_id: 'msg-002',
       });
 
       // Delete the index file to simulate recovery scenario
-      const indexPath = path.join(tempDir, 'conversations', conversation.id, 'message-id-index.json');
+      const indexPath = path.join(
+        tempDir,
+        'conversations',
+        conversation.id,
+        'message-id-index.json'
+      );
       await fs.unlink(indexPath);
 
       // Create new store instance (simulates restart)
@@ -358,13 +384,14 @@ describe('ConversationStore', () => {
       // Now duplicate detection should work via the rebuilt index
       const duplicate = await newStore.appendTurn(conversation.id, {
         role: 'user',
-        content: 'Different content',
+        session_id: '01SESSION',
+        event_range: { start_seq: 10, end_seq: 10 },
         message_id: 'msg-001',
       });
 
       // Should return the original turn (seq 0)
       expect(duplicate.seq).toBe(0);
-      expect(duplicate.content).toBe('First');
+      expect(duplicate.event_range).toEqual({ start_seq: 0, end_seq: 0 });
     });
 
     it('uses O(1) index lookup for duplicate detection', async () => {
@@ -374,7 +401,8 @@ describe('ConversationStore', () => {
       for (let i = 0; i < 100; i++) {
         await store.appendTurn(conversation.id, {
           role: 'user',
-          content: `Message ${i}`,
+          session_id: '01SESSION',
+          event_range: { start_seq: i, end_seq: i },
           message_id: `msg-${i.toString().padStart(3, '0')}`,
         });
       }
@@ -383,21 +411,22 @@ describe('ConversationStore', () => {
       const startTime = Date.now();
       const duplicate = await store.appendTurn(conversation.id, {
         role: 'user',
-        content: 'Trying to duplicate first message',
+        session_id: '01SESSION',
+        event_range: { start_seq: 999, end_seq: 999 },
         message_id: 'msg-000',
       });
       const elapsed = Date.now() - startTime;
 
       // Should return the original turn
       expect(duplicate.seq).toBe(0);
-      expect(duplicate.content).toBe('Message 0');
+      expect(duplicate.event_range).toEqual({ start_seq: 0, end_seq: 0 });
 
       // Should be very fast (< 50ms) since it uses index lookup
       // This is a sanity check, not a strict performance test
       expect(elapsed).toBeLessThan(100);
     });
 
-    // AC: @mem-conversation ac-5 - emits turn_appended event
+    // AC: @mem-conversation ac-7 - emits turn_appended event
     it('emits turn:appended event', async () => {
       const conversation = await store.createConversation('discord:dm:user123');
 
@@ -406,7 +435,8 @@ describe('ConversationStore', () => {
 
       const turn = await store.appendTurn(conversation.id, {
         role: 'user',
-        content: 'Hello!',
+        session_id: '01SESSION',
+        event_range: { start_seq: 0, end_seq: 0 },
       });
 
       expect(events).toHaveLength(1);
@@ -418,12 +448,20 @@ describe('ConversationStore', () => {
       const conversation = await store.createConversation('discord:dm:user123');
       expect(conversation.turn_count).toBe(0);
 
-      await store.appendTurn(conversation.id, { role: 'user', content: 'Hi' });
+      await store.appendTurn(conversation.id, {
+        role: 'user',
+        session_id: '01SESSION',
+        event_range: { start_seq: 0, end_seq: 0 },
+      });
 
       const updated = await store.getConversation(conversation.id);
       expect(updated?.turn_count).toBe(1);
 
-      await store.appendTurn(conversation.id, { role: 'assistant', content: 'Hello!' });
+      await store.appendTurn(conversation.id, {
+        role: 'assistant',
+        session_id: '01SESSION',
+        event_range: { start_seq: 1, end_seq: 5 },
+      });
 
       const updated2 = await store.getConversation(conversation.id);
       expect(updated2?.turn_count).toBe(2);
@@ -433,25 +471,27 @@ describe('ConversationStore', () => {
       await expect(
         store.appendTurn('nonexistent', {
           role: 'user',
-          content: 'Hello!',
-        }),
+          session_id: '01SESSION',
+          event_range: { start_seq: 0, end_seq: 0 },
+        })
       ).rejects.toThrow(ConversationStoreError);
     });
 
-    // AC: @mem-conversation ac-6 - rejects with Zod validation error
+    // AC: @mem-conversation ac-8 - rejects with Zod validation error
     it('throws ConversationValidationError for invalid turn', async () => {
       const conversation = await store.createConversation('discord:dm:user123');
 
       await expect(
         store.appendTurn(conversation.id, {
           role: 'invalid-role' as any,
-          content: 'Hello!',
-        }),
+          session_id: '01SESSION',
+          event_range: { start_seq: 0, end_seq: 0 },
+        })
       ).rejects.toThrow(ConversationValidationError);
     });
 
-    // AC: @mem-conversation ac-7 - validates agent_session_id references
-    it('validates agent_session_id when sessionStore provided', async () => {
+    // Validates session_id references when sessionStore provided
+    it('validates session_id when sessionStore provided', async () => {
       // Create a store with sessionStore
       const sessionStore = new SessionStore({ baseDir: tempDir });
       const storeWithSessionValidation = new ConversationStore({
@@ -466,13 +506,13 @@ describe('ConversationStore', () => {
       await expect(
         storeWithSessionValidation.appendTurn(conversation.id, {
           role: 'assistant',
-          content: 'Hello!',
-          agent_session_id: 'nonexistent-session',
-        }),
+          session_id: 'nonexistent-session',
+          event_range: { start_seq: 0, end_seq: 0 },
+        })
       ).rejects.toThrow(ConversationStoreError);
     });
 
-    it('allows valid agent_session_id when sessionStore provided', async () => {
+    it('allows valid session_id when sessionStore provided', async () => {
       const sessionStore = new SessionStore({ baseDir: tempDir });
       const storeWithSessionValidation = new ConversationStore({
         baseDir: tempDir,
@@ -491,11 +531,11 @@ describe('ConversationStore', () => {
       // Should succeed with valid session
       const turn = await storeWithSessionValidation.appendTurn(conversation.id, {
         role: 'assistant',
-        content: 'Hello!',
-        agent_session_id: session.id,
+        session_id: session.id,
+        event_range: { start_seq: 0, end_seq: 5 },
       });
 
-      expect(turn.agent_session_id).toBe(session.id);
+      expect(turn.session_id).toBe(session.id);
     });
 
     it('persists turn to turns.jsonl', async () => {
@@ -503,7 +543,8 @@ describe('ConversationStore', () => {
 
       await store.appendTurn(conversation.id, {
         role: 'user',
-        content: 'Hello!',
+        session_id: '01SESSION',
+        event_range: { start_seq: 0, end_seq: 0 },
       });
 
       // Read directly from file
@@ -514,7 +555,8 @@ describe('ConversationStore', () => {
       expect(lines).toHaveLength(1);
       const parsed = JSON.parse(lines[0]);
       expect(parsed.role).toBe('user');
-      expect(parsed.content).toBe('Hello!');
+      expect(parsed.session_id).toBe('01SESSION');
+      expect(parsed.event_range).toEqual({ start_seq: 0, end_seq: 0 });
     });
 
     it('handles sequential turn appends with locking', async () => {
@@ -524,7 +566,8 @@ describe('ConversationStore', () => {
       for (let i = 0; i < 5; i++) {
         await store.appendTurn(conversation.id, {
           role: 'user',
-          content: `Message ${i}`,
+          session_id: '01SESSION',
+          event_range: { start_seq: i, end_seq: i },
         });
       }
 
@@ -546,8 +589,9 @@ describe('ConversationStore', () => {
       const concurrentAppends = Array.from({ length: 10 }, (_, i) =>
         store.appendTurn(conversation.id, {
           role: 'user',
-          content: `Concurrent message ${i}`,
-        }),
+          session_id: '01SESSION',
+          event_range: { start_seq: i, end_seq: i },
+        })
       );
 
       const results = await Promise.all(concurrentAppends);
@@ -574,17 +618,20 @@ describe('ConversationStore', () => {
       // Append with explicit out-of-order seq
       await store.appendTurn(conversation.id, {
         role: 'user',
-        content: 'Third',
+        session_id: '01SESSION',
+        event_range: { start_seq: 20, end_seq: 20 },
         seq: 2,
       });
       await store.appendTurn(conversation.id, {
         role: 'user',
-        content: 'First',
+        session_id: '01SESSION',
+        event_range: { start_seq: 0, end_seq: 0 },
         seq: 0,
       });
       await store.appendTurn(conversation.id, {
         role: 'user',
-        content: 'Second',
+        session_id: '01SESSION',
+        event_range: { start_seq: 10, end_seq: 10 },
         seq: 1,
       });
 
@@ -608,13 +655,14 @@ describe('ConversationStore', () => {
       expect(turns).toEqual([]);
     });
 
-    // AC: @mem-conversation ac-3 - skips invalid JSON lines with warning
+    // AC: @mem-conversation ac-10 - skips invalid JSON lines with warning (recovery)
     it('skips invalid JSON lines with warning', async () => {
       const conversation = await store.createConversation('discord:dm:user123');
 
       await store.appendTurn(conversation.id, {
         role: 'user',
-        content: 'Valid turn',
+        session_id: '01SESSION',
+        event_range: { start_seq: 0, end_seq: 0 },
       });
 
       // Manually append invalid JSON line
@@ -623,7 +671,8 @@ describe('ConversationStore', () => {
 
       await store.appendTurn(conversation.id, {
         role: 'assistant',
-        content: 'Another valid turn',
+        session_id: '01SESSION',
+        event_range: { start_seq: 1, end_seq: 5 },
       });
 
       const errors: Array<{ error: Error }> = [];
@@ -641,7 +690,8 @@ describe('ConversationStore', () => {
 
       await store.appendTurn(conversation.id, {
         role: 'user',
-        content: 'Valid turn',
+        session_id: '01SESSION',
+        event_range: { start_seq: 0, end_seq: 0 },
       });
 
       // Manually append valid JSON but invalid turn schema
@@ -665,19 +715,22 @@ describe('ConversationStore', () => {
 
       await store.appendTurn(conversation.id, {
         role: 'user',
-        content: 'Early',
+        session_id: '01SESSION',
+        event_range: { start_seq: 0, end_seq: 0 },
         ts: 1000,
         seq: 0,
       });
       await store.appendTurn(conversation.id, {
         role: 'user',
-        content: 'Middle',
+        session_id: '01SESSION',
+        event_range: { start_seq: 1, end_seq: 1 },
         ts: 2000,
         seq: 1,
       });
       await store.appendTurn(conversation.id, {
         role: 'user',
-        content: 'Late',
+        session_id: '01SESSION',
+        event_range: { start_seq: 2, end_seq: 2 },
         ts: 3000,
         seq: 2,
       });
@@ -697,8 +750,16 @@ describe('ConversationStore', () => {
     it('returns last turn by seq', async () => {
       const conversation = await store.createConversation('discord:dm:user123');
 
-      await store.appendTurn(conversation.id, { role: 'user', content: 'First' });
-      await store.appendTurn(conversation.id, { role: 'assistant', content: 'Second' });
+      await store.appendTurn(conversation.id, {
+        role: 'user',
+        session_id: '01SESSION',
+        event_range: { start_seq: 0, end_seq: 0 },
+      });
+      await store.appendTurn(conversation.id, {
+        role: 'assistant',
+        session_id: '01SESSION',
+        event_range: { start_seq: 1, end_seq: 5 },
+      });
 
       const lastTurn = await store.getLastTurn(conversation.id);
 
@@ -721,10 +782,18 @@ describe('ConversationStore', () => {
 
       expect(await store.getTurnCount(conversation.id)).toBe(0);
 
-      await store.appendTurn(conversation.id, { role: 'user', content: 'Hi' });
+      await store.appendTurn(conversation.id, {
+        role: 'user',
+        session_id: '01SESSION',
+        event_range: { start_seq: 0, end_seq: 0 },
+      });
       expect(await store.getTurnCount(conversation.id)).toBe(1);
 
-      await store.appendTurn(conversation.id, { role: 'assistant', content: 'Hello!' });
+      await store.appendTurn(conversation.id, {
+        role: 'assistant',
+        session_id: '01SESSION',
+        event_range: { start_seq: 1, end_seq: 5 },
+      });
       expect(await store.getTurnCount(conversation.id)).toBe(2);
     });
 

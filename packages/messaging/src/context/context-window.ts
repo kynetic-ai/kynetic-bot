@@ -13,8 +13,8 @@
  */
 
 import { EventEmitter } from 'node:events';
-import type { ConversationStore, ConversationTurn } from '@kynetic-bot/memory';
-import type { ConversationHistory, HistoryEntry } from '../history.js';
+import type { ConversationStore, ConversationTurn, TurnReconstructor } from '@kynetic-bot/memory';
+import type { ConversationHistory, HistoryEntry, TurnInput } from '../history.js';
 
 // ============================================================================
 // Types
@@ -34,6 +34,8 @@ export interface ContextWindowOptions {
   charsPerToken?: number;
   /** Event emitter for observability (optional) */
   emitter?: EventEmitter;
+  /** TurnReconstructor for content retrieval (required for content access) */
+  turnReconstructor?: TurnReconstructor;
 }
 
 /**
@@ -96,9 +98,14 @@ export interface SummaryProvider {
  */
 export interface ContextWindowEvents {
   'compaction:started': { sessionKey: string; currentTokens: number; threshold: 'soft' | 'hard' };
-  'compaction:completed': { sessionKey: string; tokensBefore: number; tokensAfter: number; turnsSummarized: number };
+  'compaction:completed': {
+    sessionKey: string;
+    tokensBefore: number;
+    tokensAfter: number;
+    turnsSummarized: number;
+  };
   'context:retrieved': { sessionKey: string; totalTokens: number; entryCount: number };
-  'error': { error: Error; operation: string; sessionKey?: string };
+  error: { error: Error; operation: string; sessionKey?: string };
 }
 
 // ============================================================================
@@ -149,6 +156,7 @@ export class ContextWindowManager {
   private readonly history: ConversationHistory;
   private readonly summaryProvider?: SummaryProvider;
   private readonly emitter?: EventEmitter;
+  private readonly turnReconstructor?: TurnReconstructor;
 
   private readonly maxTokens: number;
   private readonly softThreshold: number;
@@ -162,17 +170,30 @@ export class ContextWindowManager {
     store: ConversationStore,
     history: ConversationHistory,
     summaryProvider?: SummaryProvider,
-    options: ContextWindowOptions = {},
+    options: ContextWindowOptions = {}
   ) {
     this.store = store;
     this.history = history;
     this.summaryProvider = summaryProvider;
     this.emitter = options.emitter;
+    this.turnReconstructor = options.turnReconstructor;
 
     this.maxTokens = options.maxTokens ?? DEFAULT_MAX_TOKENS;
     this.softThreshold = options.softThreshold ?? DEFAULT_SOFT_THRESHOLD;
     this.hardThreshold = options.hardThreshold ?? DEFAULT_HARD_THRESHOLD;
     this.charsPerToken = options.charsPerToken ?? DEFAULT_CHARS_PER_TOKEN;
+  }
+
+  /**
+   * Get content for a turn.
+   *
+   * AC: @mem-conversation ac-4 - Content reconstructed from events via TurnReconstructor
+   */
+  private async getTurnContent(turn: ConversationTurn): Promise<string> {
+    if (!this.turnReconstructor) {
+      return '';
+    }
+    return this.turnReconstructor.getContent(turn.session_id, turn.event_range);
   }
 
   // ==========================================================================
@@ -196,7 +217,10 @@ export class ContextWindowManager {
   /**
    * Internal implementation with recursion guard
    */
-  private async getContextInternal(sessionKey: string, afterCompaction: boolean): Promise<ContextResult> {
+  private async getContextInternal(
+    sessionKey: string,
+    afterCompaction: boolean
+  ): Promise<ContextResult> {
     try {
       // Get history with semantic boundary markers
       const historyEntries = await this.history.getHistory(sessionKey);
@@ -213,9 +237,8 @@ export class ContextWindowManager {
       }
 
       // Filter out turns that are covered by summaries
-      const coveredUntil = summaries.length > 0
-        ? Math.max(...summaries.map((s) => s.timestampRange.end))
-        : 0;
+      const coveredUntil =
+        summaries.length > 0 ? Math.max(...summaries.map((s) => s.timestampRange.end)) : 0;
 
       // Get only turns NOT covered by summaries
       const uncoveredEntries = historyEntries.filter((entry) => entry.turn.ts > coveredUntil);
@@ -224,13 +247,18 @@ export class ContextWindowManager {
         entries.push({ type: 'turn', entry });
       }
 
-      const totalTokens = this.estimateContextTokens(entries);
+      const totalTokens = await this.estimateContextTokens(entries);
 
       // Check if compaction is needed (only if not already compacted this call)
       const compactionLevel = this.shouldCompact(totalTokens);
       let compacted = false;
 
-      if (!afterCompaction && compactionLevel !== 'none' && this.summaryProvider && uncoveredEntries.length >= 4) {
+      if (
+        !afterCompaction &&
+        compactionLevel !== 'none' &&
+        this.summaryProvider &&
+        uncoveredEntries.length >= 4
+      ) {
         compacted = await this.compact(sessionKey, uncoveredEntries, compactionLevel);
       }
 
@@ -258,14 +286,14 @@ export class ContextWindowManager {
    *
    * AC: @mem-context-window ac-1 - Compacts when new message pushes over threshold
    *
+   * Note: Turns now store pointers to session events instead of content.
+   * Content is reconstructed on demand via TurnReconstructor.
+   *
    * @param sessionKey - Session key for the conversation
-   * @param input - Turn input (role, content, optional metadata)
+   * @param input - Turn input with event pointers
    * @returns The created history entry
    */
-  async addMessage(
-    sessionKey: string,
-    input: { role: 'user' | 'assistant' | 'system'; content: string; message_id?: string },
-  ): Promise<HistoryEntry> {
+  async addMessage(sessionKey: string, input: TurnInput): Promise<HistoryEntry> {
     try {
       // Add the turn via history
       const entry = await this.history.addTurn(sessionKey, input);
@@ -361,13 +389,13 @@ export class ContextWindowManager {
   private async compact(
     sessionKey: string,
     entries: HistoryEntry[],
-    level: 'soft' | 'hard',
+    level: 'soft' | 'hard'
   ): Promise<boolean> {
     if (!this.summaryProvider || entries.length < 4) {
       return false;
     }
 
-    const currentTokens = this.estimateHistoryTokens(entries);
+    const currentTokens = await this.estimateHistoryTokens(entries);
     this.emit('compaction:started', { sessionKey, currentTokens, threshold: level });
 
     try {
@@ -402,7 +430,8 @@ export class ContextWindowManager {
       cachedSummaries.push(summary);
       this.summaryCache.set(sessionKey, cachedSummaries);
 
-      const tokensAfter = summary.tokens + this.estimateHistoryTokens(entries.slice(boundaryIndex));
+      const tokensAfter =
+        summary.tokens + (await this.estimateHistoryTokens(entries.slice(boundaryIndex)));
 
       this.emit('compaction:completed', {
         sessionKey,
@@ -451,7 +480,7 @@ export class ContextWindowManager {
   private parseSummary(
     summaryText: string,
     turns: ConversationTurn[],
-    sessionFileRef: string,
+    sessionFileRef: string
   ): CompactedSummary {
     // Extract topics and instructions from summary text
     // The summary format from the provider should include these sections
@@ -459,7 +488,10 @@ export class ContextWindowManager {
     const keyInstructions: string[] = [];
 
     // Simple parsing - look for bullet points or numbered items
-    const lines = summaryText.split('\n').map((l) => l.trim()).filter((l) => l);
+    const lines = summaryText
+      .split('\n')
+      .map((l) => l.trim())
+      .filter((l) => l);
     let inTopics = false;
     let inInstructions = false;
 
@@ -519,12 +551,13 @@ export class ContextWindowManager {
   /**
    * Estimate total tokens for context entries.
    */
-  private estimateContextTokens(entries: ContextEntry[]): number {
+  private async estimateContextTokens(entries: ContextEntry[]): Promise<number> {
     let total = 0;
 
     for (const entry of entries) {
       if (entry.type === 'turn') {
-        total += this.estimateTokens(entry.entry.turn.content);
+        const content = await this.getTurnContent(entry.entry.turn);
+        total += this.estimateTokens(content);
         // Add overhead for role, metadata
         total += 10;
       } else {
@@ -538,10 +571,13 @@ export class ContextWindowManager {
   /**
    * Estimate total tokens for history entries.
    */
-  private estimateHistoryTokens(entries: HistoryEntry[]): number {
-    return entries.reduce((total, entry) => {
-      return total + this.estimateTokens(entry.turn.content) + 10;
-    }, 0);
+  private async estimateHistoryTokens(entries: HistoryEntry[]): Promise<number> {
+    let total = 0;
+    for (const entry of entries) {
+      const content = await this.getTurnContent(entry.turn);
+      total += this.estimateTokens(content) + 10;
+    }
+    return total;
   }
 
   // ==========================================================================
@@ -553,10 +589,7 @@ export class ContextWindowManager {
    *
    * @trait-observable - Structured event emission
    */
-  private emit<K extends keyof ContextWindowEvents>(
-    event: K,
-    data: ContextWindowEvents[K],
-  ): void {
+  private emit<K extends keyof ContextWindowEvents>(event: K, data: ContextWindowEvents[K]): void {
     if (this.emitter) {
       this.emitter.emit(event, data);
     }

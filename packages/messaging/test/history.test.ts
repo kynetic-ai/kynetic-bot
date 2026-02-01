@@ -13,21 +13,51 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { ConversationStore } from '@kynetic-bot/memory';
 import { ConversationHistory, type HistoryOptions } from '../src/history.js';
+import {
+  MockTurnReconstructor,
+  TEST_SESSION_ID,
+  createTestTurnInput,
+  createTurnWithContent,
+} from './helpers/mock-turn-reconstructor.js';
 
 describe('ConversationHistory', () => {
   let tempDir: string;
   let store: ConversationStore;
   let history: ConversationHistory;
+  let mockReconstructor: MockTurnReconstructor;
 
   beforeEach(async () => {
     tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'history-test-'));
     store = new ConversationStore({ baseDir: tempDir });
-    history = new ConversationHistory(store);
+    mockReconstructor = new MockTurnReconstructor();
+    history = new ConversationHistory(store, { turnReconstructor: mockReconstructor });
   });
 
   afterEach(async () => {
     await fs.rm(tempDir, { recursive: true, force: true });
   });
+
+  /**
+   * Helper to append a turn and register its content in the mock
+   */
+  async function appendTurnWithContent(
+    conversationId: string,
+    content: string,
+    seq: number,
+    role: 'user' | 'assistant' | 'system' = 'user',
+    ts?: number,
+    message_id?: string
+  ) {
+    mockReconstructor.setContentBySeq(TEST_SESSION_ID, seq, content);
+    return store.appendTurn(conversationId, {
+      role,
+      session_id: TEST_SESSION_ID,
+      event_range: { start_seq: seq, end_seq: seq },
+      ts,
+      seq,
+      message_id,
+    });
+  }
 
   describe('getHistory', () => {
     // AC: @msg-history ac-1 - returns messages in chronological order with timestamps
@@ -42,33 +72,16 @@ describe('ConversationHistory', () => {
       const conversation = await store.createConversation(sessionKey);
 
       // Append turns with explicit timestamps
-      await store.appendTurn(conversation.id, {
-        role: 'user',
-        content: 'Hello',
-        ts: 1000,
-        seq: 0,
-      });
-      await store.appendTurn(conversation.id, {
-        role: 'assistant',
-        content: 'Hi there!',
-        ts: 2000,
-        seq: 1,
-      });
-      await store.appendTurn(conversation.id, {
-        role: 'user',
-        content: 'How are you?',
-        ts: 3000,
-        seq: 2,
-      });
+      await appendTurnWithContent(conversation.id, 'Hello', 0, 'user', 1000);
+      await appendTurnWithContent(conversation.id, 'Hi there!', 1, 'assistant', 2000);
+      await appendTurnWithContent(conversation.id, 'How are you?', 2, 'user', 3000);
 
       const entries = await history.getHistory(sessionKey);
 
       expect(entries).toHaveLength(3);
-      expect(entries[0].turn.content).toBe('Hello');
+      // Note: turns no longer have content field - content is retrieved via TurnReconstructor
       expect(entries[0].turn.ts).toBe(1000);
-      expect(entries[1].turn.content).toBe('Hi there!');
       expect(entries[1].turn.ts).toBe(2000);
-      expect(entries[2].turn.content).toBe('How are you?');
       expect(entries[2].turn.ts).toBe(3000);
     });
 
@@ -76,10 +89,7 @@ describe('ConversationHistory', () => {
     it('includes timestamps in each entry', async () => {
       const sessionKey = 'discord:dm:user123';
 
-      await history.addTurn(sessionKey, {
-        role: 'user',
-        content: 'Test message',
-      });
+      await history.addTurn(sessionKey, createTestTurnInput('user', 0));
 
       const entries = await history.getHistory(sessionKey);
 
@@ -93,14 +103,11 @@ describe('ConversationHistory', () => {
   describe('addTurn', () => {
     it('creates conversation if not exists', async () => {
       const sessionKey = 'discord:dm:newuser';
+      mockReconstructor.setContentBySeq(TEST_SESSION_ID, 0, 'Hello!');
 
-      const entry = await history.addTurn(sessionKey, {
-        role: 'user',
-        content: 'Hello!',
-      });
+      const entry = await history.addTurn(sessionKey, createTestTurnInput('user', 0));
 
       expect(entry.turn.role).toBe('user');
-      expect(entry.turn.content).toBe('Hello!');
 
       const entries = await history.getHistory(sessionKey);
       expect(entries).toHaveLength(1);
@@ -109,14 +116,8 @@ describe('ConversationHistory', () => {
     it('appends to existing conversation', async () => {
       const sessionKey = 'discord:dm:user123';
 
-      await history.addTurn(sessionKey, {
-        role: 'user',
-        content: 'Hello',
-      });
-      await history.addTurn(sessionKey, {
-        role: 'assistant',
-        content: 'Hi!',
-      });
+      await history.addTurn(sessionKey, createTestTurnInput('user', 0));
+      await history.addTurn(sessionKey, createTestTurnInput('assistant', 1));
 
       const entries = await history.getHistory(sessionKey);
       expect(entries).toHaveLength(2);
@@ -125,40 +126,29 @@ describe('ConversationHistory', () => {
     it('detects boundary when adding turn', async () => {
       const sessionKey = 'discord:dm:user123';
 
-      // First turn - no boundary
-      const first = await history.addTurn(sessionKey, {
-        role: 'user',
-        content: 'Hello',
-      });
+      // First turn - no boundary (no previous turn)
+      mockReconstructor.setContentBySeq(TEST_SESSION_ID, 0, 'Hello');
+      const first = await history.addTurn(sessionKey, createTestTurnInput('user', 0));
       expect(first.semanticBoundary).toBe(false);
 
-      // Second turn with topic change pattern - should be boundary
-      const second = await history.addTurn(sessionKey, {
-        role: 'user',
-        content: "Let's talk about something else",
-      });
+      // Second turn with topic change pattern - should be detected as boundary
+      mockReconstructor.setContentBySeq(TEST_SESSION_ID, 1, "Let's talk about something else");
+      const second = await history.addTurn(sessionKey, createTestTurnInput('user', 1));
+      // Topic change pattern "let's talk about" is detected
       expect(second.semanticBoundary).toBe(true);
     });
 
     it('accepts message_id for idempotency', async () => {
       const sessionKey = 'discord:dm:user123';
+      mockReconstructor.setContentBySeq(TEST_SESSION_ID, 0, 'Hello!');
 
-      await history.addTurn(sessionKey, {
-        role: 'user',
-        content: 'Hello!',
-        message_id: 'msg-123',
-      });
+      await history.addTurn(sessionKey, createTestTurnInput('user', 0, 'msg-123'));
 
       // Duplicate should be idempotent
-      await history.addTurn(sessionKey, {
-        role: 'user',
-        content: 'Different content',
-        message_id: 'msg-123',
-      });
+      await history.addTurn(sessionKey, createTestTurnInput('user', 0, 'msg-123'));
 
       const entries = await history.getHistory(sessionKey);
       expect(entries).toHaveLength(1);
-      expect(entries[0].turn.content).toBe('Hello!');
     });
   });
 
@@ -168,33 +158,17 @@ describe('ConversationHistory', () => {
       const pauseThreshold = 1000; // 1 second for testing
       const shortPauseHistory = new ConversationHistory(store, {
         pauseThreshold,
+        turnReconstructor: mockReconstructor,
       });
 
       const sessionKey = 'discord:dm:user123';
       const conversation = await store.createConversation(sessionKey);
 
-      await store.appendTurn(conversation.id, {
-        role: 'user',
-        content: 'First message',
-        ts: 1000,
-        seq: 0,
-      });
-
+      await appendTurnWithContent(conversation.id, 'First message', 0, 'user', 1000);
       // Short pause - no boundary
-      await store.appendTurn(conversation.id, {
-        role: 'assistant',
-        content: 'Quick reply',
-        ts: 1500,
-        seq: 1,
-      });
-
+      await appendTurnWithContent(conversation.id, 'Quick reply', 1, 'assistant', 1500);
       // Long pause - should be boundary
-      await store.appendTurn(conversation.id, {
-        role: 'user',
-        content: 'Much later',
-        ts: 3000,
-        seq: 2,
-      });
+      await appendTurnWithContent(conversation.id, 'Much later', 2, 'user', 3000);
 
       const entries = await shortPauseHistory.getHistory(sessionKey);
 
@@ -208,19 +182,8 @@ describe('ConversationHistory', () => {
       const sessionKey = 'discord:dm:user123';
       const conversation = await store.createConversation(sessionKey);
 
-      await store.appendTurn(conversation.id, {
-        role: 'user',
-        content: 'How is the weather?',
-        ts: 1000,
-        seq: 0,
-      });
-
-      await store.appendTurn(conversation.id, {
-        role: 'user',
-        content: "Let's talk about something else",
-        ts: 1100,
-        seq: 1,
-      });
+      await appendTurnWithContent(conversation.id, 'How is the weather?', 0, 'user', 1000);
+      await appendTurnWithContent(conversation.id, "Let's talk about something else", 1, 'user', 1100);
 
       const entries = await history.getHistory(sessionKey);
 
@@ -243,12 +206,13 @@ describe('ConversationHistory', () => {
       ];
 
       for (let i = 0; i < patterns.length; i++) {
-        await store.appendTurn(conversation.id, {
-          role: i % 2 === 0 ? 'user' : 'assistant',
-          content: patterns[i].content,
-          ts: 1000 + i * 100,
-          seq: i,
-        });
+        await appendTurnWithContent(
+          conversation.id,
+          patterns[i].content,
+          i,
+          i % 2 === 0 ? 'user' : 'assistant',
+          1000 + i * 100
+        );
       }
 
       const entries = await history.getHistory(sessionKey);
@@ -263,20 +227,9 @@ describe('ConversationHistory', () => {
       const conversation = await store.createConversation(sessionKey);
 
       // User asks question
-      await store.appendTurn(conversation.id, {
-        role: 'user',
-        content: 'What is the weather?',
-        ts: 1000,
-        seq: 0,
-      });
-
+      await appendTurnWithContent(conversation.id, 'What is the weather?', 0, 'user', 1000);
       // User asks another question (same role, both questions = boundary)
-      await store.appendTurn(conversation.id, {
-        role: 'user',
-        content: 'What about tomorrow?',
-        ts: 1100,
-        seq: 1,
-      });
+      await appendTurnWithContent(conversation.id, 'What about tomorrow?', 1, 'user', 1100);
 
       const entries = await history.getHistory(sessionKey);
 
@@ -287,24 +240,14 @@ describe('ConversationHistory', () => {
     it('supports custom boundary patterns', async () => {
       const customHistory = new ConversationHistory(store, {
         boundaryPatterns: [/\bNEW TOPIC\b/i],
+        turnReconstructor: mockReconstructor,
       });
 
       const sessionKey = 'discord:dm:user123';
       const conversation = await store.createConversation(sessionKey);
 
-      await store.appendTurn(conversation.id, {
-        role: 'user',
-        content: 'Regular message',
-        ts: 1000,
-        seq: 0,
-      });
-
-      await store.appendTurn(conversation.id, {
-        role: 'user',
-        content: 'NEW TOPIC: something else',
-        ts: 1100,
-        seq: 1,
-      });
+      await appendTurnWithContent(conversation.id, 'Regular message', 0, 'user', 1000);
+      await appendTurnWithContent(conversation.id, 'NEW TOPIC: something else', 1, 'user', 1100);
 
       const entries = await customHistory.getHistory(sessionKey);
 
@@ -319,20 +262,16 @@ describe('ConversationHistory', () => {
       const sessionKey = 'discord:dm:user123';
       const conversation = await store.createConversation(sessionKey);
 
-      await store.appendTurn(conversation.id, {
-        role: 'user',
-        content: 'Message 1',
-        ts: 1000,
-        seq: 0,
-      });
-      await store.appendTurn(conversation.id, {
-        role: 'user',
-        content: 'Message 2',
-        ts: 1100,
-        seq: 1,
-      });
+      await appendTurnWithContent(conversation.id, 'Message 1', 0, 'user', 1000);
+      await appendTurnWithContent(conversation.id, 'Message 2', 1, 'user', 1100);
 
-      const result = await history.markBoundary(sessionKey, 1);
+      // markBoundary now needs session_id and event_range for the marker turn
+      const result = await history.markBoundary(
+        sessionKey,
+        1,
+        TEST_SESSION_ID,
+        { start_seq: 2, end_seq: 2 }
+      );
       expect(result).toBe(true);
 
       const entries = await history.getHistory(sessionKey);
@@ -342,7 +281,12 @@ describe('ConversationHistory', () => {
     });
 
     it('returns false for non-existent session', async () => {
-      const result = await history.markBoundary('unknown:session', 0);
+      const result = await history.markBoundary(
+        'unknown:session',
+        0,
+        TEST_SESSION_ID,
+        { start_seq: 0, end_seq: 0 }
+      );
       expect(result).toBe(false);
     });
 
@@ -350,7 +294,12 @@ describe('ConversationHistory', () => {
       const sessionKey = 'discord:dm:user123';
       await store.createConversation(sessionKey);
 
-      const result = await history.markBoundary(sessionKey, 999);
+      const result = await history.markBoundary(
+        sessionKey,
+        999,
+        TEST_SESSION_ID,
+        { start_seq: 0, end_seq: 0 }
+      );
       expect(result).toBe(false);
     });
 
@@ -358,20 +307,16 @@ describe('ConversationHistory', () => {
       const sessionKey = 'discord:dm:user123';
       const conversation = await store.createConversation(sessionKey);
 
-      await store.appendTurn(conversation.id, {
-        role: 'user',
-        content: 'Message 1',
-        ts: 1000,
-        seq: 0,
-      });
-      await store.appendTurn(conversation.id, {
-        role: 'user',
-        content: 'Message 2',
-        ts: 1100,
-        seq: 1,
-      });
+      await appendTurnWithContent(conversation.id, 'Message 1', 0, 'user', 1000);
+      await appendTurnWithContent(conversation.id, 'Message 2', 1, 'user', 1100);
 
-      await history.markBoundary(sessionKey, 1, 'New Discussion');
+      await history.markBoundary(
+        sessionKey,
+        1,
+        TEST_SESSION_ID,
+        { start_seq: 2, end_seq: 2 },
+        'New Discussion'
+      );
 
       // The boundary is persisted via a system message - verify it exists
       const turns = await store.readTurns(conversation.id);
@@ -389,16 +334,19 @@ describe('ConversationHistory', () => {
       const shortTimeout = 100; // 100ms for testing
       const shortTimeoutHistory = new ConversationHistory(store, {
         sessionTimeout: shortTimeout,
+        turnReconstructor: mockReconstructor,
       });
 
       const sessionKey = 'discord:dm:user123';
       const conversation = await store.createConversation(sessionKey);
 
-      await store.appendTurn(conversation.id, {
-        role: 'user',
-        content: 'Hello',
-        ts: Date.now() - shortTimeout - 1, // Ensure it's past timeout
-      });
+      await appendTurnWithContent(
+        conversation.id,
+        'Hello',
+        0,
+        'user',
+        Date.now() - shortTimeout - 1 // Ensure it's past timeout
+      );
 
       const result = await shortTimeoutHistory.cleanup(sessionKey);
 
@@ -410,11 +358,9 @@ describe('ConversationHistory', () => {
     // AC: @msg-history ac-3 - cleanup triggered on session timeout
     it('does not archive active session without force', async () => {
       const sessionKey = 'discord:dm:user123';
+      mockReconstructor.setContentBySeq(TEST_SESSION_ID, 0, 'Hello');
 
-      await history.addTurn(sessionKey, {
-        role: 'user',
-        content: 'Hello',
-      });
+      await history.addTurn(sessionKey, createTestTurnInput('user', 0));
 
       const result = await history.cleanup(sessionKey);
 
@@ -424,11 +370,9 @@ describe('ConversationHistory', () => {
     // AC: @msg-history ac-3 - archives history and releases active resources
     it('archives with force regardless of timeout', async () => {
       const sessionKey = 'discord:dm:user123';
+      mockReconstructor.setContentBySeq(TEST_SESSION_ID, 0, 'Hello');
 
-      await history.addTurn(sessionKey, {
-        role: 'user',
-        content: 'Hello',
-      });
+      await history.addTurn(sessionKey, createTestTurnInput('user', 0));
 
       const result = await history.forceCleanup(sessionKey);
 
@@ -464,16 +408,19 @@ describe('ConversationHistory', () => {
       const shortTimeout = 100;
       const shortTimeoutHistory = new ConversationHistory(store, {
         sessionTimeout: shortTimeout,
+        turnReconstructor: mockReconstructor,
       });
 
       const sessionKey = 'discord:dm:user123';
       const conversation = await store.createConversation(sessionKey);
 
-      await store.appendTurn(conversation.id, {
-        role: 'user',
-        content: 'Old message',
-        ts: Date.now() - shortTimeout - 50,
-      });
+      await appendTurnWithContent(
+        conversation.id,
+        'Old message',
+        0,
+        'user',
+        Date.now() - shortTimeout - 50
+      );
 
       const timedOut = await shortTimeoutHistory.isTimedOut(sessionKey);
       expect(timedOut).toBe(true);
@@ -481,11 +428,9 @@ describe('ConversationHistory', () => {
 
     it('returns false when last turn is within timeout', async () => {
       const sessionKey = 'discord:dm:user123';
+      mockReconstructor.setContentBySeq(TEST_SESSION_ID, 0, 'Recent message');
 
-      await history.addTurn(sessionKey, {
-        role: 'user',
-        content: 'Recent message',
-      });
+      await history.addTurn(sessionKey, createTestTurnInput('user', 0));
 
       const timedOut = await history.isTimedOut(sessionKey);
       expect(timedOut).toBe(false);
@@ -495,6 +440,7 @@ describe('ConversationHistory', () => {
       const shortTimeout = 100;
       const shortTimeoutHistory = new ConversationHistory(store, {
         sessionTimeout: shortTimeout,
+        turnReconstructor: mockReconstructor,
       });
 
       const sessionKey = 'discord:dm:user123';
@@ -518,18 +464,8 @@ describe('ConversationHistory', () => {
       const sessionKey = 'discord:dm:user123';
       const conversation = await store.createConversation(sessionKey);
 
-      await store.appendTurn(conversation.id, {
-        role: 'user',
-        content: 'Hello',
-        ts: 1000,
-        seq: 0,
-      });
-      await store.appendTurn(conversation.id, {
-        role: 'assistant',
-        content: 'Hi!',
-        ts: 1100,
-        seq: 1,
-      });
+      await appendTurnWithContent(conversation.id, 'Hello', 0, 'user', 1000);
+      await appendTurnWithContent(conversation.id, 'Hi!', 1, 'assistant', 1100);
 
       const segments = await history.getSegments(sessionKey);
 
@@ -541,24 +477,9 @@ describe('ConversationHistory', () => {
       const sessionKey = 'discord:dm:user123';
       const conversation = await store.createConversation(sessionKey);
 
-      await store.appendTurn(conversation.id, {
-        role: 'user',
-        content: 'Hello',
-        ts: 1000,
-        seq: 0,
-      });
-      await store.appendTurn(conversation.id, {
-        role: 'user',
-        content: "Let's talk about something else",
-        ts: 1100,
-        seq: 1,
-      });
-      await store.appendTurn(conversation.id, {
-        role: 'assistant',
-        content: 'Sure, what?',
-        ts: 1200,
-        seq: 2,
-      });
+      await appendTurnWithContent(conversation.id, 'Hello', 0, 'user', 1000);
+      await appendTurnWithContent(conversation.id, "Let's talk about something else", 1, 'user', 1100);
+      await appendTurnWithContent(conversation.id, 'Sure, what?', 2, 'assistant', 1200);
 
       const segments = await history.getSegments(sessionKey);
 
@@ -578,30 +499,18 @@ describe('ConversationHistory', () => {
       const sessionKey = 'discord:dm:user123';
       const conversation = await store.createConversation(sessionKey);
 
-      await store.appendTurn(conversation.id, {
-        role: 'user',
-        content: 'Old topic',
-        ts: 1000,
-        seq: 0,
-      });
-      await store.appendTurn(conversation.id, {
-        role: 'user',
-        content: "Let's talk about code",
-        ts: 1100,
-        seq: 1,
-      });
-      await store.appendTurn(conversation.id, {
-        role: 'assistant',
-        content: 'Sure, what code?',
-        ts: 1200,
-        seq: 2,
-      });
+      await appendTurnWithContent(conversation.id, 'Old topic', 0, 'user', 1000);
+      await appendTurnWithContent(conversation.id, "Let's talk about code", 1, 'user', 1100);
+      await appendTurnWithContent(conversation.id, 'Sure, what code?', 2, 'assistant', 1200);
 
       const segment = await history.getCurrentSegment(sessionKey);
 
       expect(segment).toHaveLength(2);
-      expect(segment[0].turn.content).toBe("Let's talk about code");
-      expect(segment[1].turn.content).toBe('Sure, what code?');
+      // Note: we can verify content via the mock reconstructor
+      const content0 = await mockReconstructor.getContent(TEST_SESSION_ID, segment[0].turn.event_range);
+      const content1 = await mockReconstructor.getContent(TEST_SESSION_ID, segment[1].turn.event_range);
+      expect(content0).toBe("Let's talk about code");
+      expect(content1).toBe('Sure, what code?');
     });
   });
 
@@ -610,15 +519,14 @@ describe('ConversationHistory', () => {
       const sessionKey = 'discord:dm:user123';
       const conversation = await store.createConversation(sessionKey);
 
-      await store.appendTurn(conversation.id, {
-        role: 'user',
-        content: 'Hello',
-      });
+      await appendTurnWithContent(conversation.id, 'Hello', 0, 'user');
 
       const entries = await history.getHistoryById(conversation.id);
 
       expect(entries).toHaveLength(1);
-      expect(entries[0].turn.content).toBe('Hello');
+      // Content is retrieved via TurnReconstructor, not stored in turn
+      const content = await mockReconstructor.getContent(TEST_SESSION_ID, entries[0].turn.event_range);
+      expect(content).toBe('Hello');
     });
   });
 
@@ -627,18 +535,8 @@ describe('ConversationHistory', () => {
       const sessionKey = 'discord:dm:user123';
       const conversation = await store.createConversation(sessionKey);
 
-      await store.appendTurn(conversation.id, {
-        role: 'user',
-        content: 'Hello',
-        ts: 1000,
-        seq: 0,
-      });
-      await store.appendTurn(conversation.id, {
-        role: 'user',
-        content: "Let's talk about the weather",
-        ts: 1100,
-        seq: 1,
-      });
+      await appendTurnWithContent(conversation.id, 'Hello', 0, 'user', 1000);
+      await appendTurnWithContent(conversation.id, "Let's talk about the weather", 1, 'user', 1100);
 
       const entries = await history.getHistory(sessionKey);
 
@@ -652,11 +550,13 @@ describe('ConversationHistory', () => {
       const conversation = await store.createConversation(sessionKey);
 
       // Add a turn 29 minutes ago - should not be timed out
-      await store.appendTurn(conversation.id, {
-        role: 'user',
-        content: 'Recent',
-        ts: Date.now() - 29 * 60 * 1000,
-      });
+      await appendTurnWithContent(
+        conversation.id,
+        'Recent',
+        0,
+        'user',
+        Date.now() - 29 * 60 * 1000
+      );
 
       const timedOut = await history.isTimedOut(sessionKey);
       expect(timedOut).toBe(false);
@@ -666,20 +566,9 @@ describe('ConversationHistory', () => {
       const sessionKey = 'discord:dm:user123';
       const conversation = await store.createConversation(sessionKey);
 
-      await store.appendTurn(conversation.id, {
-        role: 'user',
-        content: 'First',
-        ts: 1000,
-        seq: 0,
-      });
-
+      await appendTurnWithContent(conversation.id, 'First', 0, 'user', 1000);
       // 4 minute gap - should not be boundary
-      await store.appendTurn(conversation.id, {
-        role: 'user',
-        content: 'Second',
-        ts: 1000 + 4 * 60 * 1000,
-        seq: 1,
-      });
+      await appendTurnWithContent(conversation.id, 'Second', 1, 'user', 1000 + 4 * 60 * 1000);
 
       const entries = await history.getHistory(sessionKey);
       expect(entries[1].semanticBoundary).toBe(false);
@@ -690,24 +579,15 @@ describe('ConversationHistory', () => {
         sessionTimeout: 60000,
         pauseThreshold: 30000,
         boundaryPatterns: [/CUSTOM_MARKER/],
+        turnReconstructor: mockReconstructor,
       };
 
       const customHistory = new ConversationHistory(store, options);
       const sessionKey = 'discord:dm:user123';
       const conversation = await store.createConversation(sessionKey);
 
-      await store.appendTurn(conversation.id, {
-        role: 'user',
-        content: 'Regular',
-        ts: 1000,
-        seq: 0,
-      });
-      await store.appendTurn(conversation.id, {
-        role: 'user',
-        content: 'CUSTOM_MARKER here',
-        ts: 1100,
-        seq: 1,
-      });
+      await appendTurnWithContent(conversation.id, 'Regular', 0, 'user', 1000);
+      await appendTurnWithContent(conversation.id, 'CUSTOM_MARKER here', 1, 'user', 1100);
 
       const entries = await customHistory.getHistory(sessionKey);
       expect(entries[1].semanticBoundary).toBe(true);

@@ -7,7 +7,7 @@
  * @see @mem-context-restore
  */
 
-import type { ConversationTurn } from '@kynetic-bot/memory';
+import type { ConversationTurn, TurnReconstructor } from '@kynetic-bot/memory';
 import { TurnSelector, type TurnSelectorOptions } from './turn-selector.js';
 import { ToolSummarizer } from './tool-summarizer.js';
 import type { SummaryProvider } from './context-window.js';
@@ -54,6 +54,8 @@ export interface ContextRestorerOptions {
   charsPerToken?: number;
   /** Maximum characters for a single turn before truncation */
   maxTurnChars?: number;
+  /** TurnReconstructor for content retrieval (required for content access) */
+  turnReconstructor?: TurnReconstructor;
 }
 
 /**
@@ -110,13 +112,18 @@ export class ContextRestorer {
   private readonly charsPerToken: number;
   private readonly maxTurnChars: number;
   private readonly logger?: ContextRestorerLogger;
+  private readonly turnReconstructor?: TurnReconstructor;
 
   constructor(
     summaryProvider: SummaryProvider | null,
     options: ContextRestorerOptions & { logger?: ContextRestorerLogger } = {}
   ) {
     this.summaryProvider = summaryProvider;
-    this.turnSelector = new TurnSelector(options.turnSelectorOptions);
+    this.turnReconstructor = options.turnReconstructor;
+    this.turnSelector = new TurnSelector({
+      ...options.turnSelectorOptions,
+      turnReconstructor: options.turnReconstructor,
+    });
     this.toolSummarizer = new ToolSummarizer();
     this.charsPerToken = options.charsPerToken ?? DEFAULT_CHARS_PER_TOKEN;
     this.maxTurnChars = options.maxTurnChars ?? DEFAULT_MAX_TURN_CHARS;
@@ -163,7 +170,7 @@ export class ContextRestorer {
 
     // Select recent turns within budget
     // AC: @mem-context-restore ac-1 - Recent turns within 30% budget
-    const selection = this.turnSelector.selectTurns(turns);
+    const selection = await this.turnSelector.selectTurns(turns);
     const recentTurns = selection.selectedTurns;
     const olderTurns = turns.slice(0, turns.length - recentTurns.length);
 
@@ -174,7 +181,7 @@ export class ContextRestorer {
     // Format recent turns for replay
     // AC: @mem-context-restore ac-3 - Tool calls summarized
     // AC: @mem-context-restore ac-8 - Oversized turns truncated
-    const { formattedTurns, truncatedCount } = this.formatRecentTurns(recentTurns);
+    const { formattedTurns, truncatedCount } = await this.formatRecentTurns(recentTurns);
 
     // Generate summary for older turns
     // AC: @mem-context-restore ac-2 - Older turns summarized
@@ -213,20 +220,32 @@ export class ContextRestorer {
   // ==========================================================================
 
   /**
+   * Get content for a turn.
+   *
+   * AC: @mem-conversation ac-4 - Content reconstructed from events via TurnReconstructor
+   */
+  private async getTurnContent(turn: ConversationTurn): Promise<string> {
+    if (!this.turnReconstructor) {
+      return '';
+    }
+    return this.turnReconstructor.getContent(turn.session_id, turn.event_range);
+  }
+
+  /**
    * Format recent turns for verbatim replay.
    *
    * AC: @mem-context-restore ac-3 - Tool calls summarized
    * AC: @mem-context-restore ac-8 - Oversized turns truncated
    */
-  private formatRecentTurns(turns: ConversationTurn[]): {
+  private async formatRecentTurns(turns: ConversationTurn[]): Promise<{
     formattedTurns: string;
     truncatedCount: number;
-  } {
+  }> {
     let truncatedCount = 0;
     const formatted: string[] = [];
 
     for (const turn of turns) {
-      let content = turn.content;
+      let content = await this.getTurnContent(turn);
 
       // Check if turn contains tool calls and summarize them
       // AC: @mem-context-restore ac-3 - Tool calls summarized

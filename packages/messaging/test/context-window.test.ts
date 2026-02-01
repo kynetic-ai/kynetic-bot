@@ -10,7 +10,7 @@ import * as fs from 'node:fs/promises';
 import * as os from 'node:os';
 import * as path from 'node:path';
 import { EventEmitter } from 'node:events';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { ConversationStore, type ConversationTurn } from '@kynetic-bot/memory';
 import {
@@ -19,6 +19,11 @@ import {
   type ContextWindowEvents,
 } from '../src/context/index.js';
 import { ConversationHistory } from '../src/history.js';
+import {
+  MockTurnReconstructor,
+  TEST_SESSION_ID,
+  createTestTurnInput,
+} from './helpers/mock-turn-reconstructor.js';
 
 describe('ContextWindowManager', () => {
   let tempDir: string;
@@ -26,18 +31,36 @@ describe('ContextWindowManager', () => {
   let history: ConversationHistory;
   let emitter: EventEmitter;
   let mockProvider: MockSummaryProvider;
+  let mockReconstructor: MockTurnReconstructor;
+  let seqCounter: number;
 
   beforeEach(async () => {
     tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'context-window-test-'));
     emitter = new EventEmitter();
     store = new ConversationStore({ baseDir: tempDir, emitter });
-    history = new ConversationHistory(store);
-    mockProvider = new MockSummaryProvider();
+    mockReconstructor = new MockTurnReconstructor();
+    history = new ConversationHistory(store, { turnReconstructor: mockReconstructor });
+    mockProvider = new MockSummaryProvider({ turnReconstructor: mockReconstructor });
+    seqCounter = 0;
   });
 
   afterEach(async () => {
     await fs.rm(tempDir, { recursive: true, force: true });
   });
+
+  /**
+   * Helper to add a turn with content
+   */
+  async function addTurnWithContent(
+    sessionKey: string,
+    content: string,
+    role: 'user' | 'assistant' = 'user'
+  ) {
+    const seq = seqCounter++;
+    mockReconstructor.setContentBySeq(TEST_SESSION_ID, seq, content);
+    mockProvider.setContent(seq, content);
+    return history.addTurn(sessionKey, createTestTurnInput(role, seq));
+  }
 
   describe('getContext', () => {
     // AC: @mem-context-window ac-1 - compacts older messages when approaching token limit
@@ -45,10 +68,13 @@ describe('ContextWindowManager', () => {
       const sessionKey = 'discord:dm:user123';
 
       // Add some turns
-      await history.addTurn(sessionKey, { role: 'user', content: 'Hello' });
-      await history.addTurn(sessionKey, { role: 'assistant', content: 'Hi there!' });
+      await addTurnWithContent(sessionKey, 'Hello');
+      await addTurnWithContent(sessionKey, 'Hi there!', 'assistant');
 
-      const manager = new ContextWindowManager(store, history, mockProvider, { emitter });
+      const manager = new ContextWindowManager(store, history, mockProvider, {
+        emitter,
+        turnReconstructor: mockReconstructor,
+      });
       const result = await manager.getContext(sessionKey);
 
       expect(result.entries).toHaveLength(2);
@@ -57,7 +83,10 @@ describe('ContextWindowManager', () => {
     });
 
     it('returns empty result for non-existent session', async () => {
-      const manager = new ContextWindowManager(store, history, mockProvider, { emitter });
+      const manager = new ContextWindowManager(store, history, mockProvider, {
+        emitter,
+        turnReconstructor: mockReconstructor,
+      });
       const result = await manager.getContext('discord:dm:nonexistent');
 
       expect(result.entries).toHaveLength(0);
@@ -75,16 +104,18 @@ describe('ContextWindowManager', () => {
         softThreshold: 0.5, // 50 tokens
         hardThreshold: 0.8,
         emitter,
+        turnReconstructor: mockReconstructor,
       });
 
       // Add enough turns to exceed threshold
       // Each turn: ~25 chars / 4 = 6 tokens + 10 overhead = 16 tokens
       // 4 turns = 64 tokens, exceeds soft threshold of 50
       for (let i = 0; i < 6; i++) {
-        await history.addTurn(sessionKey, {
-          role: i % 2 === 0 ? 'user' : 'assistant',
-          content: `Message ${i} with content`,
-        });
+        await addTurnWithContent(
+          sessionKey,
+          `Message ${i} with content`,
+          i % 2 === 0 ? 'user' : 'assistant'
+        );
       }
 
       const events: Array<ContextWindowEvents['compaction:started']> = [];
@@ -107,14 +138,16 @@ describe('ContextWindowManager', () => {
         softThreshold: 0.7,
         hardThreshold: 0.85,
         emitter,
+        turnReconstructor: mockReconstructor,
       });
 
       // Add enough turns to exceed 85% threshold
       for (let i = 0; i < 12; i++) {
-        await history.addTurn(sessionKey, {
-          role: i % 2 === 0 ? 'user' : 'assistant',
-          content: `Message ${i} with some content that takes up more tokens and exceeds thresholds`,
-        });
+        await addTurnWithContent(
+          sessionKey,
+          `Message ${i} with some content that takes up more tokens and exceeds thresholds`,
+          i % 2 === 0 ? 'user' : 'assistant'
+        );
       }
 
       const events: Array<ContextWindowEvents['compaction:started']> = [];
@@ -138,28 +171,27 @@ describe('ContextWindowManager', () => {
         maxTokens: smallMaxTokens,
         softThreshold: 0.5, // Low threshold to trigger compaction
         emitter,
+        turnReconstructor: mockReconstructor,
       });
 
       // Add turns with a semantic boundary
-      await history.addTurn(sessionKey, { role: 'user', content: 'First topic discussion here' });
-      await history.addTurn(sessionKey, { role: 'assistant', content: 'Response about first topic' });
+      await addTurnWithContent(sessionKey, 'First topic discussion here');
+      await addTurnWithContent(sessionKey, 'Response about first topic', 'assistant');
 
       // Wait to create a time gap (pause threshold)
       await new Promise((r) => setTimeout(r, 10));
 
       // Manually mark a boundary by using a topic-changing phrase
-      await history.addTurn(sessionKey, {
-        role: 'user',
-        content: "Let's talk about a completely different subject now",
-      });
-      await history.addTurn(sessionKey, { role: 'assistant', content: 'Sure, what about?' });
+      await addTurnWithContent(sessionKey, "Let's talk about a completely different subject now");
+      await addTurnWithContent(sessionKey, 'Sure, what about?', 'assistant');
 
       // Add more to trigger compaction
       for (let i = 0; i < 6; i++) {
-        await history.addTurn(sessionKey, {
-          role: i % 2 === 0 ? 'user' : 'assistant',
-          content: `Continued discussion message ${i} about the second topic`,
-        });
+        await addTurnWithContent(
+          sessionKey,
+          `Continued discussion message ${i} about the second topic`,
+          i % 2 === 0 ? 'user' : 'assistant'
+        );
       }
 
       const events: Array<ContextWindowEvents['compaction:completed']> = [];
@@ -181,14 +213,16 @@ describe('ContextWindowManager', () => {
         maxTokens: smallMaxTokens,
         softThreshold: 0.5,
         emitter,
+        turnReconstructor: mockReconstructor,
       });
 
       // Add turns to trigger compaction
       for (let i = 0; i < 8; i++) {
-        await history.addTurn(sessionKey, {
-          role: i % 2 === 0 ? 'user' : 'assistant',
-          content: `Please summarize this message ${i} with important content`,
-        });
+        await addTurnWithContent(
+          sessionKey,
+          `Please summarize this message ${i} with important content`,
+          i % 2 === 0 ? 'user' : 'assistant'
+        );
       }
 
       await manager.getContext(sessionKey);
@@ -209,14 +243,16 @@ describe('ContextWindowManager', () => {
         maxTokens: smallMaxTokens,
         softThreshold: 0.5,
         emitter,
+        turnReconstructor: mockReconstructor,
       });
 
       // Add turns
       for (let i = 0; i < 8; i++) {
-        await history.addTurn(sessionKey, {
-          role: i % 2 === 0 ? 'user' : 'assistant',
-          content: `Content message ${i}`,
-        });
+        await addTurnWithContent(
+          sessionKey,
+          `Content message ${i}`,
+          i % 2 === 0 ? 'user' : 'assistant'
+        );
       }
 
       await manager.getContext(sessionKey);
@@ -232,15 +268,20 @@ describe('ContextWindowManager', () => {
     it('adds a message and returns history entry', async () => {
       const sessionKey = 'discord:dm:add-test';
 
-      const manager = new ContextWindowManager(store, history, mockProvider, { emitter });
-
-      const entry = await manager.addMessage(sessionKey, {
-        role: 'user',
-        content: 'Hello world',
+      const manager = new ContextWindowManager(store, history, mockProvider, {
+        emitter,
+        turnReconstructor: mockReconstructor,
       });
 
-      expect(entry.turn.content).toBe('Hello world');
+      const seq = seqCounter++;
+      mockReconstructor.setContentBySeq(TEST_SESSION_ID, seq, 'Hello world');
+
+      const entry = await manager.addMessage(sessionKey, createTestTurnInput('user', seq));
+
       expect(entry.turn.role).toBe('user');
+      // Content is retrieved via reconstructor, not stored in turn
+      const content = await mockReconstructor.getContent(TEST_SESSION_ID, entry.turn.event_range);
+      expect(content).toBe('Hello world');
     });
 
     it('checks for compaction after adding message', async () => {
@@ -251,6 +292,7 @@ describe('ContextWindowManager', () => {
         maxTokens: smallMaxTokens,
         softThreshold: 0.5,
         emitter,
+        turnReconstructor: mockReconstructor,
       });
 
       const events: Array<ContextWindowEvents['context:retrieved']> = [];
@@ -258,10 +300,10 @@ describe('ContextWindowManager', () => {
 
       // Add multiple messages
       for (let i = 0; i < 6; i++) {
-        await manager.addMessage(sessionKey, {
-          role: i % 2 === 0 ? 'user' : 'assistant',
-          content: `Message number ${i} with content`,
-        });
+        const seq = seqCounter++;
+        mockReconstructor.setContentBySeq(TEST_SESSION_ID, seq, `Message number ${i} with content`);
+        mockProvider.setContent(seq, `Message number ${i} with content`);
+        await manager.addMessage(sessionKey, createTestTurnInput(i % 2 === 0 ? 'user' : 'assistant', seq));
       }
 
       // Should have retrieved context to check for compaction
@@ -274,6 +316,7 @@ describe('ContextWindowManager', () => {
       const manager = new ContextWindowManager(store, history, mockProvider, {
         charsPerToken: 4, // Default
         emitter,
+        turnReconstructor: mockReconstructor,
       });
 
       // 20 chars / 4 = 5 tokens
@@ -287,6 +330,7 @@ describe('ContextWindowManager', () => {
       const manager = new ContextWindowManager(store, history, mockProvider, {
         charsPerToken: 3,
         emitter,
+        turnReconstructor: mockReconstructor,
       });
 
       // 12 chars / 3 = 4 tokens
@@ -299,10 +343,13 @@ describe('ContextWindowManager', () => {
     it('provides session file path for conversation', async () => {
       const sessionKey = 'discord:dm:filepath-test';
 
-      const manager = new ContextWindowManager(store, history, mockProvider, { emitter });
+      const manager = new ContextWindowManager(store, history, mockProvider, {
+        emitter,
+        turnReconstructor: mockReconstructor,
+      });
 
       // Add a turn to create conversation
-      await history.addTurn(sessionKey, { role: 'user', content: 'test' });
+      await addTurnWithContent(sessionKey, 'test');
 
       const conversationId = await manager.getConversationId(sessionKey);
       expect(conversationId).not.toBeNull();
@@ -312,7 +359,10 @@ describe('ContextWindowManager', () => {
     });
 
     it('returns null for non-existent session', async () => {
-      const manager = new ContextWindowManager(store, history, mockProvider, { emitter });
+      const manager = new ContextWindowManager(store, history, mockProvider, {
+        emitter,
+        turnReconstructor: mockReconstructor,
+      });
 
       const conversationId = await manager.getConversationId('discord:dm:nonexistent');
       expect(conversationId).toBeNull();
@@ -328,14 +378,16 @@ describe('ContextWindowManager', () => {
         maxTokens: smallMaxTokens,
         softThreshold: 0.5,
         emitter,
+        turnReconstructor: mockReconstructor,
       });
 
       // Add turns to trigger compaction
       for (let i = 0; i < 8; i++) {
-        await history.addTurn(sessionKey, {
-          role: i % 2 === 0 ? 'user' : 'assistant',
-          content: `Message ${i} content here`,
-        });
+        await addTurnWithContent(
+          sessionKey,
+          `Message ${i} content here`,
+          i % 2 === 0 ? 'user' : 'assistant'
+        );
       }
 
       await manager.getContext(sessionKey);
@@ -357,9 +409,12 @@ describe('ContextWindowManager', () => {
     it('emits context:retrieved event', async () => {
       const sessionKey = 'discord:dm:observe-test';
 
-      const manager = new ContextWindowManager(store, history, mockProvider, { emitter });
+      const manager = new ContextWindowManager(store, history, mockProvider, {
+        emitter,
+        turnReconstructor: mockReconstructor,
+      });
 
-      await history.addTurn(sessionKey, { role: 'user', content: 'Hello' });
+      await addTurnWithContent(sessionKey, 'Hello');
 
       const events: Array<ContextWindowEvents['context:retrieved']> = [];
       emitter.on('context:retrieved', (data) => events.push(data));
@@ -380,9 +435,12 @@ describe('ContextWindowManager', () => {
         },
       } as unknown as ConversationStore;
 
-      const failingHistory = new ConversationHistory(failingStore);
+      const failingHistory = new ConversationHistory(failingStore, {
+        turnReconstructor: mockReconstructor,
+      });
       const manager = new ContextWindowManager(failingStore, failingHistory, mockProvider, {
         emitter,
+        turnReconstructor: mockReconstructor,
       });
 
       const errors: Array<ContextWindowEvents['error']> = [];
@@ -402,6 +460,7 @@ describe('ContextWindowManager', () => {
         maxTokens: smallMaxTokens,
         softThreshold: 0.5,
         emitter,
+        turnReconstructor: mockReconstructor,
       });
 
       const startEvents: Array<ContextWindowEvents['compaction:started']> = [];
@@ -412,10 +471,11 @@ describe('ContextWindowManager', () => {
 
       // Add turns to trigger compaction
       for (let i = 0; i < 8; i++) {
-        await history.addTurn(sessionKey, {
-          role: i % 2 === 0 ? 'user' : 'assistant',
-          content: `Message ${i} with substantial content here`,
-        });
+        await addTurnWithContent(
+          sessionKey,
+          `Message ${i} with substantial content here`,
+          i % 2 === 0 ? 'user' : 'assistant'
+        );
       }
 
       await manager.getContext(sessionKey);
@@ -437,6 +497,7 @@ describe('ContextWindowManager', () => {
         maxTokens: smallMaxTokens,
         softThreshold: 0.5,
         emitter,
+        turnReconstructor: mockReconstructor,
       });
 
       const compactionEvents: Array<ContextWindowEvents['compaction:started']> = [];
@@ -444,10 +505,11 @@ describe('ContextWindowManager', () => {
 
       // Add turns that would normally trigger compaction
       for (let i = 0; i < 8; i++) {
-        await history.addTurn(sessionKey, {
-          role: i % 2 === 0 ? 'user' : 'assistant',
-          content: `Message ${i} with content`,
-        });
+        await addTurnWithContent(
+          sessionKey,
+          `Message ${i} with content`,
+          i % 2 === 0 ? 'user' : 'assistant'
+        );
       }
 
       const result = await manager.getContext(sessionKey);
@@ -462,13 +524,32 @@ describe('ContextWindowManager', () => {
 
 describe('MockSummaryProvider', () => {
   it('generates deterministic summary from turns', async () => {
-    const provider = new MockSummaryProvider();
+    const mockReconstructor = new MockTurnReconstructor();
+    const provider = new MockSummaryProvider({ turnReconstructor: mockReconstructor });
 
+    // Create turns with event pointer schema and register content
     const turns: ConversationTurn[] = [
-      { ts: 1000, seq: 0, role: 'user', content: 'Hello this is the first message' },
-      { ts: 1001, seq: 1, role: 'assistant', content: 'Hi there, how can I help?' },
-      { ts: 1002, seq: 2, role: 'user', content: 'Please help me with something' },
+      {
+        ts: 1000, seq: 0, role: 'user',
+        session_id: TEST_SESSION_ID,
+        event_range: { start_seq: 0, end_seq: 0 },
+      },
+      {
+        ts: 1001, seq: 1, role: 'assistant',
+        session_id: TEST_SESSION_ID,
+        event_range: { start_seq: 1, end_seq: 1 },
+      },
+      {
+        ts: 1002, seq: 2, role: 'user',
+        session_id: TEST_SESSION_ID,
+        event_range: { start_seq: 2, end_seq: 2 },
+      },
     ];
+
+    // Register content in reconstructor
+    mockReconstructor.setContentBySeq(TEST_SESSION_ID, 0, 'Hello this is the first message');
+    mockReconstructor.setContentBySeq(TEST_SESSION_ID, 1, 'Hi there, how can I help?');
+    mockReconstructor.setContentBySeq(TEST_SESSION_ID, 2, 'Please help me with something');
 
     const summary = await provider.summarize(turns, 'conversations/abc123/turns.jsonl');
 
@@ -478,12 +559,24 @@ describe('MockSummaryProvider', () => {
   });
 
   it('extracts instructions from user messages', async () => {
-    const provider = new MockSummaryProvider();
+    const mockReconstructor = new MockTurnReconstructor();
+    const provider = new MockSummaryProvider({ turnReconstructor: mockReconstructor });
 
     const turns: ConversationTurn[] = [
-      { ts: 1000, seq: 0, role: 'user', content: 'Please remember to always use TypeScript' },
-      { ts: 1001, seq: 1, role: 'assistant', content: 'Understood!' },
+      {
+        ts: 1000, seq: 0, role: 'user',
+        session_id: TEST_SESSION_ID,
+        event_range: { start_seq: 0, end_seq: 0 },
+      },
+      {
+        ts: 1001, seq: 1, role: 'assistant',
+        session_id: TEST_SESSION_ID,
+        event_range: { start_seq: 1, end_seq: 1 },
+      },
     ];
+
+    mockReconstructor.setContentBySeq(TEST_SESSION_ID, 0, 'Please remember to always use TypeScript');
+    mockReconstructor.setContentBySeq(TEST_SESSION_ID, 1, 'Understood!');
 
     const summary = await provider.summarize(turns, 'ref');
 
@@ -491,11 +584,17 @@ describe('MockSummaryProvider', () => {
   });
 
   it('tracks summarize calls for testing', async () => {
-    const provider = new MockSummaryProvider();
+    const mockReconstructor = new MockTurnReconstructor();
+    const provider = new MockSummaryProvider({ turnReconstructor: mockReconstructor });
 
     const turns: ConversationTurn[] = [
-      { ts: 1000, seq: 0, role: 'user', content: 'Test' },
+      {
+        ts: 1000, seq: 0, role: 'user',
+        session_id: TEST_SESSION_ID,
+        event_range: { start_seq: 0, end_seq: 0 },
+      },
     ];
+    mockReconstructor.setContentBySeq(TEST_SESSION_ID, 0, 'Test');
 
     await provider.summarize(turns, 'ref1');
     await provider.summarize(turns, 'ref2');
@@ -507,16 +606,41 @@ describe('MockSummaryProvider', () => {
   });
 
   it('clears recorded calls', async () => {
-    const provider = new MockSummaryProvider();
+    const mockReconstructor = new MockTurnReconstructor();
+    const provider = new MockSummaryProvider({ turnReconstructor: mockReconstructor });
 
     const turns: ConversationTurn[] = [
-      { ts: 1000, seq: 0, role: 'user', content: 'Test' },
+      {
+        ts: 1000, seq: 0, role: 'user',
+        session_id: TEST_SESSION_ID,
+        event_range: { start_seq: 0, end_seq: 0 },
+      },
     ];
+    mockReconstructor.setContentBySeq(TEST_SESSION_ID, 0, 'Test');
 
     await provider.summarize(turns, 'ref');
     expect(provider.getSummaryCalls()).toHaveLength(1);
 
     provider.clearCalls();
     expect(provider.getSummaryCalls()).toHaveLength(0);
+  });
+
+  it('uses content map when no reconstructor', async () => {
+    const provider = new MockSummaryProvider();
+
+    const turns: ConversationTurn[] = [
+      {
+        ts: 1000, seq: 0, role: 'user',
+        session_id: TEST_SESSION_ID,
+        event_range: { start_seq: 0, end_seq: 0 },
+      },
+    ];
+
+    // Set content directly in provider's map
+    provider.setContent(0, 'Content from map');
+
+    const summary = await provider.summarize(turns, 'ref');
+
+    expect(summary).toContain('## Topics Discussed');
   });
 });

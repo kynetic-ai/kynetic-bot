@@ -13,6 +13,8 @@ import type {
   ConversationStore,
   ConversationTurn,
   ConversationMetadata,
+  TurnReconstructor,
+  EventRange,
 } from '@kynetic-bot/memory';
 
 // ============================================================================
@@ -41,6 +43,27 @@ export interface HistoryOptions {
   boundaryPatterns?: RegExp[];
   /** Time gap (ms) that indicates a new topic (default: 5 minutes) */
   pauseThreshold?: number;
+  /** TurnReconstructor for content retrieval (required for content-based boundary detection) */
+  turnReconstructor?: TurnReconstructor;
+}
+
+/**
+ * Input for adding a turn with event pointers
+ *
+ * Turns now store pointers to session events instead of content.
+ * Content is reconstructed on demand via TurnReconstructor.
+ */
+export interface TurnInput {
+  /** Role of the message author */
+  role: 'user' | 'assistant' | 'system';
+  /** Session ID that contains the events for this turn */
+  session_id: string;
+  /** Pointer to session events */
+  event_range: EventRange;
+  /** Platform message ID for idempotency/deduplication */
+  message_id?: string;
+  /** Optional platform-specific or custom metadata */
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -82,17 +105,23 @@ const DEFAULT_BOUNDARY_PATTERNS: RegExp[] = [
  * AC: @msg-history ac-2 - Semantic boundary detection for context windowing
  * AC: @msg-history ac-3 - Cleanup with archival
  *
+ * Note: Turns now store pointers to session events instead of content.
+ * Content is reconstructed on demand via TurnReconstructor.
+ *
  * @example
  * ```typescript
- * const history = new ConversationHistory(conversationStore);
+ * const history = new ConversationHistory(conversationStore, {
+ *   turnReconstructor: new TurnReconstructor(sessionStore),
+ * });
  *
  * // Get history for a session
  * const entries = await history.getHistory('discord:dm:user123');
  *
- * // Add a turn
+ * // Add a turn with event pointers
  * await history.addTurn('discord:dm:user123', {
  *   role: 'user',
- *   content: 'Hello!',
+ *   session_id: 'session-123',
+ *   event_range: { start_seq: 0, end_seq: 0 },
  * });
  *
  * // Cleanup expired session
@@ -104,12 +133,14 @@ export class ConversationHistory {
   private readonly sessionTimeout: number;
   private readonly boundaryPatterns: RegExp[];
   private readonly pauseThreshold: number;
+  private readonly turnReconstructor?: TurnReconstructor;
 
   constructor(store: ConversationStore, options: HistoryOptions = {}) {
     this.store = store;
     this.sessionTimeout = options.sessionTimeout ?? DEFAULT_SESSION_TIMEOUT;
     this.boundaryPatterns = options.boundaryPatterns ?? DEFAULT_BOUNDARY_PATTERNS;
     this.pauseThreshold = options.pauseThreshold ?? DEFAULT_PAUSE_THRESHOLD;
+    this.turnReconstructor = options.turnReconstructor;
   }
 
   // ==========================================================================
@@ -146,28 +177,43 @@ export class ConversationHistory {
   }
 
   /**
+   * Get reconstructed content for a turn.
+   *
+   * AC: @mem-conversation ac-4 - Content reconstructed from events via TurnReconstructor
+   *
+   * @param turn - Turn to get content for
+   * @returns Reconstructed content string, or empty string if no reconstructor
+   */
+  async getTurnContent(turn: ConversationTurn): Promise<string> {
+    if (!this.turnReconstructor) {
+      return '';
+    }
+    return this.turnReconstructor.getContent(turn.session_id, turn.event_range);
+  }
+
+  /**
    * Add a turn to the conversation history.
    *
    * Creates conversation if it doesn't exist.
    *
+   * Note: Turns now store pointers to session events instead of content.
+   * Content is reconstructed on demand via TurnReconstructor.
+   *
    * @param sessionKey - Session key for the conversation
-   * @param input - Turn input (role, content, optional metadata)
+   * @param input - Turn input with event pointers
    * @returns The created turn with boundary analysis
    */
-  async addTurn(
-    sessionKey: string,
-    input: { role: 'user' | 'assistant' | 'system'; content: string; message_id?: string; metadata?: Record<string, unknown> },
-  ): Promise<HistoryEntry> {
+  async addTurn(sessionKey: string, input: TurnInput): Promise<HistoryEntry> {
     const conversation = await this.store.getOrCreateConversation(sessionKey);
 
     // Get previous turn for boundary detection
     const lastTurn = await this.store.getLastTurn(conversation.id);
 
-    // Append the new turn
+    // Append the new turn with event pointers
     const turn = await this.store.appendTurn(conversation.id, input);
 
-    // Detect if this turn marks a boundary
-    const semanticBoundary = lastTurn ? this.detectBoundary(lastTurn, turn) : false;
+    // Detect if this turn marks a boundary (time-based only without content)
+    const semanticBoundary = lastTurn ? await this.detectBoundaryAsync(lastTurn, turn) : false;
 
     return {
       turn,
@@ -186,10 +232,18 @@ export class ConversationHistory {
    *
    * @param sessionKey - Session key for the conversation
    * @param seq - Sequence number of the turn to mark
+   * @param markerSessionId - Session ID for the boundary marker turn
+   * @param markerEventRange - Event range for the boundary marker turn
    * @param topic - Optional topic label for the new segment
    * @returns True if boundary was marked, false if turn not found
    */
-  async markBoundary(sessionKey: string, seq: number, topic?: string): Promise<boolean> {
+  async markBoundary(
+    sessionKey: string,
+    seq: number,
+    markerSessionId: string,
+    markerEventRange: EventRange,
+    topic?: string
+  ): Promise<boolean> {
     const conversation = await this.store.getConversationBySessionKey(sessionKey);
     if (!conversation) {
       return false;
@@ -206,7 +260,8 @@ export class ConversationHistory {
     // that marks the boundary
     await this.store.appendTurn(conversation.id, {
       role: 'system',
-      content: '',
+      session_id: markerSessionId,
+      event_range: markerEventRange,
       metadata: {
         type: 'boundary_marker',
         marked_seq: seq,
@@ -349,8 +404,11 @@ export class ConversationHistory {
    * Analyze history and mark semantic boundaries.
    *
    * AC: @msg-history ac-2 - Semantic boundary analysis
+   *
+   * Note: Content-based boundary detection requires TurnReconstructor.
+   * Without it, only time-based detection is performed.
    */
-  private analyzeHistory(turns: ConversationTurn[]): HistoryEntry[] {
+  private async analyzeHistory(turns: ConversationTurn[]): Promise<HistoryEntry[]> {
     if (turns.length === 0) {
       return [];
     }
@@ -370,7 +428,7 @@ export class ConversationHistory {
 
     // Filter out boundary marker system messages from output
     const contentTurns = turns.filter(
-      (t) => !(t.role === 'system' && t.metadata?.type === 'boundary_marker'),
+      (t) => !(t.role === 'system' && t.metadata?.type === 'boundary_marker')
     );
 
     for (let i = 0; i < contentTurns.length; i++) {
@@ -380,13 +438,15 @@ export class ConversationHistory {
       // Check if manually marked
       const manuallyMarked = markedBoundaries.has(turn.seq);
 
-      // Detect boundary automatically
-      const autoDetected = previousTurn ? this.detectBoundary(previousTurn, turn) : false;
+      // Detect boundary automatically (async for content-based detection)
+      const autoDetected = previousTurn
+        ? await this.detectBoundaryAsync(previousTurn, turn)
+        : false;
 
       entries.push({
         turn,
         semanticBoundary: manuallyMarked || autoDetected,
-        topic: this.extractTopic(turn),
+        topic: await this.extractTopicAsync(turn),
       });
     }
 
@@ -394,25 +454,37 @@ export class ConversationHistory {
   }
 
   /**
-   * Detect if current turn marks a semantic boundary from previous turn.
+   * Detect if current turn marks a semantic boundary from previous turn (async).
    *
    * AC: @msg-history ac-2 - Detects topic changes
    *
    * Detection strategies:
    * 1. Long pauses (> pauseThreshold)
-   * 2. Explicit topic change patterns in content
-   * 3. Question-answer pattern breaks
+   * 2. Explicit topic change patterns in content (requires TurnReconstructor)
+   * 3. Question-answer pattern breaks (requires TurnReconstructor)
    */
-  private detectBoundary(previousTurn: ConversationTurn, currentTurn: ConversationTurn): boolean {
-    // 1. Long pause detection
+  private async detectBoundaryAsync(
+    previousTurn: ConversationTurn,
+    currentTurn: ConversationTurn
+  ): Promise<boolean> {
+    // 1. Long pause detection (always works)
     const timeDiff = currentTurn.ts - previousTurn.ts;
     if (timeDiff > this.pauseThreshold) {
       return true;
     }
 
+    // Content-based detection requires TurnReconstructor
+    if (!this.turnReconstructor) {
+      return false;
+    }
+
+    // Get content for both turns
+    const currentContent = await this.getTurnContent(currentTurn);
+    const previousContent = await this.getTurnContent(previousTurn);
+
     // 2. Explicit topic change patterns
     for (const pattern of this.boundaryPatterns) {
-      if (pattern.test(currentTurn.content)) {
+      if (pattern.test(currentContent)) {
         return true;
       }
     }
@@ -420,7 +492,7 @@ export class ConversationHistory {
     // 3. Question-answer pattern break
     // If previous was a question (ends with ?) and current is also a question
     // from the same role, it might be a topic shift
-    if (this.isQuestion(previousTurn.content) && this.isQuestion(currentTurn.content)) {
+    if (this.isQuestion(previousContent) && this.isQuestion(currentContent)) {
       if (previousTurn.role === currentTurn.role) {
         return true;
       }
@@ -437,11 +509,17 @@ export class ConversationHistory {
   }
 
   /**
-   * Try to extract a topic from the turn content
+   * Try to extract a topic from the turn content (async)
    */
-  private extractTopic(turn: ConversationTurn): string | undefined {
+  private async extractTopicAsync(turn: ConversationTurn): Promise<string | undefined> {
+    if (!this.turnReconstructor) {
+      return undefined;
+    }
+
+    const content = await this.getTurnContent(turn);
+
     // Look for "let's talk about X" patterns
-    const aboutMatch = turn.content.match(/(?:let's talk about|discussing|about)\s+(.+?)(?:\.|,|$)/i);
+    const aboutMatch = content.match(/(?:let's talk about|discussing|about)\s+(.+?)(?:\.|,|$)/i);
     if (aboutMatch) {
       return aboutMatch[1].trim();
     }

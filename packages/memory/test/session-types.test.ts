@@ -24,6 +24,8 @@ import {
   SessionMetadataInputSchema,
   SessionStartDataSchema,
   SessionStartEventSchema,
+  SessionUpdateDataSchema,
+  SessionUpdateEventSchema,
   ToolCallDataSchema,
   ToolCallEventSchema,
   ToolResultDataSchema,
@@ -52,11 +54,12 @@ describe('Session Types', () => {
   });
 
   describe('SessionEventTypeSchema', () => {
-    // AC: @mem-agent-sessions ac-2, ac-3 - event types for chunks and tools
-    it('accepts all 7 event types', () => {
+    // AC: @mem-agent-sessions ac-2, ac-3, ac-8 - event types for chunks, tools, and updates
+    it('accepts all 8 event types', () => {
       const validTypes = [
         'session.start',
         'session.end',
+        'session.update',
         'prompt.sent',
         'message.chunk',
         'tool.call',
@@ -300,6 +303,32 @@ describe('Session Types', () => {
       });
     });
 
+    describe('SessionUpdateDataSchema', () => {
+      // AC: @mem-agent-sessions ac-8 - persist full SessionUpdate
+      it('requires update_type', () => {
+        const result = SessionUpdateDataSchema.safeParse({ payload: {} });
+        expect(result.success).toBe(false);
+      });
+
+      it('accepts update with any payload', () => {
+        const data = {
+          update_type: 'agent_message_chunk',
+          payload: { content: { text: 'Hello!' } },
+        };
+        const result = SessionUpdateDataSchema.safeParse(data);
+        expect(result.success).toBe(true);
+      });
+
+      it('accepts tool_use update type', () => {
+        const data = {
+          update_type: 'tool_use',
+          payload: { tool_name: 'calculator', arguments: { a: 1, b: 2 } },
+        };
+        const result = SessionUpdateDataSchema.safeParse(data);
+        expect(result.success).toBe(true);
+      });
+    });
+
     describe('PromptSentDataSchema', () => {
       it('requires content', () => {
         const result = PromptSentDataSchema.safeParse({});
@@ -478,6 +507,29 @@ describe('Session Types', () => {
       });
     });
 
+    describe('SessionUpdateEventSchema', () => {
+      // AC: @mem-agent-sessions ac-8 - persist full SessionUpdate
+      it('validates session update event', () => {
+        const event = {
+          ...baseEvent,
+          type: 'session.update' as const,
+          data: { update_type: 'agent_message_chunk', payload: { content: { text: 'Hi' } } },
+        };
+        const result = SessionUpdateEventSchema.safeParse(event);
+        expect(result.success).toBe(true);
+      });
+
+      it('rejects wrong type', () => {
+        const event = {
+          ...baseEvent,
+          type: 'prompt.sent' as const,
+          data: { update_type: 'agent_message_chunk', payload: {} },
+        };
+        const result = SessionUpdateEventSchema.safeParse(event);
+        expect(result.success).toBe(false);
+      });
+    });
+
     describe('PromptSentEventSchema', () => {
       it('validates prompt sent event', () => {
         const event = {
@@ -556,7 +608,16 @@ describe('Session Types', () => {
     it('validates any typed event', () => {
       const events = [
         { ...baseEvent, type: 'session.start' as const, data: {} },
-        { ...baseEvent, type: 'session.end' as const, data: { final_status: 'completed' as const } },
+        {
+          ...baseEvent,
+          type: 'session.end' as const,
+          data: { final_status: 'completed' as const },
+        },
+        {
+          ...baseEvent,
+          type: 'session.update' as const,
+          data: { update_type: 'agent_message_chunk', payload: {} },
+        },
         { ...baseEvent, type: 'prompt.sent' as const, data: { content: 'hi' } },
         { ...baseEvent, type: 'message.chunk' as const, data: { content: 'chunk' } },
         { ...baseEvent, type: 'tool.call' as const, data: { tool_name: 'test', arguments: {} } },

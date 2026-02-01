@@ -11,7 +11,7 @@
  * @see @mem-turn-selection
  */
 
-import type { ConversationTurn } from '@kynetic-bot/memory';
+import type { ConversationTurn, TurnReconstructor } from '@kynetic-bot/memory';
 import { ToolSummarizer } from './tool-summarizer.js';
 
 // ============================================================================
@@ -32,6 +32,8 @@ export interface TurnSelectorOptions {
   charsPerToken?: number;
   /** Custom tool summarizer instance */
   toolSummarizer?: ToolSummarizer;
+  /** TurnReconstructor for content retrieval (required for token estimation) */
+  turnReconstructor?: TurnReconstructor;
 }
 
 /**
@@ -112,6 +114,7 @@ export class TurnSelector {
   private readonly marginFraction: number;
   private readonly charsPerToken: number;
   private readonly toolSummarizer: ToolSummarizer;
+  private readonly turnReconstructor?: TurnReconstructor;
 
   constructor(options: TurnSelectorOptions = {}) {
     this.maxContextTokens = options.maxContextTokens ?? DEFAULT_MAX_CONTEXT_TOKENS;
@@ -119,6 +122,7 @@ export class TurnSelector {
     this.marginFraction = options.marginFraction ?? DEFAULT_MARGIN_FRACTION;
     this.charsPerToken = options.charsPerToken ?? DEFAULT_CHARS_PER_TOKEN;
     this.toolSummarizer = options.toolSummarizer ?? new ToolSummarizer();
+    this.turnReconstructor = options.turnReconstructor;
   }
 
   // ==========================================================================
@@ -148,15 +152,45 @@ export class TurnSelector {
   }
 
   /**
+   * Get content for a turn.
+   *
+   * AC: @mem-conversation ac-4 - Content reconstructed from events via TurnReconstructor
+   *
+   * @param turn - Turn to get content for
+   * @returns Reconstructed content, or empty string if no reconstructor
+   */
+  async getTurnContent(turn: ConversationTurn): Promise<string> {
+    if (!this.turnReconstructor) {
+      return '';
+    }
+    return this.turnReconstructor.getContent(turn.session_id, turn.event_range);
+  }
+
+  /**
+   * Pre-fetch content for multiple turns.
+   *
+   * @param turns - Turns to fetch content for
+   * @returns Map of turn seq to content
+   */
+  async prefetchTurnContent(turns: ConversationTurn[]): Promise<Map<number, string>> {
+    const contentMap = new Map<number, string>();
+    for (const turn of turns) {
+      const content = await this.getTurnContent(turn);
+      contentMap.set(turn.seq, content);
+    }
+    return contentMap;
+  }
+
+  /**
    * Estimate tokens for a single turn's content.
    *
    * AC: @mem-turn-selection ac-2 - Uses summarized form for tool calls
    *
    * @param turn - Conversation turn to estimate
+   * @param content - Pre-fetched content for the turn
    * @returns Estimated turn with token counts
    */
-  estimateTurn(turn: ConversationTurn): EstimatedTurn {
-    const content = turn.content;
+  estimateTurnWithContent(turn: ConversationTurn, content: string): EstimatedTurn {
     const originalTokens = this.estimateTokens(content);
 
     // Check if this is a tool call
@@ -183,6 +217,19 @@ export class TurnSelector {
   }
 
   /**
+   * Estimate tokens for a single turn (async).
+   *
+   * AC: @mem-turn-selection ac-2 - Uses summarized form for tool calls
+   *
+   * @param turn - Conversation turn to estimate
+   * @returns Estimated turn with token counts
+   */
+  async estimateTurn(turn: ConversationTurn): Promise<EstimatedTurn> {
+    const content = await this.getTurnContent(turn);
+    return this.estimateTurnWithContent(turn, content);
+  }
+
+  /**
    * Select turns for replay within token budget.
    *
    * AC: @mem-turn-selection ac-1 - Most recent turns fitting within budget selected
@@ -196,7 +243,7 @@ export class TurnSelector {
    * @param turns - All conversation turns (chronological order)
    * @returns Selection result with turns and metadata
    */
-  selectTurns(turns: ConversationTurn[]): TurnSelectionResult {
+  async selectTurns(turns: ConversationTurn[]): Promise<TurnSelectionResult> {
     const budget = this.getBudget();
     const maxAllowed = this.getMaxAllowed();
 
@@ -212,8 +259,8 @@ export class TurnSelector {
       };
     }
 
-    // Estimate all turns
-    const estimations: EstimatedTurn[] = turns.map((t) => this.estimateTurn(t));
+    // Estimate all turns (async)
+    const estimations: EstimatedTurn[] = await Promise.all(turns.map((t) => this.estimateTurn(t)));
 
     // Select from most recent, going backwards
     const selectedIndices: number[] = [];
@@ -256,7 +303,10 @@ export class TurnSelector {
    * @param customBudget - Custom token budget to use
    * @returns Selection result
    */
-  selectTurnsWithBudget(turns: ConversationTurn[], customBudget: number): TurnSelectionResult {
+  async selectTurnsWithBudget(
+    turns: ConversationTurn[],
+    customBudget: number
+  ): Promise<TurnSelectionResult> {
     const margin = Math.floor(customBudget * this.marginFraction);
     const maxAllowed = customBudget + margin;
 
@@ -272,8 +322,8 @@ export class TurnSelector {
       };
     }
 
-    // Estimate all turns
-    const estimations: EstimatedTurn[] = turns.map((t) => this.estimateTurn(t));
+    // Estimate all turns (async)
+    const estimations: EstimatedTurn[] = await Promise.all(turns.map((t) => this.estimateTurn(t)));
 
     // Select from most recent, going backwards
     const selectedIndices: number[] = [];
@@ -313,15 +363,15 @@ export class TurnSelector {
    * @param turns - Turns to analyze
    * @returns Statistics about token usage
    */
-  getStatistics(turns: ConversationTurn[]): {
+  async getStatistics(turns: ConversationTurn[]): Promise<{
     totalTurns: number;
     toolCallTurns: number;
     originalTotalTokens: number;
     effectiveTotalTokens: number;
     tokenSavings: number;
     savingsPercentage: number;
-  } {
-    const estimations = turns.map((t) => this.estimateTurn(t));
+  }> {
+    const estimations = await Promise.all(turns.map((t) => this.estimateTurn(t)));
 
     const toolCallTurns = estimations.filter((e) => e.isToolCall).length;
     const originalTotalTokens = estimations.reduce((sum, e) => sum + e.originalTokens, 0);

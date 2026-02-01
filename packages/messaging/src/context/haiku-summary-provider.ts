@@ -9,7 +9,7 @@
  * @see @mem-context-window
  */
 
-import type { ConversationTurn } from '@kynetic-bot/memory';
+import type { ConversationTurn, TurnReconstructor } from '@kynetic-bot/memory';
 import type { SummaryProvider } from './context-window.js';
 
 /**
@@ -39,7 +39,10 @@ export interface ACPPromptClient {
    */
   on(
     event: 'update',
-    handler: (sessionId: string, update: { sessionUpdate?: string; content?: { type?: string; text?: string } }) => void,
+    handler: (
+      sessionId: string,
+      update: { sessionUpdate?: string; content?: { type?: string; text?: string } }
+    ) => void
   ): void;
 
   /**
@@ -47,7 +50,10 @@ export interface ACPPromptClient {
    */
   off(
     event: 'update',
-    handler: (sessionId: string, update: { sessionUpdate?: string; content?: { type?: string; text?: string } }) => void,
+    handler: (
+      sessionId: string,
+      update: { sessionUpdate?: string; content?: { type?: string; text?: string } }
+    ) => void
   ): void;
 }
 
@@ -57,6 +63,8 @@ export interface ACPPromptClient {
 export interface HaikuSummaryProviderOptions {
   /** Maximum tokens for summary (default: 500) */
   maxSummaryTokens?: number;
+  /** TurnReconstructor for content retrieval (required for content access) */
+  turnReconstructor?: TurnReconstructor;
 }
 
 const DEFAULT_MAX_SUMMARY_TOKENS = 500;
@@ -100,10 +108,24 @@ Be concise. Focus on information that would help continue the conversation.`;
 export class HaikuSummaryProvider implements SummaryProvider {
   private readonly client: ACPPromptClient;
   private readonly maxSummaryTokens: number;
+  private readonly turnReconstructor?: TurnReconstructor;
 
   constructor(client: ACPPromptClient, options: HaikuSummaryProviderOptions = {}) {
     this.client = client;
     this.maxSummaryTokens = options.maxSummaryTokens ?? DEFAULT_MAX_SUMMARY_TOKENS;
+    this.turnReconstructor = options.turnReconstructor;
+  }
+
+  /**
+   * Get content for a turn.
+   *
+   * AC: @mem-conversation ac-4 - Content reconstructed from events via TurnReconstructor
+   */
+  private async getTurnContent(turn: ConversationTurn): Promise<string> {
+    if (!this.turnReconstructor) {
+      return '';
+    }
+    return this.turnReconstructor.getContent(turn.session_id, turn.event_range);
   }
 
   /**
@@ -116,10 +138,14 @@ export class HaikuSummaryProvider implements SummaryProvider {
    * @returns Summary text
    */
   async summarize(turns: ConversationTurn[], sessionFileRef: string): Promise<string> {
-    // Format turns for the prompt
-    const formattedTurns = turns
-      .map((turn) => `[${turn.role}]: ${turn.content}`)
-      .join('\n\n');
+    // Format turns for the prompt (async to get content)
+    const formattedTurnsList = await Promise.all(
+      turns.map(async (turn) => {
+        const content = await this.getTurnContent(turn);
+        return `[${turn.role}]: ${content}`;
+      })
+    );
+    const formattedTurns = formattedTurnsList.join('\n\n');
 
     const userPrompt = `Please summarize the following conversation history. Include a reference to the session file: ${sessionFileRef}
 
@@ -139,7 +165,7 @@ Provide a concise summary (max ~${this.maxSummaryTokens} tokens) following the f
     const responseChunks: string[] = [];
     const updateHandler = (
       _sid: string,
-      update: { sessionUpdate?: string; content?: { type?: string; text?: string } },
+      update: { sessionUpdate?: string; content?: { type?: string; text?: string } }
     ) => {
       if (update.sessionUpdate === 'agent_message_chunk' && update.content?.type === 'text') {
         responseChunks.push(update.content.text ?? '');
@@ -174,22 +200,63 @@ Provide a concise summary (max ~${this.maxSummaryTokens} tokens) following the f
  * MockSummaryProvider for testing
  *
  * Generates deterministic summaries without ACP calls.
+ * Uses a content map to provide mock content for turns.
  */
 export class MockSummaryProvider implements SummaryProvider {
   private summaryCalls: Array<{ turns: ConversationTurn[]; sessionFileRef: string }> = [];
+  private contentMap: Map<number, string> = new Map();
+  private readonly turnReconstructor?: TurnReconstructor;
+
+  constructor(options: { turnReconstructor?: TurnReconstructor } = {}) {
+    this.turnReconstructor = options.turnReconstructor;
+  }
+
+  /**
+   * Set mock content for a turn sequence number.
+   */
+  setContent(seq: number, content: string): void {
+    this.contentMap.set(seq, content);
+  }
+
+  /**
+   * Get content for a turn (from map, reconstructor, or empty string).
+   */
+  private async getTurnContent(turn: ConversationTurn): Promise<string> {
+    // First check the content map
+    const mapContent = this.contentMap.get(turn.seq);
+    if (mapContent !== undefined) {
+      return mapContent;
+    }
+
+    // Then try reconstructor
+    if (this.turnReconstructor) {
+      return this.turnReconstructor.getContent(turn.session_id, turn.event_range);
+    }
+
+    // Default to empty
+    return '';
+  }
 
   async summarize(turns: ConversationTurn[], sessionFileRef: string): Promise<string> {
     this.summaryCalls.push({ turns, sessionFileRef });
 
-    // Extract topics from turn content
-    const topics = turns
-      .filter((t) => t.role === 'user')
+    // Get content for all turns
+    const turnsWithContent = await Promise.all(
+      turns.map(async (t) => ({
+        turn: t,
+        content: await this.getTurnContent(t),
+      }))
+    );
+
+    // Extract topics from user turn content
+    const topics = turnsWithContent
+      .filter((t) => t.turn.role === 'user')
       .slice(0, 3)
       .map((t) => t.content.split(' ').slice(0, 5).join(' ') + '...');
 
     // Extract any instructions
-    const instructions = turns
-      .filter((t) => t.role === 'user' && /please|should|must|need/i.test(t.content))
+    const instructions = turnsWithContent
+      .filter((t) => t.turn.role === 'user' && /please|should|must|need/i.test(t.content))
       .slice(0, 2)
       .map((t) => t.content.slice(0, 50) + '...');
 
@@ -211,9 +278,10 @@ For full conversation details, see: ${sessionFileRef}`;
   }
 
   /**
-   * Clear recorded calls.
+   * Clear recorded calls and content map.
    */
   clearCalls(): void {
     this.summaryCalls = [];
+    this.contentMap.clear();
   }
 }

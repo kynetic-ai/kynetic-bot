@@ -37,7 +37,7 @@ import type { SessionStore } from './session-store.js';
 export interface ConversationStoreOptions {
   /** Base directory for conversation storage (e.g., .kbot/) */
   baseDir: string;
-  /** SessionStore for validating agent_session_id references (optional) */
+  /** SessionStore for validating session_id references (optional) */
   sessionStore?: SessionStore;
   /** Event emitter for observability (optional) */
   emitter?: EventEmitter;
@@ -63,7 +63,7 @@ export class ConversationStoreError extends KyneticError {
     message: string,
     code: string,
     conversationId?: string,
-    context?: Record<string, unknown>,
+    context?: Record<string, unknown>
   ) {
     super(message, `CONVERSATION_STORE_${code}`, { ...context, conversationId });
     this.conversationId = conversationId;
@@ -103,7 +103,7 @@ export interface ConversationStoreEvents {
   'conversation:updated': { conversationId: string; turnCount: number };
   'conversation:archived': { conversationId: string };
   'turn:appended': { conversationId: string; turn: ConversationTurn; wasDuplicate: boolean };
-  'error': { error: Error; operation: string; conversationId?: string };
+  error: { error: Error; operation: string; conversationId?: string };
 }
 
 // ============================================================================
@@ -306,7 +306,7 @@ export class ConversationStore {
    */
   private emit<K extends keyof ConversationStoreEvents>(
     event: K,
-    data: ConversationStoreEvents[K],
+    data: ConversationStoreEvents[K]
   ): void {
     if (this.emitter) {
       this.emitter.emit(event, data);
@@ -443,7 +443,7 @@ export class ConversationStore {
     if (!(await this.acquireIndexLock())) {
       throw new ConversationStoreError(
         'Failed to acquire lock for session key index',
-        'INDEX_LOCK_FAILED',
+        'INDEX_LOCK_FAILED'
       );
     }
 
@@ -486,7 +486,7 @@ export class ConversationStore {
     if (!result.success) {
       throw new ConversationValidationError(
         `Invalid conversation metadata: ${result.error.message}`,
-        result.error,
+        result.error
       );
     }
 
@@ -648,7 +648,7 @@ export class ConversationStore {
    */
   private async updateConversationTurnCount(
     conversationId: string,
-    turnCount: number,
+    turnCount: number
   ): Promise<void> {
     const conversation = await this.getConversation(conversationId);
     if (!conversation) return;
@@ -669,27 +669,29 @@ export class ConversationStore {
   /**
    * Append a turn to a conversation's turn log.
    *
-   * AC: @mem-conversation ac-1 - Creates turn with role, content, ts, seq
-   * AC: @mem-conversation ac-2 - Links assistant turns to agent sessions
-   * AC: @mem-conversation ac-4 - Idempotent by message_id
-   * AC: @mem-conversation ac-5 - Emits turn_appended event
-   * AC: @mem-conversation ac-6 - Rejects with Zod validation error
-   * AC: @mem-conversation ac-7 - Validates agent_session_id references
+   * AC: @mem-conversation ac-1 - User turn with (role, session_id, event_range)
+   * AC: @mem-conversation ac-2 - Assistant turn with (role, session_id, event_range)
+   * AC: @mem-conversation ac-6 - Idempotent by message_id
+   * AC: @mem-conversation ac-7 - Emits turn_appended event
+   * AC: @mem-conversation ac-8 - Rejects with Zod validation error
    *
    * @param conversationId - Conversation ID to append turn to
-   * @param input - Turn input data
+   * @param input - Turn input data (must include session_id and event_range)
    * @returns Created turn with ts and seq assigned
    * @throws ConversationStoreError if conversation not found or session validation fails
    * @throws ConversationValidationError if input validation fails
    */
-  async appendTurn(conversationId: string, input: ConversationTurnInput): Promise<ConversationTurn> {
+  async appendTurn(
+    conversationId: string,
+    input: ConversationTurnInput
+  ): Promise<ConversationTurn> {
     // Validate input
     const parseResult = ConversationTurnInputSchema.safeParse(input);
     if (!parseResult.success) {
       throw new ConversationValidationError(
         `Invalid turn input: ${parseResult.error.message}`,
         parseResult.error,
-        parseResult.error.issues[0]?.path.join('.'),
+        parseResult.error.issues[0]?.path.join('.')
       );
     }
 
@@ -700,19 +702,19 @@ export class ConversationStore {
       throw new ConversationStoreError(
         `Conversation not found: ${conversationId}`,
         'CONVERSATION_NOT_FOUND',
-        conversationId,
+        conversationId
       );
     }
 
-    // Validate agent_session_id if provided (AC-7)
-    if (validInput.agent_session_id && this.sessionStore) {
-      const session = await this.sessionStore.getSession(validInput.agent_session_id);
+    // Validate session_id references a valid session
+    if (this.sessionStore) {
+      const session = await this.sessionStore.getSession(validInput.session_id);
       if (!session) {
         throw new ConversationStoreError(
-          `Invalid agent_session_id: session not found: ${validInput.agent_session_id}`,
+          `Invalid session_id: session not found: ${validInput.session_id}`,
           'INVALID_SESSION_REF',
           conversationId,
-          { agent_session_id: validInput.agent_session_id },
+          { session_id: validInput.session_id }
         );
       }
     }
@@ -722,7 +724,7 @@ export class ConversationStore {
       throw new ConversationStoreError(
         `Failed to acquire lock for conversation: ${conversationId}`,
         'LOCK_FAILED',
-        conversationId,
+        conversationId
       );
     }
 
@@ -753,12 +755,13 @@ export class ConversationStore {
       }
 
       // Build full turn with auto-assigned fields
+      // AC: @mem-conversation ac-1, ac-2 - Turn with session_id and event_range
       const turn: ConversationTurn = {
         ts: validInput.ts ?? Date.now(),
         seq: validInput.seq ?? seq,
         role: validInput.role,
-        content: validInput.content,
-        agent_session_id: validInput.agent_session_id,
+        session_id: validInput.session_id,
+        event_range: validInput.event_range,
         message_id: validInput.message_id,
         metadata: validInput.metadata,
       };
@@ -859,7 +862,7 @@ export class ConversationStore {
       this.emit('error', {
         error: new Error(
           `Skipped ${totalSkipped} invalid lines in turns.jsonl ` +
-            `(${skippedJson} JSON errors, ${skippedValidation} schema validation failures)`,
+            `(${skippedJson} JSON errors, ${skippedValidation} schema validation failures)`
         ),
         operation: 'readTurns',
         conversationId,
@@ -895,7 +898,7 @@ export class ConversationStore {
   async readTurnsSince(
     conversationId: string,
     since: number,
-    until?: number,
+    until?: number
   ): Promise<ConversationTurn[]> {
     const turns = await this.readTurns(conversationId);
 

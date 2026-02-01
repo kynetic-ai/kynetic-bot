@@ -11266,6 +11266,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-01T05:00:10.107Z
+  started_at: 2026-02-01T05:50:39.136Z
   notes:
     - _ulid: 01KGBS5NMMHRY8EPAAN9E63PS1
       created_at: 2026-02-01T05:00:25.109Z
@@ -11283,8 +11284,14 @@
 
         **AC coverage**: @mem-conversation ac-1, ac-2
       supersedes: null
+    - _ulid: 01KGBW7DMJYXZ6SY13EC2Y7R1X
+      created_at: 2026-02-01T05:53:48.178Z
+      author: "@claude"
+      content: "Schema updated: ConversationTurn now uses session_id + event_range instead of content +
+        agent_session_id. Added EventRangeSchema, TurnUpdatedDataSchema, and related event types.
+        Now implementing TurnReconstructor to satisfy AC-4, AC-5."
+      supersedes: null
   todos: []
-  started_at: 2026-02-01T05:50:39.136Z
 - _ulid: 01KGBS58Q2S4S4JKG044Y5HXNS
   slugs: []
   title: Add updateLastTurnEndSeq to ConversationStore

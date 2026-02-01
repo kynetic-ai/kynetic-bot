@@ -180,6 +180,11 @@ features:
             given: tool.call event without matching tool.result
             when: summarized
             then: "formats as [tool: name | input | pending]"
+          - id: ac-9
+            given: ACP session.update events with update_type 'tool_call' or 'tool_call_update'
+            when: summarizeTools enabled and events processed
+            then: "tool calls extracted and formatted as [tool: name | input | status | outcome] using
+              toolCallId for correlation"
         status:
           maturity: draft
           implementation: implemented

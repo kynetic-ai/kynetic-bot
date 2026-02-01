@@ -201,6 +201,11 @@ features:
         when: Content approaches limit mid-code-block
         then: Buffers until code block completes (if fits) OR preemptively splits BEFORE the code block OR
           closes and reopens code block when unavoidable
+      - id: ac-7
+        given: Streaming response with multiple content blocks (interleaved with tool calls)
+        when: Empty string chunk received (Claude streaming API convention)
+        then: Finalizes current block AND starts new block on next non-empty chunk AND joins blocks with
+          visual separation (double newline)
     status:
       maturity: draft
       implementation: implemented

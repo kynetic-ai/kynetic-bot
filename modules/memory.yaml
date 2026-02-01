@@ -172,6 +172,10 @@ features:
             given: event_range has start_seq > end_seq
             when: validated
             then: returns error indicating invalid range
+          - id: ac-7
+            given: tool input exceeds 100 characters
+            when: summarized
+            then: input truncated with ellipsis
         status:
           maturity: draft
           implementation: in_progress

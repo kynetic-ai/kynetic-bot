@@ -1032,7 +1032,7 @@ describe('TurnReconstructor', () => {
     });
   });
 
-  // AC: @mem-context-restore - Fix tool call display in context restoration
+  // AC: @mem-turn-reconstruct ac-9 - ACP session.update tool_call/tool_call_update handling
   describe('session.update tool_call events', () => {
     let toolReconstructor: TurnReconstructor;
 

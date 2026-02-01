@@ -12580,6 +12580,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-01T16:38:27.312Z
+  started_at: 2026-02-01T17:21:53.685Z
   notes:
     - _ulid: 01KGD144T74WP9G8STKRFT78NQ
       created_at: 2026-02-01T16:38:38.151Z
@@ -12644,8 +12645,44 @@
 
         ```
       supersedes: null
+    - _ulid: 01KGD3Q4ACKDRDPHFDJ5CJ41KP
+      created_at: 2026-02-01T17:23:57.388Z
+      author: "@claude"
+      content: >-
+        Implemented editMessage splitting for AC-5:
+
+
+        **Changes:**
+
+        - `packages/core/src/types/channel-adapter.ts`: Added `EditMessageResult` interface and
+        updated `editMessage` return type
+
+        - `packages/core/src/index.ts`: Exported `EditMessageResult` type
+
+        - `packages/channels/src/adapters/discord/adapter.ts`: Updated `editMessage()` to split long
+        messages using existing `splitMessage()`, returns overflow IDs
+
+        - `packages/channels/src/lifecycle.ts`: Updated return type to support `EditMessageResult`
+
+        - `packages/channels/test/adapters/discord/adapter.test.ts`: Added 5 tests for editMessage
+        with AC annotation
+
+
+        **Return type change:**
+
+        - Old: `Promise<string | void>`
+
+        - New: `Promise<string | EditMessageResult | void>`
+
+
+        **Behavior:**
+
+        - Messages <= 2000 chars: edit normally, return string ID
+
+        - Messages > 2000 chars: split using `splitMessage()`, edit first chunk, send rest as
+        follow-ups, return `{ editedId, overflowIds }`
+      supersedes: null
   todos: []
-  started_at: 2026-02-01T17:21:53.685Z
 - _ulid: 01KGD148TG0VA6RB0D6D1VEJ90
   slugs:
     - block-boundary-detection

@@ -11154,8 +11154,9 @@
   blocked_by: []
   depends_on:
     - "@conversation-types"
+    - "@01KGBS55"
   context: []
-  priority: 3
+  priority: 2
   tags: []
   vcs_refs: []
   created_at: 2026-02-01T05:00:00.914Z
@@ -11291,7 +11292,8 @@
   meta_ref: null
   status: pending
   blocked_by: []
-  depends_on: []
+  depends_on:
+    - "@01KGBS56"
   context: []
   priority: 1
   tags: []
@@ -11322,7 +11324,8 @@
   meta_ref: null
   status: pending
   blocked_by: []
-  depends_on: []
+  depends_on:
+    - "@task-turn-reconstruction"
   context: []
   priority: 2
   tags: []

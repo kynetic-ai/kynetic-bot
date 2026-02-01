@@ -12849,7 +12849,7 @@
   type: task
   spec_ref: "@discord-channel-adapter"
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on:
     - "@01KGD137"
@@ -12999,3 +12999,8 @@
         Awaiting review and merge.
       supersedes: null
   todos: []
+  completed_at: 2026-02-01T18:32:10.726Z
+  closed_reason: "PR #67 merged. StreamingSplitTracker integrated with bot streaming flow. AC-5
+    (semantic boundary splitting) and AC-6 (code block handling) implemented with proper state
+    management. Comprehensive unit tests exist for the tracker; manual test plan verified
+    integration."

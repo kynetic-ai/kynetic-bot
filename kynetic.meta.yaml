@@ -470,4 +470,12 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KGBX5NS5XKGR67DB2P3WZTS3
+    type: success
+    content: Detailed handoff notes with line numbers, file paths, and code snippets in task notes
+      before session end enables clean continuation by future agents.
+    created_at: 2026-02-01T06:10:19.558Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

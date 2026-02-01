@@ -447,4 +447,13 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KGBSTKE2DBD81T4RWRV09GYY
+    type: friction
+    content: After plan approval, created tasks using Claude Code's internal TaskCreate tool instead of
+      kspec task add. Had to recreate all tasks in kspec. The ExitPlanMode message said 'start with
+      updating your todo list' which led to using the wrong system.
+    created_at: 2026-02-01T05:11:50.979Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

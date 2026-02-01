@@ -13004,19 +13004,96 @@
         Awaiting review and merge.
       supersedes: null
   todos: []
-- title: Create ThreadTracker for tool thread management
+- _ulid: 01KGDBQMHM233B8T3051BK3C2G
+  slugs: []
+  title: Create ThreadTracker for tool thread management
   type: task
   spec_ref: "@discord-tool-widgets"
   meta_ref: null
-  priority: 2
-  slugs: []
-  tags: []
-  depends_on: []
-  _ulid: 01KGDBQMHM233B8T3051BK3C2G
   status: pending
   blocked_by: []
+  depends_on: []
   context: []
+  priority: 2
+  tags: []
   vcs_refs: []
   created_at: 2026-02-01T19:44:02.612Z
-  notes: []
+  notes:
+    - _ulid: 01KGDBR4DR9G68YHM2D9T1D18H
+      created_at: 2026-02-01T19:44:18.872Z
+      author: "@claude"
+      content: |-
+        ## Overview
+        Create a new ThreadTracker class to manage thread lifecycle for tool widgets.
+
+        ## File Location
+        packages/channels/src/adapters/discord/tool-widgets/ThreadTracker.ts (NEW)
+
+        ## Interface Design
+        ```typescript
+        interface ThreadState {
+          parentMessageId: string;    // Bot's response message (thread parent)
+          threadId: string | null;    // Discord thread ID (null until created)
+          channelId: string;          // Main channel ID
+          sessionId: string;          // Session for cleanup
+          creationPromise: Promise<string> | null;  // Prevents race conditions
+        }
+
+        export class ThreadTracker {
+          constructor(private logger: Logger) {}
+
+          // Get existing thread or create new one (race-safe via promise deduplication)
+          async getOrCreateThread(
+            sessionId: string,
+            channelId: string,
+            parentMessageId: string,
+            createFn: () => Promise<string>
+          ): Promise<string | null>
+
+          // Clean up tracking on session end
+          cleanupSession(sessionId: string): void
+
+          // Get thread ID if exists (for updates)
+          getThreadId(sessionId: string, channelId: string): string | null
+        }
+        ```
+
+        ## Race Condition Handling
+        Multiple tool_calls can arrive before thread is created. Use promise-based deduplication:
+        ```typescript
+        private threadPromiseMap = new Map<string, Promise<string>>();
+
+        async getOrCreateThread(parentMessageId, createFn) {
+          if (\!this.threadPromiseMap.has(parentMessageId)) {
+            this.threadPromiseMap.set(parentMessageId, createFn());
+          }
+          return this.threadPromiseMap.get(parentMessageId);
+        }
+        ```
+
+        ## Thread Configuration
+        - Name: "Tools"
+        - Auto-archive: 60 minutes (ThreadAutoArchiveDuration.OneHour)
+        - Reason: "Agent tool execution"
+
+        ## Export
+        Add to packages/channels/src/adapters/discord/tool-widgets/index.ts
+
+        ## Pattern Reference
+        Follow patterns from ToolCallTracker.ts in same directory.
+
+        ## Tests
+        packages/channels/test/adapters/discord/tool-widgets/ThreadTracker.test.ts (NEW)
+        - Creates thread on first call
+        - Returns existing thread on subsequent calls
+        - Handles concurrent calls (promise deduplication)
+        - Cleanup removes session tracking
+        - Handles creation failure gracefully (returns null)
+
+        ## AC Coverage
+        - ac-10: Thread creation on first tool_call
+        - ac-11: Reuse existing thread
+        - ac-13: Session cleanup
+        - ac-17: Handle deleted thread
+      supersedes: null
   todos: []

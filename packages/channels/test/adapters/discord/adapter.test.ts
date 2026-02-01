@@ -379,7 +379,38 @@ describe('DiscordAdapter', () => {
     it('should split long messages and return overflow IDs', async () => {
       const mockMessage = {
         id: 'msg-123',
-        edit: vi.fn().mockResolvedValue({ id: 'msg-123' }),
+        edit: vi.fn().mockResolvedValue({ id: 'edited-msg-123' }),
+      };
+      const channel = {
+        ...createMockChannel(),
+        messages: { fetch: vi.fn().mockResolvedValue(mockMessage) },
+        send: vi.fn().mockResolvedValueOnce({ id: 'overflow-1' }),
+      };
+      getMockClient().channels.fetch = vi.fn().mockResolvedValue(channel);
+
+      const longMessage = 'a'.repeat(2500); // Will split into 2 chunks
+      const result = await adapter.editMessage('channel-123', 'msg-123', longMessage);
+
+      // Should have edited original with first chunk
+      expect(mockMessage.edit).toHaveBeenCalledTimes(1);
+      const editedContent = mockMessage.edit.mock.calls[0][0] as string;
+      expect(editedContent.length).toBeLessThanOrEqual(2000);
+
+      // Should have sent overflow as follow-up
+      expect(channel.send).toHaveBeenCalledTimes(1);
+      expect(channel.send).toHaveBeenCalledWith({ content: expect.any(String) });
+
+      // Should return EditMessageResult with correct IDs
+      expect(result).toEqual({
+        editedId: 'edited-msg-123',
+        overflowIds: ['overflow-1'],
+      });
+    });
+
+    it('should handle multiple overflow messages for very long content', async () => {
+      const mockMessage = {
+        id: 'msg-123',
+        edit: vi.fn().mockResolvedValue({ id: 'edited-msg-123' }),
       };
       const channel = {
         ...createMockChannel(),
@@ -391,17 +422,17 @@ describe('DiscordAdapter', () => {
       };
       getMockClient().channels.fetch = vi.fn().mockResolvedValue(channel);
 
-      const longMessage = 'a'.repeat(2500); // Will split into 2 chunks
-      const result = await adapter.editMessage('channel-123', 'msg-123', longMessage);
+      const veryLongMessage = 'a'.repeat(5000); // Will split into 3 chunks
+      const result = await adapter.editMessage('channel-123', 'msg-123', veryLongMessage);
 
-      // Should have edited original and sent overflow
-      expect(mockMessage.edit).toHaveBeenCalled();
-      expect(channel.send).toHaveBeenCalled();
+      // Should have edited original and sent 2 overflow messages
+      expect(mockMessage.edit).toHaveBeenCalledTimes(1);
+      expect(channel.send).toHaveBeenCalledTimes(2);
 
-      // Should return EditMessageResult
+      // Should return all overflow IDs in order
       expect(result).toEqual({
-        editedId: 'msg-123',
-        overflowIds: expect.arrayContaining([expect.any(String)]),
+        editedId: 'edited-msg-123',
+        overflowIds: ['overflow-1', 'overflow-2'],
       });
     });
 

@@ -12017,6 +12017,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-01T05:00:11.874Z
+  started_at: 2026-02-01T08:24:03.698Z
   notes:
     - _ulid: 01KGBS5QWAB7JGE8AGER6K3QP2
       created_at: 2026-02-01T05:00:27.402Z
@@ -12033,8 +12034,43 @@
 
         **AC coverage**: @mem-conversation ac-3
       supersedes: null
+    - _ulid: 01KGC4WS99M977WHNQG6NYQK30
+      created_at: 2026-02-01T08:25:16.841Z
+      author: "@claude"
+      content: >-
+        Implemented updateLastTurnEndSeq method in ConversationStore.
+
+
+        **Implementation**:
+
+        - Method signature: updateLastTurnEndSeq(conversationId: string, endSeq: number):
+        Promise<void>
+
+        - Acquires lock for thread-safety
+
+        - Reads turns.jsonl, updates last turn's event_range.end_seq, rewrites file
+
+        - Emits 'turn:updated' event with conversationId, seq, sessionId, newEndSeq
+
+
+        **Test coverage** (8 tests):
+
+        - AC: @mem-conversation ac-3 - Updates existing assistant turn's event_range.end_seq
+
+        - AC: @mem-conversation ac-7 - Emits turn_updated event
+
+        - Error handling for non-existent conversation and empty turns
+
+        - Multiple updates (streaming pattern)
+
+        - Preserves other turn fields
+
+        - Does not affect previous turns
+
+
+        All 262 memory package tests pass.
+      supersedes: null
   todos: []
-  started_at: 2026-02-01T08:24:03.698Z
 - _ulid: 01KGBS5ADJZ2BW63P7RE4Y04J0
   slugs: []
   title: Update ContextRestorer for event-sourced turns

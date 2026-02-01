@@ -13153,6 +13153,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-01T19:44:23.844Z
+  started_at: 2026-02-01T20:05:47.399Z
   notes:
     - _ulid: 01KGDBRW7Q089WF7HD1RV465W9
       created_at: 2026-02-01T19:44:43.255Z
@@ -13235,8 +13236,30 @@
 
         - Enables ac-10, ac-11, ac-14
       supersedes: null
+    - _ulid: 01KGDD86MBWZ8J918CX98ZYRTX
+      created_at: 2026-02-01T20:10:33.996Z
+      author: "@claude"
+      content: >-
+        Implemented parentMessageId in Bot tool events. Changes:
+
+
+        1. **packages/bot/src/bot.ts**:
+           - Modified tool:call and tool:update event emissions (lines 663-682) to include streamingMessageId as the 4th argument
+           - Added AC comments linking to @discord-tool-widgets ac-10, ac-11, ac-14
+
+        2. **packages/channels/src/adapters/discord/adapter.ts**:
+           - Updated setupBotEventListeners() to receive parentMessageId: string | undefined in event handlers
+           - Updated handleToolCall() and handleToolCallUpdate() method signatures to accept parentMessageId
+           - Added parentMessageId to debug logging
+
+        3. **packages/bot/test/bot.test.ts**:
+           - Added new test suite 'Tool events with parentMessageId' with 3 tests:
+             - tool:call with parentMessageId when text sent first (text > 1500 chars triggers flush)
+             - tool:update with parentMessageId when text sent first
+             - tool:call with undefined parentMessageId when tool arrives before text (ac-14 case)
+           - Tests verify the correct value is passed based on streaming state
+      supersedes: null
   todos: []
-  started_at: 2026-02-01T20:05:47.399Z
 - _ulid: 01KGDBRB3YT72A2BVXVCER1G6E
   slugs: []
   title: Implement condensed tool display for DMs

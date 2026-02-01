@@ -13129,19 +13129,35 @@
   created_at: 2026-02-01T19:44:25.726Z
   notes: []
   todos: []
-- title: Integrate ThreadTracker into Discord adapter
+- _ulid: 01KGDBRCYYJBNW3JDQDXVMX17W
+  slugs: []
+  title: Integrate ThreadTracker into Discord adapter
   type: task
   spec_ref: "@discord-tool-widgets"
   meta_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
   priority: 2
+  tags: []
+  vcs_refs: []
+  created_at: 2026-02-01T19:44:27.614Z
+  notes: []
+  todos: []
+- title: Add thread and condensed display tests
+  type: task
+  spec_ref: "@discord-tool-widgets"
+  meta_ref: null
+  priority: 3
   slugs: []
   tags: []
   depends_on: []
-  _ulid: 01KGDBRCYYJBNW3JDQDXVMX17W
+  _ulid: 01KGDBRET9XTWJCH9F42HD14A8
   status: pending
   blocked_by: []
   context: []
   vcs_refs: []
-  created_at: 2026-02-01T19:44:27.614Z
+  created_at: 2026-02-01T19:44:29.512Z
   notes: []
   todos: []

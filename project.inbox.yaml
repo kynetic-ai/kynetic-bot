@@ -409,3 +409,13 @@ inbox:
       - reflection
       - testing
     added_by: "@claude"
+  - _ulid: 01KGCC7QT1T8Y3NEE83JY8QB2P
+    text: "PR review workflow: Check spec coverage for new code. When reviewing PRs that add new
+      functionality, detect new methods/behaviors and verify they have corresponding spec AC
+      coverage. Flag gaps before approving."
+    created_at: 2026-02-01T10:33:35.809Z
+    tags:
+      - reflection
+      - workflow
+      - pr-review
+    added_by: "@claude"

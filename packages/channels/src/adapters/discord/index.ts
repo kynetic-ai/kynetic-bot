@@ -33,4 +33,6 @@ export {
   splitMessage,
   splitMessageToEmbeds,
   EMBED_DESCRIPTION_MAX,
+  StreamingSplitTracker,
+  type SplitDecision,
 } from './splitter.js';

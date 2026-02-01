@@ -12,7 +12,7 @@ import { EventEmitter } from 'node:events';
 import { execSync } from 'node:child_process';
 import path from 'node:path';
 import { createLogger, type NormalizedMessage } from '@kynetic-bot/core';
-import { ChannelRegistry, ChannelLifecycle } from '@kynetic-bot/channels';
+import { ChannelRegistry, ChannelLifecycle, StreamingSplitTracker } from '@kynetic-bot/channels';
 import {
   AgentLifecycle,
   type ToolCall,
@@ -501,9 +501,12 @@ export class Bot extends EventEmitter {
       let streamingMessageId: string | undefined;
       // AC: @discord-channel-adapter ac-7 - Track message blocks for multi-block streaming
       // Empty string chunks signal block boundaries in Claude's streaming API
-      const blocks: string[] = [];
+      let blocks: string[] = [];
       let currentBlockText = '';
       let coalescer: StreamCoalescer | BufferedCoalescer;
+
+      // AC: @discord-channel-adapter ac-5, ac-6 - StreamingSplitTracker for preemptive splitting
+      const splitTracker = isStreamingPlatform ? new StreamingSplitTracker() : null;
 
       // AC: @mem-agent-sessions ac-8, ac-9 - Event queue for session.update events
       // Events are queued synchronously in updateHandler, flushed after coalescer.complete()
@@ -524,7 +527,34 @@ export class Bot extends EventEmitter {
             const displayText = [...blocks, currentBlockText].filter(Boolean).join('\n\n');
             if (!displayText) return;
 
-            if (!streamingMessageId) {
+            // AC: @discord-channel-adapter ac-5, ac-6 - Check for split decision
+            const decision = splitTracker?.push(displayText);
+
+            if (decision?.action === 'split' && streamingMessageId) {
+              // Split needed - edit current message with first chunk, send overflow as new messages
+              const [firstChunk, ...overflowChunks] = decision.chunks;
+
+              // Edit the current message with the first chunk
+              await this.channelLifecycle.editMessage?.(
+                msg.channel,
+                streamingMessageId,
+                firstChunk
+              );
+
+              // Send overflow chunks as new messages
+              for (const overflow of overflowChunks) {
+                const result = await this.channelLifecycle.sendMessage(msg.channel, overflow);
+                // Update streamingMessageId to point to the latest message for future edits
+                if (result?.messageId) {
+                  streamingMessageId = result.messageId;
+                }
+              }
+
+              // Reset state for continuation - new message starts fresh
+              blocks = [];
+              currentBlockText = '';
+              splitTracker?.reset();
+            } else if (!streamingMessageId) {
               // First actual content - send initial message and capture ID for edits
               const result = await this.channelLifecycle.sendMessage(msg.channel, displayText, {
                 replyTo: msg.id,
@@ -533,7 +563,7 @@ export class Bot extends EventEmitter {
               // Stop typing indicator once we start sending response
               this.channelLifecycle.stopTypingLoop(msg.channel);
             } else {
-              // Subsequent chunks - edit existing message with accumulated text
+              // Normal update - edit existing message with accumulated text
               await this.channelLifecycle.editMessage?.(
                 msg.channel,
                 streamingMessageId,
@@ -550,13 +580,22 @@ export class Bot extends EventEmitter {
             // Join all blocks with double newline for final display
             const finalDisplayText = blocks.filter(Boolean).join('\n\n');
             responseText = finalDisplayText || fullText;
-            // Final edit to ensure complete message is displayed
-            if (this.channelLifecycle && streamingMessageId && responseText) {
+
+            // AC: @discord-channel-adapter ac-5 - Handle final split if needed
+            const finalChunks = splitTracker?.finalize() ?? (responseText ? [responseText] : []);
+
+            if (this.channelLifecycle && streamingMessageId && finalChunks.length > 0) {
+              // Edit current message with first chunk
               await this.channelLifecycle.editMessage?.(
                 msg.channel,
                 streamingMessageId,
-                responseText
+                finalChunks[0]
               );
+
+              // Send any overflow chunks as new messages
+              for (let i = 1; i < finalChunks.length; i++) {
+                await this.channelLifecycle.sendMessage(msg.channel, finalChunks[i]);
+              }
             }
           },
           onError: (error) => {

@@ -13715,7 +13715,7 @@
   type: task
   spec_ref: "@discord-tool-widgets"
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on:
     - "@01KGDBRC"
@@ -13821,3 +13821,8 @@
         ac-20 (added in PR #71). All 392 tests pass."
       supersedes: null
   todos: []
+  completed_at: 2026-02-01T23:46:19.127Z
+  closed_reason: "Tests already implemented. ThreadTracker.test.ts (27 tests) and
+    CondensedToolDisplay.test.ts (24 tests) were added with their respective feature implementations
+    (PRs #68 and #70). Integration tests in adapter.test.ts cover ac-9 through ac-20 (PR #71). All
+    392 tests pass."

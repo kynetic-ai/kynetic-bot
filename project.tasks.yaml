@@ -11258,7 +11258,7 @@
   type: task
   spec_ref: "@mem-conversation"
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -11284,6 +11284,7 @@
         **AC coverage**: @mem-conversation ac-1, ac-2
       supersedes: null
   todos: []
+  started_at: 2026-02-01T05:50:39.136Z
 - _ulid: 01KGBS58Q2S4S4JKG044Y5HXNS
   slugs: []
   title: Add updateLastTurnEndSeq to ConversationStore

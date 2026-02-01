@@ -13031,6 +13031,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-01T19:44:02.612Z
+  started_at: 2026-02-01T19:48:53.668Z
   notes:
     - _ulid: 01KGDBR4DR9G68YHM2D9T1D18H
       created_at: 2026-02-01T19:44:18.872Z
@@ -13109,8 +13110,32 @@
         - ac-13: Session cleanup
         - ac-17: Handle deleted thread
       supersedes: null
+    - _ulid: 01KGDC4XK9MWC7CDGFYVS64C05
+      created_at: 2026-02-01T19:51:17.866Z
+      author: "@claude"
+      content: |-
+        Implemented ThreadTracker class with:
+        - Thread creation with race condition prevention via promise deduplication
+        - Per-response thread isolation (composite key: sessionId:channelId:parentMessageId)
+        - Session cleanup that removes all thread tracking
+        - markThreadDeleted() for handling mid-session thread deletion
+        - getThreadId() and hasThread() for lookups
+
+        Files created:
+        - packages/channels/src/adapters/discord/tool-widgets/ThreadTracker.ts
+        - packages/channels/test/adapters/discord/tool-widgets/ThreadTracker.test.ts
+
+        Tests: 26 tests covering:
+        - Thread creation on first call (ac-10)
+        - Thread reuse on subsequent calls (ac-11)
+        - Promise deduplication for concurrent calls
+        - Graceful failure handling (ac-12, ac-17)
+        - Session cleanup (ac-13)
+        - Per-response isolation (ac-16)
+
+        All 355 tests in channels package pass.
+      supersedes: null
   todos: []
-  started_at: 2026-02-01T19:48:53.668Z
 - _ulid: 01KGDBR994DE170TTC4THFT6RW
   slugs: []
   title: Add parentMessageId to Bot tool events

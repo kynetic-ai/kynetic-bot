@@ -263,7 +263,7 @@ features:
           - id: ac-4
             given: Context restoration prompt generated
             when: Prompt injected to session
-            then: Includes session file reference .kbot/sessions/{id}/events.jsonl
+            then: Archived History section includes reference to conversations/{id}/turns.jsonl file path
           - id: ac-5
             given: Context restoration prompt generated
             when: Agent receives prompt

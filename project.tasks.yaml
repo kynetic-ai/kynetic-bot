@@ -11133,7 +11133,7 @@
   type: task
   spec_ref: "@discord-tool-widgets"
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -11194,6 +11194,7 @@
         All 392 channels tests passing. Implementation complete across PRs #68-71.
       supersedes: null
   todos: []
+  started_at: 2026-02-01T23:55:18.663Z
 - _ulid: 01KGBS4Y0J7V7JWWPWNVGWTF3D
   slugs:
     - task-turn-reconstruction

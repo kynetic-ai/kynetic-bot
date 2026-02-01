@@ -12008,7 +12008,7 @@
   type: task
   spec_ref: "@mem-conversation"
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on:
     - "@01KGBS56"
@@ -12071,6 +12071,10 @@
         All 262 memory package tests pass.
       supersedes: null
   todos: []
+  completed_at: 2026-02-01T08:29:15.295Z
+  closed_reason: "Merged in PR #59. Added updateLastTurnEndSeq method to ConversationStore for
+    extending assistant turn event ranges during streaming. Implementation covers AC-3 (updates
+    event_range.end_seq) and AC-7 (emits turn_updated event). All 262 memory package tests pass."
 - _ulid: 01KGBS5ADJZ2BW63P7RE4Y04J0
   slugs: []
   title: Update ContextRestorer for event-sourced turns

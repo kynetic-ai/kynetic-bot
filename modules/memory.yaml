@@ -373,7 +373,7 @@ features:
         then: logs prompt.sent event before sending to agent
     status:
       maturity: draft
-      implementation: in_progress
+      implementation: implemented
     features:
       - _ulid: 01KG8FWBE38KV5WTVDB3DK91F0
         slugs:

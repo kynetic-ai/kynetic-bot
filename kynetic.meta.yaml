@@ -541,4 +541,13 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KGCC820V2D5VC4V6R6WKK30K
+    type: success
+    content: Using real session event data (events.jsonl) to validate implementation assumptions.
+      Revealed actual ACP format (mcp__acp__* tool names, rawOutput as array) that differed from
+      initial assumptions based on SDK types.
+    created_at: 2026-02-01T10:33:46.268Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

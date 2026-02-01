@@ -195,7 +195,7 @@ features:
         given: Streaming message content exceeds Discord limit (2000 chars)
         when: editMessage called
         then: Splits at semantic boundaries (before code blocks when possible) AND sends overflow as
-          follow-up message(s) AND returns all message IDs
+          follow-up message(s) AND returns EditMessageResult with editedId and overflowIds array
       - id: ac-6
         given: Streaming response contains code blocks
         when: Content approaches limit mid-code-block

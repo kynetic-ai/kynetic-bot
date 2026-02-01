@@ -13208,7 +13208,142 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-01T19:44:25.726Z
-  notes: []
+  notes:
+    - _ulid: 01KGDBSD2N8KZ69C9J00THFRDQ
+      created_at: 2026-02-01T19:45:00.501Z
+      author: "@claude"
+      content: >-
+        ## Overview
+
+        Implement a condensed display mode for DMs (and fallback scenarios) that shows at most 5
+        full tool widgets with a status summary for overflow.
+
+
+        ## File Location
+
+        packages/channels/src/adapters/discord/tool-widgets/CondensedToolDisplay.ts (NEW)
+
+
+        ## Design
+
+
+        ### Display Rules
+
+        - First 5 tool calls: Show as full widgets (current behavior)
+
+        - 6th+ tool calls: Condense into a single status message
+
+        - Status format: Progressive - show tool names until overflow, then counts
+
+
+        ### Status Message Examples
+
+        - 5 tools, none overflow: (no status message, just widgets)
+
+        - 6 tools: "bash, read, write, edit, glob + search running..."
+
+        - 8 tools, 2 completed: "bash, read ✓, write ✓ + 3 more running"
+
+        - 10 tools, 5 completed: "5 completed, 5 running"
+
+
+        ### Interface
+
+        ```typescript
+
+        interface CondensedDisplayState {
+          sessionId: string;
+          channelId: string;
+          visibleTools: ToolCallState[];      // First 5, shown as widgets
+          condensedTools: ToolCallState[];    // 6th+, shown in status
+          statusMessageId: string | null;     // Status message for overflow
+        }
+
+
+        export class CondensedToolDisplay {
+          constructor(private logger: Logger) {}
+
+          // Add a tool call - returns whether it should be shown as widget or condensed
+          addToolCall(sessionId: string, channelId: string, toolCall: ToolCall): 'widget' | 'condensed'
+
+          // Update tool status
+          updateToolCall(toolCallId: string, update: ToolCallUpdate): void
+
+          // Get current status text for overflow message
+          getStatusText(sessionId: string, channelId: string): string
+
+          // Track status message ID for updates
+          setStatusMessageId(sessionId: string, channelId: string, messageId: string): void
+
+          // Cleanup
+          cleanupSession(sessionId: string): void
+        }
+
+        ```
+
+
+        ### Status Text Generation
+
+        ```typescript
+
+        getStatusText(): string {
+          const { visibleTools, condensedTools } = this.getState();
+          const allTools = [...visibleTools, ...condensedTools];
+
+          const completed = allTools.filter(t => t.status === 'completed').length;
+          const running = allTools.filter(t => t.status === 'in_progress').length;
+          const failed = allTools.filter(t => t.status === 'failed').length;
+
+          // Progressive: names until overflow
+          if (condensedTools.length <= 3) {
+            const names = condensedTools.map(t => t.toolCall.title || 'tool');
+            const statusIcons = condensedTools.map(t =>
+              t.status === 'completed' ? '✓' : t.status === 'failed' ? '✗' : ''
+            );
+            return `+ ${names.join(', ')} ${running > 0 ? 'running...' : ''}`;
+          }
+
+          // Counts for larger overflow
+          const parts = [];
+          if (completed > 0) parts.push(`${completed} completed`);
+          if (running > 0) parts.push(`${running} running`);
+          if (failed > 0) parts.push(`${failed} failed`);
+          return parts.join(', ');
+        }
+
+        ```
+
+
+        ## Integration Points
+
+        - Used by DiscordAdapter when channel.isDMBased() or thread creation fails
+
+        - Works with existing ToolCallTracker for widget state
+
+
+        ## Tests
+
+        - First 5 tools show as widgets
+
+        - 6th tool triggers status message creation
+
+        - Status updates when condensed tools complete
+
+        - Progressive names shown for small overflow
+
+        - Counts shown for large overflow
+
+        - Cleanup removes all state
+
+
+        ## AC Coverage
+
+        - ac-18: DM first 5 as widgets
+
+        - ac-19: Progressive status for overflow
+
+        - ac-20: Status updates on completion
+      supersedes: null
   todos: []
 - _ulid: 01KGDBRCYYJBNW3JDQDXVMX17W
   slugs: []

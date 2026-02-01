@@ -11143,16 +11143,22 @@
   created_at: 2026-01-31T23:55:35.002Z
   notes: []
   todos: []
-- title: "Implement: Turn Reconstruction"
+- _ulid: 01KGBS4Y0J7V7JWWPWNVGWTF3D
+  slugs:
+    - task-turn-reconstruction
+  title: "Implement: Turn Reconstruction"
   type: task
   spec_ref: "@mem-turn-reconstruct"
   derivation: auto
-  priority: 3
-  slugs:
-    - task-turn-reconstruction
-  tags: []
+  status: pending
+  blocked_by: []
   depends_on:
     - "@conversation-types"
+  context: []
+  priority: 3
+  tags: []
+  vcs_refs: []
+  created_at: 2026-02-01T05:00:00.914Z
   notes:
     - _ulid: 01KGBS4Y0HWGXGKCXBP15VPV0C
       created_at: 2026-02-01T05:00:00.914Z
@@ -11186,10 +11192,20 @@
         - ac-6: Given event_range has start_seq > end_seq, when validated, then returns error
         indicating invalid range
       supersedes: null
-  _ulid: 01KGBS4Y0J7V7JWWPWNVGWTF3D
+  todos: []
+- title: Wire ACP event logging to SessionStore
+  type: task
+  spec_ref: "@mem-agent-sessions"
+  meta_ref: null
+  priority: 1
+  slugs: []
+  tags: []
+  depends_on: []
+  _ulid: 01KGBS559FN57DQBK457E0V8P5
   status: pending
   blocked_by: []
   context: []
   vcs_refs: []
-  created_at: 2026-02-01T05:00:00.914Z
+  created_at: 2026-02-01T05:00:08.367Z
+  notes: []
   todos: []

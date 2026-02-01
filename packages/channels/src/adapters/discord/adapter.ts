@@ -17,7 +17,7 @@ import {
   type ThreadChannel,
   DiscordAPIError,
 } from 'discord.js';
-import type { ChannelAdapter, NormalizedMessage } from '@kynetic-bot/core';
+import type { ChannelAdapter, NormalizedMessage, EditMessageResult } from '@kynetic-bot/core';
 import { createLogger } from '@kynetic-bot/core';
 import { DiscordAdapterConfigSchema, type DiscordAdapterConfig } from './config.js';
 import {
@@ -303,22 +303,60 @@ export class DiscordAdapter implements ChannelAdapter {
    * Used for streaming responses where the bot edits its message
    * as more content becomes available.
    *
+   * AC: @discord-channel-adapter ac-5
+   * When content exceeds Discord's 2000 char limit, splits at semantic
+   * boundaries and sends overflow as follow-up messages.
+   *
    * @param channel - Discord channel ID
    * @param messageId - ID of the message to edit
    * @param newText - New message text
-   * @returns The message ID of the edited message
+   * @returns The message ID if no split, or EditMessageResult with overflow IDs
    * @throws DiscordSendError for edit failures
    */
-  async editMessage(channel: string, messageId: string, newText: string): Promise<string> {
+  async editMessage(
+    channel: string,
+    messageId: string,
+    newText: string
+  ): Promise<string | EditMessageResult> {
     const discordChannel = await this.fetchChannel(channel);
 
-    try {
-      // Fetch the message first
-      const message = await discordChannel.messages.fetch(messageId);
+    // If text fits within limit, edit normally
+    if (newText.length <= this.config.maxMessageLength) {
+      try {
+        const message = await discordChannel.messages.fetch(messageId);
+        const editedMessage = await message.edit(newText);
+        return editedMessage.id;
+      } catch (error) {
+        this.handleEditError(error, channel, messageId);
+      }
+    }
 
-      // Edit the message
-      const editedMessage = await message.edit(newText);
-      return editedMessage.id;
+    // Text exceeds limit - split and send overflow as follow-up messages
+    const chunks = splitMessage(newText, this.config.maxMessageLength);
+
+    if (chunks.length === 0) {
+      throw new DiscordSendError('Cannot edit with empty message', {
+        channel,
+        messageId,
+      });
+    }
+
+    try {
+      // Edit the original message with the first chunk
+      const message = await discordChannel.messages.fetch(messageId);
+      const editedMessage = await message.edit(chunks[0]);
+
+      // Send remaining chunks as follow-up messages
+      const overflowIds: string[] = [];
+      for (let i = 1; i < chunks.length; i++) {
+        const sentMessage = await discordChannel.send({ content: chunks[i] });
+        overflowIds.push(sentMessage.id);
+      }
+
+      return {
+        editedId: editedMessage.id,
+        overflowIds,
+      };
     } catch (error) {
       this.handleEditError(error, channel, messageId);
     }

@@ -123,9 +123,7 @@ describe('DiscordAdapter', () => {
 
   describe('constructor', () => {
     it('should validate config on construction', () => {
-      expect(() => new DiscordAdapter({ token: '' })).toThrow(
-        'Discord token is required',
-      );
+      expect(() => new DiscordAdapter({ token: '' })).toThrow('Discord token is required');
     });
 
     it('should set platform to "discord"', () => {
@@ -309,9 +307,9 @@ describe('DiscordAdapter', () => {
       Object.setPrototypeOf(error, DiscordAPIError.prototype);
       getMockClient().channels.fetch = vi.fn().mockRejectedValue(error);
 
-      await expect(
-        adapter.sendMessage('unknown-channel', 'Hello'),
-      ).rejects.toThrow(DiscordChannelNotFoundError);
+      await expect(adapter.sendMessage('unknown-channel', 'Hello')).rejects.toThrow(
+        DiscordChannelNotFoundError
+      );
     });
 
     it('should throw DiscordPermissionError for missing access', async () => {
@@ -322,9 +320,9 @@ describe('DiscordAdapter', () => {
       Object.setPrototypeOf(error, DiscordAPIError.prototype);
       getMockClient().channels.fetch = vi.fn().mockRejectedValue(error);
 
-      await expect(
-        adapter.sendMessage('private-channel', 'Hello'),
-      ).rejects.toThrow(DiscordPermissionError);
+      await expect(adapter.sendMessage('private-channel', 'Hello')).rejects.toThrow(
+        DiscordPermissionError
+      );
     });
 
     it('should throw DiscordPermissionError for missing permissions', async () => {
@@ -338,7 +336,7 @@ describe('DiscordAdapter', () => {
       getMockClient().channels.fetch = vi.fn().mockResolvedValue(channel);
 
       await expect(adapter.sendMessage('channel-123', 'Hello')).rejects.toThrow(
-        DiscordPermissionError,
+        DiscordPermissionError
       );
     });
 
@@ -346,8 +344,151 @@ describe('DiscordAdapter', () => {
       const channel = createMockChannel();
       getMockClient().channels.fetch = vi.fn().mockResolvedValue(channel);
 
-      await expect(adapter.sendMessage('channel-123', '')).rejects.toThrow(
-        DiscordSendError,
+      await expect(adapter.sendMessage('channel-123', '')).rejects.toThrow(DiscordSendError);
+    });
+  });
+
+  // AC: @discord-channel-adapter ac-5
+  describe('editMessage()', () => {
+    beforeEach(async () => {
+      const startPromise = adapter.start();
+      setImmediate(() => {
+        const client = getMockClient();
+        client?.emit(Events.ClientReady, client);
+      });
+      await startPromise;
+    });
+
+    it('should edit message and return ID when under limit', async () => {
+      const mockMessage = {
+        id: 'msg-123',
+        edit: vi.fn().mockResolvedValue({ id: 'msg-123' }),
+      };
+      const channel = {
+        ...createMockChannel(),
+        messages: { fetch: vi.fn().mockResolvedValue(mockMessage) },
+      };
+      getMockClient().channels.fetch = vi.fn().mockResolvedValue(channel);
+
+      const result = await adapter.editMessage('channel-123', 'msg-123', 'Short message');
+
+      expect(mockMessage.edit).toHaveBeenCalledWith('Short message');
+      expect(result).toBe('msg-123');
+    });
+
+    it('should split long messages and return overflow IDs', async () => {
+      const mockMessage = {
+        id: 'msg-123',
+        edit: vi.fn().mockResolvedValue({ id: 'edited-msg-123' }),
+      };
+      const channel = {
+        ...createMockChannel(),
+        messages: { fetch: vi.fn().mockResolvedValue(mockMessage) },
+        send: vi.fn().mockResolvedValueOnce({ id: 'overflow-1' }),
+      };
+      getMockClient().channels.fetch = vi.fn().mockResolvedValue(channel);
+
+      const longMessage = 'a'.repeat(2500); // Will split into 2 chunks
+      const result = await adapter.editMessage('channel-123', 'msg-123', longMessage);
+
+      // Should have edited original with first chunk
+      expect(mockMessage.edit).toHaveBeenCalledTimes(1);
+      const editedContent = mockMessage.edit.mock.calls[0][0] as string;
+      expect(editedContent.length).toBeLessThanOrEqual(2000);
+
+      // Should have sent overflow as follow-up
+      expect(channel.send).toHaveBeenCalledTimes(1);
+      expect(channel.send).toHaveBeenCalledWith({ content: expect.any(String) });
+
+      // Should return EditMessageResult with correct IDs
+      expect(result).toEqual({
+        editedId: 'edited-msg-123',
+        overflowIds: ['overflow-1'],
+      });
+    });
+
+    it('should handle multiple overflow messages for very long content', async () => {
+      const mockMessage = {
+        id: 'msg-123',
+        edit: vi.fn().mockResolvedValue({ id: 'edited-msg-123' }),
+      };
+      const channel = {
+        ...createMockChannel(),
+        messages: { fetch: vi.fn().mockResolvedValue(mockMessage) },
+        send: vi
+          .fn()
+          .mockResolvedValueOnce({ id: 'overflow-1' })
+          .mockResolvedValueOnce({ id: 'overflow-2' }),
+      };
+      getMockClient().channels.fetch = vi.fn().mockResolvedValue(channel);
+
+      const veryLongMessage = 'a'.repeat(5000); // Will split into 3 chunks
+      const result = await adapter.editMessage('channel-123', 'msg-123', veryLongMessage);
+
+      // Should have edited original and sent 2 overflow messages
+      expect(mockMessage.edit).toHaveBeenCalledTimes(1);
+      expect(channel.send).toHaveBeenCalledTimes(2);
+
+      // Should return all overflow IDs in order
+      expect(result).toEqual({
+        editedId: 'edited-msg-123',
+        overflowIds: ['overflow-1', 'overflow-2'],
+      });
+    });
+
+    it('should not split messages exactly at limit', async () => {
+      const mockMessage = {
+        id: 'msg-123',
+        edit: vi.fn().mockResolvedValue({ id: 'msg-123' }),
+      };
+      const channel = {
+        ...createMockChannel(),
+        messages: { fetch: vi.fn().mockResolvedValue(mockMessage) },
+      };
+      getMockClient().channels.fetch = vi.fn().mockResolvedValue(channel);
+
+      const exactMessage = 'a'.repeat(2000); // Exactly at limit
+      const result = await adapter.editMessage('channel-123', 'msg-123', exactMessage);
+
+      expect(mockMessage.edit).toHaveBeenCalledWith(exactMessage);
+      expect(result).toBe('msg-123');
+    });
+
+    it('should throw DiscordSendError for message not found', async () => {
+      const error = Object.assign(new Error('Unknown Message'), {
+        code: 10008,
+        status: 404,
+      });
+      Object.setPrototypeOf(error, DiscordAPIError.prototype);
+      const channel = {
+        ...createMockChannel(),
+        messages: { fetch: vi.fn().mockRejectedValue(error) },
+      };
+      getMockClient().channels.fetch = vi.fn().mockResolvedValue(channel);
+
+      await expect(adapter.editMessage('channel-123', 'unknown-msg', 'Hello')).rejects.toThrow(
+        DiscordSendError
+      );
+    });
+
+    it('should throw DiscordPermissionError when cannot edit others message', async () => {
+      const error = Object.assign(new Error('Cannot edit message'), {
+        code: 50005,
+        status: 403,
+      });
+      Object.setPrototypeOf(error, DiscordAPIError.prototype);
+      const mockMessage = {
+        id: 'msg-123',
+        edit: vi.fn().mockRejectedValue(error),
+      };
+      const channel = {
+        ...createMockChannel(),
+        messages: { fetch: vi.fn().mockResolvedValue(mockMessage) },
+      };
+      getMockClient().channels.fetch = vi.fn().mockResolvedValue(channel);
+
+      await expect(adapter.editMessage('channel-123', 'msg-123', 'Hello')).rejects.toThrow(
+        DiscordPermissionError
       );
     });
   });

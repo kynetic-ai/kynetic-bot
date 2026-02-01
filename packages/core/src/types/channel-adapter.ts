@@ -8,6 +8,19 @@
 import type { NormalizedMessage } from './normalized-message.js';
 
 /**
+ * Result of editing a message that required splitting
+ *
+ * When message content exceeds platform limits during edit,
+ * the adapter may split the content across multiple messages.
+ */
+export interface EditMessageResult {
+  /** ID of the edited (first) message */
+  editedId: string;
+  /** IDs of overflow messages sent as follow-ups */
+  overflowIds: string[];
+}
+
+/**
  * Channel adapter for a specific messaging platform
  *
  * Adapters translate between platform-specific message formats and the
@@ -38,7 +51,7 @@ export interface ChannelAdapter {
   sendMessage(
     channel: string,
     text: string,
-    options?: Record<string, unknown>,
+    options?: Record<string, unknown>
   ): Promise<string | void>;
 
   /**
@@ -47,16 +60,19 @@ export interface ChannelAdapter {
    * Used for streaming responses on platforms that support message editing.
    * Not all platforms support this - check supportsEditing() or handle gracefully.
    *
+   * For platforms with message length limits (e.g., Discord's 2000 char limit),
+   * implementations may split content and send overflow as follow-up messages.
+   *
    * @param channel - Channel identifier (platform-specific)
    * @param messageId - ID of the message to edit
    * @param newText - New message text
-   * @returns Optional updated message ID
+   * @returns Message ID, split result with overflow IDs, or void
    */
   editMessage?(
     channel: string,
     messageId: string,
-    newText: string,
-  ): Promise<string | void>;
+    newText: string
+  ): Promise<string | EditMessageResult | void>;
 
   /**
    * Register a handler for incoming messages

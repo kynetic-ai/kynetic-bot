@@ -13023,7 +13023,7 @@
   type: task
   spec_ref: "@discord-tool-widgets"
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -13110,6 +13110,7 @@
         - ac-17: Handle deleted thread
       supersedes: null
   todos: []
+  started_at: 2026-02-01T19:48:53.668Z
 - _ulid: 01KGDBR994DE170TTC4THFT6RW
   slugs: []
   title: Add parentMessageId to Bot tool events

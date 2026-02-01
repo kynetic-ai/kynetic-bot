@@ -12167,4 +12167,11 @@
         sessions/{id}/events.jsonl). Added AC-10 for instruction blurb explaining turn pointer
         resolution pattern."
       supersedes: null
+    - _ulid: 01KGC8S5JSYHP03WH9P4J09HM4
+      created_at: 2026-02-01T09:33:12.666Z
+      author: "@claude"
+      content: "Implementation complete: Updated buildPrompt() in context-restorer.ts to include
+        instruction blurb for resolving turn pointers. Added AC-10 test in context-restorer.test.ts.
+        All 225 messaging package tests pass."
+      supersedes: null
   todos: []

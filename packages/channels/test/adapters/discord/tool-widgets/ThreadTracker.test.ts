@@ -20,12 +20,7 @@ describe('ThreadTracker', () => {
     it('should create thread on first call', async () => {
       const createFn = vi.fn().mockResolvedValue('thread-123');
 
-      const threadId = await tracker.getOrCreateThread(
-        'session-1',
-        'channel-1',
-        'msg-1',
-        createFn
-      );
+      const threadId = await tracker.getOrCreateThread('session-1', 'channel-1', 'msg-1', createFn);
 
       expect(threadId).toBe('thread-123');
       expect(createFn).toHaveBeenCalledTimes(1);
@@ -88,12 +83,7 @@ describe('ThreadTracker', () => {
     it('should handle creation failure gracefully', async () => {
       const createFn = vi.fn().mockRejectedValue(new Error('Permission denied'));
 
-      const threadId = await tracker.getOrCreateThread(
-        'session-1',
-        'channel-1',
-        'msg-1',
-        createFn
-      );
+      const threadId = await tracker.getOrCreateThread('session-1', 'channel-1', 'msg-1', createFn);
 
       expect(threadId).toBeNull();
       expect(createFn).toHaveBeenCalledTimes(1);
@@ -102,12 +92,7 @@ describe('ThreadTracker', () => {
     it('should return null when createFn throws', async () => {
       const createFn = vi.fn().mockRejectedValue(new Error('Thread creation failed'));
 
-      const threadId = await tracker.getOrCreateThread(
-        'session-1',
-        'channel-1',
-        'msg-1',
-        createFn
-      );
+      const threadId = await tracker.getOrCreateThread('session-1', 'channel-1', 'msg-1', createFn);
 
       expect(threadId).toBeNull();
     });
@@ -300,12 +285,7 @@ describe('ThreadTracker', () => {
 
       // Subsequent calls should return null (from cached state)
       // Not create a new thread - the message can only have one thread
-      const threadId = await tracker.getOrCreateThread(
-        'session-1',
-        'channel-1',
-        'msg-1',
-        createFn
-      );
+      const threadId = await tracker.getOrCreateThread('session-1', 'channel-1', 'msg-1', createFn);
 
       expect(threadId).toBeNull();
       expect(createFn).toHaveBeenCalledTimes(1); // Only the initial call

@@ -276,9 +276,7 @@ export class ThreadTracker {
    * Get thread states for a specific session (for debugging/testing)
    */
   getSessionThreads(sessionId: string): ThreadState[] {
-    return Array.from(this.threadStates.values()).filter(
-      (state) => state.sessionId === sessionId
-    );
+    return Array.from(this.threadStates.values()).filter((state) => state.sessionId === sessionId);
   }
 
   /**

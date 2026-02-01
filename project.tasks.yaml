@@ -11628,6 +11628,43 @@
         The plan document at the start of this session has detailed implementation guidance for
         Option A.
       supersedes: null
+    - _ulid: 01KGBX0CGABM1CM56EFK9AN2WG
+      created_at: 2026-02-01T06:07:26.219Z
+      author: "@claude"
+      content: >-
+        ## IMPORTANT: DO NOT MARK COMPLETE YET
+
+
+        The codebase does not build. This task should remain in_progress until EITHER:
+
+
+        A) The messaging package is updated to use TurnReconstructor (can be done as part of this
+        task)
+
+        B) This task is explicitly split and messaging updates moved to @01KGBS55
+
+
+        Current state:
+
+        - packages/memory: BUILDS, all 254 tests pass
+
+        - packages/messaging: BUILD FAILS (14 type errors accessing turn.content)
+
+        - packages/bot: Cannot build until messaging builds
+
+
+        Run 'pnpm -r run build' to see current errors.
+
+
+        The next agent should either:
+
+        1. Continue this task by fixing packages/messaging to use TurnReconstructor
+
+        2. Or get explicit approval to split the work and leave the repo temporarily broken
+
+
+        Option 1 is recommended to maintain repo buildability.
+      supersedes: null
   todos: []
 - _ulid: 01KGBS58Q2S4S4JKG044Y5HXNS
   slugs: []

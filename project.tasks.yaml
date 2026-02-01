@@ -11239,7 +11239,23 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-01T05:00:10.107Z
-  notes: []
+  notes:
+    - _ulid: 01KGBS5NMMHRY8EPAAN9E63PS1
+      created_at: 2026-02-01T05:00:25.109Z
+      author: "@claude"
+      content: |-
+        Implementation approach:
+
+        **Files**: packages/memory/src/types/conversation.ts
+
+        **Changes**:
+        1. Add EventRangeSchema: { start_seq, end_seq }
+        2. Replace content field with session_id + event_range (both required)
+        3. Remove agent_session_id (deprecated)
+        4. Keep message_id and metadata optional
+
+        **AC coverage**: @mem-conversation ac-1, ac-2
+      supersedes: null
   todos: []
 - _ulid: 01KGBS58Q2S4S4JKG044Y5HXNS
   slugs: []

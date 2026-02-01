@@ -24,7 +24,9 @@ export {
 
 export {
   TurnReconstructor,
+  TurnReconstructorValidationError,
   type ReconstructionResult,
   type TurnReconstructorOptions,
   type TurnReconstructorLogger,
+  type TurnReconstructorEvents,
 } from './turn-reconstructor.js';

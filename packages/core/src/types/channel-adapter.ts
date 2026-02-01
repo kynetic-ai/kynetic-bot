@@ -51,7 +51,7 @@ export interface ChannelAdapter {
   sendMessage(
     channel: string,
     text: string,
-    options?: Record<string, unknown>,
+    options?: Record<string, unknown>
   ): Promise<string | void>;
 
   /**
@@ -71,7 +71,7 @@ export interface ChannelAdapter {
   editMessage?(
     channel: string,
     messageId: string,
-    newText: string,
+    newText: string
   ): Promise<string | EditMessageResult | void>;
 
   /**

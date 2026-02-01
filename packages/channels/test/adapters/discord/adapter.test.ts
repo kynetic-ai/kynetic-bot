@@ -123,9 +123,7 @@ describe('DiscordAdapter', () => {
 
   describe('constructor', () => {
     it('should validate config on construction', () => {
-      expect(() => new DiscordAdapter({ token: '' })).toThrow(
-        'Discord token is required',
-      );
+      expect(() => new DiscordAdapter({ token: '' })).toThrow('Discord token is required');
     });
 
     it('should set platform to "discord"', () => {
@@ -309,9 +307,9 @@ describe('DiscordAdapter', () => {
       Object.setPrototypeOf(error, DiscordAPIError.prototype);
       getMockClient().channels.fetch = vi.fn().mockRejectedValue(error);
 
-      await expect(
-        adapter.sendMessage('unknown-channel', 'Hello'),
-      ).rejects.toThrow(DiscordChannelNotFoundError);
+      await expect(adapter.sendMessage('unknown-channel', 'Hello')).rejects.toThrow(
+        DiscordChannelNotFoundError
+      );
     });
 
     it('should throw DiscordPermissionError for missing access', async () => {
@@ -322,9 +320,9 @@ describe('DiscordAdapter', () => {
       Object.setPrototypeOf(error, DiscordAPIError.prototype);
       getMockClient().channels.fetch = vi.fn().mockRejectedValue(error);
 
-      await expect(
-        adapter.sendMessage('private-channel', 'Hello'),
-      ).rejects.toThrow(DiscordPermissionError);
+      await expect(adapter.sendMessage('private-channel', 'Hello')).rejects.toThrow(
+        DiscordPermissionError
+      );
     });
 
     it('should throw DiscordPermissionError for missing permissions', async () => {
@@ -338,7 +336,7 @@ describe('DiscordAdapter', () => {
       getMockClient().channels.fetch = vi.fn().mockResolvedValue(channel);
 
       await expect(adapter.sendMessage('channel-123', 'Hello')).rejects.toThrow(
-        DiscordPermissionError,
+        DiscordPermissionError
       );
     });
 
@@ -346,9 +344,7 @@ describe('DiscordAdapter', () => {
       const channel = createMockChannel();
       getMockClient().channels.fetch = vi.fn().mockResolvedValue(channel);
 
-      await expect(adapter.sendMessage('channel-123', '')).rejects.toThrow(
-        DiscordSendError,
-      );
+      await expect(adapter.sendMessage('channel-123', '')).rejects.toThrow(DiscordSendError);
     });
   });
 
@@ -388,7 +384,8 @@ describe('DiscordAdapter', () => {
       const channel = {
         ...createMockChannel(),
         messages: { fetch: vi.fn().mockResolvedValue(mockMessage) },
-        send: vi.fn()
+        send: vi
+          .fn()
           .mockResolvedValueOnce({ id: 'overflow-1' })
           .mockResolvedValueOnce({ id: 'overflow-2' }),
       };
@@ -438,9 +435,9 @@ describe('DiscordAdapter', () => {
       };
       getMockClient().channels.fetch = vi.fn().mockResolvedValue(channel);
 
-      await expect(
-        adapter.editMessage('channel-123', 'unknown-msg', 'Hello'),
-      ).rejects.toThrow(DiscordSendError);
+      await expect(adapter.editMessage('channel-123', 'unknown-msg', 'Hello')).rejects.toThrow(
+        DiscordSendError
+      );
     });
 
     it('should throw DiscordPermissionError when cannot edit others message', async () => {
@@ -459,9 +456,9 @@ describe('DiscordAdapter', () => {
       };
       getMockClient().channels.fetch = vi.fn().mockResolvedValue(channel);
 
-      await expect(
-        adapter.editMessage('channel-123', 'msg-123', 'Hello'),
-      ).rejects.toThrow(DiscordPermissionError);
+      await expect(adapter.editMessage('channel-123', 'msg-123', 'Hello')).rejects.toThrow(
+        DiscordPermissionError
+      );
     });
   });
 

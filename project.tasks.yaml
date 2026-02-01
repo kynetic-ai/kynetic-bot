@@ -11251,6 +11251,159 @@
         - @mem-conversation ac-2 (assistant turn on first event)
         - @mem-conversation ac-3 (update end_seq via updateLastTurnEndSeq)
       supersedes: null
+    - _ulid: 01KGBX022MEX7C4KBD87HRHPF5
+      created_at: 2026-02-01T06:07:15.540Z
+      author: "@claude"
+      content: >-
+        ## SCOPE EXPANSION: Now Includes Messaging Package Updates
+
+
+        Due to schema changes in @01KGBS56, this task now has expanded scope. The ConversationTurn
+        schema no longer has 'content' field - content is reconstructed from session events via
+        TurnReconstructor.
+
+
+        ### Prerequisites (DONE in @01KGBS56)
+
+        - TurnReconstructor exists at packages/memory/src/store/turn-reconstructor.ts
+
+        - session.update event type exists for persisting ACP SessionUpdate
+
+        - ConversationTurn uses session_id + event_range instead of content
+
+
+        ### Part 1: Fix Messaging Package (BUILD CURRENTLY BROKEN)
+
+
+        **Files that access turn.content and need TurnReconstructor:**
+
+
+        1. **packages/messaging/src/context/context-restorer.ts**
+           - Constructor needs TurnReconstructor param
+           - formatRecentTurns() line 229: change 'turn.content' to await reconstructor.getContent(turn.session_id, turn.event_range)
+           - Method may need to become async
+
+        2. **packages/messaging/src/context/turn-selector.ts**
+           - Constructor needs TurnReconstructor or content estimator
+           - estimateTurnTokens() line 159: needs content from reconstructor
+           - Note: TurnSelector is used by ContextRestorer
+
+        3. **packages/messaging/src/context/haiku-summary-provider.ts**
+           - formatTurns() line 121: maps turn.content
+           - Lines 188,192,194: access turn.content for topic extraction
+           - Needs TurnReconstructor injected
+
+        4. **packages/messaging/src/context/context-window.ts**
+           - estimateHistoryTokens() lines 527,543: access turn.content
+           - Needs TurnReconstructor or content provider
+
+        5. **packages/messaging/src/history.ts** (COMPLEX)
+           - Line 167: appendTurn() passes {role, content, ...} - schema changed\!
+           - Line 209: Similar issue
+           - Lines 415,423,444: Pattern matching on turn.content
+           - This file may need significant refactoring or may be deprecated if turns are now event-sourced
+
+        **Test files that need updating:**
+
+        - packages/messaging/test/context-restorer.test.ts
+
+        - packages/messaging/test/turn-selector.test.ts
+
+        - packages/messaging/test/context-window.test.ts
+
+        - Any test that creates mock ConversationTurn objects
+
+
+        ### Part 2: Wire Event Logging in Bot (Original Scope)
+
+
+        **packages/bot/src/bot.ts changes:**
+
+
+        1. Add event queue tracking before updateHandler:
+           ```typescript
+           const eventQueue: Array<{ input: SessionEventInput; resolve: (e: SessionEvent) => void }> = [];
+           let promptEventSeq: number | null = null;
+           let firstAgentEventSeq: number | null = null;
+           let lastAgentEventSeq: number | null = null;
+           ```
+
+        2. Log prompt.sent before client.prompt():
+           ```typescript
+           const promptEvent = await this.memorySessionStore.appendEvent({
+             type: 'prompt.sent',
+             session_id: sessionId,
+             data: { content: msg.text },
+           });
+           promptEventSeq = promptEvent.seq;
+           ```
+
+        3. Queue session.update events in updateHandler (synchronous):
+           ```typescript
+           eventQueue.push({
+             input: {
+               type: 'session.update',
+               session_id: sessionId,
+               data: { update_type: update.sessionUpdate, payload: update },
+             },
+             resolve: (event) => {
+               if (firstAgentEventSeq === null) firstAgentEventSeq = event.seq;
+               lastAgentEventSeq = event.seq;
+             },
+           });
+           ```
+
+        4. Flush queue after coalescer.complete()
+
+
+        5. Create turns with event pointers (replace existing appendTurn calls):
+           ```typescript
+           // User turn
+           await this.conversationStore.appendTurn(conversation.id, {
+             role: 'user',
+             session_id: sessionId,
+             event_range: { start_seq: promptEventSeq, end_seq: promptEventSeq },
+             message_id: msg.id,
+           });
+
+           // Assistant turn
+           await this.conversationStore.appendTurn(conversation.id, {
+             role: 'assistant',
+             session_id: sessionId,
+             event_range: { start_seq: firstAgentEventSeq, end_seq: lastAgentEventSeq },
+           });
+           ```
+
+        6. Create TurnReconstructor instance and pass to ContextRestorer
+
+
+        ### AC Coverage
+
+        - @mem-agent-sessions ac-8: Persist full SessionUpdate as session.update event
+
+        - @mem-agent-sessions ac-9: Log prompt.sent before sending
+
+        - @mem-conversation ac-1: User turn with event_range
+
+        - @mem-conversation ac-2: Assistant turn with event_range
+
+        - @mem-conversation ac-4: Content reconstructed from events
+
+        - @mem-conversation ac-5: Gap markers for missing events
+
+
+        ### Verification
+
+        1. pnpm build - should pass after Part 1
+
+        2. pnpm test - all tests should pass
+
+        3. Manual: Send message, check events.jsonl has prompt.sent + session.update
+
+        4. Manual: Check turns.jsonl has session_id + event_range (no content field)
+
+        5. Manual: Trigger context restoration, verify content reconstructed
+      supersedes: null
   todos: []
 - _ulid: 01KGBS56ZWP3CKZQ37HB0XYEMZ
   slugs: []

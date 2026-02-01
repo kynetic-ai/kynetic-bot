@@ -390,3 +390,12 @@ inbox:
     created_at: 2026-01-31T08:56:47.102Z
     tags: []
     added_by: Test
+  - _ulid: 01KGBYB4XGWYS60YH2CGFXGTM5
+    text: "Test helper factory: Create createMockTurn() and createMockSession() factories that
+      centralize mock object creation. When schema changes, update one place instead of 70+ tests."
+    created_at: 2026-02-01T06:30:47.473Z
+    tags:
+      - reflection
+      - testing
+      - dx
+    added_by: "@claude"

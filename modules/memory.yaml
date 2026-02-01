@@ -176,6 +176,10 @@ features:
             given: tool input exceeds 100 characters
             when: summarized
             then: input truncated with ellipsis
+          - id: ac-8
+            given: tool.call event without matching tool.result
+            when: summarized
+            then: "formats as [tool: name | input | pending]"
         status:
           maturity: draft
           implementation: in_progress

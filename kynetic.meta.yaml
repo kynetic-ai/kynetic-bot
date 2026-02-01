@@ -505,4 +505,13 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KGC3X3JPSSZQ8RKJNJMMCGD2
+    type: success
+    content: Detailed task notes with 'what was done', 'what remains', 'recommended approach', and
+      specific file/line references enabled seamless session handoff. New agent picked up
+      immediately without re-investigation.
+    created_at: 2026-02-01T08:07:58.806Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

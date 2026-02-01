@@ -38,6 +38,7 @@ import {
   KbotShadow,
   ConversationStore,
   SessionStore as MemorySessionStore,
+  TurnReconstructor,
   type ConversationMetadata,
   type SessionEventInput,
 } from '@kynetic-bot/memory';
@@ -189,9 +190,17 @@ export class Bot extends EventEmitter {
         recentConversationMaxAgeMs: 30 * 60 * 1000, // 30 minutes
       });
 
+    // AC: @mem-context-restore ac-9 - TurnReconstructor for content retrieval
+    const turnReconstructor = new TurnReconstructor(this.memorySessionStore, {
+      logger: this.log,
+      summarizeTools: true,
+    });
     this.contextRestorer =
       options.contextRestorer ??
-      new ContextRestorer(options.summaryProvider ?? null, { logger: this.log });
+      new ContextRestorer(options.summaryProvider ?? null, {
+        logger: this.log,
+        turnReconstructor,
+      });
 
     this.contextUsageTracker =
       options.contextUsageTracker ??

@@ -1031,4 +1031,428 @@ describe('TurnReconstructor', () => {
       expect(result.content).toBe('[tool: grep | TODO in /src | success | 3 matches]');
     });
   });
+
+  // AC: @mem-context-restore - Fix tool call display in context restoration
+  describe('session.update tool_call events', () => {
+    let toolReconstructor: TurnReconstructor;
+
+    beforeEach(() => {
+      toolReconstructor = new TurnReconstructor(mockSessionStore as unknown as SessionStore, {
+        logger: mockLogger,
+        summarizeTools: true,
+      });
+    });
+
+    it('summarizes session.update tool_call events with MCP tool name', async () => {
+      const events: SessionEvent[] = [
+        {
+          ts: Date.now(),
+          seq: 0,
+          type: 'session.update',
+          session_id: '01SESSION',
+          data: {
+            update_type: 'tool_call',
+            payload: {
+              toolCallId: 'tc-1',
+              title: 'Read /src/index.ts',
+              kind: 'read',
+              rawInput: { file_path: '/src/index.ts' },
+              status: 'pending',
+              _meta: { claudeCode: { toolName: 'mcp__acp__Read' } },
+            },
+          },
+        },
+        {
+          ts: Date.now(),
+          seq: 1,
+          type: 'session.update',
+          session_id: '01SESSION',
+          data: {
+            update_type: 'tool_call_update',
+            payload: {
+              toolCallId: 'tc-1',
+              status: 'completed',
+              rawOutput: [{ type: 'text', text: 'line1\nline2\nline3' }],
+            },
+          },
+        },
+      ];
+      mockSessionStore.readEvents.mockResolvedValue(events);
+
+      const result = await toolReconstructor.reconstructContent('01SESSION', {
+        start_seq: 0,
+        end_seq: 1,
+      });
+
+      expect(result.content).toBe('[tool: read | /src/index.ts | success | 3 lines]');
+    });
+
+    it('extracts tool name from MCP tool name format', async () => {
+      const events: SessionEvent[] = [
+        {
+          ts: Date.now(),
+          seq: 0,
+          type: 'session.update',
+          session_id: '01SESSION',
+          data: {
+            update_type: 'tool_call',
+            payload: {
+              toolCallId: 'tc-1',
+              title: 'Terminal',
+              kind: 'execute',
+              rawInput: { command: 'npm test' },
+              status: 'completed',
+              _meta: { claudeCode: { toolName: 'mcp__acp__Bash' } },
+            },
+          },
+        },
+      ];
+      mockSessionStore.readEvents.mockResolvedValue(events);
+
+      const result = await toolReconstructor.reconstructContent('01SESSION', {
+        start_seq: 0,
+        end_seq: 0,
+      });
+
+      expect(result.content).toBe('[tool: bash | npm test | success]');
+    });
+
+    it('shows pending status when no update event exists', async () => {
+      const events: SessionEvent[] = [
+        {
+          ts: Date.now(),
+          seq: 0,
+          type: 'session.update',
+          session_id: '01SESSION',
+          data: {
+            update_type: 'tool_call',
+            payload: {
+              toolCallId: 'tc-1',
+              title: 'Read /src/index.ts',
+              kind: 'read',
+              status: 'pending',
+              _meta: { claudeCode: { toolName: 'mcp__acp__Read' } },
+            },
+          },
+        },
+      ];
+      mockSessionStore.readEvents.mockResolvedValue(events);
+
+      const result = await toolReconstructor.reconstructContent('01SESSION', {
+        start_seq: 0,
+        end_seq: 0,
+      });
+
+      expect(result.content).toBe('[tool: read | /src/index.ts | pending]');
+    });
+
+    it('shows failure status from tool_call_update', async () => {
+      const events: SessionEvent[] = [
+        {
+          ts: Date.now(),
+          seq: 0,
+          type: 'session.update',
+          session_id: '01SESSION',
+          data: {
+            update_type: 'tool_call',
+            payload: {
+              toolCallId: 'tc-1',
+              title: 'Terminal',
+              kind: 'execute',
+              rawInput: { command: 'npm test' },
+              status: 'pending',
+              _meta: { claudeCode: { toolName: 'mcp__acp__Bash' } },
+            },
+          },
+        },
+        {
+          ts: Date.now(),
+          seq: 1,
+          type: 'session.update',
+          session_id: '01SESSION',
+          data: {
+            update_type: 'tool_call_update',
+            payload: {
+              toolCallId: 'tc-1',
+              status: 'failed',
+            },
+          },
+        },
+      ];
+      mockSessionStore.readEvents.mockResolvedValue(events);
+
+      const result = await toolReconstructor.reconstructContent('01SESSION', {
+        start_seq: 0,
+        end_seq: 1,
+      });
+
+      expect(result.content).toBe('[tool: bash | npm test | failure | Tool call failed]');
+    });
+
+    it('combines text and session.update tool calls', async () => {
+      const events: SessionEvent[] = [
+        {
+          ts: Date.now(),
+          seq: 0,
+          type: 'prompt.sent',
+          session_id: '01SESSION',
+          data: { content: 'Read the file.' },
+        },
+        {
+          ts: Date.now(),
+          seq: 1,
+          type: 'session.update',
+          session_id: '01SESSION',
+          data: {
+            update_type: 'tool_call',
+            payload: {
+              toolCallId: 'tc-1',
+              title: 'Read /src/index.ts',
+              kind: 'read',
+              rawInput: { file_path: '/src/index.ts' },
+              status: 'pending',
+              _meta: { claudeCode: { toolName: 'mcp__acp__Read' } },
+            },
+          },
+        },
+        {
+          ts: Date.now(),
+          seq: 2,
+          type: 'session.update',
+          session_id: '01SESSION',
+          data: {
+            update_type: 'tool_call_update',
+            payload: {
+              toolCallId: 'tc-1',
+              status: 'completed',
+              rawOutput: [{ type: 'text', text: 'content' }],
+            },
+          },
+        },
+        {
+          ts: Date.now(),
+          seq: 3,
+          type: 'session.update',
+          session_id: '01SESSION',
+          data: {
+            update_type: 'agent_message_chunk',
+            payload: { content: { text: 'Done!' } },
+          },
+        },
+      ];
+      mockSessionStore.readEvents.mockResolvedValue(events);
+
+      const result = await toolReconstructor.reconstructContent('01SESSION', {
+        start_seq: 0,
+        end_seq: 3,
+      });
+
+      expect(result.content).toBe(
+        'Read the file.[tool: read | /src/index.ts | success | 1 lines]Done!'
+      );
+    });
+
+    it('does not summarize session.update tool_call when summarizeTools is false', async () => {
+      const noToolReconstructor = new TurnReconstructor(
+        mockSessionStore as unknown as SessionStore,
+        {
+          logger: mockLogger,
+          summarizeTools: false,
+        }
+      );
+
+      const events: SessionEvent[] = [
+        {
+          ts: Date.now(),
+          seq: 0,
+          type: 'session.update',
+          session_id: '01SESSION',
+          data: {
+            update_type: 'tool_call',
+            payload: {
+              toolCallId: 'tc-1',
+              title: 'Read /src/index.ts',
+              kind: 'read',
+              status: 'completed',
+              _meta: { claudeCode: { toolName: 'mcp__acp__Read' } },
+            },
+          },
+        },
+      ];
+      mockSessionStore.readEvents.mockResolvedValue(events);
+
+      const result = await noToolReconstructor.reconstructContent('01SESSION', {
+        start_seq: 0,
+        end_seq: 0,
+      });
+
+      expect(result.content).toBe('');
+    });
+
+    it('handles session.update tool_call with no rawOutput on completion', async () => {
+      const events: SessionEvent[] = [
+        {
+          ts: Date.now(),
+          seq: 0,
+          type: 'session.update',
+          session_id: '01SESSION',
+          data: {
+            update_type: 'tool_call',
+            payload: {
+              toolCallId: 'tc-1',
+              title: 'Write /src/new-file.ts',
+              kind: 'write',
+              rawInput: { file_path: '/src/new-file.ts' },
+              status: 'completed',
+              _meta: { claudeCode: { toolName: 'mcp__acp__Write' } },
+            },
+          },
+        },
+      ];
+      mockSessionStore.readEvents.mockResolvedValue(events);
+
+      const result = await toolReconstructor.reconstructContent('01SESSION', {
+        start_seq: 0,
+        end_seq: 0,
+      });
+
+      expect(result.content).toBe('[tool: write | /src/new-file.ts | success]');
+    });
+
+    it('falls back to kind when no MCP tool name or title prefix', async () => {
+      const events: SessionEvent[] = [
+        {
+          ts: Date.now(),
+          seq: 0,
+          type: 'session.update',
+          session_id: '01SESSION',
+          data: {
+            update_type: 'tool_call',
+            payload: {
+              toolCallId: 'tc-1',
+              title: 'Custom operation',
+              kind: 'execute',
+              rawInput: { command: 'echo hello' },
+              status: 'completed',
+            },
+          },
+        },
+      ];
+      mockSessionStore.readEvents.mockResolvedValue(events);
+
+      const result = await toolReconstructor.reconstructContent('01SESSION', {
+        start_seq: 0,
+        end_seq: 0,
+      });
+
+      expect(result.content).toBe('[tool: bash | echo hello | success]');
+    });
+
+    it('warns and returns empty string when toolCallId is missing', async () => {
+      const events: SessionEvent[] = [
+        {
+          ts: Date.now(),
+          seq: 0,
+          type: 'session.update',
+          session_id: '01SESSION',
+          data: {
+            update_type: 'tool_call',
+            payload: {
+              title: 'Read /src/index.ts',
+              // toolCallId is missing
+            },
+          },
+        },
+      ];
+      mockSessionStore.readEvents.mockResolvedValue(events);
+
+      const result = await toolReconstructor.reconstructContent('01SESSION', {
+        start_seq: 0,
+        end_seq: 0,
+      });
+
+      expect(result.content).toBe('');
+      expect(mockLogger.warn).toHaveBeenCalledWith('session.update tool_call missing toolCallId', {
+        seq: 0,
+      });
+    });
+
+    it('extracts input from title when rawInput is empty', async () => {
+      const events: SessionEvent[] = [
+        {
+          ts: Date.now(),
+          seq: 0,
+          type: 'session.update',
+          session_id: '01SESSION',
+          data: {
+            update_type: 'tool_call',
+            payload: {
+              toolCallId: 'tc-1',
+              title: 'Read /src/index.ts',
+              kind: 'read',
+              rawInput: {},
+              status: 'completed',
+              _meta: { claudeCode: { toolName: 'mcp__acp__Read' } },
+            },
+          },
+        },
+      ];
+      mockSessionStore.readEvents.mockResolvedValue(events);
+
+      const result = await toolReconstructor.reconstructContent('01SESSION', {
+        start_seq: 0,
+        end_seq: 0,
+      });
+
+      expect(result.content).toBe('[tool: read | /src/index.ts | success]');
+    });
+
+    it('handles rawOutput as array of content blocks', async () => {
+      const events: SessionEvent[] = [
+        {
+          ts: Date.now(),
+          seq: 0,
+          type: 'session.update',
+          session_id: '01SESSION',
+          data: {
+            update_type: 'tool_call',
+            payload: {
+              toolCallId: 'tc-1',
+              title: 'Read /src/index.ts',
+              kind: 'read',
+              rawInput: { file_path: '/src/index.ts' },
+              status: 'pending',
+              _meta: { claudeCode: { toolName: 'mcp__acp__Read' } },
+            },
+          },
+        },
+        {
+          ts: Date.now(),
+          seq: 1,
+          type: 'session.update',
+          session_id: '01SESSION',
+          data: {
+            update_type: 'tool_call_update',
+            payload: {
+              toolCallId: 'tc-1',
+              status: 'completed',
+              rawOutput: [
+                { type: 'text', text: 'Line 1' },
+                { type: 'text', text: 'Line 2\nLine 3' },
+              ],
+            },
+          },
+        },
+      ];
+      mockSessionStore.readEvents.mockResolvedValue(events);
+
+      const result = await toolReconstructor.reconstructContent('01SESSION', {
+        start_seq: 0,
+        end_seq: 1,
+      });
+
+      // Combined output: "Line 1\nLine 2\nLine 3" = 3 lines
+      expect(result.content).toBe('[tool: read | /src/index.ts | success | 3 lines]');
+    });
+  });
 });

@@ -289,6 +289,18 @@ export class TurnReconstructor {
           continue;
         }
 
+        // Skip tool_call_update session.update events when summarizing - they're included with their call
+        if (this.summarizeTools && event.type === 'session.update') {
+          const data = event.data as { update_type?: string };
+          if (data.update_type === 'tool_call_update') {
+            if (processedToolResults.has(event.seq)) {
+              continue;
+            }
+            // Orphan tool_call_update without a call - skip it
+            continue;
+          }
+        }
+
         // Extract content from event
         const content = this.extractContent(event, toolResultMap, processedToolResults);
         if (content) {
@@ -308,6 +320,10 @@ export class TurnReconstructor {
   /**
    * Build a map from tool call identifiers to their result events.
    * Uses call_id if available, falls back to trace_id.
+   *
+   * Supports both:
+   * - Native tool.result events (call_id/trace_id)
+   * - ACP session.update events with update_type: 'tool_call_update' (toolCallId)
    */
   private buildToolResultMap(events: SessionEvent[]): Map<string, SessionEvent> {
     const resultMap = new Map<string, SessionEvent>();
@@ -318,6 +334,15 @@ export class TurnReconstructor {
         const key = data.call_id ?? data.trace_id;
         if (key) {
           resultMap.set(key, event);
+        }
+      } else if (event.type === 'session.update') {
+        // Handle ACP tool_call_update events
+        const data = event.data as {
+          update_type?: string;
+          payload?: { toolCallId?: string };
+        };
+        if (data.update_type === 'tool_call_update' && data.payload?.toolCallId) {
+          resultMap.set(data.payload.toolCallId, event);
         }
       }
     }
@@ -331,7 +356,7 @@ export class TurnReconstructor {
    * Supports:
    * - prompt.sent: User message content
    * - message.chunk: Streaming response chunk
-   * - session.update: ACP SessionUpdate events (agent_message_chunk)
+   * - session.update: ACP SessionUpdate events (agent_message_chunk, tool_call)
    * - tool.call: Tool invocations (when summarizeTools enabled)
    */
   private extractContent(
@@ -351,18 +376,25 @@ export class TurnReconstructor {
       }
 
       case 'session.update': {
-        // ACP SessionUpdate events - extract text from agent_message_chunk
+        // ACP SessionUpdate events - handle multiple update types
         const data = event.data as {
           update_type?: string;
-          payload?: {
-            content?: {
-              text?: string;
-            };
-          };
+          payload?: unknown;
         };
 
         if (data.update_type === 'agent_message_chunk') {
-          return data.payload?.content?.text ?? '';
+          const payload = data.payload as { content?: { text?: string } } | undefined;
+          return payload?.content?.text ?? '';
+        }
+
+        // Handle tool_call update type when summarizing
+        if (data.update_type === 'tool_call' && this.summarizeTools) {
+          return this.extractToolCallFromSessionUpdate(
+            event,
+            data.payload,
+            toolResultMap,
+            processedToolResults
+          );
         }
 
         // Other update types don't contribute text content
@@ -405,17 +437,243 @@ export class TurnReconstructor {
   }
 
   /**
+   * Extract tool call from ACP session.update event with update_type: 'tool_call'.
+   *
+   * ACP ToolCall structure (from session events):
+   * - toolCallId: unique identifier for correlation
+   * - title: human-readable title (e.g., "Read /path/file.ts", "Terminal")
+   * - kind: tool type (read, execute, write, search, etc.)
+   * - rawInput: input data object
+   * - rawOutput: output data array [{type: 'text', text: '...'}] (populated on update)
+   * - status: 'pending' | 'in_progress' | 'completed' | 'failed'
+   * - _meta.claudeCode.toolName: MCP tool name (e.g., "mcp__acp__Read", "mcp__acp__Bash")
+   */
+  private extractToolCallFromSessionUpdate(
+    event: SessionEvent,
+    payload: unknown,
+    toolResultMap: Map<string, SessionEvent>,
+    processedToolResults: Set<number>
+  ): string {
+    const toolCall = payload as {
+      toolCallId?: string;
+      title?: string;
+      kind?: string;
+      rawInput?: unknown;
+      rawOutput?: unknown;
+      status?: string;
+      _meta?: { claudeCode?: { toolName?: string } };
+    };
+
+    if (!toolCall.toolCallId) {
+      this.logger?.warn('session.update tool_call missing toolCallId', { seq: event.seq });
+      return '';
+    }
+
+    // Find matching tool_call_update event for final status/output
+    const updateEvent = toolResultMap.get(toolCall.toolCallId);
+    if (updateEvent) {
+      processedToolResults.add(updateEvent.seq);
+    }
+
+    // Merge update into call data if available
+    const updatePayload = updateEvent?.data as { payload?: typeof toolCall } | undefined;
+    const finalStatus = updatePayload?.payload?.status ?? toolCall.status ?? 'pending';
+    const finalOutput = updatePayload?.payload?.rawOutput ?? toolCall.rawOutput;
+
+    // Extract tool name: prefer MCP tool name, then title prefix, then kind
+    const mcpToolName =
+      updatePayload?.payload?._meta?.claudeCode?.toolName ?? toolCall._meta?.claudeCode?.toolName;
+    const toolName =
+      this.extractToolNameFromMcp(mcpToolName) ??
+      this.extractToolNameFromTitle(toolCall.title) ??
+      this.normalizeKind(toolCall.kind) ??
+      'unknown';
+
+    // Extract input summary from rawInput or title
+    const input = this.extractToolInputFromAcp(toolCall);
+
+    // Format result data similar to native tool.result
+    const isPending = finalStatus === 'pending' || finalStatus === 'in_progress';
+    const resultData = !isPending
+      ? {
+          success: finalStatus === 'completed',
+          result: this.extractRawOutputText(finalOutput),
+          error: finalStatus === 'failed' ? 'Tool call failed' : undefined,
+        }
+      : undefined;
+
+    return this.formatToolSummary({ tool_name: toolName, arguments: undefined }, resultData, input);
+  }
+
+  /**
+   * Extract tool name from MCP tool name.
+   * Examples:
+   * - "mcp__acp__Read" -> "read"
+   * - "mcp__acp__Bash" -> "bash"
+   * - "mcp__acp__Write" -> "write"
+   */
+  private extractToolNameFromMcp(mcpToolName?: string): string | undefined {
+    if (!mcpToolName) return undefined;
+
+    // Extract last component from mcp__acp__ToolName format
+    const match = mcpToolName.match(/mcp__acp__(\w+)/i);
+    if (match) {
+      return match[1].toLowerCase();
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Extract tool name from ACP ToolCall title.
+   * Examples:
+   * - "Read /path/file.ts" -> "read"
+   * - "Terminal" -> "bash"
+   * - "Searching for pattern" -> "grep"
+   */
+  private extractToolNameFromTitle(title?: string): string | undefined {
+    if (!title) return undefined;
+
+    const lowerTitle = title.toLowerCase();
+    // Handle "Read ..." format (ACP style)
+    if (lowerTitle.startsWith('read ') || lowerTitle === 'read file') return 'read';
+    if (lowerTitle.startsWith('write ') || lowerTitle === 'write file') return 'write';
+    if (lowerTitle.startsWith('edit ') || lowerTitle === 'edit file') return 'edit';
+    if (lowerTitle === 'terminal' || lowerTitle.startsWith('terminal ')) return 'bash';
+    if (lowerTitle.startsWith('search ') || lowerTitle.startsWith('glob ')) return 'grep';
+    // Handle "Reading ..." format (gerund style)
+    if (lowerTitle.startsWith('reading ')) return 'read';
+    if (lowerTitle.startsWith('writing ')) return 'write';
+    if (lowerTitle.startsWith('editing ')) return 'edit';
+    if (lowerTitle.startsWith('running ')) return 'bash';
+    if (lowerTitle.startsWith('searching ')) return 'grep';
+    if (lowerTitle.startsWith('globbing ')) return 'glob';
+
+    return undefined;
+  }
+
+  /**
+   * Normalize ACP kind to tool name.
+   * - "read" -> "read"
+   * - "execute" -> "bash"
+   * - "write" -> "write"
+   * - "search" -> "grep"
+   */
+  private normalizeKind(kind?: string): string | undefined {
+    if (!kind) return undefined;
+
+    const kindMap: Record<string, string> = {
+      read: 'read',
+      write: 'write',
+      edit: 'edit',
+      execute: 'bash',
+      search: 'grep',
+      glob: 'glob',
+      file: 'read', // fallback for generic file operations
+    };
+
+    return kindMap[kind.toLowerCase()];
+  }
+
+  /**
+   * Extract text from ACP rawOutput format.
+   * rawOutput is typically: [{type: 'text', text: '...'}, ...]
+   */
+  private extractRawOutputText(rawOutput: unknown): string | undefined {
+    if (!rawOutput) return undefined;
+
+    // If it's already a string, return it
+    if (typeof rawOutput === 'string') return rawOutput;
+
+    // If it's an array of content blocks, extract text
+    if (Array.isArray(rawOutput)) {
+      const texts = rawOutput
+        .filter(
+          (item): item is { type: string; text: string } =>
+            typeof item === 'object' &&
+            item !== null &&
+            'type' in item &&
+            'text' in item &&
+            typeof (item as { text: unknown }).text === 'string'
+        )
+        .map((item) => item.text);
+      if (texts.length > 0) {
+        return texts.join('\n');
+      }
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Extract input summary from ACP ToolCall.
+   * Uses rawInput if structured, falls back to title parsing.
+   */
+  private extractToolInputFromAcp(toolCall: { title?: string; rawInput?: unknown }): string {
+    // Try rawInput first
+    if (toolCall.rawInput && typeof toolCall.rawInput === 'object') {
+      const input = toolCall.rawInput as Record<string, unknown>;
+      // Skip empty objects
+      if (Object.keys(input).length === 0) {
+        // Fall through to title parsing
+      } else {
+        // Handle common input shapes
+        if (typeof input.file_path === 'string') {
+          return this.truncate(input.file_path, 100, true);
+        }
+        if (typeof input.path === 'string') {
+          return this.truncate(input.path, 100, true);
+        }
+        if (typeof input.command === 'string') {
+          return this.truncate(input.command, 100, false);
+        }
+        if (typeof input.pattern === 'string') {
+          const path = typeof input.path === 'string' ? input.path : '';
+          return this.truncate(`${input.pattern} in ${path}`, 100, false);
+        }
+        return this.truncate(JSON.stringify(input), 100, false);
+      }
+    } else if (typeof toolCall.rawInput === 'string') {
+      return this.truncate(toolCall.rawInput, 100, false);
+    }
+
+    // Fall back to extracting from title (e.g., "Read /path/file.ts" -> "/path/file.ts")
+    if (toolCall.title) {
+      // Match patterns like "Read /path" or "Terminal command"
+      const match = toolCall.title.match(/^(?:Read|Write|Edit|Terminal|Search|Glob)\s+(.+)/i);
+      if (match) {
+        return this.truncate(match[1], 100, true);
+      }
+      // Match gerund patterns like "Reading /path"
+      const gerundMatch = toolCall.title.match(
+        /^(?:Reading|Writing|Editing|Running|Searching|Globbing)\s+(.+)/i
+      );
+      if (gerundMatch) {
+        return this.truncate(gerundMatch[1], 100, true);
+      }
+      return this.truncate(toolCall.title, 100, false);
+    }
+
+    return '';
+  }
+
+  /**
    * Format a tool call summary.
    *
    * AC: @mem-turn-reconstruct ac-4 - Tool calls formatted as [tool: name | input | status | outcome]
    * AC: @mem-turn-reconstruct ac-8 - Orphaned calls show "pending" status
+   *
+   * @param callData - Tool call data with name and arguments
+   * @param resultData - Tool result data if available
+   * @param precomputedInput - Optional pre-computed input string (for ACP tool calls)
    */
   private formatToolSummary(
     callData: { tool_name?: string; arguments?: Record<string, unknown> },
-    resultData?: unknown
+    resultData?: unknown,
+    precomputedInput?: string
   ): string {
     const toolName = callData.tool_name ?? 'unknown';
-    const input = this.summarizeToolInput(toolName, callData.arguments);
+    const input = precomputedInput ?? this.summarizeToolInput(toolName, callData.arguments);
 
     if (!resultData) {
       // AC: @mem-turn-reconstruct ac-8 - No result means pending

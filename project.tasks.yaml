@@ -13878,6 +13878,8 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "PR #72 merged. Implemented placeholder deduplication with turn-based tracking via
+    turn:end event. Added BotEvents interface documenting all Bot events including turn:end."
   depends_on: []
   context: []
   priority: 1
@@ -13885,6 +13887,7 @@
   vcs_refs: []
   created_at: 2026-02-02T01:12:51.509Z
   started_at: 2026-02-02T01:12:56.636Z
+  completed_at: 2026-02-02T03:52:21.226Z
   notes:
     - _ulid: 01KGDYPDEP3W4S75P6QP3Z9XFV
       created_at: 2026-02-02T01:15:25.526Z
@@ -13952,16 +13955,13 @@
         not when response starts.
       supersedes: null
   todos: []
-  completed_at: 2026-02-02T03:52:21.226Z
-  closed_reason: "PR #72 merged. Implemented placeholder deduplication with turn-based tracking via
-    turn:end event. Added BotEvents interface documenting all Bot events including turn:end."
 - _ulid: 01KGE0W8CR6HQXX3KSVEGG4V7Y
   slugs: []
   title: Transform placeholder into response message
   type: task
   spec_ref: "@discord-tool-widgets"
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -14023,3 +14023,4 @@
         immediate thread spam issue; this task is an enhancement."
       supersedes: null
   todos: []
+  started_at: 2026-02-02T04:10:55.775Z

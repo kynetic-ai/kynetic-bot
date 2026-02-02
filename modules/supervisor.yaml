@@ -154,3 +154,7 @@ features:
         given: invalid IPC message
         when: parsed
         then: logs warning, ignores (no crash)
+      - id: ac-6
+        given: no IPC channel
+        when: planned_restart attempted
+        then: throws error

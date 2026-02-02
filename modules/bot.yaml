@@ -355,3 +355,19 @@ features:
     status:
       maturity: draft
       implementation: implemented
+  - _ulid: 01KGENY5N35EFRFGRVD0ZMBSFX
+    slugs:
+      - wake-injection
+    title: Wake Context Injection
+    type: feature
+    tags: []
+    description: Injects restart context into the initial agent prompt when bot starts with a
+      checkpoint. Extends the existing ContextRestorer pattern to include wake-up context before
+      identity prompt.
+    depends_on: []
+    implements: []
+    relates_to: []
+    tests: []
+    traits: []
+    notes: []
+    created: 2026-02-02T08:01:36.931Z

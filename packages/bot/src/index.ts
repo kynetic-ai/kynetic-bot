@@ -31,3 +31,12 @@ export {
   CustomIdentitySchema,
   type CustomIdentity,
 } from './identity.js';
+
+// Restart protocol
+export {
+  RestartProtocol,
+  getRestartProtocol,
+  NoIpcChannelError,
+  RestartPendingError,
+  type RestartOptions,
+} from './restart.js';

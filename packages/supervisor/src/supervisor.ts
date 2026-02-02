@@ -9,9 +9,10 @@
 
 import { EventEmitter } from 'node:events';
 import { fork, type ChildProcess } from 'node:child_process';
-import { writeFile } from 'node:fs/promises';
+import { writeFile, access } from 'node:fs/promises';
+import { constants } from 'node:fs';
 import { createLogger, type Logger } from '@kynetic-bot/core';
-import type { IpcMessage, Checkpoint, RestartReason } from './schemas.js';
+import { IpcMessageSchema, type IpcMessage, type Checkpoint, type RestartReason } from './schemas.js';
 
 export interface SupervisorConfig {
   /**
@@ -247,32 +248,79 @@ export class Supervisor extends EventEmitter {
 
   /**
    * Handle IPC messages from child process
+   *
+   * AC: @restart-protocol ac-2, ac-5
    */
   private handleIpcMessage(msg: IpcMessage): void {
-    this.log.debug('IPC message received', { type: msg.type });
+    // AC: @restart-protocol ac-5
+    // Validate message format
+    const parseResult = IpcMessageSchema.safeParse(msg);
+    if (!parseResult.success) {
+      this.log.warn('Invalid IPC message received - ignoring', {
+        message: msg,
+        error: parseResult.error.message,
+      });
+      return;
+    }
 
-    switch (msg.type) {
+    const validMsg = parseResult.data;
+    this.log.debug('IPC message received', { type: validMsg.type });
+
+    switch (validMsg.type) {
       case 'planned_restart': {
-        const restartMsg = msg;
-        this.log.info('Planned restart requested', {
-          checkpoint: restartMsg.checkpoint,
-        });
-        this.pendingCheckpointPath = restartMsg.checkpoint;
-
-        // Send acknowledgment
-        if (this.child) {
-          this.child.send({ type: 'restart_ack' });
-        }
+        // AC: @restart-protocol ac-1, ac-2
+        void this.handlePlannedRestart(validMsg.checkpoint);
         break;
       }
 
       case 'error': {
-        this.log.error('IPC error message', { message: msg.message });
+        this.log.error('IPC error message', { message: validMsg.message });
         break;
       }
 
       default:
-        this.log.warn('Unknown IPC message type', { msg });
+        this.log.warn('Unknown IPC message type', { msg: validMsg });
+    }
+  }
+
+  /**
+   * Handle planned restart request
+   *
+   * AC: @restart-protocol ac-1, ac-2
+   */
+  private async handlePlannedRestart(checkpointPath: string): Promise<void> {
+    this.log.info('Planned restart requested', { checkpoint: checkpointPath });
+
+    // AC: @restart-protocol ac-2
+    // Verify checkpoint file exists before acknowledging
+    try {
+      await access(checkpointPath, constants.R_OK);
+      this.log.info('Checkpoint file verified', { path: checkpointPath });
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      this.log.error('Checkpoint file not accessible - rejecting restart', {
+        path: checkpointPath,
+        error: error.message,
+      });
+
+      // Send error response
+      if (this.child) {
+        this.child.send({
+          type: 'error',
+          message: `Checkpoint file not accessible: ${checkpointPath}`,
+        });
+      }
+      return;
+    }
+
+    // Store pending checkpoint
+    this.pendingCheckpointPath = checkpointPath;
+
+    // AC: @restart-protocol ac-1
+    // Send acknowledgment
+    if (this.child) {
+      this.child.send({ type: 'restart_ack' });
+      this.log.info('Restart acknowledged - waiting for child to exit');
     }
   }
 

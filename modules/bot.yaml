@@ -414,7 +414,8 @@ features:
     tags: []
     description: Public API for kbot to request restarts from the supervisor. Provides requestRestart()
       method that writes checkpoint, sends IPC message, and initiates graceful shutdown.
-    depends_on: []
+    depends_on:
+      - "@wake-injection"
     implements: []
     relates_to: []
     tests: []

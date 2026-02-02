@@ -14066,4 +14066,22 @@
 
         All 1388 tests pass. Lint clean.
       supersedes: null
+    - _ulid: 01KGE9RR672NJK7885Q6KGV5VB
+      created_at: 2026-02-02T04:28:56.392Z
+      author: "@claude"
+      content: >-
+        Addressed PR review feedback:
+
+
+        1. Memory management: Added clearPlaceholder() method called on turn:end to clean up
+        unconsumed placeholders
+
+        2. Documentation: Added comprehensive comments to both Bot and DiscordAdapter
+        sessionPlaceholders Maps explaining their different purposes
+
+        3. Tests: Added 2 edge case tests - empty response scenario and session/channel isolation
+
+
+        Total tests: 1390 (7 new tests for AC-21)
+      supersedes: null
   todos: []

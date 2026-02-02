@@ -105,3 +105,7 @@ features:
         given: checkpoint consumed
         when: bot starts normally
         then: deletes file after wake injection
+      - id: ac-6
+        given: checkpoint corrupted
+        when: validation fails
+        then: logs error, starts without wake context

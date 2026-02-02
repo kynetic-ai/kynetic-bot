@@ -337,4 +337,4 @@ features:
         then: Second call awaits pending promise instead of creating duplicate (race condition prevention)
     status:
       maturity: draft
-      implementation: in_progress
+      implementation: implemented

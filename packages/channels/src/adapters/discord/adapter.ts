@@ -96,6 +96,12 @@ export class DiscordAdapter implements ChannelAdapter {
    */
   private readonly pendingPlaceholders = new Map<string, Promise<string>>();
 
+  /**
+   * Callback to notify bot when placeholder is created
+   * AC: @discord-tool-widgets ac-21 - Enables streaming to transform placeholder
+   */
+  private setPlaceholderCallback?: (sessionId: string, channelId: string, messageId: string) => void;
+
   constructor(config: DiscordAdapterConfig) {
     // Validate config
     this.config = DiscordAdapterConfigSchema.parse(config);
@@ -463,7 +469,12 @@ export class DiscordAdapter implements ChannelAdapter {
   setupBotEventListeners(bot: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- EventEmitter callback requires any[]
     on: (event: string, handler: (...args: any[]) => void) => void;
+    /** AC: @discord-tool-widgets ac-21 - Register placeholder for streaming transformation */
+    setPlaceholder?: (sessionId: string, channelId: string, messageId: string) => void;
   }): void {
+    // Store setPlaceholder callback for use in getOrCreatePlaceholder
+    this.setPlaceholderCallback = bot.setPlaceholder;
+
     // Register listeners
     // AC: @discord-tool-widgets ac-10, ac-11, ac-14 - parentMessageId enables thread isolation
     bot.on(
@@ -648,6 +659,12 @@ export class DiscordAdapter implements ChannelAdapter {
         channelId,
         messageId: placeholder.id,
       });
+
+      // AC: @discord-tool-widgets ac-21 - Notify bot so streaming can transform placeholder
+      if (this.setPlaceholderCallback) {
+        this.setPlaceholderCallback(sessionId, channelId, placeholder.id);
+      }
+
       return placeholder.id;
     })();
 

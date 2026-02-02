@@ -993,6 +993,117 @@ describe('setupBotEventListeners()', () => {
     // First 5 tools get full widgets via CondensedDisplay
     expect(guildChannel.send).toHaveBeenCalled();
   });
+
+  // AC: @discord-tool-widgets ac-21 - Notify bot when placeholder is created
+  it('should call setPlaceholder callback when placeholder is created', async () => {
+    const mockBot = {
+      on: vi.fn() as typeof EventEmitter.prototype.on,
+      setPlaceholder: vi.fn(),
+    };
+
+    // Get the registered handlers
+    const handlers: Record<string, (...args: unknown[]) => void> = {};
+    mockBot.on = vi.fn().mockImplementation((event: string, handler) => {
+      handlers[event] = handler;
+      return mockBot;
+    });
+
+    adapter.setupBotEventListeners(mockBot);
+
+    const mockThread = {
+      id: 'thread-123',
+      type: ChannelType.PublicThread,
+      send: vi.fn().mockResolvedValue({ id: 'widget-msg-id' }),
+      isTextBased: () => true,
+      isDMBased: () => false,
+    };
+
+    const placeholderMessage = {
+      id: 'placeholder-123',
+      startThread: vi.fn().mockResolvedValue(mockThread),
+    };
+
+    const guildChannel = {
+      id: 'guild-channel-123',
+      type: ChannelType.GuildText,
+      isTextBased: () => true,
+      isDMBased: () => false,
+      send: vi.fn().mockResolvedValue(placeholderMessage),
+      messages: { fetch: vi.fn().mockResolvedValue(placeholderMessage) },
+    };
+
+    getMockClient().channels.fetch = vi.fn().mockImplementation((id: string) => {
+      if (id === 'thread-123') return Promise.resolve(mockThread);
+      return Promise.resolve(guildChannel);
+    });
+
+    const toolCall = {
+      toolCallId: 'tool-1',
+      title: 'bash',
+      status: 'in_progress',
+      content: [],
+    };
+
+    // Emit tool:call without parentMessageId to trigger placeholder creation
+    handlers['tool:call']('session-1', 'guild-channel-123', toolCall, undefined);
+    await new Promise((resolve) => setTimeout(resolve, 150));
+
+    // setPlaceholder callback should have been called
+    expect(mockBot.setPlaceholder).toHaveBeenCalledWith(
+      'session-1',
+      'guild-channel-123',
+      'placeholder-123'
+    );
+  });
+
+  // AC: @discord-tool-widgets ac-21 - No callback if none provided
+  it('should not fail if setPlaceholder callback is not provided', async () => {
+    const mockBot = new EventEmitter();
+    // No setPlaceholder method
+
+    adapter.setupBotEventListeners(mockBot);
+
+    const mockThread = {
+      id: 'thread-123',
+      type: ChannelType.PublicThread,
+      send: vi.fn().mockResolvedValue({ id: 'widget-msg-id' }),
+      isTextBased: () => true,
+      isDMBased: () => false,
+    };
+
+    const placeholderMessage = {
+      id: 'placeholder-123',
+      startThread: vi.fn().mockResolvedValue(mockThread),
+    };
+
+    const guildChannel = {
+      id: 'guild-channel-123',
+      type: ChannelType.GuildText,
+      isTextBased: () => true,
+      isDMBased: () => false,
+      send: vi.fn().mockResolvedValue(placeholderMessage),
+      messages: { fetch: vi.fn().mockResolvedValue(placeholderMessage) },
+    };
+
+    getMockClient().channels.fetch = vi.fn().mockImplementation((id: string) => {
+      if (id === 'thread-123') return Promise.resolve(mockThread);
+      return Promise.resolve(guildChannel);
+    });
+
+    const toolCall = {
+      toolCallId: 'tool-1',
+      title: 'bash',
+      status: 'in_progress',
+      content: [],
+    };
+
+    // Should not throw when setPlaceholder is not provided
+    mockBot.emit('tool:call', 'session-1', 'guild-channel-123', toolCall, undefined);
+    await new Promise((resolve) => setTimeout(resolve, 150));
+
+    // Placeholder should still be created
+    expect(guildChannel.send).toHaveBeenCalledWith('Working...');
+  });
 });
 
 describe('cleanupSession()', () => {

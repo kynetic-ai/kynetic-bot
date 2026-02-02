@@ -2730,5 +2730,234 @@ describe('Bot', () => {
         await toolBot.stop();
       });
     });
+
+    // AC: @discord-tool-widgets ac-21 - Placeholder transformation
+    describe('Placeholder transformation for streaming', () => {
+      it('should edit placeholder instead of sending new message when placeholder exists', async () => {
+        // Create a streaming client that emits text after a short delay
+        const clientEmitter = new EventEmitter();
+        const mockClient = Object.assign(clientEmitter, {
+          newSession: vi.fn().mockResolvedValue('session-123'),
+          prompt: vi.fn().mockImplementation(async () => {
+            // Emit enough text to trigger immediate flush (>1500 chars)
+            const largeText = 'A'.repeat(1600);
+            clientEmitter.emit('update', 'session-123', {
+              sessionUpdate: 'agent_message_chunk',
+              content: { type: 'text', text: largeText },
+            });
+            // Allow microtasks to settle
+            await new Promise((resolve) => setImmediate(resolve));
+          }),
+          resumeSession: vi.fn().mockResolvedValue('session-123'),
+          off: vi.fn(),
+        });
+
+        const mockAgent = createMockAgent();
+        mockAgent.getClient.mockReturnValue(mockClient);
+
+        const placeholderBot = Bot.createWithDependencies({
+          config: config,
+          agent: mockAgent as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['agent'],
+          sessionLifecycle: new SessionLifecycleManager({ rotationThreshold: 0.7 }),
+        });
+
+        await placeholderBot.start();
+
+        const lifecycle = {
+          start: vi.fn().mockResolvedValue(undefined),
+          stop: vi.fn().mockResolvedValue(undefined),
+          sendMessage: vi.fn().mockResolvedValue({ messageId: 'new-msg-id' }),
+          sendTyping: vi.fn().mockResolvedValue(undefined),
+          startTypingLoop: vi.fn().mockResolvedValue(undefined),
+          stopTypingLoop: vi.fn(),
+          editMessage: vi.fn().mockResolvedValue('placeholder-123'),
+          getState: vi.fn().mockReturnValue('healthy'),
+          isHealthy: vi.fn().mockReturnValue(true),
+        };
+
+        placeholderBot.setChannelLifecycle(
+          lifecycle as unknown as Parameters<typeof placeholderBot.setChannelLifecycle>[0]
+        );
+
+        const msg: NormalizedMessage = {
+          id: 'msg-456',
+          channel: 'channel-789',
+          text: 'Test message',
+          sender: { id: 'user-123', platform: 'discord' },
+          timestamp: new Date(),
+          raw: {},
+        };
+
+        // Register placeholder BEFORE handling message (simulating tool call arriving first)
+        // Note: sessionId comes from mockClient.newSession which returns 'session-123'
+        placeholderBot.setPlaceholder('session-123', 'channel-789', 'placeholder-123');
+
+        // Act
+        await placeholderBot.handleMessage(msg);
+
+        // Assert - should edit placeholder instead of sending new message
+        expect(lifecycle.editMessage).toHaveBeenCalled();
+        const editCall = lifecycle.editMessage.mock.calls[0];
+        expect(editCall[0]).toBe('channel-789');
+        expect(editCall[1]).toBe('placeholder-123'); // Placeholder ID, not new message
+
+        // sendMessage should NOT have been called for streaming start
+        // (may be called for overflow, but first content should go to edit)
+        expect(lifecycle.sendMessage).not.toHaveBeenCalled();
+
+        await placeholderBot.stop();
+      });
+
+      it('should send new message when no placeholder exists', async () => {
+        // Create a streaming client that emits text
+        const clientEmitter = new EventEmitter();
+        const mockClient = Object.assign(clientEmitter, {
+          newSession: vi.fn().mockResolvedValue('session-123'),
+          prompt: vi.fn().mockImplementation(async () => {
+            // Emit enough text to trigger immediate flush (>1500 chars)
+            const largeText = 'A'.repeat(1600);
+            clientEmitter.emit('update', 'session-123', {
+              sessionUpdate: 'agent_message_chunk',
+              content: { type: 'text', text: largeText },
+            });
+            await new Promise((resolve) => setImmediate(resolve));
+          }),
+          resumeSession: vi.fn().mockResolvedValue('session-123'),
+          off: vi.fn(),
+        });
+
+        const mockAgent = createMockAgent();
+        mockAgent.getClient.mockReturnValue(mockClient);
+
+        const noPHBot = Bot.createWithDependencies({
+          config: config,
+          agent: mockAgent as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['agent'],
+          sessionLifecycle: new SessionLifecycleManager({ rotationThreshold: 0.7 }),
+        });
+
+        await noPHBot.start();
+
+        const lifecycle = {
+          start: vi.fn().mockResolvedValue(undefined),
+          stop: vi.fn().mockResolvedValue(undefined),
+          sendMessage: vi.fn().mockResolvedValue({ messageId: 'new-msg-id' }),
+          sendTyping: vi.fn().mockResolvedValue(undefined),
+          startTypingLoop: vi.fn().mockResolvedValue(undefined),
+          stopTypingLoop: vi.fn(),
+          editMessage: vi.fn().mockResolvedValue('new-msg-id'),
+          getState: vi.fn().mockReturnValue('healthy'),
+          isHealthy: vi.fn().mockReturnValue(true),
+        };
+
+        noPHBot.setChannelLifecycle(
+          lifecycle as unknown as Parameters<typeof noPHBot.setChannelLifecycle>[0]
+        );
+
+        const msg: NormalizedMessage = {
+          id: 'msg-456',
+          channel: 'channel-789',
+          text: 'Test message',
+          sender: { id: 'user-123', platform: 'discord' },
+          timestamp: new Date(),
+          raw: {},
+        };
+
+        // NO placeholder set - normal flow
+        await noPHBot.handleMessage(msg);
+
+        // Assert - should send new message (not edit a placeholder)
+        expect(lifecycle.sendMessage).toHaveBeenCalled();
+        const sendCall = lifecycle.sendMessage.mock.calls[0];
+        expect(sendCall[0]).toBe('channel-789');
+
+        await noPHBot.stop();
+      });
+
+      it('should consume placeholder only once', async () => {
+        // Create a streaming client that emits text in chunks
+        const clientEmitter = new EventEmitter();
+        let chunkCount = 0;
+        const mockClient = Object.assign(clientEmitter, {
+          newSession: vi.fn().mockResolvedValue('session-123'),
+          prompt: vi.fn().mockImplementation(async () => {
+            // Emit two chunks - first should use placeholder, second should edit same message
+            const largeText = 'A'.repeat(1600);
+            clientEmitter.emit('update', 'session-123', {
+              sessionUpdate: 'agent_message_chunk',
+              content: { type: 'text', text: largeText },
+            });
+            chunkCount++;
+            await new Promise((resolve) => setImmediate(resolve));
+
+            clientEmitter.emit('update', 'session-123', {
+              sessionUpdate: 'agent_message_chunk',
+              content: { type: 'text', text: 'Second chunk' },
+            });
+            chunkCount++;
+            await new Promise((resolve) => setImmediate(resolve));
+          }),
+          resumeSession: vi.fn().mockResolvedValue('session-123'),
+          off: vi.fn(),
+        });
+
+        const mockAgent = createMockAgent();
+        mockAgent.getClient.mockReturnValue(mockClient);
+
+        const consumeBot = Bot.createWithDependencies({
+          config: config,
+          agent: mockAgent as unknown as Parameters<
+            typeof Bot.createWithDependencies
+          >[0]['agent'],
+          sessionLifecycle: new SessionLifecycleManager({ rotationThreshold: 0.7 }),
+        });
+
+        await consumeBot.start();
+
+        const lifecycle = {
+          start: vi.fn().mockResolvedValue(undefined),
+          stop: vi.fn().mockResolvedValue(undefined),
+          sendMessage: vi.fn().mockResolvedValue({ messageId: 'new-msg-id' }),
+          sendTyping: vi.fn().mockResolvedValue(undefined),
+          startTypingLoop: vi.fn().mockResolvedValue(undefined),
+          stopTypingLoop: vi.fn(),
+          editMessage: vi.fn().mockResolvedValue('placeholder-123'),
+          getState: vi.fn().mockReturnValue('healthy'),
+          isHealthy: vi.fn().mockReturnValue(true),
+        };
+
+        consumeBot.setChannelLifecycle(
+          lifecycle as unknown as Parameters<typeof consumeBot.setChannelLifecycle>[0]
+        );
+
+        const msg: NormalizedMessage = {
+          id: 'msg-456',
+          channel: 'channel-789',
+          text: 'Test message',
+          sender: { id: 'user-123', platform: 'discord' },
+          timestamp: new Date(),
+          raw: {},
+        };
+
+        // Register placeholder
+        consumeBot.setPlaceholder('session-123', 'channel-789', 'placeholder-123');
+
+        await consumeBot.handleMessage(msg);
+
+        // All edits should be on the placeholder (consumed once, then used for subsequent edits)
+        expect(lifecycle.editMessage).toHaveBeenCalled();
+        for (const call of lifecycle.editMessage.mock.calls) {
+          expect(call[1]).toBe('placeholder-123');
+        }
+
+        // sendMessage should NOT have been called
+        expect(lifecycle.sendMessage).not.toHaveBeenCalled();
+
+        await consumeBot.stop();
+      });
+    });
   });
 });

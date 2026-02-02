@@ -232,6 +232,9 @@ export class Bot extends EventEmitter {
   private identityPrompt: string | null = null;
   private readonly log = createLogger('bot');
 
+  // AC: @discord-tool-widgets ac-21 - Track placeholders for streaming transformation
+  private readonly sessionPlaceholders = new Map<string, string>();
+
   /**
    * Private constructor - use Bot.create() factory
    */
@@ -636,11 +639,25 @@ export class Bot extends EventEmitter {
               currentBlockText = '';
               splitTracker?.reset();
             } else if (!streamingMessageId) {
-              // First actual content - send initial message and capture ID for edits
-              const result = await this.channelLifecycle.sendMessage(msg.channel, displayText, {
-                replyTo: msg.id,
-              });
-              streamingMessageId = result?.messageId;
+              // First actual content - check for placeholder to transform
+              // AC: @discord-tool-widgets ac-21 - Edit placeholder instead of sending new message
+              const placeholderId = this.consumePlaceholder(sessionId, msg.channel);
+              if (placeholderId) {
+                // Transform placeholder into response by editing it
+                await this.channelLifecycle.editMessage?.(msg.channel, placeholderId, displayText);
+                streamingMessageId = placeholderId;
+                this.log.debug('Transformed placeholder into response', {
+                  sessionId,
+                  channelId: msg.channel,
+                  messageId: placeholderId,
+                });
+              } else {
+                // No placeholder - send initial message and capture ID for edits
+                const result = await this.channelLifecycle.sendMessage(msg.channel, displayText, {
+                  replyTo: msg.id,
+                });
+                streamingMessageId = result?.messageId;
+              }
               // Stop typing indicator once we start sending response
               this.channelLifecycle.stopTypingLoop(msg.channel);
             } else {
@@ -980,6 +997,45 @@ export class Bot extends EventEmitter {
    */
   getLastActiveChannel(): string | null {
     return this.lastActiveChannel;
+  }
+
+  /**
+   * Register a placeholder message for a session+channel
+   *
+   * Called by channel adapters when they create a placeholder message for
+   * early tool calls (before text response starts). When streaming begins,
+   * the bot will edit this placeholder instead of creating a new message.
+   *
+   * AC: @discord-tool-widgets ac-21 - Placeholder becomes response message
+   *
+   * @param sessionId - ACP session ID
+   * @param channelId - Channel where placeholder was created
+   * @param messageId - ID of the placeholder message
+   */
+  setPlaceholder(sessionId: string, channelId: string, messageId: string): void {
+    const key = `${sessionId}:${channelId}`;
+    this.sessionPlaceholders.set(key, messageId);
+    this.log.debug('Placeholder registered', { sessionId, channelId, messageId });
+  }
+
+  /**
+   * Get and consume a placeholder for streaming
+   *
+   * Returns the placeholder message ID if one exists for this session+channel,
+   * then removes it from tracking (one-time use).
+   *
+   * @param sessionId - ACP session ID
+   * @param channelId - Channel to check
+   * @returns Placeholder message ID, or undefined if none
+   */
+  private consumePlaceholder(sessionId: string, channelId: string): string | undefined {
+    const key = `${sessionId}:${channelId}`;
+    const messageId = this.sessionPlaceholders.get(key);
+    if (messageId) {
+      this.sessionPlaceholders.delete(key);
+      this.log.debug('Placeholder consumed for streaming', { sessionId, channelId, messageId });
+    }
+    return messageId;
   }
 
   /**

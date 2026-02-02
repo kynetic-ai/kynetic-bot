@@ -200,3 +200,7 @@ features:
         given: shutdown initiated
         when: child draining
         then: emits 'draining' event
+      - id: ac-5
+        given: hard shutdown requested
+        when: kill('SIGKILL') called
+        then: immediately sends SIGKILL

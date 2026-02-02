@@ -319,6 +319,10 @@ features:
         given: DM tool completes while condensed
         when: tool_call_update for condensed tool
         then: Status message updates counts
+      - id: ac-21
+        given: Placeholder message exists from early tool calls
+        when: Agent starts streaming text response
+        then: Placeholder is edited to become the response message, thread remains attached
     status:
       maturity: draft
       implementation: in_progress

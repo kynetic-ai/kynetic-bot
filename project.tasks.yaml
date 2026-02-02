@@ -14535,7 +14535,7 @@
   status: pending
   blocked_by: []
   depends_on:
-    - "@task-bot-restart-api"
+    - "@task-supervisor-process-spawn"
   context: []
   priority: 3
   tags: []

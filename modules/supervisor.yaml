@@ -125,6 +125,10 @@ features:
         given: checkpoint write fails
         when: disk full/permissions
         then: logs error, restart proceeds without checkpoint
+      - id: ac-9
+        given: supervisor starts
+        when: start() called
+        then: cleans up stale checkpoints older than 24 hours before spawning child
     status:
       maturity: draft
       implementation: implemented

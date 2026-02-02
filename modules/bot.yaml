@@ -461,3 +461,7 @@ features:
         given: requestRestart returns
         when: caller awaits
         then: resolves after ack received (does not wait for full restart)
+      - id: ac-10
+        given: agent has active session when restart requested
+        when: checkpoint created
+        then: includes current sessionKey, acpSessionId, and in-flight message count

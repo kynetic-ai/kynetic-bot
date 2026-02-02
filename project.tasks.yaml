@@ -14226,7 +14226,7 @@
   type: task
   spec_ref: "@restart-checkpoint"
   derivation: auto
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on:
     - "@01KGEP4V"
@@ -14300,6 +14300,11 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-02-02T18:23:47.539Z
+  closed_reason: "Merged in PR #77. Implemented checkpoint file persistence with write/read/delete
+    functions. Checkpoints persist to .kbot/checkpoints/{ulid}.yaml with version field, 24-hour TTL,
+    and graceful error handling. All 8 spec ACs + 5/6 trait ACs covered with 22 tests
+    (@trait-recoverable ac-1 deferred to orchestrator level)."
 - _ulid: 01KGEP3YW8E1MD0Q2W8JQ31TPX
   slugs:
     - task-restart-protocol

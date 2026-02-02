@@ -928,7 +928,6 @@ describe('setupBotEventListeners()', () => {
     await new Promise((resolve) => setTimeout(resolve, 150));
 
     // Turn 1: Tool call WITH parentMessageId (response was sent)
-    // This should clear the placeholder
     const toolCall2 = {
       toolCallId: 'tool-2',
       title: 'read',
@@ -938,8 +937,12 @@ describe('setupBotEventListeners()', () => {
     mockBot.emit('tool:call', 'session-1', 'guild-channel-123', toolCall2, 'response-msg-1');
     await new Promise((resolve) => setTimeout(resolve, 150));
 
+    // Turn 1 ends - this clears the placeholder
+    mockBot.emit('turn:end', 'session-1', 'guild-channel-123');
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
     // Turn 2: New tool call without parentMessageId (new turn, before response)
-    // Should create a NEW placeholder since the old one was cleared
+    // Should create a NEW placeholder since turn:end cleared the old one
     const toolCall3 = {
       toolCallId: 'tool-3',
       title: 'write',

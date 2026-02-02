@@ -780,6 +780,9 @@ export class Bot extends EventEmitter {
           this.log.warn('Usage check failed, continuing with stale data', { error: error.message });
         });
 
+      // AC: @discord-tool-widgets ac-14 - Emit turn:end for placeholder cleanup
+      this.emit('turn:end', sessionId, msg.channel);
+
       // @trait-observable: Emit message:processed event
       this.emit('message:processed', msg, Date.now() - startTime);
     } catch (err) {

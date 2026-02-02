@@ -490,6 +490,11 @@ export class DiscordAdapter implements ChannelAdapter {
       }
     );
 
+    // AC: @discord-tool-widgets ac-14 - Clear placeholder when turn ends (turn-based tracking)
+    bot.on('turn:end', (sessionId: string, channelId: string) => {
+      this.clearPlaceholder(sessionId, channelId);
+    });
+
     this.logger.info('Bot event listeners registered for tool widgets');
   }
 
@@ -523,21 +528,10 @@ export class DiscordAdapter implements ChannelAdapter {
 
       // Guild channel: try thread-based isolation
       // AC: @discord-tool-widgets ac-14 - Create or reuse placeholder if no parent message
+      // Placeholder is cleared on turn:end event (turn-based tracking)
       let messageId = parentMessageId;
       if (!messageId) {
         messageId = await this.getOrCreatePlaceholder(sessionId, channelId, channel);
-      } else {
-        // Tool call has parentMessageId = response was sent, clear any placeholder
-        // This makes placeholder tracking turn-based, not session-based
-        const placeholderKey = `${sessionId}:${channelId}`;
-        if (this.sessionPlaceholders.has(placeholderKey)) {
-          this.sessionPlaceholders.delete(placeholderKey);
-          this.logger.debug('Cleared placeholder (response sent)', {
-            sessionId,
-            channelId,
-            parentMessageId,
-          });
-        }
       }
 
       try {
@@ -665,6 +659,22 @@ export class DiscordAdapter implements ChannelAdapter {
     } finally {
       // Clean up pending promise regardless of success/failure
       this.pendingPlaceholders.delete(placeholderKey);
+    }
+  }
+
+  /**
+   * Clear placeholder for a session/channel when turn ends
+   *
+   * AC: @discord-tool-widgets ac-14 - Turn-based placeholder tracking
+   */
+  private clearPlaceholder(sessionId: string, channelId: string): void {
+    const placeholderKey = `${sessionId}:${channelId}`;
+    if (this.sessionPlaceholders.has(placeholderKey)) {
+      this.sessionPlaceholders.delete(placeholderKey);
+      this.logger.debug('Cleared placeholder (turn ended)', {
+        sessionId,
+        channelId,
+      });
     }
   }
 

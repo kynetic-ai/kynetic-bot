@@ -14587,6 +14587,7 @@
           - packages/bot/src/config.ts (read env vars)
       supersedes: null
   todos: []
+  automation: eligible
 - _ulid: 01KGEP4MB32JTX8651HMWVVCR9
   slugs: []
   title: Create supervisor package scaffold

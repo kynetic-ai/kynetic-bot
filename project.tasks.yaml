@@ -14362,6 +14362,25 @@
         - ac-8: Given wake prompt very large, when context limits approached, then truncates with
         warning, preserves essential info
       supersedes: null
+    - _ulid: 01KGEP89VS2PTARG0QRRVYJ207
+      created_at: 2026-02-02T08:07:08.921Z
+      author: "@claude"
+      content: |-
+        Implementation approach:
+        - Extend ContextRestorer pattern from packages/messaging/src/context/context-restorer.ts
+        - Wake prompt injected BEFORE identity prompt (first message agent sees)
+        - Wake prompt format:
+          'You are restarting. Restart reason: {reason}'
+          'You were working on: {pending_work}' (if present)
+          'Instructions: {instructions}' (if present)
+        - Mark with promptSource: 'system'
+        - Truncate very large wake prompts with warning, preserve essential info
+        - Delete checkpoint file after successful injection, emit event
+        - Key files:
+          - packages/messaging/src/context/context-restorer.ts (extend pattern)
+          - packages/bot/src/identity.ts (initial message pattern reference)
+          - packages/bot/src/wake.ts (new)
+      supersedes: null
   todos: []
 - _ulid: 01KGEP470NTYBVKH72DPH04WH6
   slugs:

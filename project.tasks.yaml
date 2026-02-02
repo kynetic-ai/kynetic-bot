@@ -14599,6 +14599,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-02T08:05:01.356Z
+  started_at: 2026-02-02T18:11:09.823Z
   notes:
     - _ulid: 01KGEP4D9BQMQD62ZNNJB3XY7Y
       created_at: 2026-02-02T08:05:01.355Z
@@ -14638,9 +14639,16 @@
           - packages/supervisor/src/supervisor.ts (set env on spawn)
           - packages/bot/src/config.ts (read env vars)
       supersedes: null
+    - _ulid: 01KGFS0ABXDVZ3ADAVJH1CKYTY
+      created_at: 2026-02-02T18:14:27.454Z
+      author: "@claude"
+      content: Implementation complete. Added environment variables to supervisor spawn (KBOT_SUPERVISED,
+        KBOT_SUPERVISOR_PID, KBOT_CHECKPOINT_PATH). Updated bot config to detect supervised mode via
+        KBOT_SUPERVISED=1 env var. All 4 acceptance criteria covered with comprehensive tests. 48
+        supervisor tests pass, 157 bot tests pass.
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-02-02T18:11:09.823Z
 - _ulid: 01KGEP4MB32JTX8651HMWVVCR9
   slugs: []
   title: Create supervisor package scaffold

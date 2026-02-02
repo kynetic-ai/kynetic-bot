@@ -628,4 +628,13 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KGEDD97AAY2TJZ1BJ3AQBYE4
+    type: friction
+    content: "Test variable scope mismatch: Added tests using 'mockConfig' when the test file used
+      'config' from beforeEach. Fix: Before adding tests to existing files, scan beforeEach/variable
+      declarations to understand naming conventions."
+    created_at: 2026-02-02T05:32:34.922Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

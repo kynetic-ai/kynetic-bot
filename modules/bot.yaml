@@ -397,3 +397,7 @@ features:
         given: checkpoint consumed
         when: startup completes
         then: file deleted, event emitted
+      - id: ac-7
+        given: no checkpoint
+        when: initialization
+        then: skips wake injection, identity only

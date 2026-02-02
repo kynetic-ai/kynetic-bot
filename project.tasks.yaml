@@ -14753,6 +14753,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-02T08:05:20.870Z
+  started_at: 2026-02-02T08:33:33.621Z
   notes:
     - _ulid: 01KGEP78D9B5XRSDFEJ9W60D9R
       created_at: 2026-02-02T08:06:34.666Z
@@ -14764,6 +14765,13 @@
         - Wire checkpointPath through to initialization
         - Reference: packages/bot/src/cli.ts for current CLI structure
       supersedes: null
+    - _ulid: 01KGEQXH9FKGEZB07X3BXN7X92
+      created_at: 2026-02-02T08:36:13.231Z
+      author: "@claude"
+      content: "Implemented CLI --checkpoint argument parsing using Node's parseArgs. Updated Bot.create()
+        to accept optional checkpointPath in options. Added 4 tests covering AC-1: long form
+        (--checkpoint), short form (-c), no checkpoint, and unrecognized args handling. All 152
+        tests pass."
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-02-02T08:33:33.621Z

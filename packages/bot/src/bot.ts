@@ -233,6 +233,25 @@ export class Bot extends EventEmitter {
   private readonly log = createLogger('bot');
 
   /**
+   * Track placeholders for streaming transformation
+   *
+   * When tool calls arrive before text response, the adapter creates a placeholder
+   * message and registers it here via setPlaceholder(). When streaming starts,
+   * consumePlaceholder() retrieves and removes it so we edit the placeholder
+   * instead of sending a new message.
+   *
+   * Note: The Discord adapter has its own sessionPlaceholders Map that tracks
+   * placeholders for reuse within a turn (deduplication). This Map is separate -
+   * it's for the bot to know which message to edit when streaming begins.
+   *
+   * Cleanup: Entries are removed via consumePlaceholder() on normal flow, or
+   * via clearPlaceholder() on turn:end for unconsumed entries.
+   *
+   * AC: @discord-tool-widgets ac-21
+   */
+  private readonly sessionPlaceholders = new Map<string, string>();
+
+  /**
    * Private constructor - use Bot.create() factory
    */
   private constructor(options: BotOptions) {
@@ -636,11 +655,25 @@ export class Bot extends EventEmitter {
               currentBlockText = '';
               splitTracker?.reset();
             } else if (!streamingMessageId) {
-              // First actual content - send initial message and capture ID for edits
-              const result = await this.channelLifecycle.sendMessage(msg.channel, displayText, {
-                replyTo: msg.id,
-              });
-              streamingMessageId = result?.messageId;
+              // First actual content - check for placeholder to transform
+              // AC: @discord-tool-widgets ac-21 - Edit placeholder instead of sending new message
+              const placeholderId = this.consumePlaceholder(sessionId, msg.channel);
+              if (placeholderId) {
+                // Transform placeholder into response by editing it
+                await this.channelLifecycle.editMessage?.(msg.channel, placeholderId, displayText);
+                streamingMessageId = placeholderId;
+                this.log.debug('Transformed placeholder into response', {
+                  sessionId,
+                  channelId: msg.channel,
+                  messageId: placeholderId,
+                });
+              } else {
+                // No placeholder - send initial message and capture ID for edits
+                const result = await this.channelLifecycle.sendMessage(msg.channel, displayText, {
+                  replyTo: msg.id,
+                });
+                streamingMessageId = result?.messageId;
+              }
               // Stop typing indicator once we start sending response
               this.channelLifecycle.stopTypingLoop(msg.channel);
             } else {
@@ -861,6 +894,10 @@ export class Bot extends EventEmitter {
           this.log.warn('Usage check failed, continuing with stale data', { error: error.message });
         });
 
+      // Clean up any unconsumed placeholders for this turn
+      // AC: @discord-tool-widgets ac-21 - Memory cleanup for placeholder tracking
+      this.clearPlaceholder(sessionId, msg.channel);
+
       // Emit turn:end for channel adapter cleanup (e.g., placeholder messages)
       // AC: @discord-tool-widgets ac-23 - Clears placeholder tracking on turn end
       this.emit('turn:end', sessionId, msg.channel);
@@ -980,6 +1017,67 @@ export class Bot extends EventEmitter {
    */
   getLastActiveChannel(): string | null {
     return this.lastActiveChannel;
+  }
+
+  /**
+   * Register a placeholder message for a session+channel
+   *
+   * Called by channel adapters when they create a placeholder message for
+   * early tool calls (before text response starts). When streaming begins,
+   * the bot will edit this placeholder instead of creating a new message.
+   *
+   * AC: @discord-tool-widgets ac-21 - Placeholder becomes response message
+   *
+   * @param sessionId - ACP session ID
+   * @param channelId - Channel where placeholder was created
+   * @param messageId - ID of the placeholder message
+   */
+  setPlaceholder(sessionId: string, channelId: string, messageId: string): void {
+    const key = `${sessionId}:${channelId}`;
+    this.sessionPlaceholders.set(key, messageId);
+    this.log.debug('Placeholder registered', { sessionId, channelId, messageId });
+  }
+
+  /**
+   * Get and consume a placeholder for streaming
+   *
+   * Returns the placeholder message ID if one exists for this session+channel,
+   * then removes it from tracking (one-time use).
+   *
+   * @param sessionId - ACP session ID
+   * @param channelId - Channel to check
+   * @returns Placeholder message ID, or undefined if none
+   */
+  private consumePlaceholder(sessionId: string, channelId: string): string | undefined {
+    const key = `${sessionId}:${channelId}`;
+    const messageId = this.sessionPlaceholders.get(key);
+    if (messageId) {
+      this.sessionPlaceholders.delete(key);
+      this.log.debug('Placeholder consumed for streaming', { sessionId, channelId, messageId });
+    }
+    return messageId;
+  }
+
+  /**
+   * Clear placeholder tracking for a session+channel on turn end
+   *
+   * Called when a turn completes to clean up any unconsumed placeholders.
+   * This handles edge cases like empty responses where no text chunks arrive.
+   *
+   * AC: @discord-tool-widgets ac-21 - Memory cleanup for placeholder tracking
+   *
+   * @param sessionId - ACP session ID
+   * @param channelId - Channel to clear
+   */
+  private clearPlaceholder(sessionId: string, channelId: string): void {
+    const key = `${sessionId}:${channelId}`;
+    if (this.sessionPlaceholders.has(key)) {
+      this.sessionPlaceholders.delete(key);
+      this.log.debug('Placeholder cleared (turn ended without consumption)', {
+        sessionId,
+        channelId,
+      });
+    }
   }
 
   /**

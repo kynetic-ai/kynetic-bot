@@ -138,3 +138,7 @@ features:
         given: kbot wants restart
         when: "sends { type: 'planned_restart', checkpoint } via IPC"
         then: supervisor acknowledges, initiates graceful restart
+      - id: ac-2
+        given: supervisor receives planned_restart
+        when: checkpoint path provided
+        then: verifies file exists before restarting

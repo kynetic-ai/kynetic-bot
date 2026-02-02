@@ -68,10 +68,7 @@ export type BotConfig = z.infer<typeof BotConfigSchema>;
  * @returns The parsed number or undefined if value is empty
  * @throws Error if value is present but not a valid integer
  */
-function parseOptionalNumber(
-  value: string | undefined,
-  name: string,
-): number | undefined {
+function parseOptionalNumber(value: string | undefined, name: string): number | undefined {
   if (!value) return undefined;
   const parsed = parseInt(value, 10);
   if (Number.isNaN(parsed) || String(parsed) !== value.trim()) {
@@ -106,19 +103,13 @@ export function loadConfig(): BotConfig {
     logLevel: process.env.LOG_LEVEL || undefined,
     healthCheckInterval: parseOptionalNumber(
       process.env.HEALTH_CHECK_INTERVAL,
-      'HEALTH_CHECK_INTERVAL',
+      'HEALTH_CHECK_INTERVAL'
     ),
-    shutdownTimeout: parseOptionalNumber(
-      process.env.SHUTDOWN_TIMEOUT,
-      'SHUTDOWN_TIMEOUT',
-    ),
+    shutdownTimeout: parseOptionalNumber(process.env.SHUTDOWN_TIMEOUT, 'SHUTDOWN_TIMEOUT'),
     escalationChannel: process.env.ESCALATION_CHANNEL || undefined,
     // AC: @supervisor-env ac-3
     isSupervised: process.env.KBOT_SUPERVISED === '1',
-    supervisorPid: parseOptionalNumber(
-      process.env.KBOT_SUPERVISOR_PID,
-      'KBOT_SUPERVISOR_PID',
-    ),
+    supervisorPid: parseOptionalNumber(process.env.KBOT_SUPERVISOR_PID, 'KBOT_SUPERVISOR_PID'),
     checkpointPath: process.env.KBOT_CHECKPOINT_PATH || undefined,
   });
 }

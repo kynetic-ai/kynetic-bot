@@ -8,11 +8,7 @@
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ZodError } from 'zod';
-import {
-  BotConfigSchema,
-  LogLevelSchema,
-  loadConfig,
-} from '../src/config.js';
+import { BotConfigSchema, LogLevelSchema, loadConfig } from '../src/config.js';
 
 describe('Bot Configuration', () => {
   describe('LogLevelSchema', () => {
@@ -121,9 +117,7 @@ describe('Bot Configuration', () => {
       const result = BotConfigSchema.safeParse(config);
       expect(result.success).toBe(false);
       if (!result.success) {
-        const issue = result.error.issues.find((i) =>
-          i.path.includes('healthCheckInterval'),
-        );
+        const issue = result.error.issues.find((i) => i.path.includes('healthCheckInterval'));
         expect(issue).toBeDefined();
         expect(issue?.code).toBe('invalid_type');
       }
@@ -163,9 +157,7 @@ describe('Bot Configuration', () => {
       const result = BotConfigSchema.safeParse(config);
       expect(result.success).toBe(false);
       if (!result.success) {
-        const issue = result.error.issues.find((i) =>
-          i.path.includes('shutdownTimeout'),
-        );
+        const issue = result.error.issues.find((i) => i.path.includes('shutdownTimeout'));
         expect(issue?.code).toBe('invalid_type');
         expect(issue?.expected).toBe('number');
       }

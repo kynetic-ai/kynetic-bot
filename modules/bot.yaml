@@ -450,3 +450,7 @@ features:
         given: bot under supervisor
         when: process.send exists
         then: isSupervisedMode() returns true
+      - id: ac-8
+        given: requestRestart called during streaming
+        when: response in progress
+        then: waits for current response to complete before restart

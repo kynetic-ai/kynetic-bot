@@ -406,6 +406,10 @@ features:
         given: wake prompt very large
         when: context limits approached
         then: truncates with warning, preserves essential info
+      - id: ac-9
+        given: bot restarts with checkpoint
+        when: initial messages assembled
+        then: "message order is: wake context, then identity prompt, then restored conversation history"
   - _ulid: 01KGEP0HCXM6CX2KM55XAR88WR
     slugs:
       - bot-restart-api

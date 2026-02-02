@@ -389,3 +389,7 @@ features:
         given: checkpoint has pending_work
         when: wake prompt generated
         then: "includes 'You were working on: {pending_work}'"
+      - id: ac-5
+        given: checkpoint has instructions
+        when: wake prompt generated
+        then: "includes 'Instructions: {instructions}'"

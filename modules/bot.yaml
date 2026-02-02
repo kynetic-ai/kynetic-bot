@@ -434,3 +434,7 @@ features:
         given: requestRestart called
         when: options.wakePrompt provided
         then: checkpoint includes wake_context.prompt
+      - id: ac-4
+        given: requestRestart called
+        when: options.pendingWork provided
+        then: checkpoint includes wake_context.pending_work

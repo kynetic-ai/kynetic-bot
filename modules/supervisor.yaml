@@ -67,6 +67,10 @@ features:
         given: supervisor crashes
         when: child running
         then: child orphaned, continues running (container/systemd restarts supervisor)
+      - id: ac-9
+        given: kbot exits non-zero unexpectedly
+        when: supervisor detects crash
+        then: creates crash checkpoint with last known state (if available) before respawn
   - _ulid: 01KGENVK19JERKH4DTWDRXPHFM
     slugs:
       - restart-checkpoint

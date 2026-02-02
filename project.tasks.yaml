@@ -14447,6 +14447,12 @@
   derivation: auto
   status: completed
   blocked_by: []
+  closed_reason: "Merged in PR #79. Implemented wake context injection for bot restarts with
+    checkpoint. All 9 acceptance criteria covered with 11 tests. Wake prompt injected BEFORE
+    identity prompt when bot starts with checkpoint, includes pending_work and instructions when
+    present, checkpoint consumed once (deleted after use, event emitted). Truncates large prompts
+    with warning. Message order: wake context → identity → restored history. Tests passing locally
+    and in CI."
   depends_on:
     - "@task-restart-checkpoint"
     - "@01KGEP50"
@@ -14456,6 +14462,7 @@
   vcs_refs: []
   created_at: 2026-02-02T08:04:52.206Z
   started_at: 2026-02-02T18:46:25.051Z
+  completed_at: 2026-02-02T18:56:30.399Z
   notes:
     - _ulid: 01KGEP44BDCBEN6JRXVSKFHWQ3
       created_at: 2026-02-02T08:04:52.205Z
@@ -14561,13 +14568,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-02-02T18:56:30.399Z
-  closed_reason: "Merged in PR #79. Implemented wake context injection for bot restarts with
-    checkpoint. All 9 acceptance criteria covered with 11 tests. Wake prompt injected BEFORE
-    identity prompt when bot starts with checkpoint, includes pending_work and instructions when
-    present, checkpoint consumed once (deleted after use, event emitted). Truncates large prompts
-    with warning. Message order: wake context → identity → restored history. Tests passing locally
-    and in CI."
 - _ulid: 01KGEP470NTYBVKH72DPH04WH6
   slugs:
     - task-shutdown-modes
@@ -14575,7 +14575,7 @@
   type: task
   spec_ref: "@shutdown-modes"
   derivation: auto
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on:
     - "@task-restart-protocol"
@@ -14636,6 +14636,7 @@
       supersedes: null
   todos: []
   automation: eligible
+  started_at: 2026-02-02T18:57:34.223Z
 - _ulid: 01KGEP4ASPV39SEY2NZRP4NWR4
   slugs:
     - task-bot-restart-api

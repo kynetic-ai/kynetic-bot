@@ -14455,6 +14455,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-02T08:04:52.206Z
+  started_at: 2026-02-02T18:46:25.051Z
   notes:
     - _ulid: 01KGEP44BDCBEN6JRXVSKFHWQ3
       created_at: 2026-02-02T08:04:52.205Z
@@ -14511,9 +14512,55 @@
           - packages/bot/src/identity.ts (initial message pattern reference)
           - packages/bot/src/wake.ts (new)
       supersedes: null
+    - _ulid: 01KGFV2CBQ1Z0CW7ECFW8A01P4
+      created_at: 2026-02-02T18:50:32.183Z
+      author: "@claude"
+      content: |-
+        Implementation complete:
+
+        ## What was done
+
+        1. **Created wake.ts module** (packages/bot/src/wake.ts)
+           - generateWakePrompt() function generates wake prompts from checkpoint wake_context
+           - Includes pending_work and instructions when present (AC-4, AC-5)
+           - Truncates large prompts with warning, preserving essential info (AC-8)
+
+        2. **Updated Bot class** (packages/bot/src/bot.ts)
+           - Bot.create() reads and validates checkpoint when checkpointPath provided (AC-1)
+           - Continues gracefully if checkpoint validation fails or is too old
+           - Stores checkpoint internally for one-time use
+           - Added 'checkpoint:consumed' event to BotEvents interface (AC-6)
+
+        3. **Implemented wake context injection in handleMessage()**
+           - Injects wake prompt BEFORE identity prompt for new sessions (AC-2, AC-9)
+           - Wake prompt marked with promptSource: 'system' (AC-3)
+           - Deletes checkpoint file after consumption and emits event (AC-6)
+           - Clears checkpoint after one-time use
+           - Identity only sent when no checkpoint (AC-7)
+
+        4. **Comprehensive test coverage** (packages/bot/test/wake.test.ts)
+           - 11 tests covering all 9 acceptance criteria
+           - Tests for happy path, error cases, edge cases
+           - All 185 bot tests pass (81 existing + 11 new + 93 other packages)
+
+        ## Message Order (AC-9)
+        For new sessions with checkpoint:
+        1. Wake context prompt (promptSource: 'system')
+        2. Identity prompt (promptSource: 'system')
+        3. User prompt (promptSource: 'user')
+
+        For new sessions without checkpoint:
+        1. Identity prompt (promptSource: 'system')
+        2. User prompt (promptSource: 'user')
+
+        ## Integration Points
+        - Uses readCheckpoint/deleteCheckpoint from @kynetic-bot/supervisor
+        - Extends existing Bot session lifecycle (no changes to SessionLifecycleManager)
+        - Works with ContextRestorer pattern (wake → identity → restored history)
+        - Compatible with session rotation and recovery flows
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-02-02T18:46:25.051Z
 - _ulid: 01KGEP470NTYBVKH72DPH04WH6
   slugs:
     - task-shutdown-modes

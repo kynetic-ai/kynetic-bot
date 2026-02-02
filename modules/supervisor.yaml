@@ -28,6 +28,7 @@ features:
     implements: []
     relates_to: []
     tests: []
-    traits: []
+    traits:
+      - "@trait-observable"
     notes: []
     created: 2026-02-02T07:59:22.245Z

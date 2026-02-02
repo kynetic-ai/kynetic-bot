@@ -75,7 +75,8 @@ features:
     tags: []
     description: Checkpoint file format for persisting restart context. Checkpoints store session state,
       restart reason, and wake-up context that survives restarts.
-    depends_on: []
+    depends_on:
+      - "@supervisor-process-spawn"
     implements: []
     relates_to: []
     tests: []

@@ -162,3 +162,7 @@ features:
         given: no ack received within 5s
         when: timeout elapsed
         then: logs warning, retries once
+      - id: ac-8
+        given: requestRestart called twice
+        when: second call while first pending
+        then: second call rejected with error

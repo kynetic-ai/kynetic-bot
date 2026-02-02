@@ -476,3 +476,6 @@ features:
         given: requestRestart called
         when: AgentLifecycle has active streaming response
         then: subscribes to 'turn:end' event and queues restart until after completion
+    status:
+      maturity: draft
+      implementation: in_progress

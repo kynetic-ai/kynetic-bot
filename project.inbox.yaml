@@ -538,3 +538,13 @@ inbox:
       - reflection
       - workflow
     added_by: "@claude"
+  - _ulid: 01KGFSDAT2E2PEM6Y8RDCC5V6B
+    text: "Build step dependency detection: Run TypeScript compilation before allowing file writes with
+      new imports. Catch missing dependencies (like ulid, yaml) at write time instead of at build
+      time. Would save round-trips of write -> build fail -> install -> rebuild cycle."
+    created_at: 2026-02-02T18:21:33.891Z
+    tags:
+      - reflection
+      - dx
+      - build
+    added_by: "@claude"

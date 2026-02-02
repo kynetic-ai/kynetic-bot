@@ -9,6 +9,10 @@
 
 export { createLogger } from '@kynetic-bot/core';
 
+// Supervisor
+export { Supervisor } from './supervisor.js';
+export type { SupervisorConfig, SupervisorEvents } from './supervisor.js';
+
 // Checkpoint and IPC schemas
 export {
   RestartReasonSchema,

@@ -6,31 +6,94 @@
  * checkpoint preservation, and implements graceful shutdown.
  *
  * @see @supervisor
+ * AC: @wake-injection ac-1
  */
 
 import process from 'node:process';
 import { createLogger } from '@kynetic-bot/core';
+import { Supervisor } from './supervisor.js';
 
-const log = createLogger('supervisor');
+const log = createLogger('supervisor:cli');
 const FORCE_EXIT_TIMEOUT = 30000;
 
+let supervisor: Supervisor | null = null;
 let isShuttingDown = false;
 let shutdownPromise: Promise<void> | null = null;
 
 /**
+ * Parse CLI arguments
+ */
+function parseArgs(): { checkpointPath?: string; childPath: string } {
+  const args = process.argv.slice(2);
+  let checkpointPath: string | undefined;
+  let childPath = 'kbot'; // Default child process name
+
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+
+    // AC: @wake-injection ac-1
+    if (arg === '--checkpoint' && args[i + 1]) {
+      checkpointPath = args[i + 1];
+      i++; // Skip next arg
+    } else if (arg === '--child' && args[i + 1]) {
+      childPath = args[i + 1];
+      i++;
+    }
+  }
+
+  return { checkpointPath, childPath };
+}
+
+/**
  * Main entry point
  *
- * TODO: Spawn kbot process
- * TODO: Set up IPC communication
- * TODO: Handle restart requests
+ * Spawns kbot process and monitors its lifecycle.
  */
 async function main(): Promise<void> {
   log.info('Supervisor starting...');
 
-  // TODO: Parse CLI args (--checkpoint flag)
-  // TODO: Spawn kbot child process
-  // TODO: Set up IPC message handlers
-  // TODO: Monitor child process health
+  const { checkpointPath, childPath } = parseArgs();
+
+  log.info('Configuration', { childPath, checkpointPath: checkpointPath ?? '(none)' });
+
+  // Create supervisor
+  supervisor = new Supervisor({
+    childPath,
+    checkpointPath,
+    minBackoffMs: 1000,
+    maxBackoffMs: 60000,
+    shutdownTimeoutMs: 30000,
+  });
+
+  // Set up event logging
+  supervisor.on('spawn', (pid) => {
+    log.info('Child process spawned', { pid });
+  });
+
+  supervisor.on('exit', (code, signal) => {
+    log.info('Child process exited', { code, signal });
+  });
+
+  supervisor.on('respawn', (attempt, backoffMs) => {
+    log.warn('Respawning child process', { attempt, backoffMs });
+  });
+
+  supervisor.on('escalation', (failures) => {
+    log.error('Respawn escalation - consecutive failures reached maximum', {
+      failures,
+    });
+  });
+
+  supervisor.on('ipc_error', (error) => {
+    log.error('IPC communication error', { error: error.message });
+  });
+
+  supervisor.on('shutdown', () => {
+    log.info('Supervisor shutdown complete');
+  });
+
+  // Spawn initial child process
+  await supervisor.spawn();
 
   log.info('Supervisor is running. Press Ctrl+C to stop.');
 }
@@ -57,9 +120,9 @@ async function shutdown(reason: string): Promise<void> {
 
   shutdownPromise = (async () => {
     try {
-      // TODO: Send SIGTERM to child process
-      // TODO: Wait for graceful shutdown
-      // TODO: Force kill if timeout
+      if (supervisor) {
+        await supervisor.shutdown();
+      }
 
       clearTimeout(forceExitTimer);
       log.info('Shutdown complete');

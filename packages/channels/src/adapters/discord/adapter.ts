@@ -526,6 +526,18 @@ export class DiscordAdapter implements ChannelAdapter {
       let messageId = parentMessageId;
       if (!messageId) {
         messageId = await this.getOrCreatePlaceholder(sessionId, channelId, channel);
+      } else {
+        // Tool call has parentMessageId = response was sent, clear any placeholder
+        // This makes placeholder tracking turn-based, not session-based
+        const placeholderKey = `${sessionId}:${channelId}`;
+        if (this.sessionPlaceholders.has(placeholderKey)) {
+          this.sessionPlaceholders.delete(placeholderKey);
+          this.logger.debug('Cleared placeholder (response sent)', {
+            sessionId,
+            channelId,
+            parentMessageId,
+          });
+        }
       }
 
       try {

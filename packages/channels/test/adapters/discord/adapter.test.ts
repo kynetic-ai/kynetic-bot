@@ -850,6 +850,110 @@ describe('setupBotEventListeners()', () => {
     expect(placeholderMessage.startThread).toHaveBeenCalledTimes(1);
   });
 
+  // AC: @discord-tool-widgets ac-14 - Placeholder tracking is turn-based, not session-based
+  it('should create new placeholder for new turn after response sent', async () => {
+    const mockBot = new EventEmitter();
+    adapter.setupBotEventListeners(mockBot);
+
+    // First turn setup
+    const mockThread1 = {
+      id: 'thread-1',
+      type: ChannelType.PublicThread,
+      send: vi.fn().mockResolvedValue({ id: 'widget-msg-1' }),
+      isTextBased: () => true,
+      isDMBased: () => false,
+    };
+
+    const placeholderMessage1 = {
+      id: 'placeholder-1',
+      startThread: vi.fn().mockResolvedValue(mockThread1),
+    };
+
+    // Second turn setup
+    const mockThread2 = {
+      id: 'thread-2',
+      type: ChannelType.PublicThread,
+      send: vi.fn().mockResolvedValue({ id: 'widget-msg-2' }),
+      isTextBased: () => true,
+      isDMBased: () => false,
+    };
+
+    const placeholderMessage2 = {
+      id: 'placeholder-2',
+      startThread: vi.fn().mockResolvedValue(mockThread2),
+    };
+
+    // Real response message (simulates bot sending text response)
+    const realResponseMessage = {
+      id: 'response-msg-1',
+      startThread: vi.fn().mockResolvedValue(mockThread1),
+    };
+
+    let placeholderCallCount = 0;
+    const guildChannel = {
+      id: 'guild-channel-123',
+      type: ChannelType.GuildText,
+      isTextBased: () => true,
+      isDMBased: () => false,
+      send: vi.fn().mockImplementation(() => {
+        placeholderCallCount++;
+        return Promise.resolve(
+          placeholderCallCount === 1 ? placeholderMessage1 : placeholderMessage2
+        );
+      }),
+      messages: {
+        fetch: vi.fn().mockImplementation((id: string) => {
+          if (id === 'placeholder-1') return Promise.resolve(placeholderMessage1);
+          if (id === 'placeholder-2') return Promise.resolve(placeholderMessage2);
+          if (id === 'response-msg-1') return Promise.resolve(realResponseMessage);
+          return Promise.resolve(placeholderMessage1);
+        }),
+      },
+    };
+
+    getMockClient().channels.fetch = vi.fn().mockImplementation((id: string) => {
+      if (id === 'thread-1') return Promise.resolve(mockThread1);
+      if (id === 'thread-2') return Promise.resolve(mockThread2);
+      return Promise.resolve(guildChannel);
+    });
+
+    // Turn 1: Tool call without parentMessageId (before response)
+    const toolCall1 = {
+      toolCallId: 'tool-1',
+      title: 'bash',
+      status: 'in_progress',
+      content: [],
+    };
+    mockBot.emit('tool:call', 'session-1', 'guild-channel-123', toolCall1, undefined);
+    await new Promise((resolve) => setTimeout(resolve, 150));
+
+    // Turn 1: Tool call WITH parentMessageId (response was sent)
+    // This should clear the placeholder
+    const toolCall2 = {
+      toolCallId: 'tool-2',
+      title: 'read',
+      status: 'in_progress',
+      content: [],
+    };
+    mockBot.emit('tool:call', 'session-1', 'guild-channel-123', toolCall2, 'response-msg-1');
+    await new Promise((resolve) => setTimeout(resolve, 150));
+
+    // Turn 2: New tool call without parentMessageId (new turn, before response)
+    // Should create a NEW placeholder since the old one was cleared
+    const toolCall3 = {
+      toolCallId: 'tool-3',
+      title: 'write',
+      status: 'in_progress',
+      content: [],
+    };
+    mockBot.emit('tool:call', 'session-1', 'guild-channel-123', toolCall3, undefined);
+    await new Promise((resolve) => setTimeout(resolve, 150));
+
+    // Should have created TWO placeholders (one per turn)
+    expect(guildChannel.send).toHaveBeenCalledWith('Working...');
+    expect(guildChannel.send).toHaveBeenCalledTimes(2);
+  });
+
   // AC: @discord-tool-widgets ac-12 - Fallback to condensed on permission error
   it('should fall back to condensed display when thread creation fails', async () => {
     const mockBot = new EventEmitter();

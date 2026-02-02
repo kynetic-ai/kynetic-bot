@@ -8,6 +8,7 @@
  */
 
 import process from 'node:process';
+import { parseArgs } from 'node:util';
 import { createLogger } from '@kynetic-bot/core';
 import type { NormalizedMessage } from '@kynetic-bot/core';
 import {
@@ -29,13 +30,27 @@ let channelLifecycle: ChannelLifecycle | null = null;
  * Main entry point
  *
  * AC-1: pnpm start or node dist/cli.js → loads config, creates bot, starts listening
+ * AC: @wake-injection ac-1 - Accepts --checkpoint CLI arg
  */
 async function main(): Promise<void> {
+  // Parse command-line arguments
+  const { values } = parseArgs({
+    options: {
+      checkpoint: {
+        type: 'string',
+        short: 'c',
+      },
+    },
+    strict: false, // Allow other unrecognized args without error
+  });
+
+  const checkpointPath = typeof values.checkpoint === 'string' ? values.checkpoint : undefined;
+
   log.info('Loading configuration...');
   const config = loadConfig();
 
   log.info('Creating bot...');
-  bot = await Bot.create(config);
+  bot = await Bot.create(config, { checkpointPath });
 
   // Parse Discord config with zod schema (applies defaults for intents, partials, etc.)
   const discordConfig = DiscordAdapterConfigSchema.parse({ token: config.discordToken });

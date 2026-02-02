@@ -117,3 +117,18 @@ features:
         given: checkpoint write fails
         when: disk full/permissions
         then: logs error, restart proceeds without checkpoint
+  - _ulid: 01KGENWZX3HSXZT4PS0MAYYFZZ
+    slugs:
+      - restart-protocol
+    title: Restart Protocol
+    type: feature
+    tags: []
+    description: IPC message protocol between kbot and supervisor for coordinating planned restarts.
+      Handles checkpoint lifecycle, acknowledgments, and restart sequencing.
+    depends_on: []
+    implements: []
+    relates_to: []
+    tests: []
+    traits: []
+    notes: []
+    created: 2026-02-02T08:00:58.275Z

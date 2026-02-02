@@ -14249,15 +14249,21 @@
         call rejected with error
       supersedes: null
   todos: []
-- title: "Implement: Wake Context Injection"
+- _ulid: 01KGEP44BFZ1SSGS8X547PPV8J
+  slugs:
+    - task-wake-context-injection
+  title: "Implement: Wake Context Injection"
   type: task
   spec_ref: "@wake-injection"
   derivation: auto
-  priority: 3
-  slugs:
-    - task-wake-context-injection
-  tags: []
+  status: pending
+  blocked_by: []
   depends_on: []
+  context: []
+  priority: 3
+  tags: []
+  vcs_refs: []
+  created_at: 2026-02-02T08:04:52.206Z
   notes:
     - _ulid: 01KGEP44BDCBEN6JRXVSKFHWQ3
       created_at: 2026-02-02T08:04:52.205Z
@@ -14295,10 +14301,55 @@
         - ac-8: Given wake prompt very large, when context limits approached, then truncates with
         warning, preserves essential info
       supersedes: null
-  _ulid: 01KGEP44BFZ1SSGS8X547PPV8J
+  todos: []
+- title: "Implement: Shutdown Modes"
+  type: task
+  spec_ref: "@shutdown-modes"
+  derivation: auto
+  priority: 3
+  slugs:
+    - task-shutdown-modes
+  tags: []
+  depends_on: []
+  notes:
+    - _ulid: 01KGEP470N45AVKTKEPAZ78JWX
+      created_at: 2026-02-02T08:04:54.933Z
+      author: "@claude"
+      content: >-
+        Implementation notes (auto-generated from spec):
+
+
+        Soft and hard shutdown modes for graceful process termination. Handles in-flight message
+        draining, timeout-based escalation to SIGKILL, and coordination during planned restarts.
+
+
+
+        Acceptance Criteria:
+
+        - ac-1: Given soft shutdown requested, when SIGTERM sent, then waits up to shutdownTimeout
+        (30s default)
+
+        - ac-2: Given soft shutdown timeout exceeded, when child running, then sends SIGKILL, logs
+        forced termination
+
+        - ac-3: Given supervisor receives SIGTERM, when in planned restart, then completes restart
+        (no double-signal)
+
+        - ac-4: Given shutdown initiated, when child draining, then emits 'draining' event
+
+        - ac-5: Given hard shutdown requested, when kill('SIGKILL') called, then immediately sends
+        SIGKILL
+
+        - ac-6: Given messages in-flight, when shutdown initiated, then waits for inflightCount to
+        reach 0 (with timeout)
+
+        - ac-7: Given new message arrives, when during shutdown drain, then rejected with 'shutting
+        down' error
+      supersedes: null
+  _ulid: 01KGEP470NTYBVKH72DPH04WH6
   status: pending
   blocked_by: []
   context: []
   vcs_refs: []
-  created_at: 2026-02-02T08:04:52.206Z
+  created_at: 2026-02-02T08:04:54.933Z
   todos: []

@@ -14698,7 +14698,7 @@
   type: task
   spec_ref: "@bot-restart-api"
   derivation: auto
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on:
     - "@task-wake-context-injection"
@@ -14806,6 +14806,12 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-02-02T19:25:41.526Z
+  closed_reason: "Merged in PR #81. Implemented Bot Restart API with requestRestart() and
+    isSupervisedMode() methods. All 11 acceptance criteria covered with implementation annotations.
+    RestartProtocol fully tested, Bot.requestRestart() manually verified. All tests passing
+    (185/185). Quality gates passed: AC coverage verified, spec alignment confirmed, CI checks
+    successful."
 - _ulid: 01KGEP4D9C2F5A61TSW39MJM4K
   slugs:
     - task-supervisor-environment

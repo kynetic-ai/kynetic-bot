@@ -1,0 +1,264 @@
+{
+  "generated_at": "2026-02-02T19:02:53.623Z",
+  "branch": "feat/shutdown-modes",
+  "context": {
+    "focus": null,
+    "threads": [],
+    "open_questions": [],
+    "updated_at": "2026-02-02T19:02:53.623Z"
+  },
+  "active_tasks": [],
+  "pending_review_tasks": [
+    {
+      "ref": "01KGEP47",
+      "title": "Implement: Shutdown Modes",
+      "started_at": "2026-02-02T18:57:34.223Z",
+      "priority": 3,
+      "spec_ref": "@shutdown-modes",
+      "note_count": 3,
+      "last_note_at": "2026-02-02T19:00:27.000Z",
+      "todo_count": 0,
+      "incomplete_todos": 0
+    }
+  ],
+  "recent_notes": [],
+  "active_todos": [],
+  "ready_tasks": [],
+  "blocked_tasks": [],
+  "recently_completed": [
+    {
+      "ref": "01KGEP44",
+      "title": "Implement: Wake Context Injection",
+      "completed_at": "2026-02-02T18:56:30.399Z",
+      "closed_reason": "Merged in PR #79. Implemented wake context injection for bot restarts with checkpoint. All 9 acceptance criteria covered with 11 tests. Wake prompt injected BEFORE identity prompt when bot starts with checkpoint, includes pending_work and instructions when present, checkpoint consumed once (deleted after use, event emitted). Truncates large prompts with warning. Message order: wake context → identity → restored history. Tests passing locally and in CI."
+    },
+    {
+      "ref": "01KGEP3Y",
+      "title": "Implement: Restart Protocol",
+      "completed_at": "2026-02-02T18:45:19.235Z",
+      "closed_reason": "Merged in PR #78. Implemented full restart protocol with IPC message handling between kbot and supervisor. All 8 acceptance criteria covered with comprehensive tests (13 bot-side + 4 supervisor-side). Includes checkpoint validation, timeout/retry logic, and duplicate request prevention. Fixed lockfile issue during review."
+    },
+    {
+      "ref": "01KGEP4D",
+      "title": "Implement: Supervisor Environment",
+      "completed_at": "2026-02-02T18:24:35.676Z",
+      "closed_reason": "Merged in PR #77. Implemented supervisor environment variables (KBOT_SUPERVISED, KBOT_SUPERVISOR_PID, KBOT_CHECKPOINT_PATH) to enable kbot detection of supervised mode and access to restart functionality. All 4 acceptance criteria covered with comprehensive test coverage: 5 new supervisor tests, 11 new bot config tests. 1447 total tests passing."
+    },
+    {
+      "ref": "01KGEP3W",
+      "title": "Implement: Restart Checkpoint",
+      "completed_at": "2026-02-02T18:23:47.539Z",
+      "closed_reason": "Merged in PR #77. Implemented checkpoint file persistence with write/read/delete functions. Checkpoints persist to .kbot/checkpoints/{ulid}.yaml with version field, 24-hour TTL, and graceful error handling. All 8 spec ACs + 5/6 trait ACs covered with 22 tests (@trait-recoverable ac-1 deferred to orchestrator level)."
+    },
+    {
+      "ref": "01KGEP3S",
+      "title": "Implement: Supervisor Process Spawn",
+      "completed_at": "2026-02-02T08:55:16.175Z",
+      "closed_reason": "Merged in PR #76. Implemented supervisor process spawn with full AC coverage: spawns kbot with IPC channel, handles SIGTERM forwarding, implements exponential backoff (1s-60s) for respawn, creates crash checkpoints, manages graceful shutdown. All 9 feature ACs + trait ACs covered with 43 passing tests. EventEmitter-based observable pattern with proper health monitoring and graceful shutdown support."
+    },
+    {
+      "ref": "01KGEP50",
+      "title": "Update cli.ts to accept --checkpoint",
+      "completed_at": "2026-02-02T08:41:42.453Z",
+      "closed_reason": "Merged in PR #75. Implemented AC-1 of @wake-injection spec: CLI now accepts --checkpoint/-c argument and wires checkpointPath through to Bot.create(). Added 4 tests covering long form, short form, optional behavior, and strict:false handling. All 11 CLI tests pass. Ready for next phase of wake context injection (AC-2 through AC-9)."
+    },
+    {
+      "ref": "01KGEP4V",
+      "title": "Add Zod schemas for checkpoint and IPC messages",
+      "completed_at": "2026-02-02T08:31:58.111Z",
+      "closed_reason": "Merged in PR #74. Created Zod schemas for checkpoint file format (with version field, session_id, restart_reason enum, wake_context) and IPC message types (planned_restart, restart_ack, error). Full test coverage with 21 tests covering all in-scope acceptance criteria: restart-checkpoint ac-2, ac-3, ac-7 and all trait-validated ACs."
+    },
+    {
+      "ref": "01KGEP4M",
+      "title": "Create supervisor package scaffold",
+      "completed_at": "2026-02-02T08:31:45.535Z",
+      "closed_reason": "Merged in PR #74. Created @kynetic-bot/supervisor package scaffold with TypeScript build infrastructure, CLI entry point with signal handlers, and Zod schemas for checkpoint format and IPC messages. All acceptance criteria covered with 21 passing tests."
+    },
+    {
+      "ref": "01KGE0W8",
+      "title": "Transform placeholder into response message",
+      "completed_at": "2026-02-02T05:01:23.219Z",
+      "closed_reason": "PR #73 merged. Implemented placeholder transformation for streaming responses (AC-21). When tool calls arrive before text, the placeholder is edited to become the response instead of creating a new message. Thread remains attached. 7 tests added, all review feedback addressed."
+    },
+    {
+      "ref": "01KGDYHQ",
+      "title": "Fix placeholder spam - track placeholders per session/channel",
+      "completed_at": "2026-02-02T03:52:21.226Z",
+      "closed_reason": "PR #72 merged. Implemented placeholder deduplication with turn-based tracking via turn:end event. Added BotEvents interface documenting all Bot events including turn:end."
+    }
+  ],
+  "recent_commits": [
+    {
+      "hash": "5769f70",
+      "full_hash": "5769f70f0725f6c7994749fb1793bc703ca8bde7",
+      "date": "2026-02-02T19:00:50.000Z",
+      "message": "feat(supervisor): Implement shutdown modes",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "a341dae",
+      "full_hash": "a341daee331936c93ecf928b15d919e910f214b3",
+      "date": "2026-02-02T18:56:20.000Z",
+      "message": "Merge pull request #79 from kynetic-ai/feat/wake-context-injection",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "429d745",
+      "full_hash": "429d745d633c3de8cd521ca9648286e5d4972a42",
+      "date": "2026-02-02T18:50:54.000Z",
+      "message": "feat(bot): Implement wake context injection",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "9f40c87",
+      "full_hash": "9f40c87627a2376421f984e1264de8da8d3c1df9",
+      "date": "2026-02-02T18:44:57.000Z",
+      "message": "Merge pull request #78 from kynetic-ai/feat/restart-protocol",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "9a98fe0",
+      "full_hash": "9a98fe02a6cb3537e035780eea4d63e470cbd9a2",
+      "date": "2026-02-02T18:42:41.000Z",
+      "message": "fix: Update lockfile for supervisor dependency",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "a501bbc",
+      "full_hash": "a501bbcaa356c8dffb05ae5738fd9bc55ecf0306",
+      "date": "2026-02-02T18:35:55.000Z",
+      "message": "build: Add supervisor dependency to bot package",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "2db3cb5",
+      "full_hash": "2db3cb5c04414f9a4cd3f7ef2688f45326bf611f",
+      "date": "2026-02-02T18:34:50.000Z",
+      "message": "style: Apply linter formatting",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "e4a8723",
+      "full_hash": "e4a872373cf69612cd6179214adb6571abe2f631",
+      "date": "2026-02-02T18:34:08.000Z",
+      "message": "feat(supervisor): Implement restart protocol",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "21ff537",
+      "full_hash": "21ff5376162c3ffec01af72f1b24f961b82e04ce",
+      "date": "2026-02-02T18:23:38.000Z",
+      "message": "Merge pull request #77 from kynetic-ai/feat/supervisor-process-spawn",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "c5afc9c",
+      "full_hash": "c5afc9cf67d4c77a394594fbe1144ab9a9555091",
+      "date": "2026-02-02T18:19:52.000Z",
+      "message": "feat(supervisor): Implement restart checkpoint persistence",
+      "author": "Jacob Chapel"
+    }
+  ],
+  "working_tree": {
+    "clean": true,
+    "staged": [],
+    "unstaged": [],
+    "untracked": []
+  },
+  "inbox_items": [
+    {
+      "ref": "01KG4KV8",
+      "text": "Spec review workflow/skill that runs verification + holistic review after spec changes. Would automate the repeated 'run two subagents to check plan vs implementation and find gaps' pattern.",
+      "created_at": "2026-01-29T10:12:40.090Z",
+      "tags": [
+        "reflection",
+        "workflow"
+      ],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG4KVB",
+      "text": "Allow kspec item trait add to accept multiple traits: kspec item trait add @spec @trait1 @trait2 @trait3 instead of requiring separate commands for each trait.",
+      "created_at": "2026-01-29T10:12:43.363Z",
+      "tags": [
+        "reflection",
+        "kspec-cli"
+      ],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG4KVD",
+      "text": "Display relates_to and depends_on fields in kspec item get output. Currently these fields are only visible by reading the YAML directly.",
+      "created_at": "2026-01-29T10:12:45.470Z",
+      "tags": [
+        "reflection",
+        "kspec-cli"
+      ],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG5Z1E",
+      "text": "Discord adapter: add health check support using client.ws.ping for latency monitoring",
+      "created_at": "2026-01-29T22:47:31.618Z",
+      "tags": [],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG5Z1K",
+      "text": "Discord adapter: make bot message filtering configurable (currently filters all bots, not just self)",
+      "created_at": "2026-01-29T22:47:36.999Z",
+      "tags": [],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG5Z1P",
+      "text": "Discord adapter: expand DiscordSendOptions for ephemeral messages, thread options, slash command support",
+      "created_at": "2026-01-29T22:47:39.899Z",
+      "tags": [],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG64MZ",
+      "text": "Bot: Consider using TypedEventEmitter pattern for type-safe event names and payloads instead of base EventEmitter",
+      "created_at": "2026-01-30T00:25:34.748Z",
+      "tags": [],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG64NC",
+      "text": "Bot: Forward ChannelLifecycle events (health, reconnection) for completeness - currently only AgentLifecycle events are forwarded",
+      "created_at": "2026-01-30T00:25:47.325Z",
+      "tags": [],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG6503",
+      "text": "CLI tool to inspect types from dependencies - e.g. 'pnpm types @agentclientprotocol/sdk NewSessionRequest' to show type definition from .d.ts files. Could support --expand to follow type references. Helps with SDK integration without digging through node_modules/.pnpm/",
+      "created_at": "2026-01-30T00:31:39.008Z",
+      "tags": [
+        "reflection",
+        "dx"
+      ],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG65AG",
+      "text": "Ensure task workflow is followed when implementing plans in new context - problem: plans focus on what to build, not the kspec workflow (task start/notes/submit/complete). Agent jumps to implementation without starting task. Potential fixes: (1) plan template includes 'kspec task start @slug' as first step, (2) CLAUDE.md implementation checklist, (3) session start detects pending tasks with ready plans, (4) hook on plan approval.",
+      "created_at": "2026-01-30T00:37:20.098Z",
+      "tags": [
+        "reflection",
+        "workflow"
+      ],
+      "added_by": "@claude"
+    }
+  ],
+  "stats": {
+    "total_tasks": 108,
+    "in_progress": 0,
+    "pending_review": 1,
+    "ready": 2,
+    "blocked": 0,
+    "completed": 99,
+    "inbox_items": 56
+  }
+}

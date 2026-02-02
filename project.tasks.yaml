@@ -14262,7 +14262,9 @@
   derivation: auto
   status: pending
   blocked_by: []
-  depends_on: []
+  depends_on:
+    - "@task-restart-checkpoint"
+    - "@01KGEP50"
   context: []
   priority: 3
   tags: []

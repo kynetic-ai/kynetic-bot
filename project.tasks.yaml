@@ -14453,6 +14453,7 @@
           - packages/agent/src/lifecycle.ts (reference for graceful shutdown pattern)
       supersedes: null
   todos: []
+  automation: eligible
 - _ulid: 01KGEP4ASPV39SEY2NZRP4NWR4
   slugs:
     - task-bot-restart-api

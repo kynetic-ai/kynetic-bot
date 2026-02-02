@@ -426,3 +426,7 @@ features:
         given: bot calls requestRestart(options)
         when: IPC available
         then: writes checkpoint, sends planned_restart
+      - id: ac-2
+        given: requestRestart called
+        when: options.reason provided
+        then: checkpoint includes restart_reason

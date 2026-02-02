@@ -196,6 +196,8 @@ export interface BotOptions {
   contextUsageTracker?: ContextUsageTracker;
   /** SummaryProvider for context restoration summarization (optional, null disables) */
   summaryProvider?: SummaryProvider | null;
+  /** Path to checkpoint file for restart context injection (optional) */
+  checkpointPath?: string;
 }
 
 /**
@@ -320,8 +322,11 @@ export class Bot extends EventEmitter {
    * @param config - Bot configuration
    * @returns Initialized Bot instance
    */
-  static async create(config: BotConfig): Promise<Bot> {
-    const bot = new Bot({ config });
+  static async create(
+    config: BotConfig,
+    options?: Partial<Omit<BotOptions, 'config'>>
+  ): Promise<Bot> {
+    const bot = new Bot({ config, ...options });
 
     // Initialize KbotShadow (creates .kbot/ if needed)
     await bot.shadow.initialize();

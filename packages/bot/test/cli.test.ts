@@ -17,6 +17,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
+import { parseArgs } from 'node:util';
 
 /**
  * Shutdown controller - mimics the pattern in cli.ts
@@ -50,6 +51,66 @@ function createShutdownController() {
 
   return { shutdown, events, isShuttingDown: () => isShuttingDown };
 }
+
+describe('CLI Argument Parsing', () => {
+  describe('--checkpoint argument (AC: @wake-injection ac-1)', () => {
+    it('parses --checkpoint flag with path', () => {
+      // AC: @wake-injection ac-1 - Accepts --checkpoint CLI arg
+      const { values } = parseArgs({
+        args: ['--checkpoint', '/path/to/checkpoint.json'],
+        options: {
+          checkpoint: { type: 'string', short: 'c' },
+        },
+        strict: false,
+      });
+
+      const checkpointPath = typeof values.checkpoint === 'string' ? values.checkpoint : undefined;
+      expect(checkpointPath).toBe('/path/to/checkpoint.json');
+    });
+
+    it('parses -c short flag with path', () => {
+      // AC: @wake-injection ac-1 - Short form of checkpoint arg
+      const { values } = parseArgs({
+        args: ['-c', '/path/to/checkpoint.json'],
+        options: {
+          checkpoint: { type: 'string', short: 'c' },
+        },
+        strict: false,
+      });
+
+      const checkpointPath = typeof values.checkpoint === 'string' ? values.checkpoint : undefined;
+      expect(checkpointPath).toBe('/path/to/checkpoint.json');
+    });
+
+    it('returns undefined when checkpoint not provided', () => {
+      // AC: @wake-injection ac-1 - No checkpoint arg is valid
+      const { values } = parseArgs({
+        args: [],
+        options: {
+          checkpoint: { type: 'string', short: 'c' },
+        },
+        strict: false,
+      });
+
+      const checkpointPath = typeof values.checkpoint === 'string' ? values.checkpoint : undefined;
+      expect(checkpointPath).toBeUndefined();
+    });
+
+    it('allows other unrecognized arguments with strict: false', () => {
+      // AC: @wake-injection ac-1 - CLI should not fail on other args
+      const { values } = parseArgs({
+        args: ['--checkpoint', '/path/to/checkpoint.json', '--some-other-flag'],
+        options: {
+          checkpoint: { type: 'string', short: 'c' },
+        },
+        strict: false,
+      });
+
+      const checkpointPath = typeof values.checkpoint === 'string' ? values.checkpoint : undefined;
+      expect(checkpointPath).toBe('/path/to/checkpoint.json');
+    });
+  });
+});
 
 describe('CLI Shutdown Logic', () => {
   describe('Double-shutdown prevention (AC-2, AC-3)', () => {

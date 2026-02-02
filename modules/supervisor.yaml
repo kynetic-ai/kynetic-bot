@@ -5,7 +5,7 @@ title: Supervisor
 type: module
 status:
   maturity: draft
-  implementation: not_started
+  implementation: in_progress
 description: Supervisor package that spawns and manages the kbot process. Enables restart
   functionality with wake-up context preservation via IPC protocol and checkpoint files.
 tags: []

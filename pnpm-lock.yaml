@@ -74,6 +74,9 @@ importers:
       '@kynetic-bot/messaging':
         specifier: workspace:*
         version: link:../messaging
+      '@kynetic-bot/supervisor':
+        specifier: workspace:*
+        version: link:../supervisor
       yaml:
         specifier: ^2.3
         version: 2.8.2

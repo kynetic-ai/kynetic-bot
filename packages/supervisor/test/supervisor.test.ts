@@ -335,7 +335,11 @@ describe('Supervisor', () => {
   });
 
   describe('IPC messaging', () => {
-    it('handles planned_restart message', async () => {
+    // AC: @restart-protocol ac-1
+    it('handles planned_restart message and sends acknowledgment', async () => {
+      const checkpointPath = join(testDir, 'test-checkpoint.json');
+      await writeFile(checkpointPath, JSON.stringify({ test: 'data' }));
+
       supervisor = new Supervisor({ childPath: '/path/to/kbot' });
       await supervisor.spawn();
 
@@ -346,14 +350,119 @@ describe('Supervisor', () => {
       // Send planned restart from child
       mockChild.emit('message', {
         type: 'planned_restart',
-        checkpoint: '/tmp/planned-restart.json',
+        checkpoint: checkpointPath,
       });
+
+      // Wait a bit for async processing
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       // Wait for acknowledgment
       const ack = await ackPromise;
 
       // Should send acknowledgment
       expect(ack).toEqual({ type: 'restart_ack' });
+    });
+
+    // AC: @restart-protocol ac-2
+    it('verifies checkpoint file exists before acknowledging', async () => {
+      supervisor = new Supervisor({ childPath: '/path/to/kbot' });
+      await supervisor.spawn();
+
+      const messages: unknown[] = [];
+      mockChild.on('test:send', (msg) => messages.push(msg));
+
+      // Send planned restart with non-existent checkpoint
+      mockChild.emit('message', {
+        type: 'planned_restart',
+        checkpoint: '/nonexistent/checkpoint.json',
+      });
+
+      // Wait for processing
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      // Should send error, not ack
+      expect(messages).toHaveLength(1);
+      expect(messages[0]).toMatchObject({
+        type: 'error',
+        message: expect.stringContaining('not accessible'),
+      });
+    });
+
+    // AC: @restart-protocol ac-3, ac-4
+    it('respawns with checkpoint flag after planned restart', async () => {
+      const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => {
+        throw new Error('process.exit called');
+      });
+
+      try {
+        const checkpointPath = join(testDir, 'planned-checkpoint.json');
+        await writeFile(checkpointPath, JSON.stringify({ test: 'data' }));
+
+        supervisor = new Supervisor({
+          childPath: '/path/to/kbot',
+          minBackoffMs: 50,
+        });
+
+        await supervisor.spawn();
+
+        // Send planned restart
+        mockChild.emit('message', {
+          type: 'planned_restart',
+          checkpoint: checkpointPath,
+        });
+
+        await new Promise((resolve) => setTimeout(resolve, 50));
+
+        // Create new child for respawn
+        const secondChild = new MockChildProcess();
+        const { fork } = await import('node:child_process');
+        vi.mocked(fork).mockReturnValue(secondChild as unknown as ChildProcess);
+
+        // Exit with code 0 - should not exit supervisor, but trigger respawn in this test
+        // (normally code 0 exits supervisor, but we're testing the checkpoint passing)
+        mockChild.emit('exit', 1, null);
+
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        // AC: @restart-protocol ac-4
+        // Should use the planned checkpoint in args
+        expect(fork).toHaveBeenLastCalledWith(
+          '/path/to/kbot',
+          ['--checkpoint', checkpointPath],
+          expect.any(Object)
+        );
+      } finally {
+        exitSpy.mockRestore();
+      }
+    });
+
+    // AC: @restart-protocol ac-5
+    it('logs warning and ignores invalid IPC messages', async () => {
+      supervisor = new Supervisor({ childPath: '/path/to/kbot' });
+      await supervisor.spawn();
+
+      // Send invalid message (missing required fields)
+      mockChild.emit('message', {
+        type: 'planned_restart',
+        // missing checkpoint field
+      });
+
+      // Should not crash
+      await new Promise((resolve) => setTimeout(resolve, 20));
+
+      // Send completely invalid message
+      mockChild.emit('message', {
+        invalid: 'structure',
+      });
+
+      // Should not crash
+      await new Promise((resolve) => setTimeout(resolve, 20));
+
+      // Send malformed message
+      mockChild.emit('message', null);
+
+      // Should not crash
+      await new Promise((resolve) => setTimeout(resolve, 20));
     });
 
     it('handles error messages from child', async () => {
@@ -422,6 +531,19 @@ describe('Supervisor', () => {
       });
 
       try {
+        // Create checkpoint file for validation (AC: @restart-protocol ac-2)
+        const checkpointPath = join(testDir, 'planned.json');
+        await writeFile(
+          checkpointPath,
+          JSON.stringify({
+            version: 1,
+            session_id: '01EXAMPLE',
+            restart_reason: 'planned',
+            wake_context: { prompt: 'Resume session' },
+            created_at: new Date().toISOString(),
+          })
+        );
+
         supervisor = new Supervisor({
           childPath: '/path/to/kbot',
           minBackoffMs: 50,
@@ -432,10 +554,10 @@ describe('Supervisor', () => {
         // Send planned restart
         mockChild.emit('message', {
           type: 'planned_restart',
-          checkpoint: '/tmp/planned.json',
+          checkpoint: checkpointPath,
         });
 
-        await new Promise((resolve) => setTimeout(resolve, 20));
+        await new Promise((resolve) => setTimeout(resolve, 50));
 
         // Create new child for respawn
         const secondChild = new MockChildProcess();
@@ -450,7 +572,7 @@ describe('Supervisor', () => {
         // Should use the planned checkpoint
         expect(fork).toHaveBeenLastCalledWith(
           '/path/to/kbot',
-          ['--checkpoint', '/tmp/planned.json'],
+          ['--checkpoint', checkpointPath],
           expect.any(Object)
         );
       } finally {

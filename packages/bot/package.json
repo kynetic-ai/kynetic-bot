@@ -22,6 +22,7 @@
     "@kynetic-bot/channels": "workspace:*",
     "@kynetic-bot/memory": "workspace:*",
     "@kynetic-bot/agent": "workspace:*",
+    "@kynetic-bot/supervisor": "workspace:*",
     "yaml": "^2.3",
     "zod": "^3.23"
   }

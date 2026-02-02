@@ -8,12 +8,7 @@ export {
 } from './config.js';
 
 // Bot orchestration
-export {
-  Bot,
-  type BotState,
-  type BotOptions,
-  type EscalationContext,
-} from './bot.js';
+export { Bot, type BotState, type BotOptions, type EscalationContext } from './bot.js';
 
 // Re-export transformer types for convenience
 export {
@@ -31,3 +26,12 @@ export {
   CustomIdentitySchema,
   type CustomIdentity,
 } from './identity.js';
+
+// Restart protocol
+export {
+  RestartProtocol,
+  getRestartProtocol,
+  NoIpcChannelError,
+  RestartPendingError,
+  type RestartOptions,
+} from './restart.js';

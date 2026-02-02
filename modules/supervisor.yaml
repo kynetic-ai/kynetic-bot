@@ -89,3 +89,7 @@ features:
         given: checkpoint created
         when: persisted
         then: writes to .kbot/checkpoints/{ulid}.yaml
+      - id: ac-2
+        given: checkpoint file
+        when: validated
+        then: "contains: session_id, restart_reason, wake_context.prompt"

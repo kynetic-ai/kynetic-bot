@@ -438,3 +438,7 @@ features:
         given: requestRestart called
         when: options.pendingWork provided
         then: checkpoint includes wake_context.pending_work
+      - id: ac-5
+        given: requestRestart succeeds
+        when: IPC acknowledged
+        then: bot initiates graceful shutdown

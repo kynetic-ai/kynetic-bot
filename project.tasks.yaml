@@ -14510,7 +14510,22 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-02T08:05:15.685Z
-  notes: []
+  notes:
+    - _ulid: 01KGEP72ZX99V7Y4PJSRMJ186X
+      created_at: 2026-02-02T08:06:29.117Z
+      author: "@claude"
+      content: >-
+        Schema definitions:
+
+        - Checkpoint schema: version, session_id, restart_reason ('planned'|'upgrade'|'crash'),
+        wake_context { prompt, pending_work?, instructions? }, created_at
+
+        - IPC message schemas:
+          - PlannedRestartMessage: { type: 'planned_restart', checkpoint: string }
+          - RestartAckMessage: { type: 'restart_ack' }
+          - ErrorMessage: { type: 'error', message: string }
+        - Location: packages/supervisor/src/schemas.ts (shared by supervisor and bot)
+      supersedes: null
   todos: []
 - _ulid: 01KGEP50B74TQNCPHQKFZTD6WC
   slugs: []

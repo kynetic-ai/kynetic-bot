@@ -15157,7 +15157,10 @@
   created_at: 2026-02-02T19:56:10.004Z
   notes: []
   todos: []
-- title: Add crash checkpoint cleanup mechanism
+- _ulid: 01KGFYTMHDZ5CKVNK3RCETWH9J
+  slugs: []
+  title: Add crash checkpoint cleanup mechanism
+  type: task
   description: |-
     Currently /tmp/crash-*.json files accumulate with no cleanup.
 
@@ -15172,6 +15175,30 @@
     - Max file count limit
 
     Should align with existing checkpoint 24-hour TTL pattern.
+  spec_ref: null
+  meta_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  priority: 3
+  tags: []
+  vcs_refs: []
+  created_at: 2026-02-02T19:56:12.717Z
+  notes: []
+  todos: []
+- title: Make shutdown timeout configurable
+  description: |-
+    The 30-second shutdown timeout is currently hardcoded in cli.ts.
+
+    **Current state:**
+    - cli.ts line 17 has fixed 30s timeout
+    - No way to configure via environment or config
+
+    **Desired:**
+    - Make timeout configurable via environment variable or config
+    - Document the configuration option
+    - Consider reasonable defaults and bounds
   type: task
   spec_ref: null
   meta_ref: null
@@ -15179,11 +15206,11 @@
   slugs: []
   tags: []
   depends_on: []
-  _ulid: 01KGFYTMHDZ5CKVNK3RCETWH9J
+  _ulid: 01KGFYTPW1YYAQYZCDV5ZCWWZ5
   status: pending
   blocked_by: []
   context: []
   vcs_refs: []
-  created_at: 2026-02-02T19:56:12.717Z
+  created_at: 2026-02-02T19:56:15.105Z
   notes: []
   todos: []

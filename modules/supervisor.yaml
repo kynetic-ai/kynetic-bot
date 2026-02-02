@@ -51,3 +51,7 @@ features:
         given: kbot exits non-zero
         when: exit detected
         then: respawns with exponential backoff
+      - id: ac-5
+        given: backoff reaches max (60s)
+        when: spawn fails again
+        then: emits escalation event, continues retrying

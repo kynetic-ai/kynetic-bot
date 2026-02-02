@@ -393,3 +393,7 @@ features:
         given: checkpoint has instructions
         when: wake prompt generated
         then: "includes 'Instructions: {instructions}'"
+      - id: ac-6
+        given: checkpoint consumed
+        when: startup completes
+        then: file deleted, event emitted

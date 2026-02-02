@@ -14411,15 +14411,21 @@
         (does not wait for full restart)
       supersedes: null
   todos: []
-- title: "Implement: Supervisor Environment"
+- _ulid: 01KGEP4D9C2F5A61TSW39MJM4K
+  slugs:
+    - task-supervisor-environment
+  title: "Implement: Supervisor Environment"
   type: task
   spec_ref: "@supervisor-env"
   derivation: auto
-  priority: 3
-  slugs:
-    - task-supervisor-environment
-  tags: []
+  status: pending
+  blocked_by: []
   depends_on: []
+  context: []
+  priority: 3
+  tags: []
+  vcs_refs: []
+  created_at: 2026-02-02T08:05:01.356Z
   notes:
     - _ulid: 01KGEP4D9BQMQD62ZNNJB3XY7Y
       created_at: 2026-02-02T08:05:01.355Z
@@ -14444,10 +14450,23 @@
         - ac-4: Given restart after checkpoint, when child spawned, then KBOT_CHECKPOINT_PATH={path}
         in env
       supersedes: null
-  _ulid: 01KGEP4D9C2F5A61TSW39MJM4K
+  todos: []
+- title: Create supervisor package scaffold
+  description: Create the new @kynetic-bot/supervisor package structure under packages/supervisor/.
+    Add to pnpm-workspace.yaml, create package.json with dependencies, set up TypeScript config, and
+    create supervisor CLI entry point with signal handlers.
+  type: task
+  spec_ref: null
+  meta_ref: null
+  priority: 1
+  slugs: []
+  tags: []
+  depends_on: []
+  _ulid: 01KGEP4MB32JTX8651HMWVVCR9
   status: pending
   blocked_by: []
   context: []
   vcs_refs: []
-  created_at: 2026-02-02T08:05:01.356Z
+  created_at: 2026-02-02T08:05:08.578Z
+  notes: []
   todos: []

@@ -208,3 +208,7 @@ features:
         given: messages in-flight
         when: shutdown initiated
         then: waits for inflightCount to reach 0 (with timeout)
+      - id: ac-7
+        given: new message arrives
+        when: during shutdown drain
+        then: rejected with 'shutting down' error

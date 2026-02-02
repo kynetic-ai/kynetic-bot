@@ -647,4 +647,14 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KGEQEZZBTGDNH15E3EYQDEKX
+    type: success
+    content: "Test-first with AC annotations: Writing tests with AC annotations (// AC: @spec-ref ac-N)
+      before or during implementation ensures complete coverage. For schemas (01KGEP4V), 21 tests
+      covered all ACs (ac-2, ac-3, ac-7, trait-validated) and passed first run. Clear traceability
+      from test to spec to implementation."
+    created_at: 2026-02-02T08:28:16.747Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

@@ -14106,6 +14106,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-02T08:04:41.429Z
+  started_at: 2026-02-02T08:42:36.122Z
   notes:
     - _ulid: 01KGEP3STM7SCCP0G6EF72EPY7
       created_at: 2026-02-02T08:04:41.428Z
@@ -14165,9 +14166,53 @@
           - ../kynetic-internal/packages/lifeline/src/supervisor.ts (reference pattern)
           - packages/supervisor/src/supervisor.ts (new)
       supersedes: null
+    - _ulid: 01KGERQPQ17V7KWV3GJAMH58J6
+      created_at: 2026-02-02T08:50:30.753Z
+      author: "@claude"
+      content: |-
+        Implemented Supervisor process spawn functionality with full AC coverage:
+
+        **Implementation:**
+        - Created Supervisor class (src/supervisor.ts) with EventEmitter-based observable pattern
+        - Spawns kbot child process using child_process.fork() with IPC channel
+        - Implements exponential backoff (1s -> 60s max) for respawn after crashes
+        - Signal handling: forwards SIGTERM to child, waits for graceful exit
+        - Creates crash checkpoints on unexpected exits for state preservation
+        - Handles planned restarts via IPC messages with checkpoint persistence
+        - Integrated into CLI (src/cli.ts) with --checkpoint and --child flags
+
+        **Key Features:**
+        - Exit code 0: supervisor exits cleanly (no respawn)
+        - Exit non-zero: respawn with backoff, create crash checkpoint
+        - Backoff escalation: emits event when max backoff reached
+        - IPC protocol: planned_restart, restart_ack, error messages
+        - Graceful shutdown: SIGTERM with timeout, SIGKILL fallback
+        - Child orphaning: if supervisor crashes, child continues (AC-8)
+
+        **Test Coverage:**
+        - 22 tests covering all 9 main ACs + trait ACs
+        - Tests for spawn, IPC, signals, backoff, escalation, checkpoints
+        - Observable trait: event emission, error logging, completion events
+        - Health monitoring: failure tracking, recovery detection
+        - Graceful shutdown: timeout handling, resource cleanup
+        - All 43 tests pass (including schemas tests)
+
+        **AC Coverage:**
+        - ac-1: Spawn with IPC channel ✓
+        - ac-2: SIGTERM forwarding and graceful exit ✓
+        - ac-3: Clean exit on code 0 ✓
+        - ac-4: Respawn with exponential backoff ✓
+        - ac-5: Escalation event at max backoff ✓
+        - ac-6: PID logging and IPC setup ✓
+        - ac-7: IPC error handling and retry ✓
+        - ac-8: Child orphaning on supervisor crash ✓
+        - ac-9: Crash checkpoint creation ✓
+        - trait-observable: events, logging, completion ✓
+        - trait-health-monitored: failure tracking, recovery ✓
+        - trait-graceful-shutdown: signal handling, cleanup ✓
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-02-02T08:42:36.122Z
 - _ulid: 01KGEP3W5FN57ZRVPBMGN1TPM9
   slugs:
     - task-restart-checkpoint

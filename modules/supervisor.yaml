@@ -196,3 +196,7 @@ features:
         given: supervisor receives SIGTERM
         when: in planned restart
         then: completes restart (no double-signal)
+      - id: ac-4
+        given: shutdown initiated
+        when: child draining
+        then: emits 'draining' event

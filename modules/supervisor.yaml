@@ -113,3 +113,7 @@ features:
         given: checkpoint format changes
         when: version field checked
         then: handles migration or rejects incompatible
+      - id: ac-8
+        given: checkpoint write fails
+        when: disk full/permissions
+        then: logs error, restart proceeds without checkpoint

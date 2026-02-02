@@ -264,3 +264,6 @@ features:
         given: restart after checkpoint
         when: child spawned
         then: KBOT_CHECKPOINT_PATH={path} in env
+    status:
+      maturity: draft
+      implementation: in_progress

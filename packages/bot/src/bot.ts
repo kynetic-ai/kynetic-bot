@@ -44,6 +44,8 @@ import {
 } from '@kynetic-bot/memory';
 import type { BotConfig } from './config.js';
 import { buildIdentityPrompt } from './identity.js';
+import { generateWakePrompt } from './wake.js';
+import { readCheckpoint, deleteCheckpoint, type Checkpoint } from '@kynetic-bot/supervisor';
 
 const DEFAULT_AGENT_READY_TIMEOUT = 30000;
 const INFLIGHT_POLL_INTERVAL = 100;
@@ -171,6 +173,9 @@ export interface BotEvents {
 
   /** Context usage tracking error */
   'usage:error': (data: unknown) => void;
+
+  /** Checkpoint consumed after wake context injection */
+  'checkpoint:consumed': (data: { checkpointPath: string; sessionId: string }) => void;
 }
 
 /**
@@ -232,6 +237,8 @@ export class Bot extends EventEmitter {
   private lastActiveChannel: string | null = null;
   private inflightCount = 0;
   private identityPrompt: string | null = null;
+  private checkpoint: Checkpoint | null = null;
+  private checkpointPath: string | null = null;
   private readonly log = createLogger('bot');
 
   /**
@@ -259,6 +266,7 @@ export class Bot extends EventEmitter {
   private constructor(options: BotOptions) {
     super();
     this.config = options.config;
+    this.checkpointPath = options.checkpointPath ?? null;
     this.registry = options.registry ?? new ChannelRegistry();
     this.agent = options.agent ?? this.createAgentLifecycle();
     this.router = options.router ?? this.createRouter();
@@ -318,6 +326,7 @@ export class Bot extends EventEmitter {
    * Factory method to create and initialize a Bot instance
    *
    * AC-1: Bot.create() wires registry, agent lifecycle, session router, shadow
+   * AC: @wake-injection ac-1 - Reads and validates checkpoint if provided
    *
    * @param config - Bot configuration
    * @returns Initialized Bot instance
@@ -330,6 +339,25 @@ export class Bot extends EventEmitter {
 
     // Initialize KbotShadow (creates .kbot/ if needed)
     await bot.shadow.initialize();
+
+    // AC: @wake-injection ac-1 - Read and validate checkpoint if provided
+    if (bot.checkpointPath) {
+      const result = await readCheckpoint(bot.checkpointPath);
+      if (result.success && result.checkpoint) {
+        bot.checkpoint = result.checkpoint;
+        bot.log.info('Checkpoint loaded for wake context injection', {
+          sessionId: result.checkpoint.session_id,
+          reason: result.checkpoint.restart_reason,
+        });
+      } else {
+        // Log warning but continue without checkpoint
+        bot.log.warn('Failed to load checkpoint, continuing without wake context', {
+          path: bot.checkpointPath,
+          error: result.error?.message,
+          warning: result.warning,
+        });
+      }
+    }
 
     return bot;
   }
@@ -588,7 +616,41 @@ export class Bot extends EventEmitter {
         }
       }
 
+      // AC: @wake-injection ac-2, ac-3, ac-9 - Inject wake prompt BEFORE identity prompt
+      // Message order: wake context, then identity prompt, then restored history
+      if (isNew && !contextRestored && this.checkpoint) {
+        const wakePrompt = generateWakePrompt(this.checkpoint.wake_context);
+        this.log.info('Injecting wake context prompt', {
+          sessionId,
+          checkpointSessionId: this.checkpoint.session_id,
+          reason: this.checkpoint.restart_reason,
+        });
+        await client.prompt({
+          sessionId,
+          prompt: [{ type: 'text', text: wakePrompt }],
+          promptSource: 'system',
+        });
+
+        // AC: @wake-injection ac-6 - Delete checkpoint and emit event after consumption
+        if (this.checkpointPath) {
+          await deleteCheckpoint(this.checkpointPath);
+          this.emit('checkpoint:consumed', {
+            checkpointPath: this.checkpointPath,
+            sessionId: this.checkpoint.session_id,
+          });
+          this.log.info('Checkpoint consumed and deleted', {
+            path: this.checkpointPath,
+          });
+        }
+
+        // Clear checkpoint after consumption (one-time use)
+        this.checkpoint = null;
+        this.checkpointPath = null;
+      }
+
       // AC: @bot-identity ac-1, ac-2 - Send identity prompt for new sessions WITHOUT prior history
+      // AC: @wake-injection ac-7 - Send identity only if no checkpoint
+      // AC: @wake-injection ac-9 - Identity sent AFTER wake context
       // Don't send if context was restored (would be redundant)
       if (isNew && !contextRestored && this.identityPrompt) {
         this.log.debug('Sending identity prompt to new session');

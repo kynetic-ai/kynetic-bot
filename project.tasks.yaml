@@ -14385,6 +14385,7 @@
           - packages/bot/src/wake.ts (new)
       supersedes: null
   todos: []
+  automation: eligible
 - _ulid: 01KGEP470NTYBVKH72DPH04WH6
   slugs:
     - task-shutdown-modes

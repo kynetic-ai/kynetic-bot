@@ -1,0 +1,2 @@
+{"ts":1770049839347,"seq":0,"type":"session.start","session_id":"01KGFK287EX6TFT683ZDW7612M","data":{"adapter":"claude-code-acp","maxLoops":1,"maxRetries":3,"maxFailures":3,"maxTasks":1,"yolo":true}}
+{"ts":1770049839511,"seq":1,"type":"session.end","session_id":"01KGFK287EX6TFT683ZDW7612M","data":{"status":"completed","consecutiveFailures":0}}

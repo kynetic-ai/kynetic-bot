@@ -14099,6 +14099,11 @@
   derivation: auto
   status: completed
   blocked_by: []
+  closed_reason: "Merged in PR #76. Implemented supervisor process spawn with full AC coverage: spawns
+    kbot with IPC channel, handles SIGTERM forwarding, implements exponential backoff (1s-60s) for
+    respawn, creates crash checkpoints, manages graceful shutdown. All 9 feature ACs + trait ACs
+    covered with 43 passing tests. EventEmitter-based observable pattern with proper health
+    monitoring and graceful shutdown support."
   depends_on:
     - "@01KGEP4M"
   context: []
@@ -14107,6 +14112,7 @@
   vcs_refs: []
   created_at: 2026-02-02T08:04:41.429Z
   started_at: 2026-02-02T08:42:36.122Z
+  completed_at: 2026-02-02T08:55:16.175Z
   notes:
     - _ulid: 01KGEP3STM7SCCP0G6EF72EPY7
       created_at: 2026-02-02T08:04:41.428Z
@@ -14213,12 +14219,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-02-02T08:55:16.175Z
-  closed_reason: "Merged in PR #76. Implemented supervisor process spawn with full AC coverage: spawns
-    kbot with IPC channel, handles SIGTERM forwarding, implements exponential backoff (1s-60s) for
-    respawn, creates crash checkpoints, manages graceful shutdown. All 9 feature ACs + trait ACs
-    covered with 43 passing tests. EventEmitter-based observable pattern with proper health
-    monitoring and graceful shutdown support."
 - _ulid: 01KGEP3W5FN57ZRVPBMGN1TPM9
   slugs:
     - task-restart-checkpoint
@@ -14590,7 +14590,7 @@
   type: task
   spec_ref: "@supervisor-env"
   derivation: auto
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on:
     - "@task-supervisor-process-spawn"
@@ -14640,6 +14640,7 @@
       supersedes: null
   todos: []
   automation: eligible
+  started_at: 2026-02-02T18:11:09.823Z
 - _ulid: 01KGEP4MB32JTX8651HMWVVCR9
   slugs: []
   title: Create supervisor package scaffold

@@ -14221,6 +14221,20 @@
         - ac-8: Given checkpoint write fails, when disk full/permissions, then logs error, restart
         proceeds without checkpoint
       supersedes: null
+    - _ulid: 01KGEP7SFRCXT4MZHAQKFFB8G5
+      created_at: 2026-02-02T08:06:52.153Z
+      author: "@claude"
+      content: |-
+        Implementation approach:
+        - Checkpoint files stored at .kbot/checkpoints/{ulid}.yaml
+        - Use Zod schema for validation with version field for future migrations
+        - 24-hour TTL: ignore and warn if older
+        - File cleanup: delete after successful wake injection
+        - Graceful degradation: if corrupted/unreadable, log error and continue without wake context
+        - Key files:
+          - packages/memory/src/shadow/shadow.ts (persistence pattern reference)
+          - packages/supervisor/src/checkpoint.ts (new)
+      supersedes: null
   todos: []
 - _ulid: 01KGEP3YW8E1MD0Q2W8JQ31TPX
   slugs:

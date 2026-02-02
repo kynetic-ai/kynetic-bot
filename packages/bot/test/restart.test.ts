@@ -61,9 +61,7 @@ describe('RestartProtocol', () => {
       };
 
       await expect(protocol.requestRestart(options)).rejects.toThrow(NoIpcChannelError);
-      await expect(protocol.requestRestart(options)).rejects.toThrow(
-        'IPC channel not available'
-      );
+      await expect(protocol.requestRestart(options)).rejects.toThrow('IPC channel not available');
     });
 
     // AC: @restart-protocol ac-7

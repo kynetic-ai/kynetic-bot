@@ -12,7 +12,12 @@ import { fork, type ChildProcess } from 'node:child_process';
 import { writeFile, access } from 'node:fs/promises';
 import { constants } from 'node:fs';
 import { createLogger, type Logger } from '@kynetic-bot/core';
-import { IpcMessageSchema, type IpcMessage, type Checkpoint, type RestartReason } from './schemas.js';
+import {
+  IpcMessageSchema,
+  type IpcMessage,
+  type Checkpoint,
+  type RestartReason,
+} from './schemas.js';
 
 export interface SupervisorConfig {
   /**

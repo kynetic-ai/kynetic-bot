@@ -8,12 +8,7 @@ export {
 } from './config.js';
 
 // Bot orchestration
-export {
-  Bot,
-  type BotState,
-  type BotOptions,
-  type EscalationContext,
-} from './bot.js';
+export { Bot, type BotState, type BotOptions, type EscalationContext } from './bot.js';
 
 // Re-export transformer types for convenience
 export {

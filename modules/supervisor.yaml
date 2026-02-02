@@ -204,3 +204,7 @@ features:
         given: hard shutdown requested
         when: kill('SIGKILL') called
         then: immediately sends SIGKILL
+      - id: ac-6
+        given: messages in-flight
+        when: shutdown initiated
+        then: waits for inflightCount to reach 0 (with timeout)

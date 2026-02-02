@@ -14575,7 +14575,7 @@
   type: task
   spec_ref: "@shutdown-modes"
   derivation: auto
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on:
     - "@task-restart-protocol"
@@ -14687,6 +14687,10 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-02-02T19:08:22.526Z
+  closed_reason: "Merged in PR #80. Implemented shutdown modes with soft/hard shutdown, in-flight
+    message draining, timeout escalation to SIGKILL, and planned restart coordination. All 8
+    acceptance criteria covered with comprehensive tests (38 supervisor tests passing)."
 - _ulid: 01KGEP4ASPV39SEY2NZRP4NWR4
   slugs:
     - task-bot-restart-api

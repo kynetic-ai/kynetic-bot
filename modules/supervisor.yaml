@@ -188,3 +188,7 @@ features:
         given: soft shutdown requested
         when: SIGTERM sent
         then: waits up to shutdownTimeout (30s default)
+      - id: ac-2
+        given: soft shutdown timeout exceeded
+        when: child running
+        then: sends SIGKILL, logs forced termination

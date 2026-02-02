@@ -15147,7 +15147,7 @@
     User will provide specific guidance on what needs to be renamed/merged.
   spec_ref: null
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -15157,6 +15157,7 @@
   created_at: 2026-02-02T19:56:10.004Z
   notes: []
   todos: []
+  started_at: 2026-02-02T20:31:48.507Z
 - _ulid: 01KGFYTMHDZ5CKVNK3RCETWH9J
   slugs: []
   title: Add crash checkpoint cleanup mechanism
@@ -15187,7 +15188,10 @@
   created_at: 2026-02-02T19:56:12.717Z
   notes: []
   todos: []
-- title: Make shutdown timeout configurable
+- _ulid: 01KGFYTPW1YYAQYZCDV5ZCWWZ5
+  slugs: []
+  title: Make shutdown timeout configurable
+  type: task
   description: |-
     The 30-second shutdown timeout is currently hardcoded in cli.ts.
 
@@ -15199,17 +15203,14 @@
     - Make timeout configurable via environment variable or config
     - Document the configuration option
     - Consider reasonable defaults and bounds
-  type: task
   spec_ref: null
   meta_ref: null
-  priority: 3
-  slugs: []
-  tags: []
-  depends_on: []
-  _ulid: 01KGFYTPW1YYAQYZCDV5ZCWWZ5
   status: pending
   blocked_by: []
+  depends_on: []
   context: []
+  priority: 3
+  tags: []
   vcs_refs: []
   created_at: 2026-02-02T19:56:15.105Z
   notes: []

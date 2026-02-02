@@ -657,4 +657,13 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KGFSDDDZRZCFN7NAT4D2YWTW
+    type: friction
+    content: Linter errors caught only at commit time, not during build. Required 2 commit retries to
+      fix @typescript-eslint/no-unused-vars, @typescript-eslint/no-unsafe-assignment, and template
+      expression errors. Running eslint during pnpm build would catch these earlier in the workflow.
+    created_at: 2026-02-02T18:21:36.576Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

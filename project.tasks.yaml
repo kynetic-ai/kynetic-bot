@@ -14530,6 +14530,7 @@
           - packages/messaging/src/session/session-lifecycle.ts (restart awareness)
       supersedes: null
   todos: []
+  automation: eligible
 - _ulid: 01KGEP4D9C2F5A61TSW39MJM4K
   slugs:
     - task-supervisor-environment

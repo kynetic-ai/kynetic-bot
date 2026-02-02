@@ -84,3 +84,8 @@ features:
       - "@trait-recoverable"
     notes: []
     created: 2026-02-02T08:00:12.330Z
+    acceptance_criteria:
+      - id: ac-1
+        given: checkpoint created
+        when: persisted
+        then: writes to .kbot/checkpoints/{ulid}.yaml

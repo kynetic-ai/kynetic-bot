@@ -14090,15 +14090,21 @@
         Total tests: 1390 (7 new tests for AC-21)
       supersedes: null
   todos: []
-- title: "Implement: Supervisor Process Spawn"
+- _ulid: 01KGEP3STNEZETX1NPM4V0972W
+  slugs:
+    - task-supervisor-process-spawn
+  title: "Implement: Supervisor Process Spawn"
   type: task
   spec_ref: "@supervisor-process-spawn"
   derivation: auto
-  priority: 3
-  slugs:
-    - task-supervisor-process-spawn
-  tags: []
+  status: pending
+  blocked_by: []
   depends_on: []
+  context: []
+  priority: 3
+  tags: []
+  vcs_refs: []
+  created_at: 2026-02-02T08:04:41.429Z
   notes:
     - _ulid: 01KGEP3STM7SCCP0G6EF72EPY7
       created_at: 2026-02-02T08:04:41.428Z
@@ -14135,10 +14141,58 @@
         - ac-8: Given supervisor crashes, when child running, then child orphaned, continues running
         (container/systemd restarts supervisor)
       supersedes: null
-  _ulid: 01KGEP3STNEZETX1NPM4V0972W
+  todos: []
+- title: "Implement: Restart Checkpoint"
+  type: task
+  spec_ref: "@restart-checkpoint"
+  derivation: auto
+  priority: 3
+  slugs:
+    - task-restart-checkpoint
+  tags: []
+  depends_on: []
+  notes:
+    - _ulid: 01KGEP3W5ESE2R4XA57MM0B3PA
+      created_at: 2026-02-02T08:04:43.822Z
+      author: "@claude"
+      content: >-
+        Implementation notes (auto-generated from spec):
+
+
+        Checkpoint file format for persisting restart context. Checkpoints store session state,
+        restart reason, and wake-up context that survives restarts.
+
+
+
+        Acceptance Criteria:
+
+        - ac-1: Given checkpoint created, when persisted, then writes to
+        .kbot/checkpoints/{ulid}.yaml
+
+        - ac-2: Given checkpoint file, when validated, then contains: session_id, restart_reason,
+        wake_context.prompt
+
+        - ac-3: Given restart_reason, when checkpoint created, then accepts 'planned', 'upgrade',
+        'crash'
+
+        - ac-4: Given checkpoint > 24 hours old, when bot starts, then ignores, logs warning
+
+        - ac-5: Given checkpoint consumed, when bot starts normally, then deletes file after wake
+        injection
+
+        - ac-6: Given checkpoint corrupted, when validation fails, then logs error, starts without
+        wake context
+
+        - ac-7: Given checkpoint format changes, when version field checked, then handles migration
+        or rejects incompatible
+
+        - ac-8: Given checkpoint write fails, when disk full/permissions, then logs error, restart
+        proceeds without checkpoint
+      supersedes: null
+  _ulid: 01KGEP3W5FN57ZRVPBMGN1TPM9
   status: pending
   blocked_by: []
   context: []
   vcs_refs: []
-  created_at: 2026-02-02T08:04:41.429Z
+  created_at: 2026-02-02T08:04:43.823Z
   todos: []

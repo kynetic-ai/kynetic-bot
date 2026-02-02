@@ -781,6 +781,75 @@ describe('setupBotEventListeners()', () => {
     expect(mockThread.send).toHaveBeenCalledTimes(1);
   });
 
+  // AC: @discord-tool-widgets ac-14 - Multiple tool calls without parentMessageId reuse same placeholder
+  it('should reuse placeholder for multiple tool calls without parent message', async () => {
+    const mockBot = new EventEmitter();
+    adapter.setupBotEventListeners(mockBot);
+
+    const mockThread = {
+      id: 'thread-123',
+      type: ChannelType.PublicThread,
+      send: vi.fn().mockResolvedValue({ id: 'widget-msg-id' }),
+      isTextBased: () => true,
+      isDMBased: () => false,
+    };
+
+    const placeholderMessage = {
+      id: 'placeholder-123',
+      startThread: vi.fn().mockResolvedValue(mockThread),
+    };
+
+    const guildChannel = {
+      id: 'guild-channel-123',
+      type: ChannelType.GuildText,
+      isTextBased: () => true,
+      isDMBased: () => false,
+      send: vi.fn().mockResolvedValue(placeholderMessage),
+      messages: { fetch: vi.fn().mockResolvedValue(placeholderMessage) },
+    };
+
+    getMockClient().channels.fetch = vi.fn().mockImplementation((id: string) => {
+      if (id === 'thread-123') return Promise.resolve(mockThread);
+      return Promise.resolve(guildChannel);
+    });
+
+    const toolCall1 = {
+      toolCallId: 'tool-1',
+      title: 'bash',
+      status: 'in_progress',
+      content: [],
+    };
+
+    const toolCall2 = {
+      toolCallId: 'tool-2',
+      title: 'read',
+      status: 'in_progress',
+      content: [],
+    };
+
+    const toolCall3 = {
+      toolCallId: 'tool-3',
+      title: 'write',
+      status: 'in_progress',
+      content: [],
+    };
+
+    // Emit multiple tool calls without parentMessageId (rapidly, simulating concurrent tool use)
+    mockBot.emit('tool:call', 'session-1', 'guild-channel-123', toolCall1, undefined);
+    mockBot.emit('tool:call', 'session-1', 'guild-channel-123', toolCall2, undefined);
+    mockBot.emit('tool:call', 'session-1', 'guild-channel-123', toolCall3, undefined);
+
+    // Wait for async handling
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    // Should only create ONE placeholder message (not 3)
+    expect(guildChannel.send).toHaveBeenCalledWith('Working...');
+    expect(guildChannel.send).toHaveBeenCalledTimes(1);
+
+    // Should only create ONE thread from that placeholder
+    expect(placeholderMessage.startThread).toHaveBeenCalledTimes(1);
+  });
+
   // AC: @discord-tool-widgets ac-12 - Fallback to condensed on permission error
   it('should fall back to condensed display when thread creation fails', async () => {
     const mockBot = new EventEmitter();

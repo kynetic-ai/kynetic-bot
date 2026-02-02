@@ -101,3 +101,7 @@ features:
         given: checkpoint > 24 hours old
         when: bot starts
         then: ignores, logs warning
+      - id: ac-5
+        given: checkpoint consumed
+        when: bot starts normally
+        then: deletes file after wake injection

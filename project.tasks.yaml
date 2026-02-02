@@ -14565,6 +14565,21 @@
         - ac-4: Given restart after checkpoint, when child spawned, then KBOT_CHECKPOINT_PATH={path}
         in env
       supersedes: null
+    - _ulid: 01KGEP96CX8RC441V1YS3SVHYR
+      created_at: 2026-02-02T08:07:38.142Z
+      author: "@claude"
+      content: |-
+        Implementation approach:
+        - Environment variables set by supervisor when spawning:
+          - KBOT_SUPERVISED=1 (always set when under supervisor)
+          - KBOT_SUPERVISOR_PID={pid} (supervisor's PID)
+          - KBOT_CHECKPOINT_PATH={path} (set during restart with checkpoint)
+        - Bot checks KBOT_SUPERVISED to know restart API is available
+        - Checkpoint path can be passed via env OR --checkpoint CLI arg
+        - Key files:
+          - packages/supervisor/src/supervisor.ts (set env on spawn)
+          - packages/bot/src/config.ts (read env vars)
+      supersedes: null
   todos: []
 - _ulid: 01KGEP4MB32JTX8651HMWVVCR9
   slugs: []

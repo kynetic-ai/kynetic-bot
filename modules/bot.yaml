@@ -446,3 +446,7 @@ features:
         given: IPC not available
         when: requestRestart called
         then: throws RestartNotAvailableError
+      - id: ac-7
+        given: bot under supervisor
+        when: process.send exists
+        then: isSupervisedMode() returns true

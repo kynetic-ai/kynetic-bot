@@ -726,4 +726,18 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KGFWSBH9G0VT7KQE8FQDTATB
+    type: friction
+    content: "Vitest vi.mock() hoisting makes Bot integration tests fragile. Mock factory functions run
+      before top-level variables, requiring either: (1) factory-local vi.fn() calls (can't access
+      from tests), (2) hoisted wrapper objects (still error-prone), or (3) vi.spyOn after import
+      (bypasses type safety). Spent ~30min fighting mock initialization order for bot-restart-api
+      tests before abandoning unit tests in favor of relying on existing test suite. Consider: (a)
+      integration test helpers that construct Bot with real dependencies, (b) test-specific Bot
+      factory accepting mock overrides, or (c) documentation of proven mock patterns for common
+      scenarios."
+    created_at: 2026-02-02T19:20:33.578Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

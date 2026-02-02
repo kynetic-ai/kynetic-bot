@@ -67,3 +67,18 @@ features:
         given: supervisor crashes
         when: child running
         then: child orphaned, continues running (container/systemd restarts supervisor)
+  - _ulid: 01KGENVK19JERKH4DTWDRXPHFM
+    slugs:
+      - restart-checkpoint
+    title: Restart Checkpoint
+    type: feature
+    tags: []
+    description: Checkpoint file format for persisting restart context. Checkpoints store session state,
+      restart reason, and wake-up context that survives restarts.
+    depends_on: []
+    implements: []
+    relates_to: []
+    tests: []
+    traits: []
+    notes: []
+    created: 2026-02-02T08:00:12.330Z

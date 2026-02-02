@@ -161,8 +161,21 @@ export class Supervisor extends EventEmitter {
         args,
       });
 
+      // AC: @supervisor-env ac-1, ac-2, ac-4
+      const env: NodeJS.ProcessEnv = {
+        ...process.env,
+        KBOT_SUPERVISED: '1',
+        KBOT_SUPERVISOR_PID: process.pid.toString(),
+      };
+
+      // AC: @supervisor-env ac-4
+      if (this.config.checkpointPath) {
+        env.KBOT_CHECKPOINT_PATH = this.config.checkpointPath;
+      }
+
       this.child = fork(this.config.childPath, args, {
         stdio: ['inherit', 'inherit', 'inherit', 'ipc'],
+        env,
       });
 
       if (!this.child.pid) {

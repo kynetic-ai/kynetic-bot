@@ -27,6 +27,11 @@ export type LogLevel = z.infer<typeof LogLevelSchema>;
  * - healthCheckInterval: Health check interval in ms (default: 30000)
  * - shutdownTimeout: Graceful shutdown timeout in ms (default: 10000)
  * - escalationChannel: Channel for escalation notifications (optional)
+ *
+ * Supervisor-related fields:
+ * - isSupervised: Whether bot is running under supervisor (KBOT_SUPERVISED env var)
+ * - supervisorPid: PID of supervisor process (KBOT_SUPERVISOR_PID env var)
+ * - checkpointPath: Path to checkpoint file for restart (KBOT_CHECKPOINT_PATH env var)
  */
 export const BotConfigSchema = z.object({
   // Required - no defaults
@@ -45,6 +50,12 @@ export const BotConfigSchema = z.object({
 
   // Optional - no defaults
   escalationChannel: z.string().optional(),
+
+  // AC: @supervisor-env ac-3
+  // Supervisor-related fields
+  isSupervised: z.boolean().default(false),
+  supervisorPid: z.number().int().positive().optional(),
+  checkpointPath: z.string().optional(),
 });
 
 export type BotConfig = z.infer<typeof BotConfigSchema>;
@@ -57,10 +68,7 @@ export type BotConfig = z.infer<typeof BotConfigSchema>;
  * @returns The parsed number or undefined if value is empty
  * @throws Error if value is present but not a valid integer
  */
-function parseOptionalNumber(
-  value: string | undefined,
-  name: string,
-): number | undefined {
+function parseOptionalNumber(value: string | undefined, name: string): number | undefined {
   if (!value) return undefined;
   const parsed = parseInt(value, 10);
   if (Number.isNaN(parsed) || String(parsed) !== value.trim()) {
@@ -80,6 +88,9 @@ function parseOptionalNumber(
  * - HEALTH_CHECK_INTERVAL -> healthCheckInterval (optional, default: 30000)
  * - SHUTDOWN_TIMEOUT -> shutdownTimeout (optional, default: 10000)
  * - ESCALATION_CHANNEL -> escalationChannel (optional)
+ * - KBOT_SUPERVISED -> isSupervised (optional, default: false)
+ * - KBOT_SUPERVISOR_PID -> supervisorPid (optional)
+ * - KBOT_CHECKPOINT_PATH -> checkpointPath (optional)
  *
  * @returns Validated bot configuration
  * @throws ZodError if validation fails
@@ -92,12 +103,13 @@ export function loadConfig(): BotConfig {
     logLevel: process.env.LOG_LEVEL || undefined,
     healthCheckInterval: parseOptionalNumber(
       process.env.HEALTH_CHECK_INTERVAL,
-      'HEALTH_CHECK_INTERVAL',
+      'HEALTH_CHECK_INTERVAL'
     ),
-    shutdownTimeout: parseOptionalNumber(
-      process.env.SHUTDOWN_TIMEOUT,
-      'SHUTDOWN_TIMEOUT',
-    ),
+    shutdownTimeout: parseOptionalNumber(process.env.SHUTDOWN_TIMEOUT, 'SHUTDOWN_TIMEOUT'),
     escalationChannel: process.env.ESCALATION_CHANNEL || undefined,
+    // AC: @supervisor-env ac-3
+    isSupervised: process.env.KBOT_SUPERVISED === '1',
+    supervisorPid: parseOptionalNumber(process.env.KBOT_SUPERVISOR_PID, 'KBOT_SUPERVISOR_PID'),
+    checkpointPath: process.env.KBOT_CHECKPOINT_PATH || undefined,
   });
 }

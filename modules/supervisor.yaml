@@ -127,7 +127,7 @@ features:
         then: logs error, restart proceeds without checkpoint
     status:
       maturity: draft
-      implementation: in_progress
+      implementation: implemented
   - _ulid: 01KGENWZX3HSXZT4PS0MAYYFZZ
     slugs:
       - restart-protocol

@@ -97,3 +97,7 @@ features:
         given: restart_reason
         when: checkpoint created
         then: accepts 'planned', 'upgrade', 'crash'
+      - id: ac-4
+        given: checkpoint > 24 hours old
+        when: bot starts
+        then: ignores, logs warning

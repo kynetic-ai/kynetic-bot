@@ -14369,7 +14369,9 @@
   derivation: auto
   status: pending
   blocked_by: []
-  depends_on: []
+  depends_on:
+    - "@task-wake-context-injection"
+    - "@task-shutdown-modes"
   context: []
   priority: 3
   tags: []

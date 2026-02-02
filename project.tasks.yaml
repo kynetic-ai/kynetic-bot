@@ -15081,7 +15081,10 @@
       supersedes: null
   todos: []
   automation: eligible
-- title: Add integration and unit tests for supervisor restart features
+- _ulid: 01KGFYTEB23P0KFZK9FA9AFP92
+  slugs: []
+  title: Add integration and unit tests for supervisor restart features
+  type: task
   description: >-
     Address testing gaps identified in review of PRs #78-81:
 
@@ -15111,18 +15114,46 @@
 
     These were explicitly deferred during implementation due to 'complex mocking requirements' but
     should be addressed for production readiness.
+  spec_ref: null
+  meta_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  priority: 2
+  tags: []
+  vcs_refs: []
+  created_at: 2026-02-02T19:56:06.369Z
+  notes: []
+  todos: []
+- title: Fix kspec setup - rename files and merge content
+  description: |-
+    The kspec setup has issues that caused agents to not find workflows and other content properly.
+
+    **Problems identified:**
+    - Agents couldn't find workflows during evaluation
+    - File naming/organization needs cleanup
+    - Content may need to be merged between files
+
+    **Scope:**
+    - Rename files in .kspec/ as needed
+    - Merge content cleanly between files
+    - Ensure workflows, specs, and tasks are discoverable
+    - Validate setup works correctly after changes
+
+    User will provide specific guidance on what needs to be renamed/merged.
   type: task
   spec_ref: null
   meta_ref: null
-  priority: 2
+  priority: 1
   slugs: []
   tags: []
   depends_on: []
-  _ulid: 01KGFYTEB23P0KFZK9FA9AFP92
+  _ulid: 01KGFYTHWN8EF88CRQ23WGDKV4
   status: pending
   blocked_by: []
   context: []
   vcs_refs: []
-  created_at: 2026-02-02T19:56:06.369Z
+  created_at: 2026-02-02T19:56:10.004Z
   notes: []
   todos: []

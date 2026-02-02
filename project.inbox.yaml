@@ -529,3 +529,12 @@ inbox:
       - reflection
       - kspec-cli
     added_by: "@claude"
+  - _ulid: 01KGE8EJ8ST3713KW1PQZXZP2X
+    text: Cross-package event contracts (like turn:end between bot and channels) should have spec
+      coverage before implementation. Consider a checklist item or workflow step to identify and
+      spec cross-package contracts during design phase.
+    created_at: 2026-02-02T04:05:54.073Z
+    tags:
+      - reflection
+      - workflow
+    added_by: "@claude"

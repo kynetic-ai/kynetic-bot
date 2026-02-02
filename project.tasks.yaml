@@ -14030,4 +14030,40 @@
         calls it when creating placeholder. Bot captures in Map and uses for streaming start. This
         keeps the event flow clean and symmetric."
       supersedes: null
+    - _ulid: 01KGE93DAE0C9TC60PBYEDGKGN
+      created_at: 2026-02-02T04:17:17.135Z
+      author: "@claude"
+      content: |-
+        Implementation complete:
+
+        ## Changes
+
+        1. **packages/bot/src/bot.ts**
+           - Added sessionPlaceholders Map to track placeholders per session+channel
+           - Added setPlaceholder() method for adapters to register placeholders
+           - Added private consumePlaceholder() method for one-time retrieval
+           - Modified streaming flow to check for placeholder before sending new message
+           - When placeholder exists, edits it instead of creating new message
+
+        2. **packages/channels/src/adapters/discord/adapter.ts**
+           - Added setPlaceholderCallback field to store callback
+           - Updated setupBotEventListeners to accept optional setPlaceholder callback
+           - In getOrCreatePlaceholder, calls callback when new placeholder is created
+
+        3. **packages/bot/src/cli.ts**
+           - No changes needed - Bot already has setPlaceholder method
+
+        ## Tests Added
+
+        1. Adapter tests (packages/channels/test/adapters/discord/adapter.test.ts):
+           - Test: setPlaceholder callback is called when placeholder created
+           - Test: Works without callback (backwards compatible)
+
+        2. Bot tests (packages/bot/test/bot.test.ts):
+           - Test: Edits placeholder instead of sending new message when placeholder exists
+           - Test: Sends new message when no placeholder
+           - Test: Placeholder consumed only once, subsequent edits use same message
+
+        All 1388 tests pass. Lint clean.
+      supersedes: null
   todos: []

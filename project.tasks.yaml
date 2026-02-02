@@ -13884,6 +13884,33 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-02T01:12:51.509Z
-  notes: []
-  todos: []
   started_at: 2026-02-02T01:12:56.636Z
+  notes:
+    - _ulid: 01KGDYPDEP3W4S75P6QP3Z9XFV
+      created_at: 2026-02-02T01:15:25.526Z
+      author: "@claude"
+      content: >-
+        Fix implemented:
+
+
+        Problem: When tool calls arrived without parentMessageId (before text response), each tool
+        call created a new 'Working...' placeholder, causing thread spam.
+
+
+        Solution: Added placeholder deduplication similar to ThreadTracker:
+
+        1. Added `sessionPlaceholders` Map to track placeholders per session+channel
+
+        2. Added `pendingPlaceholders` Map for race condition prevention
+
+        3. Created `getOrCreatePlaceholder()` method that deduplicates concurrent creation requests
+
+        4. Updated `cleanupSession()` to clear both maps
+
+
+        Test added: 'should reuse placeholder for multiple tool calls without parent message'
+
+
+        All 393 tests passing.
+      supersedes: null
+  todos: []

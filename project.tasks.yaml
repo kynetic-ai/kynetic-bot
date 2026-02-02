@@ -14310,6 +14310,7 @@
           - packages/bot/src/restart.ts (new - client side)
       supersedes: null
   todos: []
+  automation: eligible
 - _ulid: 01KGEP44BFZ1SSGS8X547PPV8J
   slugs:
     - task-wake-context-injection

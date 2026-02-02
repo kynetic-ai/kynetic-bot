@@ -14312,7 +14312,7 @@
   type: task
   spec_ref: "@restart-protocol"
   derivation: auto
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on:
     - "@task-restart-checkpoint"
@@ -14378,6 +14378,7 @@
       supersedes: null
   todos: []
   automation: eligible
+  started_at: 2026-02-02T18:25:26.407Z
 - _ulid: 01KGEP44BFZ1SSGS8X547PPV8J
   slugs:
     - task-wake-context-injection
@@ -14607,6 +14608,10 @@
   derivation: auto
   status: completed
   blocked_by: []
+  closed_reason: "Merged in PR #77. Implemented supervisor environment variables (KBOT_SUPERVISED,
+    KBOT_SUPERVISOR_PID, KBOT_CHECKPOINT_PATH) to enable kbot detection of supervised mode and
+    access to restart functionality. All 4 acceptance criteria covered with comprehensive test
+    coverage: 5 new supervisor tests, 11 new bot config tests. 1447 total tests passing."
   depends_on:
     - "@task-supervisor-process-spawn"
   context: []
@@ -14615,6 +14620,7 @@
   vcs_refs: []
   created_at: 2026-02-02T08:05:01.356Z
   started_at: 2026-02-02T18:11:09.823Z
+  completed_at: 2026-02-02T18:24:35.676Z
   notes:
     - _ulid: 01KGEP4D9BQMQD62ZNNJB3XY7Y
       created_at: 2026-02-02T08:05:01.355Z
@@ -14664,11 +14670,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-02-02T18:24:35.676Z
-  closed_reason: "Merged in PR #77. Implemented supervisor environment variables (KBOT_SUPERVISED,
-    KBOT_SUPERVISOR_PID, KBOT_CHECKPOINT_PATH) to enable kbot detection of supervised mode and
-    access to restart functionality. All 4 acceptance criteria covered with comprehensive test
-    coverage: 5 new supervisor tests, 11 new bot config tests. 1447 total tests passing."
 - _ulid: 01KGEP4MB32JTX8651HMWVVCR9
   slugs: []
   title: Create supervisor package scaffold

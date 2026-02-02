@@ -31,5 +31,6 @@ features:
     traits:
       - "@trait-observable"
       - "@trait-health-monitored"
+      - "@trait-graceful-shutdown"
     notes: []
     created: 2026-02-02T07:59:22.245Z

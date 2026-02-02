@@ -421,3 +421,8 @@ features:
       - "@trait-observable"
     notes: []
     created: 2026-02-02T08:02:54.493Z
+    acceptance_criteria:
+      - id: ac-1
+        given: bot calls requestRestart(options)
+        when: IPC available
+        then: writes checkpoint, sends planned_restart

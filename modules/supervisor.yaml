@@ -55,3 +55,7 @@ features:
         given: backoff reaches max (60s)
         when: spawn fails again
         then: emits escalation event, continues retrying
+      - id: ac-6
+        given: kbot spawned
+        when: child starts
+        then: logs PID, sets up IPC handlers

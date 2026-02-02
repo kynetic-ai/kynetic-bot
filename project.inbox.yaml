@@ -548,3 +548,12 @@ inbox:
       - dx
       - build
     added_by: "@claude"
+  - _ulid: 01KGG88RW62Z2M6WCQ4YQT1MBJ
+    text: Test helper for controllable async agent responses - reusable mock factory with explicit
+      promise resolution for testing streaming/inflight message scenarios. Current approach requires
+      complex setup and caused stack overflow in initial attempt.
+    created_at: 2026-02-02T22:41:13.094Z
+    tags:
+      - reflection
+      - testing
+    added_by: "@claude"

@@ -73,7 +73,7 @@ features:
         then: creates crash checkpoint with last known state (if available) before respawn
     status:
       maturity: draft
-      implementation: in_progress
+      implementation: implemented
   - _ulid: 01KGENVK19JERKH4DTWDRXPHFM
     slugs:
       - restart-checkpoint

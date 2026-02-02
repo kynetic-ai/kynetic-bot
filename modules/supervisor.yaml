@@ -166,3 +166,19 @@ features:
         given: requestRestart called twice
         when: second call while first pending
         then: second call rejected with error
+  - _ulid: 01KGENZCCJC9SBN1EJNZPXXK7P
+    slugs:
+      - shutdown-modes
+    title: Shutdown Modes
+    type: feature
+    tags: []
+    description: Soft and hard shutdown modes for graceful process termination. Handles in-flight
+      message draining, timeout-based escalation to SIGKILL, and coordination during planned
+      restarts.
+    depends_on: []
+    implements: []
+    relates_to: []
+    tests: []
+    traits: []
+    notes: []
+    created: 2026-02-02T08:02:16.594Z

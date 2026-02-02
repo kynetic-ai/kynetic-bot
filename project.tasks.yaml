@@ -15298,9 +15298,16 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-02T19:56:12.717Z
-  notes: []
-  todos: []
   started_at: 2026-02-02T23:04:03.705Z
+  notes:
+    - _ulid: 01KGG9JS00KC8VEDH8F84BCFGZ
+      created_at: 2026-02-02T23:04:09.472Z
+      author: "@claude"
+      content: Starting implementation. Will implement TTL-based cleanup on supervisor start, aligning
+        with the 24-hour TTL pattern from @restart-checkpoint ac-4. Also fixing the inconsistency
+        where crash checkpoints go to /tmp instead of .kbot/checkpoints/.
+      supersedes: null
+  todos: []
 - _ulid: 01KGFYTPW1YYAQYZCDV5ZCWWZ5
   slugs: []
   title: Make shutdown timeout configurable

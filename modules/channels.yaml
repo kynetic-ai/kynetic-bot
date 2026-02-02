@@ -321,4 +321,4 @@ features:
         then: Status message updates counts
     status:
       maturity: draft
-      implementation: implemented
+      implementation: in_progress

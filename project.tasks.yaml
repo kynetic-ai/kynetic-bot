@@ -14543,5 +14543,15 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-02T08:05:20.870Z
-  notes: []
+  notes:
+    - _ulid: 01KGEP78D9B5XRSDFEJ9W60D9R
+      created_at: 2026-02-02T08:06:34.666Z
+      author: "@claude"
+      content: |-
+        CLI update approach:
+        - Add --checkpoint <path> option using existing CLI parsing pattern
+        - Update BotOptions interface in packages/bot/src/bot.ts
+        - Wire checkpointPath through to initialization
+        - Reference: packages/bot/src/cli.ts for current CLI structure
+      supersedes: null
   todos: []

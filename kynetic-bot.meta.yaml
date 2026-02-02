@@ -1181,4 +1181,13 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KGG8T23VY96FQ3HBNZ5F3JEV
+    type: friction
+    content: Test tasks lack spec_ref linkage - task @01KGFYTE had no spec_ref despite testing
+      @bot-restart-api. kspec flagged at completion but no convention exists for test→spec
+      relationships. Consider validates field or guidance in kynetic-spec project.
+    created_at: 2026-02-02T22:50:39.611Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

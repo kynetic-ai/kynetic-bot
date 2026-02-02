@@ -93,3 +93,7 @@ features:
         given: checkpoint file
         when: validated
         then: "contains: session_id, restart_reason, wake_context.prompt"
+      - id: ac-3
+        given: restart_reason
+        when: checkpoint created
+        then: accepts 'planned', 'upgrade', 'crash'

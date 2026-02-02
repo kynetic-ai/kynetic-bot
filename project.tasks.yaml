@@ -14321,6 +14321,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-02T08:04:46.600Z
+  started_at: 2026-02-02T18:25:26.407Z
   notes:
     - _ulid: 01KGEP3YW7RTBA8GSZ0TBDKT7F
       created_at: 2026-02-02T08:04:46.600Z
@@ -14376,9 +14377,16 @@
           - packages/supervisor/src/protocol.ts (new)
           - packages/bot/src/restart.ts (new - client side)
       supersedes: null
+    - _ulid: 01KGFSP0YKVXCZ6ZZRJWH55T6K
+      created_at: 2026-02-02T18:26:18.707Z
+      author: "@claude"
+      content: "Starting implementation. Found supervisor side has basic IPC handling but missing: (1)
+        checkpoint file validation, (2) invalid message handling, (3) timeout logic. Bot side
+        completely missing: no requestRestart() function. Will implement bot-side first, then
+        enhance supervisor side."
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-02-02T18:25:26.407Z
 - _ulid: 01KGEP44BFZ1SSGS8X547PPV8J
   slugs:
     - task-wake-context-injection

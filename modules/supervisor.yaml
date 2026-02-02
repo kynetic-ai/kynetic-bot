@@ -122,6 +122,9 @@ features:
         given: checkpoint write fails
         when: disk full/permissions
         then: logs error, restart proceeds without checkpoint
+    status:
+      maturity: draft
+      implementation: in_progress
   - _ulid: 01KGENWZX3HSXZT4PS0MAYYFZZ
     slugs:
       - restart-protocol

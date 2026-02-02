@@ -10950,7 +10950,7 @@
   type: task
   spec_ref: "@agent-lifecycle"
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -10980,6 +10980,7 @@
         Small fix - just add comments to existing code.
       supersedes: null
   todos: []
+  started_at: 2026-02-02T23:01:28.236Z
 - _ulid: 01KG9NK31RS7Q8VGXVC1Y8DQX8
   slugs: []
   title: Implement ACP writeFile handler
@@ -15118,6 +15119,8 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "Merged in PR #82. Added comprehensive unit tests for Bot.requestRestart() API
+    covering all 11 acceptance criteria."
   depends_on: []
   context: []
   priority: 2
@@ -15125,6 +15128,7 @@
   vcs_refs: []
   created_at: 2026-02-02T19:56:06.369Z
   started_at: 2026-02-02T22:04:34.206Z
+  completed_at: 2026-02-02T22:25:50.712Z
   notes:
     - _ulid: 01KGG65X650R1Z3PG2QPT9XRBT
       created_at: 2026-02-02T22:04:42.053Z
@@ -15176,9 +15180,6 @@
         All 203 bot tests pass, all 81 supervisor tests pass.
       supersedes: null
   todos: []
-  completed_at: 2026-02-02T22:25:50.712Z
-  closed_reason: "Merged in PR #82. Added comprehensive unit tests for Bot.requestRestart() API
-    covering all 11 acceptance criteria."
 - _ulid: 01KGFYTHWN8EF88CRQ23WGDKV4
   slugs: []
   title: Fix kspec setup - rename files and merge content

@@ -181,7 +181,7 @@ features:
         then: second call rejected with error
     status:
       maturity: draft
-      implementation: in_progress
+      implementation: implemented
   - _ulid: 01KGENZCCJC9SBN1EJNZPXXK7P
     slugs:
       - shutdown-modes

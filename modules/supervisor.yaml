@@ -90,7 +90,15 @@ features:
     traits:
       - "@trait-validated"
       - "@trait-recoverable"
-    notes: []
+    notes:
+      - _ulid: 01KGGCNRT74CADZF411MZ34W71
+        created_at: 2026-02-02T23:58:13.319Z
+        author: "@claude"
+        content: "Added ac-9 to explicitly document the proactive stale checkpoint cleanup behavior
+          introduced in PR #83. This extends ac-4 (which handles ignoring old checkpoints at read
+          time) by also performing active cleanup at supervisor startup to prevent disk
+          accumulation."
+        supersedes: null
     created: 2026-02-02T08:00:12.330Z
     acceptance_criteria:
       - id: ac-1

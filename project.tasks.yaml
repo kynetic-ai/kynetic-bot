@@ -14451,10 +14451,30 @@
         in env
       supersedes: null
   todos: []
-- title: Create supervisor package scaffold
+- _ulid: 01KGEP4MB32JTX8651HMWVVCR9
+  slugs: []
+  title: Create supervisor package scaffold
+  type: task
   description: Create the new @kynetic-bot/supervisor package structure under packages/supervisor/.
     Add to pnpm-workspace.yaml, create package.json with dependencies, set up TypeScript config, and
     create supervisor CLI entry point with signal handlers.
+  spec_ref: null
+  meta_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  priority: 1
+  tags: []
+  vcs_refs: []
+  created_at: 2026-02-02T08:05:08.578Z
+  notes: []
+  todos: []
+- title: Add Zod schemas for checkpoint and IPC messages
+  description: "Create Zod schemas for checkpoint file format (with version field for migration) and
+    IPC message types. Checkpoint schema includes: session_id, restart_reason
+    ('planned'|'upgrade'|'crash'), wake_context (prompt, pending_work, instructions). IPC message
+    schemas for planned_restart, ack, and error messages."
   type: task
   spec_ref: null
   meta_ref: null
@@ -14462,11 +14482,11 @@
   slugs: []
   tags: []
   depends_on: []
-  _ulid: 01KGEP4MB32JTX8651HMWVVCR9
+  _ulid: 01KGEP4V96FCZACH0Y9KQWT96T
   status: pending
   blocked_by: []
   context: []
   vcs_refs: []
-  created_at: 2026-02-02T08:05:08.578Z
+  created_at: 2026-02-02T08:05:15.685Z
   notes: []
   todos: []

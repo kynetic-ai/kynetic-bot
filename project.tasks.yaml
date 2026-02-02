@@ -15116,7 +15116,7 @@
     should be addressed for production readiness.
   spec_ref: null
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -15176,6 +15176,9 @@
         All 203 bot tests pass, all 81 supervisor tests pass.
       supersedes: null
   todos: []
+  completed_at: 2026-02-02T22:25:50.712Z
+  closed_reason: "Merged in PR #82. Added comprehensive unit tests for Bot.requestRestart() API
+    covering all 11 acceptance criteria."
 - _ulid: 01KGFYTHWN8EF88CRQ23WGDKV4
   slugs: []
   title: Fix kspec setup - rename files and merge content

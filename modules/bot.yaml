@@ -412,7 +412,7 @@ features:
         then: "message order is: wake context, then identity prompt, then restored conversation history"
     status:
       maturity: draft
-      implementation: in_progress
+      implementation: implemented
   - _ulid: 01KGEP0HCXM6CX2KM55XAR88WR
     slugs:
       - bot-restart-api

@@ -14142,6 +14142,29 @@
         - ac-8: Given supervisor crashes, when child running, then child orphaned, continues running
         (container/systemd restarts supervisor)
       supersedes: null
+    - _ulid: 01KGEP7HB2YR941F3ZKVZHAVAD
+      created_at: 2026-02-02T08:06:43.810Z
+      author: "@claude"
+      content: >-
+        Implementation approach:
+
+        - Supervisor class spawns kbot with child_process.fork() for IPC channel
+
+        - Use Node.js IPC (process.send/process.on('message')) on stdio fd 3
+
+        - Exponential backoff: start at 1s, double on each failure, max 60s, reset on successful
+        spawn
+
+        - Signal handling: forward SIGTERM to child, wait for graceful exit
+
+        - Exit code 0: exit supervisor (no respawn)
+
+        - Exit non-zero: respawn with backoff
+
+        - Key files:
+          - ../kynetic-internal/packages/lifeline/src/supervisor.ts (reference pattern)
+          - packages/supervisor/src/supervisor.ts (new)
+      supersedes: null
   todos: []
 - _ulid: 01KGEP3W5FN57ZRVPBMGN1TPM9
   slugs:

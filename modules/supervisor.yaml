@@ -241,3 +241,7 @@ features:
         given: bot starts
         when: KBOT_SUPERVISED=1
         then: bot knows restart API available
+      - id: ac-4
+        given: restart after checkpoint
+        when: child spawned
+        then: KBOT_CHECKPOINT_PATH={path} in env

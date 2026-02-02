@@ -364,7 +364,8 @@ features:
     description: Injects restart context into the initial agent prompt when bot starts with a
       checkpoint. Extends the existing ContextRestorer pattern to include wake-up context before
       identity prompt.
-    depends_on: []
+    depends_on:
+      - "@restart-checkpoint"
     implements: []
     relates_to: []
     tests: []

@@ -13952,19 +13952,65 @@
         not when response starts.
       supersedes: null
   todos: []
-- title: Transform placeholder into response message
+- _ulid: 01KGE0W8CR6HQXX3KSVEGG4V7Y
+  slugs: []
+  title: Transform placeholder into response message
   type: task
   spec_ref: "@discord-tool-widgets"
   meta_ref: null
-  priority: 2
-  slugs: []
-  tags: []
-  depends_on: []
-  _ulid: 01KGE0W8CR6HQXX3KSVEGG4V7Y
   status: pending
   blocked_by: []
+  depends_on: []
   context: []
+  priority: 2
+  tags: []
   vcs_refs: []
   created_at: 2026-02-02T01:53:34.104Z
-  notes: []
+  notes:
+    - _ulid: 01KGE0WKQ2ZJKYM2KKMWZCDMCF
+      created_at: 2026-02-02T01:53:45.699Z
+      author: "@claude"
+      content: >-
+        Implementation approach (from investigation):
+
+
+        ## Goal
+
+        When a placeholder is created for early tool calls, have the agent's text response edit that
+        placeholder instead of creating a new message. The thread spawned from the placeholder stays
+        attached.
+
+
+        ## Key Changes
+
+
+        1. **Return placeholder ID to bot**
+           - When adapter creates placeholder in handleToolCall(), capture and return the ID
+           - New event or mechanism to pass placeholder ID back to bot before streaming starts
+
+        2. **Modify streaming logic in bot.ts**
+           - Capture placeholder ID when tool:call arrives without parentMessageId
+           - On first text chunk: call editMessage(placeholderId) instead of sendMessage()
+           - Subsequent chunks: continue editing same message (already works this way)
+
+        3. **Files involved**
+           - packages/bot/src/bot.ts - streaming flow, tool:call handling
+           - packages/channels/src/adapters/discord/adapter.ts - placeholder creation, return mechanism
+           - packages/messaging/src/streaming.ts - StreamCoalescer (may need minor changes)
+
+        ## Technical Notes
+
+        - StreamCoalescer already designed for edit-based updates
+
+        - Discord threads anchor by message ID, not content - edits are safe
+
+        - editMessage() fully implemented with overflow handling
+
+        - Backwards compatible - only affects guild channels with early tool calls
+
+
+        ## AC Reference
+
+        AC-21: Placeholder edited to become response, thread remains attached
+      supersedes: null
   todos: []

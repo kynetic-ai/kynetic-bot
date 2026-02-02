@@ -716,4 +716,14 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KGFVRQ6H1F810GN2KA4AD6KJ
+    type: success
+    content: "Shutdown modes implementation used AC-driven test design: each test explicitly referenced
+      acceptance criteria with // AC: @spec-ref ac-N comments in test names and code. Made coverage
+      verification trivial during implementation and review. Pattern worth replicating for future
+      feature implementations."
+    created_at: 2026-02-02T19:02:44.178Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

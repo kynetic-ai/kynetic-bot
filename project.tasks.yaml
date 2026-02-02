@@ -14588,7 +14588,7 @@
   description: Create the new @kynetic-bot/supervisor package structure under packages/supervisor/.
     Add to pnpm-workspace.yaml, create package.json with dependencies, set up TypeScript config, and
     create supervisor CLI entry point with signal handlers.
-  spec_ref: null
+  spec_ref: "@supervisor"
   meta_ref: null
   status: pending
   blocked_by: []
@@ -14612,6 +14612,7 @@
         - Reference: ../kynetic-internal/packages/lifeline/src/supervisor.ts for pattern
       supersedes: null
   todos: []
+  automation: eligible
 - _ulid: 01KGEP4V96FCZACH0Y9KQWT96T
   slugs: []
   title: Add Zod schemas for checkpoint and IPC messages

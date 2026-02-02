@@ -179,6 +179,7 @@ features:
     implements: []
     relates_to: []
     tests: []
-    traits: []
+    traits:
+      - "@trait-graceful-shutdown"
     notes: []
     created: 2026-02-02T08:02:16.594Z

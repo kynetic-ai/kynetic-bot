@@ -405,3 +405,18 @@ features:
         given: wake prompt very large
         when: context limits approached
         then: truncates with warning, preserves essential info
+  - _ulid: 01KGEP0HCXM6CX2KM55XAR88WR
+    slugs:
+      - bot-restart-api
+    title: Bot Restart API
+    type: feature
+    tags: []
+    description: Public API for kbot to request restarts from the supervisor. Provides requestRestart()
+      method that writes checkpoint, sends IPC message, and initiates graceful shutdown.
+    depends_on: []
+    implements: []
+    relates_to: []
+    tests: []
+    traits: []
+    notes: []
+    created: 2026-02-02T08:02:54.493Z

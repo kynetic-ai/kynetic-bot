@@ -14142,15 +14142,21 @@
         (container/systemd restarts supervisor)
       supersedes: null
   todos: []
-- title: "Implement: Restart Checkpoint"
+- _ulid: 01KGEP3W5FN57ZRVPBMGN1TPM9
+  slugs:
+    - task-restart-checkpoint
+  title: "Implement: Restart Checkpoint"
   type: task
   spec_ref: "@restart-checkpoint"
   derivation: auto
-  priority: 3
-  slugs:
-    - task-restart-checkpoint
-  tags: []
+  status: pending
+  blocked_by: []
   depends_on: []
+  context: []
+  priority: 3
+  tags: []
+  vcs_refs: []
+  created_at: 2026-02-02T08:04:43.823Z
   notes:
     - _ulid: 01KGEP3W5ESE2R4XA57MM0B3PA
       created_at: 2026-02-02T08:04:43.822Z
@@ -14189,10 +14195,57 @@
         - ac-8: Given checkpoint write fails, when disk full/permissions, then logs error, restart
         proceeds without checkpoint
       supersedes: null
-  _ulid: 01KGEP3W5FN57ZRVPBMGN1TPM9
+  todos: []
+- title: "Implement: Restart Protocol"
+  type: task
+  spec_ref: "@restart-protocol"
+  derivation: auto
+  priority: 3
+  slugs:
+    - task-restart-protocol
+  tags: []
+  depends_on: []
+  notes:
+    - _ulid: 01KGEP3YW7RTBA8GSZ0TBDKT7F
+      created_at: 2026-02-02T08:04:46.600Z
+      author: "@claude"
+      content: >-
+        Implementation notes (auto-generated from spec):
+
+
+        IPC message protocol between kbot and supervisor for coordinating planned restarts. Handles
+        checkpoint lifecycle, acknowledgments, and restart sequencing.
+
+
+
+        Acceptance Criteria:
+
+        - ac-1: Given kbot wants restart, when sends { type: 'planned_restart', checkpoint } via
+        IPC, then supervisor acknowledges, initiates graceful restart
+
+        - ac-2: Given supervisor receives planned_restart, when checkpoint path provided, then
+        verifies file exists before restarting
+
+        - ac-3: Given planned_restart acknowledged, when child exits code 0, then respawns with
+        --checkpoint flag
+
+        - ac-4: Given checkpoint referenced, when respawn occurs, then path passed as CLI arg or env
+        var
+
+        - ac-5: Given invalid IPC message, when parsed, then logs warning, ignores (no crash)
+
+        - ac-6: Given no IPC channel, when planned_restart attempted, then throws error
+
+        - ac-7: Given no ack received within 5s, when timeout elapsed, then logs warning, retries
+        once
+
+        - ac-8: Given requestRestart called twice, when second call while first pending, then second
+        call rejected with error
+      supersedes: null
+  _ulid: 01KGEP3YW8E1MD0Q2W8JQ31TPX
   status: pending
   blocked_by: []
   context: []
   vcs_refs: []
-  created_at: 2026-02-02T08:04:43.823Z
+  created_at: 2026-02-02T08:04:46.600Z
   todos: []

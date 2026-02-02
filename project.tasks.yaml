@@ -14237,6 +14237,7 @@
           - packages/supervisor/src/checkpoint.ts (new)
       supersedes: null
   todos: []
+  automation: eligible
 - _ulid: 01KGEP3YW8E1MD0Q2W8JQ31TPX
   slugs:
     - task-restart-protocol

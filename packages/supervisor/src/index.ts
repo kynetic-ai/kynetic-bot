@@ -14,8 +14,13 @@ export { Supervisor } from './supervisor.js';
 export type { SupervisorConfig, SupervisorEvents } from './supervisor.js';
 
 // Checkpoint functions
-export { writeCheckpoint, readCheckpoint, deleteCheckpoint } from './checkpoint.js';
-export type { CheckpointWriteResult, CheckpointReadResult } from './checkpoint.js';
+export {
+  writeCheckpoint,
+  readCheckpoint,
+  deleteCheckpoint,
+  cleanupStaleCheckpoints,
+} from './checkpoint.js';
+export type { CheckpointWriteResult, CheckpointReadResult, CleanupResult } from './checkpoint.js';
 
 // Checkpoint and IPC schemas
 export {

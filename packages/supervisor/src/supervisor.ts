@@ -9,15 +9,12 @@
 
 import { EventEmitter } from 'node:events';
 import { fork, type ChildProcess } from 'node:child_process';
-import { writeFile, access } from 'node:fs/promises';
+import { access } from 'node:fs/promises';
 import { constants } from 'node:fs';
+import { ulid } from 'ulid';
 import { createLogger, type Logger } from '@kynetic-bot/core';
-import {
-  IpcMessageSchema,
-  type IpcMessage,
-  type Checkpoint,
-  type RestartReason,
-} from './schemas.js';
+import { IpcMessageSchema, type IpcMessage } from './schemas.js';
+import { writeCheckpoint, cleanupStaleCheckpoints } from './checkpoint.js';
 
 export interface SupervisorConfig {
   /**
@@ -34,6 +31,11 @@ export interface SupervisorConfig {
    * Initial checkpoint path (for wake-up after restart)
    */
   checkpointPath?: string;
+
+  /**
+   * Data directory for checkpoints (default: '.kbot')
+   */
+  dataDir?: string;
 
   /**
    * Minimum backoff delay in milliseconds (default: 1000)
@@ -132,6 +134,7 @@ export class Supervisor extends EventEmitter {
       childPath: config.childPath,
       childArgs: config.childArgs ?? [],
       checkpointPath: config.checkpointPath ?? '',
+      dataDir: config.dataDir ?? '.kbot',
       minBackoffMs: config.minBackoffMs ?? 1000,
       maxBackoffMs: config.maxBackoffMs ?? 60000,
       shutdownTimeoutMs: config.shutdownTimeoutMs ?? 30000,
@@ -142,7 +145,22 @@ export class Supervisor extends EventEmitter {
     this.log.info('Supervisor initialized', {
       childPath: this.config.childPath,
       checkpointPath: this.config.checkpointPath || '(none)',
+      dataDir: this.config.dataDir,
     });
+  }
+
+  /**
+   * Start the supervisor - runs cleanup and spawns child
+   *
+   * Performs stale checkpoint cleanup before spawning to maintain
+   * a clean checkpoint directory.
+   */
+  async start(): Promise<void> {
+    // Clean up stale checkpoints on startup
+    await cleanupStaleCheckpoints(this.config.dataDir);
+
+    // Spawn the child process
+    await this.spawn();
   }
 
   /**
@@ -387,29 +405,21 @@ export class Supervisor extends EventEmitter {
   /**
    * Create crash checkpoint with last known state
    *
+   * Uses the standard checkpoint directory for consistency and automatic cleanup.
+   *
    * AC: @supervisor-process-spawn ac-9
    */
   private async createCrashCheckpoint(): Promise<void> {
-    try {
-      const checkpointPath = `/tmp/crash-${Date.now()}.json`;
-      const checkpoint: Checkpoint = {
-        version: 1,
-        session_id: this.generateSessionId(),
-        restart_reason: 'crash' as RestartReason,
-        wake_context: {
-          prompt: 'The bot crashed unexpectedly. Resume from last known state.',
-        },
-        created_at: new Date().toISOString(),
-      };
+    const result = await writeCheckpoint(this.config.dataDir, this.generateSessionId(), 'crash', {
+      prompt: 'The bot crashed unexpectedly. Resume from last known state.',
+    });
 
-      await writeFile(checkpointPath, JSON.stringify(checkpoint, null, 2));
-
-      this.log.info('Created crash checkpoint', { path: checkpointPath });
-      this.config.checkpointPath = checkpointPath;
-    } catch (err) {
-      const error = err instanceof Error ? err : new Error(String(err));
+    if (result.success && result.path) {
+      this.log.info('Created crash checkpoint', { path: result.path });
+      this.config.checkpointPath = result.path;
+    } else {
       this.log.error('Failed to create crash checkpoint', {
-        error: error.message,
+        error: result.error?.message,
       });
     }
   }
@@ -574,13 +584,10 @@ export class Supervisor extends EventEmitter {
   }
 
   /**
-   * Generate a session ID (ULID-compatible)
+   * Generate a session ID (ULID)
    */
   private generateSessionId(): string {
-    // Simple ULID-like ID generator (timestamp + random)
-    const timestamp = Date.now().toString(36).toUpperCase();
-    const random = Math.random().toString(36).substring(2, 15).toUpperCase();
-    return `${timestamp}${random}`.padEnd(26, '0').substring(0, 26);
+    return ulid();
   }
 
   /**

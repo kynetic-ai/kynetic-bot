@@ -66,6 +66,39 @@ describe('Supervisor', () => {
     }
   });
 
+  describe('start()', () => {
+    it('runs stale checkpoint cleanup before spawning', async () => {
+      const dataDir = join(testDir, '.kbot');
+      const checkpointsDir = join(dataDir, 'checkpoints');
+
+      // Create a stale checkpoint
+      await mkdir(checkpointsDir, { recursive: true });
+      const staleCheckpointPath = join(checkpointsDir, '01ABC123456789000000000000.yaml');
+      await writeFile(staleCheckpointPath, 'version: 1', 'utf-8');
+
+      // Backdate the file to 48 hours ago
+      const { utimes, stat } = await import('node:fs/promises');
+      const oldTime = new Date(Date.now() - 48 * 60 * 60 * 1000);
+      await utimes(staleCheckpointPath, oldTime, oldTime);
+
+      supervisor = new Supervisor({
+        childPath: '/path/to/kbot',
+        dataDir,
+      });
+
+      // start() should clean up stale checkpoints then spawn
+      await supervisor.start();
+
+      // Verify spawn was called
+      const { fork } = await import('node:child_process');
+      expect(fork).toHaveBeenCalled();
+
+      // Verify stale checkpoint was cleaned up
+      const { stat: statFile } = await import('node:fs/promises');
+      await expect(statFile(staleCheckpointPath)).rejects.toThrow();
+    });
+  });
+
   describe('spawn()', () => {
     // AC: @supervisor-process-spawn ac-1
     it('spawns kbot with IPC channel', async () => {
@@ -305,8 +338,11 @@ describe('Supervisor', () => {
 
     // AC: @supervisor-process-spawn ac-9
     it('creates crash checkpoint when kbot exits non-zero unexpectedly', async () => {
+      const dataDir = join(testDir, '.kbot');
+
       supervisor = new Supervisor({
         childPath: '/path/to/kbot',
+        dataDir,
         minBackoffMs: 50,
       });
 
@@ -326,10 +362,13 @@ describe('Supervisor', () => {
       // Verify second spawn happened (which means checkpoint logic ran)
       expect(fork).toHaveBeenCalledTimes(2);
 
-      // Verify the second spawn included a checkpoint arg
+      // Verify the second spawn included a checkpoint arg pointing to .kbot/checkpoints/
       const lastCall = vi.mocked(fork).mock.calls[1];
       expect(lastCall?.[1]).toEqual(
-        expect.arrayContaining(['--checkpoint', expect.stringContaining('/tmp/crash-')])
+        expect.arrayContaining([
+          '--checkpoint',
+          expect.stringMatching(/\.kbot\/checkpoints\/[0-9A-Z]{26}\.yaml$/),
+        ])
       );
     });
   });

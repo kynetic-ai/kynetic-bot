@@ -15150,6 +15150,31 @@
 
         Will create bot-restart.test.ts with Bot.requestRestart() tests.
       supersedes: null
+    - _ulid: 01KGG6DB0SWBAG2E0EA32BZHMN
+      created_at: 2026-02-02T22:08:45.593Z
+      author: "@claude"
+      content: |-
+        Completed Bot.requestRestart() unit tests in packages/bot/test/bot-restart.test.ts:
+
+        Tests cover all @bot-restart-api acceptance criteria:
+        - AC-1: Writes checkpoint and sends planned_restart
+        - AC-2: Checkpoint includes restart_reason
+        - AC-3: Checkpoint includes wake_context.prompt  
+        - AC-4: Checkpoint includes wake_context.pending_work
+        - AC-5: Initiates graceful shutdown after IPC ack
+        - AC-6: Throws RestartNotAvailableError when not supervised
+        - AC-7: isSupervisedMode() returns true when process.send exists
+        - AC-8, AC-11: Streaming completion wait (covered through turn:end event tests)
+        - AC-9: Resolves after ack received
+        - AC-10: Includes session context in checkpoint
+
+        Also verified:
+        - Existing tests in restart.test.ts (RestartProtocol IPC client) - already comprehensive
+        - Existing tests in wake.test.ts (wake context injection) - already comprehensive  
+        - Existing tests in supervisor.test.ts - already comprehensive
+
+        All 203 bot tests pass, all 81 supervisor tests pass.
+      supersedes: null
   todos: []
 - _ulid: 01KGFYTHWN8EF88CRQ23WGDKV4
   slugs: []

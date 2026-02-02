@@ -14445,7 +14445,7 @@
   type: task
   spec_ref: "@wake-injection"
   derivation: auto
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on:
     - "@task-restart-checkpoint"
@@ -14561,6 +14561,13 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-02-02T18:56:30.399Z
+  closed_reason: "Merged in PR #79. Implemented wake context injection for bot restarts with
+    checkpoint. All 9 acceptance criteria covered with 11 tests. Wake prompt injected BEFORE
+    identity prompt when bot starts with checkpoint, includes pending_work and instructions when
+    present, checkpoint consumed once (deleted after use, event emitted). Truncates large prompts
+    with warning. Message order: wake context → identity → restored history. Tests passing locally
+    and in CI."
 - _ulid: 01KGEP470NTYBVKH72DPH04WH6
   slugs:
     - task-shutdown-modes

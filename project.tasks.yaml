@@ -14353,15 +14353,21 @@
         down' error
       supersedes: null
   todos: []
-- title: "Implement: Bot Restart API"
+- _ulid: 01KGEP4ASPV39SEY2NZRP4NWR4
+  slugs:
+    - task-bot-restart-api
+  title: "Implement: Bot Restart API"
   type: task
   spec_ref: "@bot-restart-api"
   derivation: auto
-  priority: 3
-  slugs:
-    - task-bot-restart-api
-  tags: []
+  status: pending
+  blocked_by: []
   depends_on: []
+  context: []
+  priority: 3
+  tags: []
+  vcs_refs: []
+  created_at: 2026-02-02T08:04:58.806Z
   notes:
     - _ulid: 01KGEP4ASPTW966VSQHZ2K2J53
       created_at: 2026-02-02T08:04:58.806Z
@@ -14404,10 +14410,44 @@
         - ac-9: Given requestRestart returns, when caller awaits, then resolves after ack received
         (does not wait for full restart)
       supersedes: null
-  _ulid: 01KGEP4ASPV39SEY2NZRP4NWR4
+  todos: []
+- title: "Implement: Supervisor Environment"
+  type: task
+  spec_ref: "@supervisor-env"
+  derivation: auto
+  priority: 3
+  slugs:
+    - task-supervisor-environment
+  tags: []
+  depends_on: []
+  notes:
+    - _ulid: 01KGEP4D9BQMQD62ZNNJB3XY7Y
+      created_at: 2026-02-02T08:05:01.355Z
+      author: "@claude"
+      content: >-
+        Implementation notes (auto-generated from spec):
+
+
+        Environment variables set by supervisor when spawning kbot. Allows kbot to detect supervised
+        mode and access restart functionality.
+
+
+
+        Acceptance Criteria:
+
+        - ac-1: Given supervisor spawns child, when environment set, then KBOT_SUPERVISED=1 set
+
+        - ac-2: Given supervisor spawns child, when IPC open, then KBOT_SUPERVISOR_PID={pid} set
+
+        - ac-3: Given bot starts, when KBOT_SUPERVISED=1, then bot knows restart API available
+
+        - ac-4: Given restart after checkpoint, when child spawned, then KBOT_CHECKPOINT_PATH={path}
+        in env
+      supersedes: null
+  _ulid: 01KGEP4D9C2F5A61TSW39MJM4K
   status: pending
   blocked_by: []
   context: []
   vcs_refs: []
-  created_at: 2026-02-02T08:04:58.806Z
+  created_at: 2026-02-02T08:05:01.356Z
   todos: []

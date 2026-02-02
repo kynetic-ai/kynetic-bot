@@ -63,3 +63,7 @@ features:
         given: IPC channel setup fails
         when: spawn attempted
         then: logs error, retries spawn
+      - id: ac-8
+        given: supervisor crashes
+        when: child running
+        then: child orphaned, continues running (container/systemd restarts supervisor)

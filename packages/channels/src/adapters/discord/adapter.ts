@@ -83,10 +83,20 @@ export class DiscordAdapter implements ChannelAdapter {
   private isStarted = false;
 
   /**
-   * Track placeholder messages per session+channel
+   * Track placeholder messages per session+channel for deduplication
    * Key: "sessionId:channelId", Value: placeholder message ID
    *
-   * AC: @discord-tool-widgets ac-14 - Reuse placeholder for same session/channel
+   * Purpose: When multiple tool calls arrive without parentMessageId in the same
+   * turn, this Map ensures they all reuse the same placeholder message rather
+   * than creating multiple "Working..." messages.
+   *
+   * Note: The Bot class has its own sessionPlaceholders Map that serves a different
+   * purpose - it tracks placeholders so the streaming flow can edit them instead of
+   * creating new messages. This Map is for deduplication within the adapter.
+   *
+   * Cleanup: Cleared on turn:end via clearPlaceholder().
+   *
+   * AC: @discord-tool-widgets ac-14, ac-22 - Reuse placeholder for same session/channel
    */
   private readonly sessionPlaceholders = new Map<string, string>();
 

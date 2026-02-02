@@ -323,6 +323,10 @@ features:
         given: Placeholder message exists from early tool calls
         when: Agent starts streaming text response
         then: Placeholder is edited to become the response message, thread remains attached
+      - id: ac-22
+        given: Multiple tool calls arrive without parentMessageId in same turn
+        when: getOrCreatePlaceholder called for each
+        then: All tool calls reuse the same placeholder message (deduplication via session+channel key)
     status:
       maturity: draft
       implementation: in_progress

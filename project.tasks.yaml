@@ -13876,7 +13876,7 @@
   type: task
   spec_ref: "@discord-tool-widgets"
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -13952,6 +13952,9 @@
         not when response starts.
       supersedes: null
   todos: []
+  completed_at: 2026-02-02T03:52:21.226Z
+  closed_reason: "PR #72 merged. Implemented placeholder deduplication with turn-based tracking via
+    turn:end event. Added BotEvents interface documenting all Bot events including turn:end."
 - _ulid: 01KGE0W8CR6HQXX3KSVEGG4V7Y
   slugs: []
   title: Transform placeholder into response message

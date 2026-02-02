@@ -212,3 +212,18 @@ features:
         given: new message arrives
         when: during shutdown drain
         then: rejected with 'shutting down' error
+  - _ulid: 01KGEP20P61R0K3924GVNASJ04
+    slugs:
+      - supervisor-env
+    title: Supervisor Environment
+    type: feature
+    tags: []
+    description: Environment variables set by supervisor when spawning kbot. Allows kbot to detect
+      supervised mode and access restart functionality.
+    depends_on: []
+    implements: []
+    relates_to: []
+    tests: []
+    traits: []
+    notes: []
+    created: 2026-02-02T08:03:42.919Z

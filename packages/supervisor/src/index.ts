@@ -9,6 +9,24 @@
 
 export { createLogger } from '@kynetic-bot/core';
 
-// TODO: Export supervisor types
-// TODO: Export IPC message schemas
-// TODO: Export checkpoint types
+// Checkpoint and IPC schemas
+export {
+  RestartReasonSchema,
+  WakeContextSchema,
+  CheckpointSchema,
+  PlannedRestartMessageSchema,
+  RestartAckMessageSchema,
+  ErrorMessageSchema,
+  IpcMessageSchema,
+} from './schemas.js';
+
+// Types
+export type {
+  RestartReason,
+  WakeContext,
+  Checkpoint,
+  PlannedRestartMessage,
+  RestartAckMessage,
+  ErrorMessage,
+  IpcMessage,
+} from './schemas.js';

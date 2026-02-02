@@ -14196,15 +14196,21 @@
         proceeds without checkpoint
       supersedes: null
   todos: []
-- title: "Implement: Restart Protocol"
+- _ulid: 01KGEP3YW8E1MD0Q2W8JQ31TPX
+  slugs:
+    - task-restart-protocol
+  title: "Implement: Restart Protocol"
   type: task
   spec_ref: "@restart-protocol"
   derivation: auto
-  priority: 3
-  slugs:
-    - task-restart-protocol
-  tags: []
+  status: pending
+  blocked_by: []
   depends_on: []
+  context: []
+  priority: 3
+  tags: []
+  vcs_refs: []
+  created_at: 2026-02-02T08:04:46.600Z
   notes:
     - _ulid: 01KGEP3YW7RTBA8GSZ0TBDKT7F
       created_at: 2026-02-02T08:04:46.600Z
@@ -14242,10 +14248,57 @@
         - ac-8: Given requestRestart called twice, when second call while first pending, then second
         call rejected with error
       supersedes: null
-  _ulid: 01KGEP3YW8E1MD0Q2W8JQ31TPX
+  todos: []
+- title: "Implement: Wake Context Injection"
+  type: task
+  spec_ref: "@wake-injection"
+  derivation: auto
+  priority: 3
+  slugs:
+    - task-wake-context-injection
+  tags: []
+  depends_on: []
+  notes:
+    - _ulid: 01KGEP44BDCBEN6JRXVSKFHWQ3
+      created_at: 2026-02-02T08:04:52.205Z
+      author: "@claude"
+      content: >-
+        Implementation notes (auto-generated from spec):
+
+
+        Injects restart context into the initial agent prompt when bot starts with a checkpoint.
+        Extends the existing ContextRestorer pattern to include wake-up context before identity
+        prompt.
+
+
+
+        Acceptance Criteria:
+
+        - ac-1: Given --checkpoint CLI arg, when bot starts, then reads and validates checkpoint
+
+        - ac-2: Given valid checkpoint with wake_context.prompt, when session created, then injects
+        wake prompt BEFORE identity prompt
+
+        - ac-3: Given wake prompt injected, when agent receives it, then marked with promptSource:
+        'system'
+
+        - ac-4: Given checkpoint has pending_work, when wake prompt generated, then includes 'You
+        were working on: {pending_work}'
+
+        - ac-5: Given checkpoint has instructions, when wake prompt generated, then includes
+        'Instructions: {instructions}'
+
+        - ac-6: Given checkpoint consumed, when startup completes, then file deleted, event emitted
+
+        - ac-7: Given no checkpoint, when initialization, then skips wake injection, identity only
+
+        - ac-8: Given wake prompt very large, when context limits approached, then truncates with
+        warning, preserves essential info
+      supersedes: null
+  _ulid: 01KGEP44BFZ1SSGS8X547PPV8J
   status: pending
   blocked_by: []
   context: []
   vcs_refs: []
-  created_at: 2026-02-02T08:04:46.600Z
+  created_at: 2026-02-02T08:04:52.206Z
   todos: []

@@ -442,3 +442,7 @@ features:
         given: requestRestart succeeds
         when: IPC acknowledged
         then: bot initiates graceful shutdown
+      - id: ac-6
+        given: IPC not available
+        when: requestRestart called
+        then: throws RestartNotAvailableError

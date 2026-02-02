@@ -183,3 +183,8 @@ features:
       - "@trait-graceful-shutdown"
     notes: []
     created: 2026-02-02T08:02:16.594Z
+    acceptance_criteria:
+      - id: ac-1
+        given: soft shutdown requested
+        when: SIGTERM sent
+        then: waits up to shutdownTimeout (30s default)

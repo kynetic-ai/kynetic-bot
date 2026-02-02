@@ -14226,7 +14226,7 @@
   type: task
   spec_ref: "@restart-checkpoint"
   derivation: auto
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on:
     - "@01KGEP4V"
@@ -14290,6 +14290,7 @@
       supersedes: null
   todos: []
   automation: eligible
+  started_at: 2026-02-02T18:16:16.147Z
 - _ulid: 01KGEP3YW8E1MD0Q2W8JQ31TPX
   slugs:
     - task-restart-protocol

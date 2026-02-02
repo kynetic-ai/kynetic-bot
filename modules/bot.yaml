@@ -454,3 +454,7 @@ features:
         given: requestRestart called during streaming
         when: response in progress
         then: waits for current response to complete before restart
+      - id: ac-9
+        given: requestRestart returns
+        when: caller awaits
+        then: resolves after ack received (does not wait for full restart)

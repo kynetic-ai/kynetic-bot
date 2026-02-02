@@ -14385,6 +14385,42 @@
         completely missing: no requestRestart() function. Will implement bot-side first, then
         enhance supervisor side."
       supersedes: null
+    - _ulid: 01KGFT0JQ17P3GE11QBSTPWCVW
+      created_at: 2026-02-02T18:32:04.577Z
+      author: "@claude"
+      content: >-
+        Implementation complete. Added:
+
+
+        Bot side (packages/bot/src/restart.ts):
+
+        - RestartProtocol class with requestRestart() method
+
+        - IPC channel detection (ac-6)
+
+        - Timeout/retry logic with 5s timeout, 1 retry (ac-7)
+
+        - Duplicate request prevention (ac-8)
+
+        - 13 tests covering all client-side ACs
+
+
+        Supervisor side (packages/supervisor/src/supervisor.ts):
+
+        - Enhanced handleIpcMessage() with Zod validation (ac-5)
+
+        - Checkpoint file existence verification before ack (ac-2)
+
+        - Planned restart handling with async checkpoint validation
+
+        - Error response on invalid checkpoint path
+
+        - 4 new tests covering restart protocol ACs
+
+
+        All 73 supervisor tests + 13 bot restart tests passing (1447 total tests across all
+        packages).
+      supersedes: null
   todos: []
   automation: eligible
 - _ulid: 01KGEP44BFZ1SSGS8X547PPV8J

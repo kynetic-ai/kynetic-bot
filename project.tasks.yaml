@@ -14289,6 +14289,24 @@
         - ac-8: Given requestRestart called twice, when second call while first pending, then second
         call rejected with error
       supersedes: null
+    - _ulid: 01KGEP813BEWSMMWCY98BW8PAN
+      created_at: 2026-02-02T08:06:59.948Z
+      author: "@claude"
+      content: |-
+        Implementation approach:
+        - IPC messages: JSON over Node.js IPC channel (stdio fd 3)
+        - Message flow:
+          1. kbot sends { type: 'planned_restart', checkpoint: '/path/to/checkpoint.yaml' }
+          2. supervisor validates checkpoint exists
+          3. supervisor sends { type: 'restart_ack' }
+          4. kbot exits with code 0
+          5. supervisor respawns with --checkpoint flag
+        - Timeout: 5s for ack, retry once then log warning
+        - Reject duplicate restart requests while one is pending
+        - Key files:
+          - packages/supervisor/src/protocol.ts (new)
+          - packages/bot/src/restart.ts (new - client side)
+      supersedes: null
   todos: []
 - _ulid: 01KGEP44BFZ1SSGS8X547PPV8J
   slugs:

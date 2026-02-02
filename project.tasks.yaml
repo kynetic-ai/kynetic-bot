@@ -15307,6 +15307,45 @@
         with the 24-hour TTL pattern from @restart-checkpoint ac-4. Also fixing the inconsistency
         where crash checkpoints go to /tmp instead of .kbot/checkpoints/.
       supersedes: null
+    - _ulid: 01KGG9VRQ0592WMAN72EDZPYR2
+      created_at: 2026-02-02T23:09:04.097Z
+      author: "@claude"
+      content: >-
+        Implemented crash checkpoint cleanup:
+
+
+        1. Added cleanupStaleCheckpoints() function to checkpoint.ts that:
+           - Scans .kbot/checkpoints/ directory on startup
+           - Deletes any .yaml files older than 24 hours (matching AC-4 TTL)
+           - Returns count of deleted files and errors
+
+        2. Fixed crash checkpoint location inconsistency:
+           - Previously wrote to /tmp/crash-{timestamp}.json
+           - Now writes to standard .kbot/checkpoints/{ulid}.yaml
+           - Uses writeCheckpoint() for consistency
+
+        3. Added Supervisor.start() method:
+           - Runs cleanupStaleCheckpoints() before spawn()
+           - Ensures clean checkpoint directory on each startup
+
+        4. Fixed ULID generation:
+           - Replaced custom ID generator with proper ulid() call
+           - Schema validation now passes
+
+        5. Added dataDir config option to SupervisorConfig:
+           - Allows configurable data directory (default: .kbot)
+           - Used for checkpoint writes and cleanup
+
+        Tests added:
+
+        - 5 tests for cleanupStaleCheckpoints (TTL, preserve recent, missing dir, ignore non-yaml,
+        bulk cleanup)
+
+        - 1 test for start() verifying cleanup runs before spawn
+
+
+        All 87 supervisor tests passing.
+      supersedes: null
   todos: []
 - _ulid: 01KGFYTPW1YYAQYZCDV5ZCWWZ5
   slugs: []

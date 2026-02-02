@@ -13961,7 +13961,7 @@
   type: task
   spec_ref: "@discord-tool-widgets"
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -14085,3 +14085,8 @@
         Total tests: 1390 (7 new tests for AC-21)
       supersedes: null
   todos: []
+  completed_at: 2026-02-02T05:01:23.219Z
+  closed_reason: "PR #73 merged. Implemented placeholder transformation for streaming responses
+    (AC-21). When tool calls arrive before text, the placeholder is edited to become the response
+    instead of creating a new message. Thread remains attached. 7 tests added, all review feedback
+    addressed."

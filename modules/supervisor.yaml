@@ -142,3 +142,7 @@ features:
         given: supervisor receives planned_restart
         when: checkpoint path provided
         then: verifies file exists before restarting
+      - id: ac-3
+        given: planned_restart acknowledged
+        when: child exits code 0
+        then: respawns with --checkpoint flag

@@ -13913,4 +13913,23 @@
 
         All 393 tests passing.
       supersedes: null
+    - _ulid: 01KGDZBJYA5RSCB9G63EYCSC95
+      created_at: 2026-02-02T01:26:59.274Z
+      author: "@claude"
+      content: >-
+        Updated to turn-based placeholder tracking:
+
+
+        - When a tool call arrives WITH parentMessageId, clear any existing placeholder for that
+        session+channel
+
+        - This ensures that subsequent turns get their own placeholders instead of reusing stale
+        ones
+
+
+        Added test: 'should create new placeholder for new turn after response sent'
+
+
+        All 394 tests passing.
+      supersedes: null
   todos: []

@@ -223,8 +223,7 @@ features:
     tags: []
     description: Environment variables set by supervisor when spawning kbot. Allows kbot to detect
       supervised mode and access restart functionality.
-    depends_on:
-      - "@bot-restart-api"
+    depends_on: []
     implements: []
     relates_to: []
     tests: []

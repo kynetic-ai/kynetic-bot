@@ -619,4 +619,13 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KGEDD2P3A2JJNS0JZGY64B55
+    type: success
+    content: "Pre-format before commit: Running pnpm format before staging files catches formatting
+      issues before the pre-commit hook runs, avoiding separate 'style: Apply linter formatting'
+      commits."
+    created_at: 2026-02-02T05:32:28.227Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

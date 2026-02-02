@@ -685,4 +685,14 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KGFTCEWAWYFGFY1TQXT8J1YD
+    type: friction
+    content: Missing package.json dependency not caught until pre-push hook. Added import from
+      '@kynetic-bot/supervisor' in bot/src/restart.ts but forgot to add dependency to
+      bot/package.json. Local tests passed (test files aren't type-checked), only caught during
+      pre-push full build. Early detection would save time on failed pushes.
+    created_at: 2026-02-02T18:38:33.866Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

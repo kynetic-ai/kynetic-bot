@@ -430,3 +430,7 @@ features:
         given: requestRestart called
         when: options.reason provided
         then: checkpoint includes restart_reason
+      - id: ac-3
+        given: requestRestart called
+        when: options.wakePrompt provided
+        then: checkpoint includes wake_context.prompt

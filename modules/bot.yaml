@@ -416,6 +416,7 @@ features:
       method that writes checkpoint, sends IPC message, and initiates graceful shutdown.
     depends_on:
       - "@wake-injection"
+      - "@shutdown-modes"
     implements: []
     relates_to: []
     tests: []

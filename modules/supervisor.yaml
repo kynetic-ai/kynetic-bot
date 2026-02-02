@@ -150,3 +150,7 @@ features:
         given: checkpoint referenced
         when: respawn occurs
         then: path passed as CLI arg or env var
+      - id: ac-5
+        given: invalid IPC message
+        when: parsed
+        then: logs warning, ignores (no crash)

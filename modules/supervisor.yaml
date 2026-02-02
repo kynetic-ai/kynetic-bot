@@ -146,3 +146,7 @@ features:
         given: planned_restart acknowledged
         when: child exits code 0
         then: respawns with --checkpoint flag
+      - id: ac-4
+        given: checkpoint referenced
+        when: respawn occurs
+        then: path passed as CLI arg or env var

@@ -177,7 +177,8 @@ features:
     description: Soft and hard shutdown modes for graceful process termination. Handles in-flight
       message draining, timeout-based escalation to SIGKILL, and coordination during planned
       restarts.
-    depends_on: []
+    depends_on:
+      - "@restart-protocol"
     implements: []
     relates_to: []
     tests: []

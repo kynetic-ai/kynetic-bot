@@ -14698,7 +14698,7 @@
   type: task
   spec_ref: "@bot-restart-api"
   derivation: auto
-  status: in_progress
+  status: pending_review
   blocked_by: []
   depends_on:
     - "@task-wake-context-injection"

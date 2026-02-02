@@ -14312,7 +14312,7 @@
   type: task
   spec_ref: "@restart-protocol"
   derivation: auto
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on:
     - "@task-restart-checkpoint"
@@ -14433,6 +14433,11 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-02-02T18:45:19.235Z
+  closed_reason: "Merged in PR #78. Implemented full restart protocol with IPC message handling
+    between kbot and supervisor. All 8 acceptance criteria covered with comprehensive tests (13
+    bot-side + 4 supervisor-side). Includes checkpoint validation, timeout/retry logic, and
+    duplicate request prevention. Fixed lockfile issue during review."
 - _ulid: 01KGEP44BFZ1SSGS8X547PPV8J
   slugs:
     - task-wake-context-injection

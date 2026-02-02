@@ -10958,6 +10958,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-01-31T07:44:01.587Z
+  started_at: 2026-02-02T23:01:28.236Z
   notes:
     - _ulid: 01KG9G4QZT01ZKF2NARW07AVG9
       created_at: 2026-01-31T07:44:08.698Z
@@ -10979,8 +10980,32 @@
 
         Small fix - just add comments to existing code.
       supersedes: null
+    - _ulid: 01KGG9E2Y3KN9YJBFFWZ9NJFTT
+      created_at: 2026-02-02T23:01:35.812Z
+      author: "@claude"
+      content: >-
+        Verified task: AC annotations for terminal handlers (ac-7 through ac-11) are already present
+        in packages/agent/src/lifecycle.ts. They were added in commit a53f02d when the handlers were
+        originally implemented.
+
+
+        The annotations exist at:
+
+        - Line 806: // AC: @agent-lifecycle ac-7 (createTerminal)
+
+        - Line 890: // AC: @agent-lifecycle ac-8 (getTerminalOutput)
+
+        - Line 918: // AC: @agent-lifecycle ac-9 (waitForTerminalExit)
+
+        - Line 947: // AC: @agent-lifecycle ac-10 (killTerminal)
+
+        - Line 972: // AC: @agent-lifecycle ac-11 (releaseTerminal)
+
+
+        Also used subagent to scan codebase for other missing AC annotations. Found 14+
+        implementation files with gaps - will add to inbox for future work.
+      supersedes: null
   todos: []
-  started_at: 2026-02-02T23:01:28.236Z
 - _ulid: 01KG9NK31RS7Q8VGXVC1Y8DQX8
   slugs: []
   title: Implement ACP writeFile handler

@@ -228,3 +228,8 @@ features:
       - "@trait-validated"
     notes: []
     created: 2026-02-02T08:03:42.919Z
+    acceptance_criteria:
+      - id: ac-1
+        given: supervisor spawns child
+        when: environment set
+        then: KBOT_SUPERVISED=1 set

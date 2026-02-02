@@ -14597,7 +14597,7 @@
     create supervisor CLI entry point with signal handlers.
   spec_ref: "@supervisor"
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -14620,6 +14620,7 @@
       supersedes: null
   todos: []
   automation: eligible
+  started_at: 2026-02-02T08:21:06.407Z
 - _ulid: 01KGEP4V96FCZACH0Y9KQWT96T
   slugs: []
   title: Add Zod schemas for checkpoint and IPC messages

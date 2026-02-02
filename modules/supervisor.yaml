@@ -133,3 +133,8 @@ features:
       - "@trait-validated"
     notes: []
     created: 2026-02-02T08:00:58.275Z
+    acceptance_criteria:
+      - id: ac-1
+        given: kbot wants restart
+        when: "sends { type: 'planned_restart', checkpoint } via IPC"
+        then: supervisor acknowledges, initiates graceful restart

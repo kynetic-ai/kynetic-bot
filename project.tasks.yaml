@@ -15155,9 +15155,36 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-02T19:56:10.004Z
-  notes: []
-  todos: []
   started_at: 2026-02-02T20:31:48.507Z
+  notes:
+    - _ulid: 01KGG10BSFH2S399S7BJ6KA2YP
+      created_at: 2026-02-02T20:34:17.520Z
+      author: "@claude"
+      content: >-
+        Fixed kspec file naming issues:
+
+
+        1. Renamed kynetic.yaml → kynetic-bot.yaml (root spec file)
+
+        2. Merged 81 observations from kynetic.meta.yaml into kynetic-bot.meta.yaml  
+
+        3. Deleted redundant kynetic.meta.yaml
+
+
+        Root cause: Having both kynetic.meta.yaml and kynetic-bot.meta.yaml caused kspec validate to
+        load the wrong file (the one with empty agents/workflows/conventions), showing '0 agents, 0
+        workflows' despite content existing.
+
+
+        Validation now passes:
+
+        - Schema: OK
+
+        - References: OK  
+
+        - Meta: 1 agents, 6 workflows, 2 conventions
+      supersedes: null
+  todos: []
 - _ulid: 01KGFYTMHDZ5CKVNK3RCETWH9J
   slugs: []
   title: Add crash checkpoint cleanup mechanism

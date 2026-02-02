@@ -10952,6 +10952,8 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: Task already done - AC annotations for terminal handlers were added in original
+    implementation commit a53f02d. Verified all 5 annotations present in lifecycle.ts.
   depends_on: []
   context: []
   priority: 4
@@ -10959,6 +10961,7 @@
   vcs_refs: []
   created_at: 2026-01-31T07:44:01.587Z
   started_at: 2026-02-02T23:01:28.236Z
+  completed_at: 2026-02-02T23:01:48.043Z
   notes:
     - _ulid: 01KG9G4QZT01ZKF2NARW07AVG9
       created_at: 2026-01-31T07:44:08.698Z
@@ -11006,9 +11009,6 @@
         implementation files with gaps - will add to inbox for future work.
       supersedes: null
   todos: []
-  completed_at: 2026-02-02T23:01:48.043Z
-  closed_reason: Task already done - AC annotations for terminal handlers were added in original
-    implementation commit a53f02d. Verified all 5 annotations present in lifecycle.ts.
 - _ulid: 01KG9NK31RS7Q8VGXVC1Y8DQX8
   slugs: []
   title: Implement ACP writeFile handler
@@ -15290,7 +15290,7 @@
     Should align with existing checkpoint 24-hour TTL pattern.
   spec_ref: null
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -15300,6 +15300,7 @@
   created_at: 2026-02-02T19:56:12.717Z
   notes: []
   todos: []
+  started_at: 2026-02-02T23:04:03.705Z
 - _ulid: 01KGFYTPW1YYAQYZCDV5ZCWWZ5
   slugs: []
   title: Make shutdown timeout configurable

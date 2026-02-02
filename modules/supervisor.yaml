@@ -233,3 +233,7 @@ features:
         given: supervisor spawns child
         when: environment set
         then: KBOT_SUPERVISED=1 set
+      - id: ac-2
+        given: supervisor spawns child
+        when: IPC open
+        then: KBOT_SUPERVISOR_PID={pid} set

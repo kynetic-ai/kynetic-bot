@@ -34,3 +34,8 @@ features:
       - "@trait-graceful-shutdown"
     notes: []
     created: 2026-02-02T07:59:22.245Z
+    acceptance_criteria:
+      - id: ac-1
+        given: supervisor starts
+        when: spawn() called
+        then: spawns kbot with IPC channel

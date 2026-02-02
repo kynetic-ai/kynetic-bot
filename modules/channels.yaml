@@ -331,6 +331,10 @@ features:
         given: Agent finishes processing a turn
         when: turn:end event emitted by Bot
         then: Placeholder tracking cleared for that session+channel, allowing fresh placeholder on next turn
+      - id: ac-24
+        given: Placeholder creation is in progress
+        when: Another tool call requests placeholder for same session+channel
+        then: Second call awaits pending promise instead of creating duplicate (race condition prevention)
     status:
       maturity: draft
       implementation: in_progress

@@ -15124,9 +15124,33 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-02T19:56:06.369Z
-  notes: []
-  todos: []
   started_at: 2026-02-02T22:04:34.206Z
+  notes:
+    - _ulid: 01KGG65X650R1Z3PG2QPT9XRBT
+      created_at: 2026-02-02T22:04:42.053Z
+      author: "@claude"
+      content: >-
+        Starting work on supervisor restart tests. Analyzed existing code:
+
+        - restart.test.ts: Tests RestartProtocol IPC client (already comprehensive)
+
+        - wake.test.ts: Tests wake context injection (already comprehensive)  
+
+        - supervisor.test.ts: Tests Supervisor class (already comprehensive)
+
+
+        Missing coverage identified:
+
+        1. Bot.requestRestart() unit tests - streaming completion wait, session context retrieval,
+        checkpoint cleanup on failure
+
+        2. No need for additional wake context integration tests - wake.test.ts already covers all
+        ACs
+
+
+        Will create bot-restart.test.ts with Bot.requestRestart() tests.
+      supersedes: null
+  todos: []
 - _ulid: 01KGFYTHWN8EF88CRQ23WGDKV4
   slugs: []
   title: Fix kspec setup - rename files and merge content

@@ -13932,4 +13932,23 @@
 
         All 394 tests passing.
       supersedes: null
+    - _ulid: 01KGDZJ124W0ERZGR5KD8K751S
+      created_at: 2026-02-02T01:30:30.341Z
+      author: "@claude"
+      content: >-
+        Updated to use turn:end event for placeholder clearing:
+
+
+        - Added `turn:end` event emission in Bot after `message:processed` 
+
+        - Discord adapter listens for `turn:end` to clear placeholders
+
+        - Added `clearPlaceholder()` method for clean turn-based tracking
+
+        - Removed previous approach of clearing when parentMessageId was seen
+
+
+        This is the correct behavior: placeholder is cleared when the agent signals turn completion,
+        not when response starts.
+      supersedes: null
   todos: []

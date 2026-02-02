@@ -134,6 +134,15 @@ importers:
         specifier: workspace:^
         version: link:../memory
 
+  packages/supervisor:
+    dependencies:
+      '@kynetic-bot/core':
+        specifier: workspace:*
+        version: link:../core
+      zod:
+        specifier: ^3.23
+        version: 3.25.76
+
 packages:
 
   '@agentclientprotocol/sdk@0.13.1':

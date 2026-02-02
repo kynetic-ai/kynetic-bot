@@ -1,0 +1,23 @@
+{
+  "name": "@kynetic-bot/supervisor",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "kbot-supervisor": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/cli.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {},
+  "dependencies": {
+    "@kynetic-bot/core": "workspace:*",
+    "zod": "^3.23"
+  }
+}

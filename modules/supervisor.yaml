@@ -79,6 +79,7 @@ features:
     implements: []
     relates_to: []
     tests: []
-    traits: []
+    traits:
+      - "@trait-validated"
     notes: []
     created: 2026-02-02T08:00:12.330Z

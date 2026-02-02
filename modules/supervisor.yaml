@@ -237,3 +237,7 @@ features:
         given: supervisor spawns child
         when: IPC open
         then: KBOT_SUPERVISOR_PID={pid} set
+      - id: ac-3
+        given: bot starts
+        when: KBOT_SUPERVISED=1
+        then: bot knows restart API available

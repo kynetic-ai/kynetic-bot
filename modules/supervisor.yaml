@@ -192,3 +192,7 @@ features:
         given: soft shutdown timeout exceeded
         when: child running
         then: sends SIGKILL, logs forced termination
+      - id: ac-3
+        given: supervisor receives SIGTERM
+        when: in planned restart
+        then: completes restart (no double-signal)

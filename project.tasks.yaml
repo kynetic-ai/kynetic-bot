@@ -14302,15 +14302,21 @@
         warning, preserves essential info
       supersedes: null
   todos: []
-- title: "Implement: Shutdown Modes"
+- _ulid: 01KGEP470NTYBVKH72DPH04WH6
+  slugs:
+    - task-shutdown-modes
+  title: "Implement: Shutdown Modes"
   type: task
   spec_ref: "@shutdown-modes"
   derivation: auto
-  priority: 3
-  slugs:
-    - task-shutdown-modes
-  tags: []
+  status: pending
+  blocked_by: []
   depends_on: []
+  context: []
+  priority: 3
+  tags: []
+  vcs_refs: []
+  created_at: 2026-02-02T08:04:54.933Z
   notes:
     - _ulid: 01KGEP470N45AVKTKEPAZ78JWX
       created_at: 2026-02-02T08:04:54.933Z
@@ -14346,10 +14352,62 @@
         - ac-7: Given new message arrives, when during shutdown drain, then rejected with 'shutting
         down' error
       supersedes: null
-  _ulid: 01KGEP470NTYBVKH72DPH04WH6
+  todos: []
+- title: "Implement: Bot Restart API"
+  type: task
+  spec_ref: "@bot-restart-api"
+  derivation: auto
+  priority: 3
+  slugs:
+    - task-bot-restart-api
+  tags: []
+  depends_on: []
+  notes:
+    - _ulid: 01KGEP4ASPTW966VSQHZ2K2J53
+      created_at: 2026-02-02T08:04:58.806Z
+      author: "@claude"
+      content: >-
+        Implementation notes (auto-generated from spec):
+
+
+        Public API for kbot to request restarts from the supervisor. Provides requestRestart()
+        method that writes checkpoint, sends IPC message, and initiates graceful shutdown.
+
+
+
+        Acceptance Criteria:
+
+        - ac-1: Given bot calls requestRestart(options), when IPC available, then writes checkpoint,
+        sends planned_restart
+
+        - ac-2: Given requestRestart called, when options.reason provided, then checkpoint includes
+        restart_reason
+
+        - ac-3: Given requestRestart called, when options.wakePrompt provided, then checkpoint
+        includes wake_context.prompt
+
+        - ac-4: Given requestRestart called, when options.pendingWork provided, then checkpoint
+        includes wake_context.pending_work
+
+        - ac-5: Given requestRestart succeeds, when IPC acknowledged, then bot initiates graceful
+        shutdown
+
+        - ac-6: Given IPC not available, when requestRestart called, then throws
+        RestartNotAvailableError
+
+        - ac-7: Given bot under supervisor, when process.send exists, then isSupervisedMode()
+        returns true
+
+        - ac-8: Given requestRestart called during streaming, when response in progress, then waits
+        for current response to complete before restart
+
+        - ac-9: Given requestRestart returns, when caller awaits, then resolves after ack received
+        (does not wait for full restart)
+      supersedes: null
+  _ulid: 01KGEP4ASPV39SEY2NZRP4NWR4
   status: pending
   blocked_by: []
   context: []
   vcs_refs: []
-  created_at: 2026-02-02T08:04:54.933Z
+  created_at: 2026-02-02T08:04:58.806Z
   todos: []

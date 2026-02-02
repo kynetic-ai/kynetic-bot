@@ -459,6 +459,85 @@ describe('Supervisor', () => {
     });
   });
 
+  describe('environment variables', () => {
+    // AC: @supervisor-env ac-1
+    it('sets KBOT_SUPERVISED=1 when spawning child', async () => {
+      supervisor = new Supervisor({ childPath: '/path/to/kbot' });
+
+      await supervisor.spawn();
+
+      const { fork } = await import('node:child_process');
+      const callArgs = vi.mocked(fork).mock.calls[0];
+      const options = callArgs?.[2];
+
+      expect(options?.env).toBeDefined();
+      expect(options?.env?.KBOT_SUPERVISED).toBe('1');
+    });
+
+    // AC: @supervisor-env ac-2
+    it('sets KBOT_SUPERVISOR_PID to supervisor process PID', async () => {
+      supervisor = new Supervisor({ childPath: '/path/to/kbot' });
+
+      await supervisor.spawn();
+
+      const { fork } = await import('node:child_process');
+      const callArgs = vi.mocked(fork).mock.calls[0];
+      const options = callArgs?.[2];
+
+      expect(options?.env).toBeDefined();
+      expect(options?.env?.KBOT_SUPERVISOR_PID).toBe(process.pid.toString());
+    });
+
+    // AC: @supervisor-env ac-4
+    it('sets KBOT_CHECKPOINT_PATH when checkpoint provided', async () => {
+      const checkpointPath = join(testDir, 'test-checkpoint.json');
+      supervisor = new Supervisor({
+        childPath: '/path/to/kbot',
+        checkpointPath,
+      });
+
+      await supervisor.spawn();
+
+      const { fork } = await import('node:child_process');
+      const callArgs = vi.mocked(fork).mock.calls[0];
+      const options = callArgs?.[2];
+
+      expect(options?.env).toBeDefined();
+      expect(options?.env?.KBOT_CHECKPOINT_PATH).toBe(checkpointPath);
+    });
+
+    // AC: @supervisor-env ac-4
+    it('does not set KBOT_CHECKPOINT_PATH when no checkpoint', async () => {
+      supervisor = new Supervisor({ childPath: '/path/to/kbot' });
+
+      await supervisor.spawn();
+
+      const { fork } = await import('node:child_process');
+      const callArgs = vi.mocked(fork).mock.calls[0];
+      const options = callArgs?.[2];
+
+      expect(options?.env).toBeDefined();
+      expect(options?.env?.KBOT_CHECKPOINT_PATH).toBeUndefined();
+    });
+
+    it('inherits parent environment variables', async () => {
+      process.env.TEST_VAR = 'test_value';
+
+      supervisor = new Supervisor({ childPath: '/path/to/kbot' });
+
+      await supervisor.spawn();
+
+      const { fork } = await import('node:child_process');
+      const callArgs = vi.mocked(fork).mock.calls[0];
+      const options = callArgs?.[2];
+
+      expect(options?.env).toBeDefined();
+      expect(options?.env?.TEST_VAR).toBe('test_value');
+
+      delete process.env.TEST_VAR;
+    });
+  });
+
   describe('observable trait', () => {
     // AC: @trait-observable ac-1
     it('emits structured events on state changes', async () => {

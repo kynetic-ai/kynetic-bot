@@ -230,6 +230,9 @@ describe('Bot Configuration', () => {
       delete process.env.HEALTH_CHECK_INTERVAL;
       delete process.env.SHUTDOWN_TIMEOUT;
       delete process.env.ESCALATION_CHANNEL;
+      delete process.env.KBOT_SUPERVISED;
+      delete process.env.KBOT_SUPERVISOR_PID;
+      delete process.env.KBOT_CHECKPOINT_PATH;
     });
 
     afterEach(() => {
@@ -410,6 +413,90 @@ describe('Bot Configuration', () => {
       process.env.HEALTH_CHECK_INTERVAL = '30000.5';
 
       expect(() => loadConfig()).toThrow('Invalid integer for HEALTH_CHECK_INTERVAL');
+    });
+
+    // AC: @supervisor-env ac-3
+    it('detects supervised mode when KBOT_SUPERVISED=1', () => {
+      process.env.DISCORD_TOKEN = 'test-token';
+      process.env.AGENT_COMMAND = 'test-command';
+      process.env.KBOT_SUPERVISED = '1';
+
+      const config = loadConfig();
+      expect(config.isSupervised).toBe(true);
+    });
+
+    // AC: @supervisor-env ac-3
+    it('isSupervised defaults to false when not set', () => {
+      process.env.DISCORD_TOKEN = 'test-token';
+      process.env.AGENT_COMMAND = 'test-command';
+
+      const config = loadConfig();
+      expect(config.isSupervised).toBe(false);
+    });
+
+    // AC: @supervisor-env ac-3
+    it('isSupervised is false when KBOT_SUPERVISED is not "1"', () => {
+      process.env.DISCORD_TOKEN = 'test-token';
+      process.env.AGENT_COMMAND = 'test-command';
+      process.env.KBOT_SUPERVISED = 'true';
+
+      const config = loadConfig();
+      expect(config.isSupervised).toBe(false);
+    });
+
+    it('loads supervisor PID from KBOT_SUPERVISOR_PID', () => {
+      process.env.DISCORD_TOKEN = 'test-token';
+      process.env.AGENT_COMMAND = 'test-command';
+      process.env.KBOT_SUPERVISOR_PID = '12345';
+
+      const config = loadConfig();
+      expect(config.supervisorPid).toBe(12345);
+    });
+
+    it('supervisorPid is undefined when not set', () => {
+      process.env.DISCORD_TOKEN = 'test-token';
+      process.env.AGENT_COMMAND = 'test-command';
+
+      const config = loadConfig();
+      expect(config.supervisorPid).toBeUndefined();
+    });
+
+    it('throws error for invalid KBOT_SUPERVISOR_PID format', () => {
+      process.env.DISCORD_TOKEN = 'test-token';
+      process.env.AGENT_COMMAND = 'test-command';
+      process.env.KBOT_SUPERVISOR_PID = 'not-a-number';
+
+      expect(() => loadConfig()).toThrow('Invalid integer for KBOT_SUPERVISOR_PID');
+    });
+
+    it('loads checkpoint path from KBOT_CHECKPOINT_PATH', () => {
+      process.env.DISCORD_TOKEN = 'test-token';
+      process.env.AGENT_COMMAND = 'test-command';
+      process.env.KBOT_CHECKPOINT_PATH = '/tmp/checkpoint.json';
+
+      const config = loadConfig();
+      expect(config.checkpointPath).toBe('/tmp/checkpoint.json');
+    });
+
+    it('checkpointPath is undefined when not set', () => {
+      process.env.DISCORD_TOKEN = 'test-token';
+      process.env.AGENT_COMMAND = 'test-command';
+
+      const config = loadConfig();
+      expect(config.checkpointPath).toBeUndefined();
+    });
+
+    it('loads all supervisor environment variables together', () => {
+      process.env.DISCORD_TOKEN = 'test-token';
+      process.env.AGENT_COMMAND = 'test-command';
+      process.env.KBOT_SUPERVISED = '1';
+      process.env.KBOT_SUPERVISOR_PID = '99999';
+      process.env.KBOT_CHECKPOINT_PATH = '/path/to/checkpoint.yaml';
+
+      const config = loadConfig();
+      expect(config.isSupervised).toBe(true);
+      expect(config.supervisorPid).toBe(99999);
+      expect(config.checkpointPath).toBe('/path/to/checkpoint.yaml');
     });
   });
 });

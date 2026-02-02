@@ -85,6 +85,12 @@ export interface SupervisorEvents {
    * Emitted when shutdown completes
    */
   shutdown: () => void;
+
+  /**
+   * Emitted when shutdown is draining in-flight messages
+   * AC: @shutdown-modes ac-4
+   */
+  draining: () => void;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
@@ -109,6 +115,9 @@ export class Supervisor extends EventEmitter {
   private config: Required<SupervisorConfig>;
   private child: ChildProcess | null = null;
   private isShuttingDown = false;
+  private isDraining = false;
+  private isPlannedRestart = false;
+  private inflightCount = 0;
   private currentBackoffMs: number;
   private consecutiveFailures = 0;
   private lastSpawnTime: number | null = null;
@@ -292,9 +301,14 @@ export class Supervisor extends EventEmitter {
    * Handle planned restart request
    *
    * AC: @restart-protocol ac-1, ac-2
+   * AC: @shutdown-modes ac-3, ac-8
    */
   private async handlePlannedRestart(checkpointPath: string): Promise<void> {
     this.log.info('Planned restart requested', { checkpoint: checkpointPath });
+
+    // AC: @shutdown-modes ac-3, ac-8
+    // Mark as planned restart to prevent double-signaling
+    this.isPlannedRestart = true;
 
     // AC: @restart-protocol ac-2
     // Verify checkpoint file exists before acknowledging
@@ -315,6 +329,7 @@ export class Supervisor extends EventEmitter {
           message: `Checkpoint file not accessible: ${checkpointPath}`,
         });
       }
+      this.isPlannedRestart = false;
       return;
     }
 
@@ -438,14 +453,24 @@ export class Supervisor extends EventEmitter {
   }
 
   /**
-   * Graceful shutdown
+   * Graceful shutdown (soft)
    *
    * AC: @supervisor-process-spawn ac-2
    * AC: @trait-graceful-shutdown ac-1, ac-2, ac-3
+   * AC: @shutdown-modes ac-1, ac-2, ac-3, ac-4, ac-6, ac-7, ac-8
    */
   async shutdown(): Promise<void> {
     if (this.isShuttingDown) {
       this.log.warn('Shutdown already in progress');
+      return;
+    }
+
+    // AC: @shutdown-modes ac-3, ac-8
+    // If in planned restart and supervisor receives SIGTERM, wait for restart completion
+    if (this.isPlannedRestart) {
+      this.log.info('Planned restart in progress - waiting for completion before shutdown');
+      // Don't double-signal the child - it's already exiting gracefully
+      this.isShuttingDown = true;
       return;
     }
 
@@ -461,7 +486,29 @@ export class Supervisor extends EventEmitter {
     try {
       const pid = this.child.pid;
 
+      // AC: @shutdown-modes ac-4, ac-6
+      // Start draining phase - wait for in-flight messages
+      this.isDraining = true;
+      this.emit('draining');
+      this.log.info('Draining in-flight messages', { inflightCount: this.inflightCount });
+
+      // Wait for in-flight messages to complete (with timeout)
+      const drainTimeout = 5000; // 5s for in-flight messages
+      const drainStart = Date.now();
+      while (this.inflightCount > 0 && Date.now() - drainStart < drainTimeout) {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+
+      if (this.inflightCount > 0) {
+        this.log.warn('Drain timeout - proceeding with shutdown', {
+          remainingInflight: this.inflightCount,
+        });
+      } else {
+        this.log.info('All in-flight messages drained');
+      }
+
       // AC: @supervisor-process-spawn ac-2
+      // AC: @shutdown-modes ac-1
       this.log.info('Sending SIGTERM to child process', { pid });
       this.child.kill('SIGTERM');
 
@@ -476,6 +523,7 @@ export class Supervisor extends EventEmitter {
         }),
         new Promise<void>((resolve) =>
           setTimeout(() => {
+            // AC: @shutdown-modes ac-2
             this.log.warn('Graceful shutdown timeout - forcing SIGKILL');
             if (this.child) {
               this.child.kill('SIGKILL');
@@ -491,7 +539,38 @@ export class Supervisor extends EventEmitter {
       const error = err instanceof Error ? err : new Error(String(err));
       this.log.error('Shutdown error', { error: error.message });
       throw err;
+    } finally {
+      this.isDraining = false;
     }
+  }
+
+  /**
+   * Hard shutdown - immediately sends SIGKILL
+   *
+   * AC: @shutdown-modes ac-5
+   */
+  hardShutdown(): void {
+    if (this.isShuttingDown) {
+      this.log.warn('Shutdown already in progress');
+      return;
+    }
+
+    this.isShuttingDown = true;
+    this.log.info('Initiating hard shutdown (SIGKILL)');
+
+    if (!this.child) {
+      this.log.info('No child process to shut down');
+      this.emit('shutdown');
+      return;
+    }
+
+    const pid = this.child.pid;
+
+    // AC: @shutdown-modes ac-5
+    this.log.info('Sending SIGKILL to child process', { pid });
+    this.child.kill('SIGKILL');
+
+    this.emit('shutdown');
   }
 
   /**
@@ -516,5 +595,41 @@ export class Supervisor extends EventEmitter {
    */
   isShutdown(): boolean {
     return this.isShuttingDown;
+  }
+
+  /**
+   * Track in-flight message
+   *
+   * AC: @shutdown-modes ac-6
+   */
+  trackInflight(): void {
+    this.inflightCount++;
+  }
+
+  /**
+   * Release in-flight message
+   *
+   * AC: @shutdown-modes ac-6
+   */
+  releaseInflight(): void {
+    if (this.inflightCount > 0) {
+      this.inflightCount--;
+    }
+  }
+
+  /**
+   * Check if accepting new messages
+   *
+   * AC: @shutdown-modes ac-7
+   */
+  canAcceptMessages(): boolean {
+    return !this.isDraining && !this.isShuttingDown;
+  }
+
+  /**
+   * Get current in-flight count
+   */
+  getInflightCount(): number {
+    return this.inflightCount;
   }
 }

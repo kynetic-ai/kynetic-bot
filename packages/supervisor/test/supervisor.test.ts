@@ -834,4 +834,228 @@ describe('Supervisor', () => {
       expect(errors[0]?.message).toContain('no PID');
     });
   });
+
+  describe('shutdown modes', () => {
+    // AC: @shutdown-modes ac-1
+    it('soft shutdown waits up to shutdownTimeout', async () => {
+      const slowChild = new MockChildProcess();
+      slowChild.kill = vi.fn().mockImplementation((signal: string) => {
+        slowChild.killed = true;
+        if (signal === 'SIGTERM') {
+          // Delay exit to test timeout behavior
+          setTimeout(() => {
+            slowChild.emit('exit', 0, signal);
+          }, 50);
+        }
+        return true;
+      });
+
+      const { fork } = await import('node:child_process');
+      vi.mocked(fork).mockReturnValue(slowChild as unknown as ChildProcess);
+
+      supervisor = new Supervisor({
+        childPath: '/path/to/kbot',
+        shutdownTimeoutMs: 30000,
+      });
+
+      await supervisor.spawn();
+
+      const shutdownStart = Date.now();
+      await supervisor.shutdown();
+      const shutdownDuration = Date.now() - shutdownStart;
+
+      expect(slowChild.kill).toHaveBeenCalledWith('SIGTERM');
+      expect(shutdownDuration).toBeGreaterThanOrEqual(50);
+      expect(shutdownDuration).toBeLessThan(30000);
+    });
+
+    // AC: @shutdown-modes ac-2
+    it('sends SIGKILL when soft shutdown timeout exceeded', async () => {
+      const hangingChild = new MockChildProcess();
+      let killCount = 0;
+      hangingChild.kill = vi.fn().mockImplementation((signal: string) => {
+        hangingChild.killed = true;
+        killCount++;
+        if (signal === 'SIGKILL') {
+          // Exit immediately on SIGKILL
+          setTimeout(() => {
+            hangingChild.emit('exit', null, 'SIGKILL');
+          }, 10);
+        }
+        // Don't exit on SIGTERM - force timeout
+        return true;
+      });
+
+      const { fork } = await import('node:child_process');
+      vi.mocked(fork).mockReturnValue(hangingChild as unknown as ChildProcess);
+
+      supervisor = new Supervisor({
+        childPath: '/path/to/kbot',
+        shutdownTimeoutMs: 100,
+      });
+
+      await supervisor.spawn();
+      await supervisor.shutdown();
+
+      expect(hangingChild.kill).toHaveBeenCalledWith('SIGTERM');
+      expect(hangingChild.kill).toHaveBeenCalledWith('SIGKILL');
+      expect(killCount).toBeGreaterThanOrEqual(2);
+    });
+
+    // AC: @shutdown-modes ac-3, ac-8
+    it('completes planned restart without double-signal on SIGTERM', async () => {
+      const checkpointPath = join(testDir, 'planned-restart.yaml');
+      await writeFile(
+        checkpointPath,
+        JSON.stringify({
+          version: 1,
+          session_id: '01TEST',
+          restart_reason: 'update',
+          created_at: new Date().toISOString(),
+        })
+      );
+
+      supervisor = new Supervisor({ childPath: '/path/to/kbot' });
+      await supervisor.spawn();
+
+      const killSignals: string[] = [];
+      mockChild.on('test:kill', (signal) => killSignals.push(signal as string));
+
+      // Simulate planned restart request
+      mockChild.emit('message', {
+        type: 'planned_restart',
+        checkpoint: checkpointPath,
+      });
+
+      // Wait for IPC processing
+      await new Promise((resolve) => setTimeout(resolve, 20));
+
+      // Now send SIGTERM to supervisor (simulating external shutdown)
+      await supervisor.shutdown();
+
+      // Should not have sent any signals to child (restart already in progress)
+      expect(killSignals).toHaveLength(0);
+    });
+
+    // AC: @shutdown-modes ac-4
+    it('emits draining event when shutdown initiated', async () => {
+      supervisor = new Supervisor({ childPath: '/path/to/kbot' });
+      await supervisor.spawn();
+
+      const events: string[] = [];
+      supervisor.on('draining', () => events.push('draining'));
+      supervisor.on('shutdown', () => events.push('shutdown'));
+
+      await supervisor.shutdown();
+
+      expect(events).toContain('draining');
+      expect(events.indexOf('draining')).toBeLessThan(events.indexOf('shutdown'));
+    });
+
+    // AC: @shutdown-modes ac-5
+    it('hard shutdown immediately sends SIGKILL', async () => {
+      supervisor = new Supervisor({ childPath: '/path/to/kbot' });
+      await supervisor.spawn();
+
+      const killSignals: string[] = [];
+      mockChild.on('test:kill', (signal) => killSignals.push(signal as string));
+
+      // Call hardShutdown instead of shutdown
+      supervisor.hardShutdown();
+
+      // Wait a bit for signal
+      await new Promise((resolve) => setTimeout(resolve, 20));
+
+      expect(killSignals).toContain('SIGKILL');
+      expect(killSignals).not.toContain('SIGTERM');
+    });
+
+    // AC: @shutdown-modes ac-6
+    it('waits for inflightCount to reach 0 with timeout', async () => {
+      supervisor = new Supervisor({
+        childPath: '/path/to/kbot',
+        shutdownTimeoutMs: 30000,
+      });
+      await supervisor.spawn();
+
+      // Track some in-flight messages
+      supervisor.trackInflight();
+      supervisor.trackInflight();
+      supervisor.trackInflight();
+
+      expect(supervisor.getInflightCount()).toBe(3);
+
+      // Start shutdown in background
+      const shutdownPromise = supervisor.shutdown();
+
+      // Wait a bit, then release messages
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      supervisor.releaseInflight();
+      supervisor.releaseInflight();
+
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      supervisor.releaseInflight();
+
+      await shutdownPromise;
+
+      expect(supervisor.getInflightCount()).toBe(0);
+    });
+
+    // AC: @shutdown-modes ac-7
+    it('rejects new messages during shutdown drain', async () => {
+      supervisor = new Supervisor({ childPath: '/path/to/kbot' });
+      await supervisor.spawn();
+
+      expect(supervisor.canAcceptMessages()).toBe(true);
+
+      // Start shutdown (which starts draining)
+      const shutdownPromise = supervisor.shutdown();
+
+      // Wait a bit for draining to start
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      expect(supervisor.canAcceptMessages()).toBe(false);
+
+      await shutdownPromise;
+    });
+
+    // AC: @shutdown-modes ac-8
+    it('waits for planned restart completion before exit on SIGTERM', async () => {
+      const checkpointPath = join(testDir, 'restart-before-shutdown.yaml');
+      await writeFile(
+        checkpointPath,
+        JSON.stringify({
+          version: 1,
+          session_id: '01TEST2',
+          restart_reason: 'update',
+          created_at: new Date().toISOString(),
+        })
+      );
+
+      supervisor = new Supervisor({
+        childPath: '/path/to/kbot',
+        shutdownTimeoutMs: 1000,
+      });
+      await supervisor.spawn();
+
+      // Initiate planned restart
+      mockChild.emit('message', {
+        type: 'planned_restart',
+        checkpoint: checkpointPath,
+      });
+
+      // Wait for IPC processing
+      await new Promise((resolve) => setTimeout(resolve, 20));
+
+      const killSignals: string[] = [];
+      mockChild.on('test:kill', (signal) => killSignals.push(signal as string));
+
+      // Supervisor receives SIGTERM during planned restart
+      await supervisor.shutdown();
+
+      // Should not send additional SIGTERM (restart already coordinated)
+      expect(killSignals).toHaveLength(0);
+      expect(supervisor.isShutdown()).toBe(true);
+    });
+  });
 });

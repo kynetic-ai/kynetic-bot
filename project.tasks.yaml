@@ -14597,7 +14597,7 @@
     create supervisor CLI entry point with signal handlers.
   spec_ref: "@supervisor"
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -14646,6 +14646,10 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-02-02T08:31:45.535Z
+  closed_reason: "Merged in PR #74. Created @kynetic-bot/supervisor package scaffold with TypeScript
+    build infrastructure, CLI entry point with signal handlers, and Zod schemas for checkpoint
+    format and IPC messages. All acceptance criteria covered with 21 passing tests."
 - _ulid: 01KGEP4V96FCZACH0Y9KQWT96T
   slugs: []
   title: Add Zod schemas for checkpoint and IPC messages

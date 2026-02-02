@@ -1,0 +1,274 @@
+{
+  "generated_at": "2026-02-02T08:20:31.176Z",
+  "branch": "main",
+  "context": {
+    "focus": null,
+    "threads": [],
+    "open_questions": [],
+    "updated_at": "2026-02-02T08:20:31.176Z"
+  },
+  "active_tasks": [],
+  "pending_review_tasks": [],
+  "recent_notes": [],
+  "active_todos": [],
+  "ready_tasks": [
+    {
+      "ref": "01KGEP4M",
+      "title": "Create supervisor package scaffold",
+      "priority": 1,
+      "spec_ref": "@supervisor",
+      "tags": []
+    },
+    {
+      "ref": "01KGEP4V",
+      "title": "Add Zod schemas for checkpoint and IPC messages",
+      "priority": 1,
+      "spec_ref": "@restart-checkpoint",
+      "tags": []
+    },
+    {
+      "ref": "01KGEP50",
+      "title": "Update cli.ts to accept --checkpoint",
+      "priority": 2,
+      "spec_ref": "@wake-injection",
+      "tags": []
+    }
+  ],
+  "blocked_tasks": [],
+  "recently_completed": [
+    {
+      "ref": "01KGE0W8",
+      "title": "Transform placeholder into response message",
+      "completed_at": "2026-02-02T05:01:23.219Z",
+      "closed_reason": "PR #73 merged. Implemented placeholder transformation for streaming responses (AC-21). When tool calls arrive before text, the placeholder is edited to become the response instead of creating a new message. Thread remains attached. 7 tests added, all review feedback addressed."
+    },
+    {
+      "ref": "01KGDYHQ",
+      "title": "Fix placeholder spam - track placeholders per session/channel",
+      "completed_at": "2026-02-02T03:52:21.226Z",
+      "closed_reason": "PR #72 merged. Implemented placeholder deduplication with turn-based tracking via turn:end event. Added BotEvents interface documenting all Bot events including turn:end."
+    },
+    {
+      "ref": "01KGB7QG",
+      "title": "Improve Discord tool widget UX",
+      "completed_at": "2026-02-01T23:55:22.335Z",
+      "closed_reason": "All sub-tasks completed: ThreadTracker, parentMessageId, CondensedToolDisplay, Integration, and Tests. All 20 acceptance criteria covered with tests. PRs #68-71 merged. Implementation includes guild channel thread isolation, DM condensed display, placeholder messages for early tool calls, and comprehensive test coverage."
+    },
+    {
+      "ref": "01KGDBRE",
+      "title": "Add thread and condensed display tests",
+      "completed_at": "2026-02-01T23:46:19.127Z",
+      "closed_reason": "Tests already implemented. ThreadTracker.test.ts (27 tests) and CondensedToolDisplay.test.ts (24 tests) were added with their respective feature implementations (PRs #68 and #70). Integration tests in adapter.test.ts cover ac-9 through ac-20 (PR #71). All 392 tests pass."
+    },
+    {
+      "ref": "01KGDBRC",
+      "title": "Integrate ThreadTracker into Discord adapter",
+      "completed_at": "2026-02-01T23:40:14.776Z",
+      "closed_reason": "PR #71 merged. ThreadTracker integrated into Discord adapter with full AC coverage for ac-10 through ac-20."
+    },
+    {
+      "ref": "01KGDBRB",
+      "title": "Implement condensed tool display for DMs",
+      "completed_at": "2026-02-01T23:15:57.144Z",
+      "closed_reason": "PR #70 merged. Implemented CondensedToolDisplay for DM tool widgets with full AC coverage (ac-18, ac-19, ac-20). 30 tests passing."
+    },
+    {
+      "ref": "01KGDBR9",
+      "title": "Add parentMessageId to Bot tool events",
+      "completed_at": "2026-02-01T20:17:01.530Z",
+      "closed_reason": "Merged in PR #69. Added parentMessageId to Bot tool events (tool:call and tool:update) to enable thread isolation for Discord tool widgets. Changes: Bot passes streamingMessageId as 4th event argument, Discord adapter handlers updated to receive it. Tests verify parentMessageId is passed when text arrives first, and undefined when tool arrives before text (ac-14 case). Enables ac-10, ac-11, ac-14."
+    },
+    {
+      "ref": "01KGDBQM",
+      "title": "Create ThreadTracker for tool thread management",
+      "completed_at": "2026-02-01T19:57:19.504Z",
+      "closed_reason": "ThreadTracker implemented with race condition prevention, per-response isolation, and session cleanup. PR #68 merged."
+    },
+    {
+      "ref": "01KGD14Y",
+      "title": "Integrate StreamingSplitTracker with streaming flow",
+      "completed_at": "2026-02-01T18:32:10.726Z",
+      "closed_reason": "PR #67 merged. StreamingSplitTracker integrated with bot streaming flow. AC-5 (semantic boundary splitting) and AC-6 (code block handling) implemented with proper state management. Comprehensive unit tests exist for the tracker; manual test plan verified integration."
+    },
+    {
+      "ref": "01KGD148",
+      "title": "Implement message block boundary detection",
+      "completed_at": "2026-02-01T18:20:29.655Z",
+      "closed_reason": "Merged in PR #66. Implemented AC-7 for @discord-channel-adapter: message block boundary detection for streaming responses. Empty string chunks signal block boundaries, blocks tracked separately from coalescer, joined with double newline separation. All 4 AC-7 tests pass with proper annotations."
+    }
+  ],
+  "recent_commits": [
+    {
+      "hash": "4640904",
+      "full_hash": "4640904ce0192f6183a04f39a87f0053f62b3824",
+      "date": "2026-02-02T05:01:14.000Z",
+      "message": "Merge pull request #73 from kynetic-ai/feat/placeholder-transformation",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "0125066",
+      "full_hash": "012506628771176eadb2954c65ca0ed27dabcbee",
+      "date": "2026-02-02T04:28:24.000Z",
+      "message": "fix(bot): Address PR review feedback for placeholder transformation",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "ff79ea9",
+      "full_hash": "ff79ea92bef1b8245d054446149857d400c385c5",
+      "date": "2026-02-02T04:18:52.000Z",
+      "message": "style: Apply linter formatting",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "00459f4",
+      "full_hash": "00459f4c8228995431cedd580dd43c98028a5d5a",
+      "date": "2026-02-02T04:17:48.000Z",
+      "message": "feat(channels): Transform placeholder into streaming response",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "a68f08e",
+      "full_hash": "a68f08ebec8762796fabb24738e3b3136f66ab52",
+      "date": "2026-02-02T03:52:12.000Z",
+      "message": "Merge pull request #72 from kynetic-ai/fix/placeholder-deduplication",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "b9ea130",
+      "full_hash": "b9ea1304bcf1d979dba80e7128f0a41eda22766d",
+      "date": "2026-02-02T03:01:21.000Z",
+      "message": "docs(bot): Add BotEvents interface with turn:end documentation",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "b7d020b",
+      "full_hash": "b7d020b84cccdcac818f676e906f46a0ac1f0c3c",
+      "date": "2026-02-02T01:30:38.000Z",
+      "message": "fix(channels): Use turn:end event for placeholder clearing",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "45859a3",
+      "full_hash": "45859a35ae77cd62361e7367ad1eb47bfa22955e",
+      "date": "2026-02-02T01:27:06.000Z",
+      "message": "fix(channels): Make placeholder tracking turn-based, not session-based",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "7bf510a",
+      "full_hash": "7bf510ae34e2c0baeed7cbc70851f8413f6a67ba",
+      "date": "2026-02-02T01:15:45.000Z",
+      "message": "fix(channels): Deduplicate placeholder creation for tool calls without parentMessageId",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "99c7bfd",
+      "full_hash": "99c7bfde402dd77f853c6d0c41da5f2772e3b95d",
+      "date": "2026-02-01T23:40:06.000Z",
+      "message": "Merge pull request #71 from kynetic-ai/feat/integrate-thread-tracker",
+      "author": "Jacob Chapel"
+    }
+  ],
+  "working_tree": {
+    "clean": true,
+    "staged": [],
+    "unstaged": [],
+    "untracked": []
+  },
+  "inbox_items": [
+    {
+      "ref": "01KG4KV8",
+      "text": "Spec review workflow/skill that runs verification + holistic review after spec changes. Would automate the repeated 'run two subagents to check plan vs implementation and find gaps' pattern.",
+      "created_at": "2026-01-29T10:12:40.090Z",
+      "tags": [
+        "reflection",
+        "workflow"
+      ],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG4KVB",
+      "text": "Allow kspec item trait add to accept multiple traits: kspec item trait add @spec @trait1 @trait2 @trait3 instead of requiring separate commands for each trait.",
+      "created_at": "2026-01-29T10:12:43.363Z",
+      "tags": [
+        "reflection",
+        "kspec-cli"
+      ],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG4KVD",
+      "text": "Display relates_to and depends_on fields in kspec item get output. Currently these fields are only visible by reading the YAML directly.",
+      "created_at": "2026-01-29T10:12:45.470Z",
+      "tags": [
+        "reflection",
+        "kspec-cli"
+      ],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG5Z1E",
+      "text": "Discord adapter: add health check support using client.ws.ping for latency monitoring",
+      "created_at": "2026-01-29T22:47:31.618Z",
+      "tags": [],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG5Z1K",
+      "text": "Discord adapter: make bot message filtering configurable (currently filters all bots, not just self)",
+      "created_at": "2026-01-29T22:47:36.999Z",
+      "tags": [],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG5Z1P",
+      "text": "Discord adapter: expand DiscordSendOptions for ephemeral messages, thread options, slash command support",
+      "created_at": "2026-01-29T22:47:39.899Z",
+      "tags": [],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG64MZ",
+      "text": "Bot: Consider using TypedEventEmitter pattern for type-safe event names and payloads instead of base EventEmitter",
+      "created_at": "2026-01-30T00:25:34.748Z",
+      "tags": [],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG64NC",
+      "text": "Bot: Forward ChannelLifecycle events (health, reconnection) for completeness - currently only AgentLifecycle events are forwarded",
+      "created_at": "2026-01-30T00:25:47.325Z",
+      "tags": [],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG6503",
+      "text": "CLI tool to inspect types from dependencies - e.g. 'pnpm types @agentclientprotocol/sdk NewSessionRequest' to show type definition from .d.ts files. Could support --expand to follow type references. Helps with SDK integration without digging through node_modules/.pnpm/",
+      "created_at": "2026-01-30T00:31:39.008Z",
+      "tags": [
+        "reflection",
+        "dx"
+      ],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG65AG",
+      "text": "Ensure task workflow is followed when implementing plans in new context - problem: plans focus on what to build, not the kspec workflow (task start/notes/submit/complete). Agent jumps to implementation without starting task. Potential fixes: (1) plan template includes 'kspec task start @slug' as first step, (2) CLAUDE.md implementation checklist, (3) session start detects pending tasks with ready plans, (4) hook on plan approval.",
+      "created_at": "2026-01-30T00:37:20.098Z",
+      "tags": [
+        "reflection",
+        "workflow"
+      ],
+      "added_by": "@claude"
+    }
+  ],
+  "stats": {
+    "total_tasks": 108,
+    "in_progress": 0,
+    "pending_review": 0,
+    "ready": 5,
+    "blocked": 0,
+    "completed": 91,
+    "inbox_items": 55
+  }
+}

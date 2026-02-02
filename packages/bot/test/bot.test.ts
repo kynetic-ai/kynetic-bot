@@ -2757,9 +2757,7 @@ describe('Bot', () => {
 
         const placeholderBot = Bot.createWithDependencies({
           config: config,
-          agent: mockAgent as unknown as Parameters<
-            typeof Bot.createWithDependencies
-          >[0]['agent'],
+          agent: mockAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
           sessionLifecycle: new SessionLifecycleManager({ rotationThreshold: 0.7 }),
         });
 
@@ -2833,9 +2831,7 @@ describe('Bot', () => {
 
         const noPHBot = Bot.createWithDependencies({
           config: config,
-          agent: mockAgent as unknown as Parameters<
-            typeof Bot.createWithDependencies
-          >[0]['agent'],
+          agent: mockAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
           sessionLifecycle: new SessionLifecycleManager({ rotationThreshold: 0.7 }),
         });
 
@@ -2909,9 +2905,7 @@ describe('Bot', () => {
 
         const consumeBot = Bot.createWithDependencies({
           config: config,
-          agent: mockAgent as unknown as Parameters<
-            typeof Bot.createWithDependencies
-          >[0]['agent'],
+          agent: mockAgent as unknown as Parameters<typeof Bot.createWithDependencies>[0]['agent'],
           sessionLifecycle: new SessionLifecycleManager({ rotationThreshold: 0.7 }),
         });
 

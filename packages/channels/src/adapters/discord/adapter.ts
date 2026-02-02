@@ -100,7 +100,11 @@ export class DiscordAdapter implements ChannelAdapter {
    * Callback to notify bot when placeholder is created
    * AC: @discord-tool-widgets ac-21 - Enables streaming to transform placeholder
    */
-  private setPlaceholderCallback?: (sessionId: string, channelId: string, messageId: string) => void;
+  private setPlaceholderCallback?: (
+    sessionId: string,
+    channelId: string,
+    messageId: string
+  ) => void;
 
   constructor(config: DiscordAdapterConfig) {
     // Validate config

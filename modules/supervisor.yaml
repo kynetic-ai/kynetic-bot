@@ -39,3 +39,7 @@ features:
         given: supervisor starts
         when: spawn() called
         then: spawns kbot with IPC channel
+      - id: ac-2
+        given: kbot running
+        when: supervisor receives SIGTERM
+        then: sends SIGTERM to child, waits for graceful exit

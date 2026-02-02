@@ -17,7 +17,7 @@ export default tseslint.config(
   {
     // Ignore test files (not in tsconfig project service),
     // dist, node_modules, and config files
-    ignores: ['**/dist/**', '**/node_modules/**', '**/*.config.js', '**/test/**'],
+    ignores: ['**/dist/**', '**/node_modules/**', '**/*.config.js', '**/*.config.ts', '**/test/**'],
   },
   {
     rules: {

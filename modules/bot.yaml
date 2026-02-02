@@ -377,3 +377,7 @@ features:
         given: --checkpoint CLI arg
         when: bot starts
         then: reads and validates checkpoint
+      - id: ac-2
+        given: valid checkpoint with wake_context.prompt
+        when: session created
+        then: injects wake prompt BEFORE identity prompt

@@ -14166,6 +14166,7 @@
           - packages/supervisor/src/supervisor.ts (new)
       supersedes: null
   todos: []
+  automation: eligible
 - _ulid: 01KGEP3W5FN57ZRVPBMGN1TPM9
   slugs:
     - task-restart-checkpoint

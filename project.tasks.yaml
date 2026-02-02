@@ -14314,6 +14314,10 @@
   derivation: auto
   status: completed
   blocked_by: []
+  closed_reason: "Merged in PR #78. Implemented full restart protocol with IPC message handling
+    between kbot and supervisor. All 8 acceptance criteria covered with comprehensive tests (13
+    bot-side + 4 supervisor-side). Includes checkpoint validation, timeout/retry logic, and
+    duplicate request prevention. Fixed lockfile issue during review."
   depends_on:
     - "@task-restart-checkpoint"
   context: []
@@ -14322,6 +14326,7 @@
   vcs_refs: []
   created_at: 2026-02-02T08:04:46.600Z
   started_at: 2026-02-02T18:25:26.407Z
+  completed_at: 2026-02-02T18:45:19.235Z
   notes:
     - _ulid: 01KGEP3YW7RTBA8GSZ0TBDKT7F
       created_at: 2026-02-02T08:04:46.600Z
@@ -14433,11 +14438,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-02-02T18:45:19.235Z
-  closed_reason: "Merged in PR #78. Implemented full restart protocol with IPC message handling
-    between kbot and supervisor. All 8 acceptance criteria covered with comprehensive tests (13
-    bot-side + 4 supervisor-side). Includes checkpoint validation, timeout/retry logic, and
-    duplicate request prevention. Fixed lockfile issue during review."
 - _ulid: 01KGEP44BFZ1SSGS8X547PPV8J
   slugs:
     - task-wake-context-injection
@@ -14445,7 +14445,7 @@
   type: task
   spec_ref: "@wake-injection"
   derivation: auto
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on:
     - "@task-restart-checkpoint"
@@ -14513,6 +14513,7 @@
       supersedes: null
   todos: []
   automation: eligible
+  started_at: 2026-02-02T18:46:25.051Z
 - _ulid: 01KGEP470NTYBVKH72DPH04WH6
   slugs:
     - task-shutdown-modes

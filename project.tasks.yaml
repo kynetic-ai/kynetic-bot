@@ -14508,6 +14508,22 @@
         - ac-9: Given requestRestart returns, when caller awaits, then resolves after ack received
         (does not wait for full restart)
       supersedes: null
+    - _ulid: 01KGEP8T667VDGMA7SN1Q16GA8
+      created_at: 2026-02-02T08:07:25.639Z
+      author: "@claude"
+      content: |-
+        Implementation approach:
+        - Public API: bot.requestRestart(options?: { reason?, wakePrompt?, pendingWork? })
+        - Detection: isSupervisedMode() checks process.send exists
+        - Throws RestartNotAvailableError if not under supervisor
+        - Flow: write checkpoint -> send IPC message -> wait for ack -> initiate graceful shutdown
+        - Wait for streaming responses to complete before restart
+        - Promise resolves after ack (not after full restart)
+        - Key files:
+          - packages/bot/src/bot.ts (add requestRestart method, state machine updates)
+          - packages/bot/src/restart.ts (new - implements RestartClient)
+          - packages/messaging/src/session/session-lifecycle.ts (restart awareness)
+      supersedes: null
   todos: []
 - _ulid: 01KGEP4D9C2F5A61TSW39MJM4K
   slugs:

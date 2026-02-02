@@ -13969,6 +13969,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-02T01:53:34.104Z
+  started_at: 2026-02-02T04:10:55.775Z
   notes:
     - _ulid: 01KGE0WKQ2ZJKYM2KKMWZCDMCF
       created_at: 2026-02-02T01:53:45.699Z
@@ -14022,5 +14023,11 @@
       content: "Depends on PR #72 (placeholder deduplication fix) being merged first. That PR fixes the
         immediate thread spam issue; this task is an enhancement."
       supersedes: null
+    - _ulid: 01KGE8SNCBQ06YZSY0SBNQ2MCC
+      created_at: 2026-02-02T04:11:57.707Z
+      author: "@claude"
+      content: "Design approach: Add onPlaceholderCreated callback to setupBotEventListeners. Adapter
+        calls it when creating placeholder. Bot captures in Map and uses for streaming start. This
+        keeps the event flow clean and symmetric."
+      supersedes: null
   todos: []
-  started_at: 2026-02-02T04:10:55.775Z

@@ -14655,7 +14655,7 @@
   type: task
   description: Add --checkpoint CLI argument to packages/bot/src/cli.ts. Update BotOptions interface
     to include optional checkpointPath. Wire through to bot initialization.
-  spec_ref: null
+  spec_ref: "@wake-injection"
   meta_ref: null
   status: pending
   blocked_by: []
@@ -14677,3 +14677,4 @@
         - Reference: packages/bot/src/cli.ts for current CLI structure
       supersedes: null
   todos: []
+  automation: eligible

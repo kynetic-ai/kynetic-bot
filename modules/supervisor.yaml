@@ -109,3 +109,7 @@ features:
         given: checkpoint corrupted
         when: validation fails
         then: logs error, starts without wake context
+      - id: ac-7
+        given: checkpoint format changes
+        when: version field checked
+        then: handles migration or rejects incompatible

@@ -1,0 +1,17 @@
+_ulid: 01KGENSV2ZE142KYVC2JYQYMWT
+slugs:
+  - supervisor
+title: Supervisor
+type: module
+status:
+  maturity: draft
+  implementation: not_started
+description: Supervisor package that spawns and manages the kbot process. Enables restart
+  functionality with wake-up context preservation via IPC protocol and checkpoint files.
+tags: []
+depends_on: []
+implements: []
+relates_to: []
+tests: []
+traits: []
+notes: []

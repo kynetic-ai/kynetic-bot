@@ -209,3 +209,4 @@ includes:
   - modules/memory.yaml
   - modules/agent.yaml
   - modules/bot.yaml
+  - modules/supervisor.yaml

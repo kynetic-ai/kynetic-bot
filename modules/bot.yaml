@@ -469,3 +469,7 @@ features:
         given: agent has active session when restart requested
         when: checkpoint created
         then: includes current sessionKey, acpSessionId, and in-flight message count
+      - id: ac-11
+        given: requestRestart called
+        when: AgentLifecycle has active streaming response
+        then: subscribes to 'turn:end' event and queues restart until after completion

@@ -401,3 +401,7 @@ features:
         given: no checkpoint
         when: initialization
         then: skips wake injection, identity only
+      - id: ac-8
+        given: wake prompt very large
+        when: context limits approached
+        then: truncates with warning, preserves essential info

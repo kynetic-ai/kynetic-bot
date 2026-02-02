@@ -14664,6 +14664,7 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-02T08:05:15.685Z
+  started_at: 2026-02-02T08:24:43.723Z
   notes:
     - _ulid: 01KGEP72ZX99V7Y4PJSRMJ186X
       created_at: 2026-02-02T08:06:29.117Z
@@ -14680,9 +14681,53 @@
           - ErrorMessage: { type: 'error', message: string }
         - Location: packages/supervisor/src/schemas.ts (shared by supervisor and bot)
       supersedes: null
+    - _ulid: 01KGEQC30HZDQ76WK0NXWB60XC
+      created_at: 2026-02-02T08:26:41.553Z
+      author: "@claude"
+      content: >-
+        Schemas complete with full test coverage:
+
+
+        Created schemas.ts with:
+
+        - CheckpointSchema: version (literal 1), session_id (ULID), restart_reason enum,
+        wake_context, created_at (ISO datetime)
+
+        - WakeContextSchema: required prompt, optional pending_work and instructions
+
+        - RestartReasonSchema: enum validation for 'planned', 'upgrade', 'crash'
+
+        - IPC message schemas: PlannedRestartMessage, RestartAckMessage, ErrorMessage
+
+        - IpcMessageSchema: discriminated union of all message types
+
+
+        Test coverage (21 tests in schemas.test.ts):
+
+        - All restart_reason enum values (ac-3)
+
+        - Checkpoint validation with required fields (ac-2)
+
+        - Version field enforcement and rejection (ac-7)
+
+        - ULID session_id validation
+
+        - Wake context prompt validation
+
+        - IPC message validation with empty/missing field checks
+
+        - All trait-validated ACs: structured errors, field identification, type mismatches
+
+
+        All tests pass. Schemas exported from index.ts for use by both supervisor and bot packages.
+
+
+        Commit: 2ada91e
+
+        Pushed to PR #74: feat/supervisor-scaffold
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-02-02T08:24:43.723Z
 - _ulid: 01KGEP50B74TQNCPHQKFZTD6WC
   slugs: []
   title: Update cli.ts to accept --checkpoint

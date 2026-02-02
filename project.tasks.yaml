@@ -14621,7 +14621,7 @@
     IPC message types. Checkpoint schema includes: session_id, restart_reason
     ('planned'|'upgrade'|'crash'), wake_context (prompt, pending_work, instructions). IPC message
     schemas for planned_restart, ack, and error messages."
-  spec_ref: null
+  spec_ref: "@restart-checkpoint"
   meta_ref: null
   status: pending
   blocked_by: []
@@ -14648,6 +14648,7 @@
         - Location: packages/supervisor/src/schemas.ts (shared by supervisor and bot)
       supersedes: null
   todos: []
+  automation: eligible
 - _ulid: 01KGEP50B74TQNCPHQKFZTD6WC
   slugs: []
   title: Update cli.ts to accept --checkpoint

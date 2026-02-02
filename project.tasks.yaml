@@ -14097,7 +14097,7 @@
   type: task
   spec_ref: "@supervisor-process-spawn"
   derivation: auto
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on:
     - "@01KGEP4M"
@@ -14167,6 +14167,7 @@
       supersedes: null
   todos: []
   automation: eligible
+  started_at: 2026-02-02T08:42:36.122Z
 - _ulid: 01KGEP3W5FN57ZRVPBMGN1TPM9
   slugs:
     - task-restart-checkpoint
@@ -14747,6 +14748,10 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "Merged in PR #75. Implemented AC-1 of @wake-injection spec: CLI now accepts
+    --checkpoint/-c argument and wires checkpointPath through to Bot.create(). Added 4 tests
+    covering long form, short form, optional behavior, and strict:false handling. All 11 CLI tests
+    pass. Ready for next phase of wake context injection (AC-2 through AC-9)."
   depends_on: []
   context: []
   priority: 2
@@ -14754,6 +14759,7 @@
   vcs_refs: []
   created_at: 2026-02-02T08:05:20.870Z
   started_at: 2026-02-02T08:33:33.621Z
+  completed_at: 2026-02-02T08:41:42.453Z
   notes:
     - _ulid: 01KGEP78D9B5XRSDFEJ9W60D9R
       created_at: 2026-02-02T08:06:34.666Z
@@ -14781,8 +14787,3 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-02-02T08:41:42.453Z
-  closed_reason: "Merged in PR #75. Implemented AC-1 of @wake-injection spec: CLI now accepts
-    --checkpoint/-c argument and wires checkpointPath through to Bot.create(). Added 4 tests
-    covering long form, short form, optional behavior, and strict:false handling. All 11 CLI tests
-    pass. Ready for next phase of wake context injection (AC-2 through AC-9)."

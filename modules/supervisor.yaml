@@ -220,6 +220,10 @@ features:
         given: new message arrives
         when: during shutdown drain
         then: rejected with 'shutting down' error
+      - id: ac-8
+        given: planned restart in progress
+        when: supervisor receives SIGTERM
+        then: waits for planned restart to complete, then exits (no additional SIGTERM to child)
   - _ulid: 01KGEP20P61R0K3924GVNASJ04
     slugs:
       - supervisor-env

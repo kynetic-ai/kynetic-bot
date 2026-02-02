@@ -327,6 +327,10 @@ features:
         given: Multiple tool calls arrive without parentMessageId in same turn
         when: getOrCreatePlaceholder called for each
         then: All tool calls reuse the same placeholder message (deduplication via session+channel key)
+      - id: ac-23
+        given: Agent finishes processing a turn
+        when: turn:end event emitted by Bot
+        then: Placeholder tracking cleared for that session+channel, allowing fresh placeholder on next turn
     status:
       maturity: draft
       implementation: in_progress

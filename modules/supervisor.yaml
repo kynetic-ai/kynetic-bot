@@ -47,3 +47,7 @@ features:
         given: kbot exits code 0
         when: exit detected
         then: supervisor exits cleanly (no respawn)
+      - id: ac-4
+        given: kbot exits non-zero
+        when: exit detected
+        then: respawns with exponential backoff

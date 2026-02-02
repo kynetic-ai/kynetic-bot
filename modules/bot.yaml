@@ -372,3 +372,8 @@ features:
       - "@trait-observable"
     notes: []
     created: 2026-02-02T08:01:36.931Z
+    acceptance_criteria:
+      - id: ac-1
+        given: --checkpoint CLI arg
+        when: bot starts
+        then: reads and validates checkpoint

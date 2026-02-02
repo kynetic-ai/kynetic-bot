@@ -93,6 +93,87 @@ export interface EscalationContext {
 }
 
 /**
+ * Events emitted by Bot
+ *
+ * @trait-observable - Bot emits events for message lifecycle, errors, state changes,
+ * session management, and tool execution.
+ */
+export interface BotEvents {
+  /** Message received from channel, before processing */
+  'message:received': (msg: NormalizedMessage) => void;
+
+  /** Message processing completed successfully */
+  'message:processed': (msg: NormalizedMessage, durationMs: number) => void;
+
+  /** Message processing failed with error */
+  'message:error': (msg: NormalizedMessage, error: Error) => void;
+
+  /**
+   * Agent turn completed - emitted after agent response finishes
+   *
+   * Used by channel adapters for turn-based resource cleanup (e.g., placeholder messages).
+   * Emitted before message:processed.
+   *
+   * @param sessionId - ACP session ID
+   * @param channelId - Channel where the turn occurred
+   *
+   * AC: @discord-tool-widgets ac-23 - Clears placeholder tracking on turn end
+   */
+  'turn:end': (sessionId: string, channelId: string) => void;
+
+  /** Tool call started - for channel adapters to display tool widgets */
+  'tool:call': (
+    sessionId: string,
+    channelId: string,
+    toolCall: ToolCall,
+    parentMessageId: string | undefined
+  ) => void;
+
+  /** Tool call updated - for channel adapters to update tool widgets */
+  'tool:update': (
+    sessionId: string,
+    channelId: string,
+    toolCallUpdate: ToolCallUpdate,
+    parentMessageId: string | undefined
+  ) => void;
+
+  /** Bot state changed */
+  'state:change': (from: BotState, to: BotState) => void;
+
+  /** Error occurred during bot operation */
+  error: (error: Error, context: Record<string, unknown>) => void;
+
+  /** Agent escalated to human */
+  escalation: (context: EscalationContext) => void;
+
+  /** Agent health status changed */
+  'agent:health': (healthy: boolean, recovered: boolean) => void;
+
+  /** Agent lifecycle state changed */
+  'agent:state': (from: string, to: string) => void;
+
+  /** New session created */
+  'session:created': (data: { sessionKey: string; acpSessionId: string }) => void;
+
+  /** Session rotated due to context limits */
+  'session:rotated': (data: {
+    sessionKey: string;
+    oldSessionId: string;
+    newSessionId: string;
+    reason: string;
+  }) => void;
+
+  /** Session recovered after agent restart */
+  'session:recovered': (data: { sessionKey: string; acpSessionId: string }) => void;
+
+  /** Context restoration failed during session recovery */
+  'session:restore:error': (data: { sessionKey: string; error: string }) => void;
+
+  /** Context usage tracking error */
+  'usage:error': (data: unknown) => void;
+}
+
+/**
  * Options for Bot constructor (allows dependency injection for testing)
  */
 export interface BotOptions {
@@ -780,7 +861,8 @@ export class Bot extends EventEmitter {
           this.log.warn('Usage check failed, continuing with stale data', { error: error.message });
         });
 
-      // AC: @discord-tool-widgets ac-14 - Emit turn:end for placeholder cleanup
+      // Emit turn:end for channel adapter cleanup (e.g., placeholder messages)
+      // AC: @discord-tool-widgets ac-23 - Clears placeholder tracking on turn end
       this.emit('turn:end', sessionId, msg.channel);
 
       // @trait-observable: Emit message:processed event

@@ -13963,6 +13963,10 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "PR #73 merged. Implemented placeholder transformation for streaming responses
+    (AC-21). When tool calls arrive before text, the placeholder is edited to become the response
+    instead of creating a new message. Thread remains attached. 7 tests added, all review feedback
+    addressed."
   depends_on: []
   context: []
   priority: 2
@@ -13970,6 +13974,7 @@
   vcs_refs: []
   created_at: 2026-02-02T01:53:34.104Z
   started_at: 2026-02-02T04:10:55.775Z
+  completed_at: 2026-02-02T05:01:23.219Z
   notes:
     - _ulid: 01KGE0WKQ2ZJKYM2KKMWZCDMCF
       created_at: 2026-02-02T01:53:45.699Z
@@ -14085,8 +14090,55 @@
         Total tests: 1390 (7 new tests for AC-21)
       supersedes: null
   todos: []
-  completed_at: 2026-02-02T05:01:23.219Z
-  closed_reason: "PR #73 merged. Implemented placeholder transformation for streaming responses
-    (AC-21). When tool calls arrive before text, the placeholder is edited to become the response
-    instead of creating a new message. Thread remains attached. 7 tests added, all review feedback
-    addressed."
+- title: "Implement: Supervisor Process Spawn"
+  type: task
+  spec_ref: "@supervisor-process-spawn"
+  derivation: auto
+  priority: 3
+  slugs:
+    - task-supervisor-process-spawn
+  tags: []
+  depends_on: []
+  notes:
+    - _ulid: 01KGEP3STM7SCCP0G6EF72EPY7
+      created_at: 2026-02-02T08:04:41.428Z
+      author: "@claude"
+      content: >-
+        Implementation notes (auto-generated from spec):
+
+
+        Core supervisor functionality that spawns kbot as a child process with IPC channel, handles
+        signals, manages respawn with exponential backoff, and coordinates graceful shutdown.
+
+
+
+        Acceptance Criteria:
+
+        - ac-1: Given supervisor starts, when spawn() called, then spawns kbot with IPC channel
+
+        - ac-2: Given kbot running, when supervisor receives SIGTERM, then sends SIGTERM to child,
+        waits for graceful exit
+
+        - ac-3: Given kbot exits code 0, when exit detected, then supervisor exits cleanly (no
+        respawn)
+
+        - ac-4: Given kbot exits non-zero, when exit detected, then respawns with exponential
+        backoff
+
+        - ac-5: Given backoff reaches max (60s), when spawn fails again, then emits escalation
+        event, continues retrying
+
+        - ac-6: Given kbot spawned, when child starts, then logs PID, sets up IPC handlers
+
+        - ac-7: Given IPC channel setup fails, when spawn attempted, then logs error, retries spawn
+
+        - ac-8: Given supervisor crashes, when child running, then child orphaned, continues running
+        (container/systemd restarts supervisor)
+      supersedes: null
+  _ulid: 01KGEP3STNEZETX1NPM4V0972W
+  status: pending
+  blocked_by: []
+  context: []
+  vcs_refs: []
+  created_at: 2026-02-02T08:04:41.429Z
+  todos: []

@@ -14429,7 +14429,8 @@
   derivation: auto
   status: pending
   blocked_by: []
-  depends_on: []
+  depends_on:
+    - "@task-bot-restart-api"
   context: []
   priority: 3
   tags: []

@@ -43,3 +43,7 @@ features:
         given: kbot running
         when: supervisor receives SIGTERM
         then: sends SIGTERM to child, waits for graceful exit
+      - id: ac-3
+        given: kbot exits code 0
+        when: exit detected
+        then: supervisor exits cleanly (no respawn)

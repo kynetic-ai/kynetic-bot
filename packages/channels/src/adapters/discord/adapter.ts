@@ -82,6 +82,20 @@ export class DiscordAdapter implements ChannelAdapter {
   private condensedDisplay!: CondensedToolDisplay;
   private isStarted = false;
 
+  /**
+   * Track placeholder messages per session+channel
+   * Key: "sessionId:channelId", Value: placeholder message ID
+   *
+   * AC: @discord-tool-widgets ac-14 - Reuse placeholder for same session/channel
+   */
+  private readonly sessionPlaceholders = new Map<string, string>();
+
+  /**
+   * Track pending placeholder creation promises for race condition prevention
+   * Key: "sessionId:channelId", Value: Promise that resolves to message ID
+   */
+  private readonly pendingPlaceholders = new Map<string, Promise<string>>();
+
   constructor(config: DiscordAdapterConfig) {
     // Validate config
     this.config = DiscordAdapterConfigSchema.parse(config);
@@ -205,7 +219,16 @@ export class DiscordAdapter implements ChannelAdapter {
     // Clean up condensed display tracking
     this.condensedDisplay.cleanupSession(sessionId);
 
-    this.logger.debug('Session cleanup complete', { sessionId });
+    // Clean up session placeholders and pending creations
+    let placeholdersRemoved = 0;
+    for (const key of this.sessionPlaceholders.keys()) {
+      if (key.startsWith(`${sessionId}:`)) {
+        this.sessionPlaceholders.delete(key);
+        this.pendingPlaceholders.delete(key);
+        placeholdersRemoved++;
+      }
+    }
+    this.logger.debug('Session cleanup complete', { sessionId, placeholdersRemoved });
   }
 
   /**
@@ -467,6 +490,11 @@ export class DiscordAdapter implements ChannelAdapter {
       }
     );
 
+    // AC: @discord-tool-widgets ac-14 - Clear placeholder when turn ends (turn-based tracking)
+    bot.on('turn:end', (sessionId: string, channelId: string) => {
+      this.clearPlaceholder(sessionId, channelId);
+    });
+
     this.logger.info('Bot event listeners registered for tool widgets');
   }
 
@@ -499,11 +527,11 @@ export class DiscordAdapter implements ChannelAdapter {
       }
 
       // Guild channel: try thread-based isolation
-      // AC: @discord-tool-widgets ac-14 - Create placeholder if no parent message
+      // AC: @discord-tool-widgets ac-14 - Create or reuse placeholder if no parent message
+      // Placeholder is cleared on turn:end event (turn-based tracking)
       let messageId = parentMessageId;
       if (!messageId) {
-        const placeholder = await channel.send('Working...');
-        messageId = placeholder.id;
+        messageId = await this.getOrCreatePlaceholder(sessionId, channelId, channel);
       }
 
       try {
@@ -571,6 +599,83 @@ export class DiscordAdapter implements ChannelAdapter {
         return message.id;
       }
     );
+  }
+
+  /**
+   * Get or create a placeholder message for tool calls without parentMessageId
+   *
+   * Race-safe via promise deduplication - if multiple calls arrive while
+   * placeholder is being created, they all wait for the same promise.
+   *
+   * AC: @discord-tool-widgets ac-14 - Reuse placeholder for same session/channel
+   */
+  private async getOrCreatePlaceholder(
+    sessionId: string,
+    channelId: string,
+    channel: SendableChannel
+  ): Promise<string> {
+    const placeholderKey = `${sessionId}:${channelId}`;
+
+    // Check for existing placeholder
+    const existingPlaceholder = this.sessionPlaceholders.get(placeholderKey);
+    if (existingPlaceholder) {
+      this.logger.debug('Reusing existing placeholder', {
+        sessionId,
+        channelId,
+        messageId: existingPlaceholder,
+      });
+      return existingPlaceholder;
+    }
+
+    // Check for pending creation (race condition prevention)
+    const pendingPromise = this.pendingPlaceholders.get(placeholderKey);
+    if (pendingPromise) {
+      this.logger.debug('Waiting for pending placeholder creation', {
+        sessionId,
+        channelId,
+      });
+      return pendingPromise;
+    }
+
+    // Create new placeholder
+    this.logger.debug('Creating new placeholder', { sessionId, channelId });
+
+    const creationPromise = (async () => {
+      const placeholder = await channel.send('Working...');
+      this.sessionPlaceholders.set(placeholderKey, placeholder.id);
+      this.logger.debug('Created placeholder', {
+        sessionId,
+        channelId,
+        messageId: placeholder.id,
+      });
+      return placeholder.id;
+    })();
+
+    this.pendingPlaceholders.set(placeholderKey, creationPromise);
+
+    try {
+      const messageId = await creationPromise;
+      return messageId;
+    } finally {
+      // Clean up pending promise regardless of success/failure
+      this.pendingPlaceholders.delete(placeholderKey);
+    }
+  }
+
+  /**
+   * Clear placeholder for a session/channel when turn ends
+   *
+   * AC: @discord-tool-widgets ac-14 - Turn-based placeholder tracking
+   */
+  private clearPlaceholder(sessionId: string, channelId: string): void {
+    const placeholderKey = `${sessionId}:${channelId}`;
+    if (this.sessionPlaceholders.has(placeholderKey)) {
+      this.sessionPlaceholders.delete(placeholderKey);
+      this.logger.debug('Cleared placeholder (turn ended)', {
+        sessionId,
+        channelId,
+      });
+    }
   }
 
   /**

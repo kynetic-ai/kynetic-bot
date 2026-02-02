@@ -547,18 +547,11 @@ export class Bot extends EventEmitter {
     // AC: @bot-restart-api ac-1
     // Write checkpoint
     const baseDir = path.join(getGitRoot(), this.config.kbotDataDir);
-    const result = await writeCheckpoint(
-      baseDir,
-      sessionContext.sessionId,
-      reason,
-      wakeContext
-    );
+    const result = await writeCheckpoint(baseDir, sessionContext.sessionId, reason, wakeContext);
 
     // Check if write was successful
     if (!result.success || !result.path) {
-      throw new Error(
-        `Failed to write checkpoint: ${result.error?.message ?? 'Unknown error'}`
-      );
+      throw new Error(`Failed to write checkpoint: ${result.error?.message ?? 'Unknown error'}`);
     }
 
     const checkpointPath = result.path;

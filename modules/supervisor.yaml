@@ -233,6 +233,9 @@ features:
         given: planned restart in progress
         when: supervisor receives SIGTERM
         then: waits for planned restart to complete, then exits (no additional SIGTERM to child)
+    status:
+      maturity: draft
+      implementation: in_progress
   - _ulid: 01KGEP20P61R0K3924GVNASJ04
     slugs:
       - supervisor-env

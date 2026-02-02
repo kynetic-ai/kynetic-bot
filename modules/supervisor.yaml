@@ -126,7 +126,8 @@ features:
     tags: []
     description: IPC message protocol between kbot and supervisor for coordinating planned restarts.
       Handles checkpoint lifecycle, acknowledgments, and restart sequencing.
-    depends_on: []
+    depends_on:
+      - "@restart-checkpoint"
     implements: []
     relates_to: []
     tests: []

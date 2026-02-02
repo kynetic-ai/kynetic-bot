@@ -59,3 +59,7 @@ features:
         given: kbot spawned
         when: child starts
         then: logs PID, sets up IPC handlers
+      - id: ac-7
+        given: IPC channel setup fails
+        when: spawn attempted
+        then: logs error, retries spawn

@@ -14700,6 +14700,11 @@
   derivation: auto
   status: completed
   blocked_by: []
+  closed_reason: "Merged in PR #81. Implemented Bot Restart API with requestRestart() and
+    isSupervisedMode() methods. All 11 acceptance criteria covered with implementation annotations.
+    RestartProtocol fully tested, Bot.requestRestart() manually verified. All tests passing
+    (185/185). Quality gates passed: AC coverage verified, spec alignment confirmed, CI checks
+    successful."
   depends_on:
     - "@task-wake-context-injection"
     - "@task-shutdown-modes"
@@ -14709,6 +14714,7 @@
   vcs_refs: []
   created_at: 2026-02-02T08:04:58.806Z
   started_at: 2026-02-02T19:09:23.278Z
+  completed_at: 2026-02-02T19:25:41.526Z
   notes:
     - _ulid: 01KGEP4ASPTW966VSQHZ2K2J53
       created_at: 2026-02-02T08:04:58.806Z
@@ -14806,12 +14812,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-02-02T19:25:41.526Z
-  closed_reason: "Merged in PR #81. Implemented Bot Restart API with requestRestart() and
-    isSupervisedMode() methods. All 11 acceptance criteria covered with implementation annotations.
-    RestartProtocol fully tested, Bot.requestRestart() manually verified. All tests passing
-    (185/185). Quality gates passed: AC coverage verified, spec alignment confirmed, CI checks
-    successful."
 - _ulid: 01KGEP4D9C2F5A61TSW39MJM4K
   slugs:
     - task-supervisor-environment
@@ -15081,3 +15081,48 @@
       supersedes: null
   todos: []
   automation: eligible
+- title: Add integration and unit tests for supervisor restart features
+  description: >-
+    Address testing gaps identified in review of PRs #78-81:
+
+
+    **Bot.requestRestart() unit tests (currently manual only):**
+
+    - Streaming completion wait (ac-8, ac-11)
+
+    - Session context retrieval during checkpoint write
+
+    - Checkpoint cleanup on restart failure
+
+
+    **Wake context injection integration tests (PR #79 deferred):**
+
+    - Bot starts with checkpoint and injects wake context
+
+    - Bot continues without checkpoint on validation failure
+
+    - Checkpoint file deleted after successful injection
+
+
+    **Bot Restart API integration test (PR #81 deferred):**
+
+    - Manual integration test with supervisor
+
+
+    These were explicitly deferred during implementation due to 'complex mocking requirements' but
+    should be addressed for production readiness.
+  type: task
+  spec_ref: null
+  meta_ref: null
+  priority: 2
+  slugs: []
+  tags: []
+  depends_on: []
+  _ulid: 01KGFYTEB23P0KFZK9FA9AFP92
+  status: pending
+  blocked_by: []
+  context: []
+  vcs_refs: []
+  created_at: 2026-02-02T19:56:06.369Z
+  notes: []
+  todos: []

@@ -14599,6 +14599,9 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "Merged in PR #74. Created @kynetic-bot/supervisor package scaffold with TypeScript
+    build infrastructure, CLI entry point with signal handlers, and Zod schemas for checkpoint
+    format and IPC messages. All acceptance criteria covered with 21 passing tests."
   depends_on: []
   context: []
   priority: 1
@@ -14606,6 +14609,7 @@
   vcs_refs: []
   created_at: 2026-02-02T08:05:08.578Z
   started_at: 2026-02-02T08:21:06.407Z
+  completed_at: 2026-02-02T08:31:45.535Z
   notes:
     - _ulid: 01KGEP6VQW86TJ4MKZJBD97AZS
       created_at: 2026-02-02T08:06:21.693Z
@@ -14646,10 +14650,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-02-02T08:31:45.535Z
-  closed_reason: "Merged in PR #74. Created @kynetic-bot/supervisor package scaffold with TypeScript
-    build infrastructure, CLI entry point with signal handlers, and Zod schemas for checkpoint
-    format and IPC messages. All acceptance criteria covered with 21 passing tests."
 - _ulid: 01KGEP4V96FCZACH0Y9KQWT96T
   slugs: []
   title: Add Zod schemas for checkpoint and IPC messages
@@ -14660,7 +14660,7 @@
     schemas for planned_restart, ack, and error messages."
   spec_ref: "@restart-checkpoint"
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -14732,6 +14732,11 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-02-02T08:31:58.111Z
+  closed_reason: "Merged in PR #74. Created Zod schemas for checkpoint file format (with version
+    field, session_id, restart_reason enum, wake_context) and IPC message types (planned_restart,
+    restart_ack, error). Full test coverage with 21 tests covering all in-scope acceptance criteria:
+    restart-checkpoint ac-2, ac-3, ac-7 and all trait-validated ACs."
 - _ulid: 01KGEP50B74TQNCPHQKFZTD6WC
   slugs: []
   title: Update cli.ts to accept --checkpoint

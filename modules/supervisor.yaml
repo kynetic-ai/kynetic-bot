@@ -179,6 +179,9 @@ features:
         given: requestRestart called twice
         when: second call while first pending
         then: second call rejected with error
+    status:
+      maturity: draft
+      implementation: in_progress
   - _ulid: 01KGENZCCJC9SBN1EJNZPXXK7P
     slugs:
       - shutdown-modes

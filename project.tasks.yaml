@@ -14013,4 +14013,10 @@
 
         AC-21: Placeholder edited to become response, thread remains attached
       supersedes: null
+    - _ulid: 01KGE0X2CNC8BMFK8W8GKZCA2E
+      created_at: 2026-02-02T01:54:00.725Z
+      author: "@claude"
+      content: "Depends on PR #72 (placeholder deduplication fix) being merged first. That PR fixes the
+        immediate thread spam issue; this task is an enhancement."
+      supersedes: null
   todos: []

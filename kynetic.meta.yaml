@@ -695,4 +695,15 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KGFTCRK27DR155EAW16VCBPY
+    type: success
+    content: "Incremental test failure analysis: When supervisor tests failed after adding AC-2
+      validation, immediately checked test expectations rather than modifying implementation. Found
+      test was using non-existent checkpoint path. Fixed by creating the file in test setup,
+      preserving the validation logic. Pattern: test failure → check test expectations → minimal
+      fix."
+    created_at: 2026-02-02T18:38:43.810Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

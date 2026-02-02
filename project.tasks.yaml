@@ -14745,7 +14745,7 @@
     to include optional checkpointPath. Wire through to bot initialization.
   spec_ref: "@wake-injection"
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -14781,3 +14781,8 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-02-02T08:41:42.453Z
+  closed_reason: "Merged in PR #75. Implemented AC-1 of @wake-injection spec: CLI now accepts
+    --checkpoint/-c argument and wires checkpointPath through to Bot.create(). Added 4 tests
+    covering long form, short form, optional behavior, and strict:false handling. All 11 CLI tests
+    pass. Ready for next phase of wake context injection (AC-2 through AC-9)."

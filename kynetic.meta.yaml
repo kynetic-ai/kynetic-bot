@@ -706,4 +706,14 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KGFTD1KHKXX1TQRR5X3T993V
+    type: success
+    content: "Task workflow with comprehensive notes: Used kspec task start/note/submit consistently
+      throughout. Added implementation notes explaining both bot-side and supervisor-side changes
+      with test counts. PR note included direct link. This created clear audit trail from spec →
+      task → implementation → PR."
+    created_at: 2026-02-02T18:38:53.042Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

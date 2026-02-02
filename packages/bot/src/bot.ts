@@ -45,10 +45,30 @@ import {
 import type { BotConfig } from './config.js';
 import { buildIdentityPrompt } from './identity.js';
 import { generateWakePrompt } from './wake.js';
-import { readCheckpoint, deleteCheckpoint, type Checkpoint } from '@kynetic-bot/supervisor';
+import {
+  readCheckpoint,
+  deleteCheckpoint,
+  writeCheckpoint,
+  type Checkpoint,
+  type WakeContext,
+  type RestartReason,
+} from '@kynetic-bot/supervisor';
+import { getRestartProtocol } from './restart.js';
 
 const DEFAULT_AGENT_READY_TIMEOUT = 30000;
 const INFLIGHT_POLL_INTERVAL = 100;
+
+/**
+ * Error thrown when restart is requested but bot is not under supervisor
+ *
+ * AC: @bot-restart-api ac-6
+ */
+export class RestartNotAvailableError extends Error {
+  constructor() {
+    super('Restart not available - bot is not running under supervisor');
+    this.name = 'RestartNotAvailableError';
+  }
+}
 
 /**
  * Get the git repository root directory (memoized)
@@ -470,6 +490,107 @@ export class Bot extends EventEmitter {
    */
   isRunning(): boolean {
     return this.state === 'running';
+  }
+
+  /**
+   * Check if bot is running under supervisor
+   *
+   * AC: @bot-restart-api ac-7
+   */
+  isSupervisedMode(): boolean {
+    return getRestartProtocol().isSupervised();
+  }
+
+  /**
+   * Request a planned restart with checkpoint
+   *
+   * Writes checkpoint with session context, sends IPC message to supervisor,
+   * and initiates graceful shutdown after acknowledgment.
+   *
+   * AC: @bot-restart-api ac-1 through ac-11
+   *
+   * @param options - Restart options
+   * @param options.reason - Restart reason (default: 'planned')
+   * @param options.wakePrompt - Prompt to inject on wake
+   * @param options.pendingWork - Pending work description
+   * @throws RestartNotAvailableError if not under supervisor
+   */
+  async requestRestart(options?: {
+    reason?: RestartReason;
+    wakePrompt?: string;
+    pendingWork?: string;
+  }): Promise<void> {
+    // AC: @bot-restart-api ac-6
+    if (!this.isSupervisedMode()) {
+      throw new RestartNotAvailableError();
+    }
+
+    const reason = options?.reason ?? 'planned';
+
+    // AC: @bot-restart-api ac-8, ac-11
+    // Wait for any active streaming response to complete
+    await this.waitForStreamingCompletion();
+
+    // AC: @bot-restart-api ac-10
+    // Get session context for checkpoint
+    const sessionContext = this.getSessionContextForCheckpoint();
+
+    // AC: @bot-restart-api ac-2, ac-3, ac-4
+    // Build wake context
+    const wakeContext: WakeContext = {
+      prompt: options?.wakePrompt ?? 'Continuing after planned restart.',
+    };
+    if (options?.pendingWork) {
+      wakeContext.pending_work = options.pendingWork;
+    }
+
+    // AC: @bot-restart-api ac-1
+    // Write checkpoint
+    const baseDir = path.join(getGitRoot(), this.config.kbotDataDir);
+    const result = await writeCheckpoint(
+      baseDir,
+      sessionContext.sessionId,
+      reason,
+      wakeContext
+    );
+
+    // Check if write was successful
+    if (!result.success || !result.path) {
+      throw new Error(
+        `Failed to write checkpoint: ${result.error?.message ?? 'Unknown error'}`
+      );
+    }
+
+    const checkpointPath = result.path;
+
+    this.log.info('Checkpoint written for restart', {
+      checkpointPath,
+      reason,
+      sessionId: sessionContext.sessionId,
+    });
+
+    try {
+      // AC: @bot-restart-api ac-1, ac-9
+      // Send restart request and wait for ack (does not wait for full restart)
+      await getRestartProtocol().requestRestart({
+        checkpointPath,
+      });
+
+      this.log.info('Restart acknowledged by supervisor, initiating shutdown');
+
+      // AC: @bot-restart-api ac-5
+      // Initiate graceful shutdown
+      await this.stop();
+    } catch (err) {
+      // Clean up checkpoint on failure
+      const error = err instanceof Error ? err : new Error(String(err));
+      try {
+        await deleteCheckpoint(checkpointPath);
+      } catch {
+        // Ignore cleanup errors
+      }
+      throw error;
+    }
   }
 
   /**
@@ -1326,5 +1447,70 @@ export class Bot extends EventEmitter {
     this.state = newState;
     // @trait-observable: Emit state:change event
     this.emit('state:change', oldState, newState);
+  }
+
+  /**
+   * Wait for any active streaming response to complete
+   *
+   * AC: @bot-restart-api ac-8, ac-11
+   */
+  private async waitForStreamingCompletion(): Promise<void> {
+    // If there are in-flight messages, wait for current turn to end
+    if (this.inflightCount === 0) {
+      return;
+    }
+
+    this.log.info('Waiting for streaming response to complete before restart', {
+      inflightCount: this.inflightCount,
+    });
+
+    return new Promise<void>((resolve) => {
+      const handler = () => {
+        // Check if all in-flight messages are done
+        if (this.inflightCount === 0) {
+          this.off('turn:end', handler);
+          resolve();
+        }
+      };
+
+      // Subscribe to turn:end event
+      this.on('turn:end', handler);
+
+      // Also check immediately in case race condition
+      if (this.inflightCount === 0) {
+        this.off('turn:end', handler);
+        resolve();
+      }
+    });
+  }
+
+  /**
+   * Get session context for checkpoint
+   *
+   * AC: @bot-restart-api ac-10
+   */
+  private getSessionContextForCheckpoint(): {
+    sessionId: string;
+    sessionKey: string;
+    inflightCount: number;
+  } {
+    // Get the first active session (or create a default context)
+    const sessions = this.sessionLifecycle.getAllSessions();
+    const activeSession = sessions[0];
+
+    if (activeSession) {
+      return {
+        sessionId: activeSession.acpSessionId,
+        sessionKey: activeSession.sessionKey,
+        inflightCount: this.inflightCount,
+      };
+    }
+
+    // Fallback: create minimal context
+    return {
+      sessionId: 'no-active-session',
+      sessionKey: 'no-active-session',
+      inflightCount: this.inflightCount,
+    };
   }
 }

@@ -1,8 +1,4 @@
-# Kynetic Bot - Meta Manifest
-# Defines workflows, agents, conventions for the project
-
 kynetic_meta: "1.0"
-
 agents:
   - _ulid: 01KG2000000000000000000000
     id: claude
@@ -18,13 +14,12 @@ agents:
       - git
       - npm
     session_protocol:
-      start: "kspec session start"
+      start: kspec session start
       checkpoint: null
       end: null
     conventions:
       - Always use kspec CLI, never edit YAML directly
       - Add notes when completing significant work
-
 workflows:
   - _ulid: 01KG2001000000000000000000
     id: task-work-session
@@ -81,17 +76,6 @@ workflows:
           Use: /pr skill or gh pr create
           After PR created, EXIT this iteration.
           Ralph spawns a PR review subagent for holistic review of the session's work.
-        exit: true
-        exit_note: |
-          PR review is a separate session with broader focus:
-          - Review the PR changes holistically, not just task checklist
-          - Check for unintended side effects or scope creep
-          - Verify AC coverage: each acceptance criterion should have test with AC annotation
-          - Check for inline AC comments (// AC: @spec-item ac-N) linking code to criteria
-          - Verify tests cover the actual behavior, not just acceptance criteria
-          - Consider code quality, maintainability, and consistency
-          After PR merged: kspec task complete @task --reason "Summary"
-
   - _ulid: 01KG2002000000000000000000
     id: session-reflect
     trigger: session-end
@@ -135,7 +119,6 @@ workflows:
           - Friction patterns: kspec meta observe friction "..."
           - Success patterns: kspec meta observe success "..."
           - Open questions: kspec meta question add "..."
-
   - _ulid: 01KG2003000000000000000000
     id: pr-review-merge
     trigger: pr-merge
@@ -180,7 +163,6 @@ workflows:
           Merge the PR.
           Use: gh pr merge (prefer merge commit to preserve trailers)
           Or: GitHub UI merge button
-
   - _ulid: 01KG2004000000000000000000
     id: inbox-triage
     trigger: session-start
@@ -212,7 +194,6 @@ workflows:
           1. Check if spec covers the change
           2. Create or update spec with AC if needed
           3. Derive task or promote inbox item
-
   - _ulid: 01KG2007000000000000000000
     id: local-review
     trigger: manual
@@ -257,7 +238,6 @@ workflows:
           Report findings.
           List all MUST-FIX issues that block PR creation.
           Non-blocking suggestions can be noted separately.
-
   - _ulid: 01KG2008000000000000000000
     id: pr-review-loop
     trigger: loop-pr-review
@@ -397,7 +377,6 @@ workflows:
           - Summary of what was implemented
           - Any notable changes or deviations
           - AC coverage confirmation
-
 conventions:
   - _ulid: 01KG2005000000000000000000
     domain: commits
@@ -407,11 +386,13 @@ conventions:
       - Include Spec trailer when implementing spec item
       - Keep subject line under 72 characters
     examples:
-      - good: "feat: add user login flow\n\nTask: @add-auth"
-        bad: "Added login"
-      - good: "fix(auth): handle expired tokens"
-        bad: "fixed bug"
+      - good: |-
+          feat: add user login flow
 
+          Task: @add-auth
+        bad: Added login
+      - good: "fix(auth): handle expired tokens"
+        bad: fixed bug
   - _ulid: 01KG2006000000000000000000
     domain: notes
     rules:
@@ -419,9 +400,8 @@ conventions:
       - Include context for decisions made
       - Reference related commits, PRs, or issues
     examples:
-      - good: "Using retry with exponential backoff. Chose 3 max retries based on API rate limits."
-        bad: "Done"
-
+      - good: Using retry with exponential backoff. Chose 3 max retries based on API rate limits.
+        bad: Done
 observations:
   - _ulid: 01KG1YEE33BMDR3E1FE1VX4MVH
     type: success
@@ -1183,3 +1163,13 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KGG22P1W1SDMP6961V47D1DC
+    type: friction
+    content: PyYAML (Python) should not be used for editing kspec YAML files - it destroys ISO 8601
+      datetime format (converts '2026-01-28T09:20:10.852Z' to '2026-01-28 09:20:10.852000+00:00').
+      Use kspec's own Node.js-based YAML handling or string manipulation instead.
+    created_at: 2026-02-02T20:53:02.140Z
+    author: "@claude"
+    resolved: false
+    resolution: null
+includes: []

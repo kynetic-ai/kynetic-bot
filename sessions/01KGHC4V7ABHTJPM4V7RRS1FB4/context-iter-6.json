@@ -1,0 +1,273 @@
+{
+  "generated_at": "2026-02-03T10:05:43.355Z",
+  "branch": "feat/spec-review-skill",
+  "context": {
+    "focus": null,
+    "threads": [],
+    "open_questions": [],
+    "updated_at": "2026-02-03T10:05:43.354Z"
+  },
+  "active_tasks": [],
+  "pending_review_tasks": [
+    {
+      "ref": "01KGGPN0",
+      "title": "Create spec-review skill for automated verification + gap analysis",
+      "started_at": "2026-02-03T10:00:40.705Z",
+      "priority": 3,
+      "spec_ref": null,
+      "note_count": 2,
+      "last_note_at": "2026-02-03T10:04:11.935Z",
+      "todo_count": 0,
+      "incomplete_todos": 0
+    }
+  ],
+  "recent_notes": [],
+  "active_todos": [],
+  "ready_tasks": [
+    {
+      "ref": "01KGGX57",
+      "title": "Refactor Bot to use TypedEventEmitter for type-safe events",
+      "priority": 4,
+      "spec_ref": null,
+      "tags": []
+    }
+  ],
+  "blocked_tasks": [],
+  "recently_completed": [
+    {
+      "ref": "01KGGXSN",
+      "title": "Change lefthook prettier to --check gate instead of --write",
+      "completed_at": "2026-02-03T09:56:48.750Z",
+      "closed_reason": "Changed prettier pre-commit hook from '--write' to '--check' (commit 353beaf). Hook now acts as a gate that fails commits with formatting violations instead of auto-fixing. Developers must run 'pnpm format' manually before committing. Ensures all committed code is properly formatted."
+    },
+    {
+      "ref": "01KGGXR6",
+      "title": "Configure lefthook to lint only staged files on pre-commit",
+      "completed_at": "2026-02-03T09:56:00.822Z",
+      "closed_reason": "Configured lefthook to run full lint on pre-push (commit ac43c32). Pre-commit hook continues to lint only staged files with auto-fix for fast feedback. Pre-push now runs 'pnpm lint' (full codebase, no auto-fix) to catch lint issues before pushing. Prevents unrelated lint errors from blocking commits while maintaining code quality."
+    },
+    {
+      "ref": "01KGGKV5",
+      "title": "Add AC annotations to implementation files",
+      "completed_at": "2026-02-03T09:53:44.359Z",
+      "closed_reason": "Task already complete - all 10 implementation files mentioned in task description already have comprehensive AC annotations (67 total annotations). Verified via codebase exploration: autonomous.ts, escalation.ts, skills.ts, ToolWidgetBuilder.ts, ToolCallTracker.ts, CondensedToolDisplay.ts, dm-policy.ts, context-usage-tracker.ts, history.ts, and shadow.ts all have inline AC comments following pattern '// AC: @spec-slug ac-N'. Annotations were added during original implementation."
+    },
+    {
+      "ref": "01KGGTRK",
+      "title": "Add Discord adapter health check using client.ws.ping",
+      "completed_at": "2026-02-03T09:50:59.512Z",
+      "closed_reason": "Merged in PR #87. Added optional healthCheck() method to ChannelAdapter interface and implemented it in Discord adapter using client.ws.ping for WebSocket health monitoring. Includes 8 comprehensive tests covering all scenarios (not started, missing WS, wrong status, negative/excessive ping, healthy connection, edge cases, exceptions). All 1567 tests passing. Implementation follows optional method pattern for backward compatibility."
+    },
+    {
+      "ref": "01KGHBCY",
+      "title": "Add Bot-level integration test for restart recovery",
+      "completed_at": "2026-02-03T09:40:00.242Z",
+      "closed_reason": "Merged in PR #86. Added Bot-level integration test for restart recovery (AC-3/AC-9). Test verifies Bot correctly wires SessionLifecycleManager for restart scenarios: Bot handles message, SessionLifecycleManager detects existing conversation from ConversationStore, creates new ACP session with context restoration, and processes messages correctly after restart. All 1560 tests passing. Full AC coverage confirmed across codebase."
+    },
+    {
+      "ref": "01KGHBGQ",
+      "title": "Add Discord attachment support (images, files) forwarding to agent",
+      "completed_at": "2026-02-03T09:28:36.795Z",
+      "closed_reason": "Merged in commit a28889a. Implementation complete: Discord attachments (images/audio/files) forwarded to ACP agent as ImageContent/AudioContent/ResourceLink. Code builds successfully, all existing tests pass. QUALITY ISSUES: (1) No PR - committed directly to main, (2) No tests added despite task notes claiming 5 tests exist, (3) No spec coverage. Manual testing recommended for image/audio/file attachments end-to-end verification."
+    },
+    {
+      "ref": "01KGGKXS",
+      "title": "Fix ACP tool_call generic title extraction from streaming events",
+      "completed_at": "2026-02-03T09:25:33.819Z",
+      "closed_reason": "Merged in PR #85. Fixed ACP tool_call generic title extraction from streaming events by implementing a robust 5-level fallback chain: (1) update.title from tool_call_update events, (2) original toolCall.title, (3) _meta.claudeCode.toolName, (4) generated from kind (read → 'Read File'), (5) generic 'Tool Call'. Added 9 comprehensive test cases. All 396 tests passing, all CI checks green."
+    },
+    {
+      "ref": "01KGFYTP",
+      "title": "Make shutdown timeout configurable",
+      "completed_at": "2026-02-03T00:57:11.259Z",
+      "closed_reason": "Merged in PR #84. Made shutdown timeout configurable via SHUTDOWN_TIMEOUT env var for both bot and supervisor CLIs. Added 18 tests for validation logic. Spec updated with ac-9, ac-10, ac-11 for configurability."
+    },
+    {
+      "ref": "01KGFYTM",
+      "title": "Add crash checkpoint cleanup mechanism",
+      "completed_at": "2026-02-03T00:01:47.626Z",
+      "closed_reason": "Merged in PR #83. Implemented crash checkpoint cleanup with cleanupStaleCheckpoints() function, fixed checkpoint location to standard .kbot/checkpoints/ directory, added Supervisor.start() method for cleanup-on-startup, fixed ULID generation. Spec updated with ac-9 for cleanup behavior."
+    },
+    {
+      "ref": "01KG9G4H",
+      "title": "Add AC annotations to terminal handler implementations",
+      "completed_at": "2026-02-02T23:01:48.043Z",
+      "closed_reason": "Task already done - AC annotations for terminal handlers were added in original implementation commit a53f02d. Verified all 5 annotations present in lifecycle.ts."
+    }
+  ],
+  "recent_commits": [
+    {
+      "hash": "dd18ac2",
+      "full_hash": "dd18ac2f386796ba99d6b1aa8b4f10a1c9cc62fe",
+      "date": "2026-02-03T10:03:06.000Z",
+      "message": "feat(skills): Add spec-review skill for automated verification",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "6376521",
+      "full_hash": "63765215d66168652e25aba33c002ed6a69582a9",
+      "date": "2026-02-03T09:50:49.000Z",
+      "message": "Add Discord adapter health check using client.ws.ping (#87)",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "c351df3",
+      "full_hash": "c351df3a0aa6e0480eba6dd496a34487b0cc4a01",
+      "date": "2026-02-03T09:45:38.000Z",
+      "message": "feat(channels): Add Discord adapter health check using client.ws.ping",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "3317daa",
+      "full_hash": "3317daadd7f9999e41c41d9b82ae16302f12270f",
+      "date": "2026-02-03T09:39:47.000Z",
+      "message": "Merge pull request #86 from kynetic-ai/test/bot-restart-recovery",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "70bec67",
+      "full_hash": "70bec6715c151d61644ea0099d0cb1d1be39ebd1",
+      "date": "2026-02-03T09:33:27.000Z",
+      "message": "test(bot): Add Bot-level integration test for restart recovery",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "71478bc",
+      "full_hash": "71478bc10c16b54edc1c2ab7ca46095a1d9d2a82",
+      "date": "2026-02-03T09:25:20.000Z",
+      "message": "Merge pull request #85 from kynetic-ai/fix/tool-call-title-extraction",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "1c84970",
+      "full_hash": "1c849703e840fe1b7340a07ecaa36b602ca6c7e2",
+      "date": "2026-02-03T09:14:07.000Z",
+      "message": "fix(channels): Improve tool call title extraction from streaming events",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "9209208",
+      "full_hash": "9209208acdac74bb49466bc4e53e0e298b07d30e",
+      "date": "2026-02-03T00:57:03.000Z",
+      "message": "Merge pull request #84 from kynetic-ai/feat/configurable-shutdown-timeout",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "7fe4471",
+      "full_hash": "7fe44710dead5ff7b3421567e85b3ad88fb5ab82",
+      "date": "2026-02-03T00:45:36.000Z",
+      "message": "test(supervisor): Add CLI tests for shutdown timeout configuration",
+      "author": "Jacob Chapel"
+    },
+    {
+      "hash": "82cc9cc",
+      "full_hash": "82cc9cc49903418e2fcbd880d5f1d41992e4ad76",
+      "date": "2026-02-03T00:13:15.000Z",
+      "message": "feat(cli): Make shutdown timeout configurable",
+      "author": "Jacob Chapel"
+    }
+  ],
+  "working_tree": {
+    "clean": true,
+    "staged": [],
+    "unstaged": [],
+    "untracked": []
+  },
+  "inbox_items": [
+    {
+      "ref": "01KG5Z1K",
+      "text": "Discord adapter: make bot message filtering configurable (currently filters all bots, not just self)",
+      "created_at": "2026-01-29T22:47:36.999Z",
+      "tags": [],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG65AG",
+      "text": "Ensure task workflow is followed when implementing plans in new context - problem: plans focus on what to build, not the kspec workflow (task start/notes/submit/complete). Agent jumps to implementation without starting task. Potential fixes: (1) plan template includes 'kspec task start @slug' as first step, (2) CLAUDE.md implementation checklist, (3) session start detects pending tasks with ready plans, (4) hook on plan approval.",
+      "created_at": "2026-01-30T00:37:20.098Z",
+      "tags": [
+        "reflection",
+        "workflow"
+      ],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG6YH3",
+      "text": "Discord threads for subagent execution - Claude Code ACP already supports Task tool/subagents. Wire subagent spawning to create Discord threads: thread starter = task prompt, replies = tool calls/thinking/results, auto-archive on completion. Flatten nested subagents (Discord limitation). Enable when ready, not urgent.",
+      "created_at": "2026-01-30T07:57:50.796Z",
+      "tags": [],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG756X",
+      "text": "Kbot reimplements kspec shadow branch instead of using kspec as library. packages/memory/src/shadow/ duplicates functionality from kspec's parser/shadow.ts. Should add kspec as dependency and use its shadow branch utilities (detectShadow, initializeShadow, commitIfShadow, etc.) instead of maintaining parallel implementation. May need to parameterize kspec's shadow for different branch names (.kbot vs .kspec) or extend it.",
+      "created_at": "2026-01-30T09:54:36.962Z",
+      "tags": [
+        "architecture",
+        "tech-debt"
+      ],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG7579",
+      "text": "Bot Personality System Design (from triage discussion):\n\n**System prompt injection (always included):**\n- Core identity (name, role, boundaries)\n- Recent important events/info\n\n**Storage (via kspec primitives in .kbot/):**\n- identity section in kbot.meta.yaml\n- observations for learned patterns\n- session context for ephemeral state\n\n**Communication preferences to track:**\n- Verbosity (concise/detailed)\n- Formality (casual/professional)  \n- Structure (bullets/prose)\n- Expertise level assumption\n\n**Evolution:**\n- Explicit: User tells bot directly\n- Reflection: Automatic + collaborative with user\n- Implicit: Derived from reflection\n\n**Blocked on:** kspec library integration (01KG756X) - should use kspec observations/meta rather than custom implementation\n\n**Research captured:** See personalization research from triage session - memory taxonomies, what to track, anti-patterns",
+      "created_at": "2026-01-30T09:54:49.284Z",
+      "tags": [
+        "personality",
+        "design"
+      ],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG9C1K",
+      "text": "Create test harness to validate commands against real Claude Code instance - smoke tests for /context, /help and other commands to prevent silent failures. Integration test suite for harness-Claude Code interaction. Would have caught the /usage vs /context issue early.",
+      "created_at": "2026-01-31T06:32:31.891Z",
+      "tags": [],
+      "added_by": "Jacob Chapel"
+    },
+    {
+      "ref": "01KG9G7G",
+      "text": "Multi-ACP-provider support: Enable using different ACP-compliant agent systems (codex-cli, gemini-cli, opencode-cli) as backends. Allow different models (OpenAI, Gemini, etc.) for different agents/subagents based on their strengths. Requires smoothing over provider differences for consistent behavior.",
+      "created_at": "2026-01-31T07:45:39.271Z",
+      "tags": [],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG9JB5",
+      "text": "Add timing assertion utility with tolerance for flaky CI tests - tests using exact ms comparisons (e.g., expect(timeDiff).toBeGreaterThanOrEqual(100)) fail in CI due to timing jitter. Create a test utility like expectTiming(actual, expected, toleranceMs) or document the pattern of subtracting 5ms tolerance.",
+      "created_at": "2026-01-31T08:22:36.488Z",
+      "tags": [
+        "reflection",
+        "testing"
+      ],
+      "added_by": "@claude"
+    },
+    {
+      "ref": "01KG9M9R",
+      "text": "Webhook security research: Stateless middleman pattern for webhook delivery without opening bot to internet. WebSocket registration, JWT auth, best practices. Needed for trigger system Phase 3 webhook implementation.",
+      "created_at": "2026-01-31T08:56:47.102Z",
+      "tags": [],
+      "added_by": "Test"
+    },
+    {
+      "ref": "01KGBYB4",
+      "text": "Test helper factory: Create createMockTurn() and createMockSession() factories that centralize mock object creation. When schema changes, update one place instead of 70+ tests.",
+      "created_at": "2026-02-01T06:30:47.473Z",
+      "tags": [
+        "reflection",
+        "testing",
+        "dx"
+      ],
+      "added_by": "@claude"
+    }
+  ],
+  "stats": {
+    "total_tasks": 129,
+    "in_progress": 0,
+    "pending_review": 1,
+    "ready": 8,
+    "blocked": 0,
+    "completed": 113,
+    "inbox_items": 19
+  }
+}

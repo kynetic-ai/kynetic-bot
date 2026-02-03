@@ -15712,6 +15712,7 @@
   created_at: 2026-02-03T04:56:38.539Z
   notes: []
   todos: []
+  automation: eligible
 - _ulid: 01KGGXSNJYHMMZ57HE3EXX83MJ
   slugs: []
   title: Change lefthook prettier to --check gate instead of --write
@@ -15826,20 +15827,20 @@
   created_at: 2026-02-03T09:00:09.803Z
   notes: []
   todos: []
-- title: Implement trigger system for scheduled agent activations
+- _ulid: 01KGHBRY934WK7YXKRQABFEXD7
+  slugs: []
+  title: Implement trigger system for scheduled agent activations
   type: task
-  priority: 3
-  spec_ref: null
-  tags: []
   description: "One-off and recurring triggers: Trigger system for scheduling agent activations with
     instructions. Enables semi-regular triggers for proactive assistance and autonomous task
     management. Should support both one-time and recurring schedules (cron-like)."
-  _ulid: 01KGHBRY934WK7YXKRQABFEXD7
-  slugs: []
+  spec_ref: null
   status: pending
   blocked_by: []
   depends_on: []
   context: []
+  priority: 3
+  tags: []
   vcs_refs: []
   created_at: 2026-02-03T09:01:43.075Z
   notes: []

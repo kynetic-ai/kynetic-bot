@@ -15705,6 +15705,30 @@
         ChannelAdapter interface, (2) Implement in Discord adapter using client.ws.ping, (3) Update
         ChannelLifecycleManager to call adapter.healthCheck() if available."
       supersedes: null
+    - _ulid: 01KGHE7SKAYMFXY4QTN60VR9VN
+      created_at: 2026-02-03T09:44:46.954Z
+      author: "@claude"
+      content: >-
+        Implementation complete:
+
+        1. Added optional healthCheck() method to ChannelAdapter interface
+        (packages/core/src/types/channel-adapter.ts)
+
+        2. Implemented healthCheck() in Discord adapter using client.ws.ping
+        (packages/channels/src/adapters/discord/adapter.ts:221-245)
+           - Returns false if not started
+           - Checks WebSocket status (must be 0 = READY)
+           - Validates ping is >= 0 and < 10000ms
+           - Catches and logs exceptions
+        3. Updated ChannelLifecycleManager.performHealthCheck() to call adapter.healthCheck() if
+        available (packages/channels/src/lifecycle.ts:314-340)
+
+        4. Added 8 comprehensive tests covering all health check scenarios
+        (packages/channels/test/adapters/discord/adapter.test.ts:1109-1207)
+           - Not started, missing WS, wrong status, negative ping, high ping, healthy, edge cases, exceptions
+
+        All 1567 tests passing. Ready for review.
+      supersedes: null
   todos: []
   automation: eligible
 - _ulid: 01KGGWW9Z8A7DZ78K4TK3BR7DE

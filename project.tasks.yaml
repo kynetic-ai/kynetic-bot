@@ -15862,8 +15862,15 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-03T09:00:09.803Z
-  notes: []
+  notes:
+    - _ulid: 01KGHC3JAAQD8PC001EP3TFGDQ
+      created_at: 2026-02-03T09:07:31.274Z
+      author: "@claude"
+      content: "Automation status set to needs_review: Needs design - which files to inject, detection
+        triggers, injection points"
+      supersedes: null
   todos: []
+  automation: needs_review
 - _ulid: 01KGHBRY934WK7YXKRQABFEXD7
   slugs: []
   title: Implement trigger system for scheduled agent activations

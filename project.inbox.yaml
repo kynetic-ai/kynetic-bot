@@ -1,13 +1,4 @@
 inbox:
-  - _ulid: 01KG4KV8GTP8PZ4TKFWWNNWW9J
-    text: Spec review workflow/skill that runs verification + holistic review after spec changes. Would
-      automate the repeated 'run two subagents to check plan vs implementation and find gaps'
-      pattern.
-    created_at: 2026-01-29T10:12:40.090Z
-    tags:
-      - reflection
-      - workflow
-    added_by: "@claude"
   - _ulid: 01KG4KVBQ3QR4TD0H3FR39HAT3
     text: "Allow kspec item trait add to accept multiple traits: kspec item trait add @spec @trait1
       @trait2 @trait3 instead of requiring separate commands for each trait."

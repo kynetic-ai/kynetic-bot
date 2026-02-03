@@ -10,7 +10,12 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { parse as parseYaml } from 'yaml';
 import { ulid } from 'ulid';
-import { writeCheckpoint, readCheckpoint, deleteCheckpoint } from '../src/checkpoint.js';
+import {
+  writeCheckpoint,
+  readCheckpoint,
+  deleteCheckpoint,
+  cleanupStaleCheckpoints,
+} from '../src/checkpoint.js';
 import type { Checkpoint } from '../src/schemas.js';
 
 describe('Checkpoint', () => {
@@ -408,6 +413,113 @@ describe('Checkpoint', () => {
       expect(result.error).toBeDefined();
       // Error includes context about what went wrong
       expect(result.error?.message).toBeTruthy();
+    });
+  });
+
+  describe('cleanupStaleCheckpoints', () => {
+    // AC: @restart-checkpoint ac-4 (cleanup of files that would be ignored)
+    it('deletes checkpoint files older than 24 hours', async () => {
+      const checkpointsDir = join(dataDir, 'checkpoints');
+      await mkdir(checkpointsDir, { recursive: true });
+
+      // Create a stale checkpoint file
+      const staleCheckpointPath = join(checkpointsDir, `${ulid()}.yaml`);
+      await writeFile(staleCheckpointPath, 'version: 1', 'utf-8');
+
+      // Backdate the file modification time to 25 hours ago
+      const { utimes } = await import('node:fs/promises');
+      const oldTime = new Date(Date.now() - 25 * 60 * 60 * 1000);
+      await utimes(staleCheckpointPath, oldTime, oldTime);
+
+      // Run cleanup
+      const result = await cleanupStaleCheckpoints(dataDir);
+
+      expect(result.deleted).toBe(1);
+      expect(result.errors).toBe(0);
+
+      // Verify file is gone
+      await expect(readFile(staleCheckpointPath, 'utf-8')).rejects.toThrow();
+    });
+
+    it('preserves checkpoint files within 24-hour TTL', async () => {
+      const checkpointsDir = join(dataDir, 'checkpoints');
+      await mkdir(checkpointsDir, { recursive: true });
+
+      // Create a recent checkpoint file
+      const recentCheckpointPath = join(checkpointsDir, `${ulid()}.yaml`);
+      await writeFile(recentCheckpointPath, 'version: 1', 'utf-8');
+
+      // Run cleanup
+      const result = await cleanupStaleCheckpoints(dataDir);
+
+      expect(result.deleted).toBe(0);
+      expect(result.errors).toBe(0);
+
+      // Verify file still exists
+      const content = await readFile(recentCheckpointPath, 'utf-8');
+      expect(content).toBe('version: 1');
+    });
+
+    it('handles missing checkpoints directory gracefully', async () => {
+      // Don't create checkpoints dir - run cleanup on empty dataDir
+
+      const result = await cleanupStaleCheckpoints(dataDir);
+
+      // Should not throw, just return zeros
+      expect(result.deleted).toBe(0);
+      expect(result.errors).toBe(0);
+    });
+
+    it('ignores non-yaml files in checkpoints directory', async () => {
+      const checkpointsDir = join(dataDir, 'checkpoints');
+      await mkdir(checkpointsDir, { recursive: true });
+
+      // Create a non-yaml file that's old
+      const otherFilePath = join(checkpointsDir, 'readme.txt');
+      await writeFile(otherFilePath, 'This is not a checkpoint', 'utf-8');
+
+      // Backdate the file
+      const { utimes } = await import('node:fs/promises');
+      const oldTime = new Date(Date.now() - 25 * 60 * 60 * 1000);
+      await utimes(otherFilePath, oldTime, oldTime);
+
+      // Run cleanup
+      const result = await cleanupStaleCheckpoints(dataDir);
+
+      expect(result.deleted).toBe(0);
+      expect(result.errors).toBe(0);
+
+      // Verify file still exists (wasn't deleted)
+      const content = await readFile(otherFilePath, 'utf-8');
+      expect(content).toBe('This is not a checkpoint');
+    });
+
+    it('cleans up multiple stale checkpoints at once', async () => {
+      const checkpointsDir = join(dataDir, 'checkpoints');
+      await mkdir(checkpointsDir, { recursive: true });
+
+      // Create multiple stale checkpoint files
+      const { utimes } = await import('node:fs/promises');
+      const oldTime = new Date(Date.now() - 48 * 60 * 60 * 1000); // 48 hours old
+
+      const paths = [];
+      for (let i = 0; i < 5; i++) {
+        const path = join(checkpointsDir, `${ulid()}.yaml`);
+        await writeFile(path, `checkpoint: ${i}`, 'utf-8');
+        await utimes(path, oldTime, oldTime);
+        paths.push(path);
+      }
+
+      // Run cleanup
+      const result = await cleanupStaleCheckpoints(dataDir);
+
+      expect(result.deleted).toBe(5);
+      expect(result.errors).toBe(0);
+
+      // Verify all files are gone
+      for (const path of paths) {
+        await expect(readFile(path, 'utf-8')).rejects.toThrow();
+      }
     });
   });
 });

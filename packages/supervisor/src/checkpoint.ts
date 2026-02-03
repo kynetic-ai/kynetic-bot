@@ -7,7 +7,7 @@
  * @see @restart-checkpoint
  */
 
-import { readFile, writeFile, unlink, mkdir } from 'node:fs/promises';
+import { readFile, writeFile, unlink, mkdir, readdir, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { ulid } from 'ulid';
 import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
@@ -222,4 +222,80 @@ export async function deleteCheckpoint(checkpointPath: string): Promise<void> {
     });
     // Don't throw - deletion failure is not critical
   }
+}
+
+/**
+ * Result of cleanup operation
+ */
+export interface CleanupResult {
+  deleted: number;
+  errors: number;
+}
+
+/**
+ * Clean up stale checkpoint files older than 24 hours
+ *
+ * Scans the checkpoints directory and removes files that have exceeded
+ * the 24-hour TTL. Should be called on supervisor startup.
+ *
+ * AC: @restart-checkpoint ac-4 (implements cleanup for files that would be ignored)
+ *
+ * @param dataDir - Base data directory (e.g., '.kbot')
+ * @returns Cleanup result with counts of deleted and errored files
+ */
+export async function cleanupStaleCheckpoints(dataDir: string): Promise<CleanupResult> {
+  const result: CleanupResult = { deleted: 0, errors: 0 };
+  const checkpointsDir = join(dataDir, 'checkpoints');
+
+  try {
+    const entries = await readdir(checkpointsDir);
+
+    for (const entry of entries) {
+      // Only process .yaml checkpoint files
+      if (!entry.endsWith('.yaml')) {
+        continue;
+      }
+
+      const filePath = join(checkpointsDir, entry);
+
+      try {
+        const fileStat = await stat(filePath);
+        const age = Date.now() - fileStat.mtimeMs;
+
+        if (age > MAX_CHECKPOINT_AGE_MS) {
+          await unlink(filePath);
+          result.deleted++;
+          log.debug('Deleted stale checkpoint', {
+            path: filePath,
+            ageHours: Math.round(age / (60 * 60 * 1000)),
+          });
+        }
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error(String(err));
+        log.warn('Failed to clean up checkpoint', {
+          path: filePath,
+          error: error.message,
+        });
+        result.errors++;
+      }
+    }
+
+    if (result.deleted > 0) {
+      log.info('Cleaned up stale checkpoints', {
+        deleted: result.deleted,
+        errors: result.errors,
+      });
+    }
+  } catch (err) {
+    // Directory doesn't exist or can't be read - not an error condition
+    const error = err instanceof Error ? err : new Error(String(err));
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+      log.warn('Failed to scan checkpoints directory', {
+        dir: checkpointsDir,
+        error: error.message,
+      });
+    }
+  }
+
+  return result;
 }

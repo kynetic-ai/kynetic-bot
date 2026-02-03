@@ -1208,4 +1208,15 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KGHD162VARHTN591AT0Z4EZ8
+    type: friction
+    content: "Large test files (3000+ lines) make adding tests risky and complex. Adding 5 attachment
+      tests to bot.test.ts required multiple read operations to understand structure. Attempted sed
+      replacement to fix test indices broke existing tests globally. Consider: (1) Split test files
+      by feature area, (2) Use test file generators, or (3) Add test-addition-mode that handles
+      boilerplate."
+    created_at: 2026-02-03T09:23:41.787Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

@@ -15709,7 +15709,7 @@
     Would automate the repeated 'run two subagents to check plan vs implementation and find gaps'
     pattern.
   spec_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -15722,6 +15722,7 @@
   notes: []
   todos: []
   automation: eligible
+  started_at: 2026-02-03T10:00:40.705Z
 - _ulid: 01KGGTRK6F5FE8RDMB3HEQ71MD
   slugs: []
   title: Add Discord adapter health check using client.ws.ping
@@ -15920,6 +15921,10 @@
   spec_ref: null
   status: completed
   blocked_by: []
+  closed_reason: Changed prettier pre-commit hook from '--write' to '--check' (commit 353beaf). Hook
+    now acts as a gate that fails commits with formatting violations instead of auto-fixing.
+    Developers must run 'pnpm format' manually before committing. Ensures all committed code is
+    properly formatted.
   depends_on: []
   context: []
   priority: 4
@@ -15929,6 +15934,7 @@
   vcs_refs: []
   created_at: 2026-02-03T04:57:26.878Z
   started_at: 2026-02-03T09:56:19.806Z
+  completed_at: 2026-02-03T09:56:48.750Z
   notes:
     - _ulid: 01KGHEX9QTNG9Q72ZHR584EXZ9
       created_at: 2026-02-03T09:56:31.610Z
@@ -15946,11 +15952,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-02-03T09:56:48.750Z
-  closed_reason: Changed prettier pre-commit hook from '--write' to '--check' (commit 353beaf). Hook
-    now acts as a gate that fails commits with formatting violations instead of auto-fixing.
-    Developers must run 'pnpm format' manually before committing. Ensures all committed code is
-    properly formatted.
 - _ulid: 01KGHBCYW3ENWGJV5T6VBS3817
   slugs: []
   title: Add Bot-level integration test for restart recovery

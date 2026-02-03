@@ -386,3 +386,12 @@ inbox:
       - reflection
       - testing
     added_by: "@claude"
+  - _ulid: 01KGGMQZVXQN955TBK3J186X6V
+    text: Discord tool widget expand button not functional - AC-4 (expand button shows full output) is
+      in spec but not implemented/working. Need to wire up Discord component interaction handler and
+      follow-up message logic.
+    created_at: 2026-02-03T02:19:14.685Z
+    tags:
+      - bug
+      - discord
+    added_by: "@claude"

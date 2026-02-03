@@ -15709,7 +15709,7 @@
     Would automate the repeated 'run two subagents to check plan vs implementation and find gaps'
     pattern.
   spec_ref: null
-  status: in_progress
+  status: pending_review
   blocked_by: []
   depends_on: []
   context: []

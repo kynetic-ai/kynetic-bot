@@ -15459,4 +15459,12 @@
 
         PR is ready to merge. Implementation matches updated spec.
       supersedes: null
+    - _ulid: 01KGGFE127W9WWHDN77SXWJP51
+      created_at: 2026-02-03T00:46:25.351Z
+      author: "@claude"
+      content: Addressed PR review feedback - added test coverage for supervisor CLI's
+        getShutdownTimeout() validation logic. 18 new tests covering valid values, invalid formats,
+        edge cases, and force exit timeout calculation. All tests have AC annotations for
+        @shutdown-modes ac-9, ac-10, ac-11. Total test count now 1550.
+      supersedes: null
   todos: []

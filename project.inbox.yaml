@@ -436,15 +436,6 @@ inbox:
     tags:
       - testing,discord,regression
     added_by: "@claude"
-  - _ulid: 01KGD4KEK5J7ZK9HH74PW81NX4
-    text: "Lefthook pre-commit: when formatter modifies files, either fail commit (so user re-stages
-      with changes) or auto-include formatted changes. Currently leaves dirty working tree requiring
-      separate commit."
-    created_at: 2026-02-01T17:39:25.413Z
-    tags:
-      - reflection
-      - dx
-    added_by: "@claude"
   - _ulid: 01KGDCX7682MV25YRCG4804S4B
     text: Test files not linted - eslint config ignores **/test/** due to tsconfig project service
       exclusion. Should configure eslint/tsconfig to lint test files for code quality

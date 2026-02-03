@@ -15828,7 +15828,7 @@
   description: "Bot: Forward ChannelLifecycle events (health, reconnection) for completeness -
     currently only AgentLifecycle events are forwarded"
   spec_ref: null
-  status: in_progress
+  status: cancelled
   blocked_by: []
   depends_on: []
   context: []
@@ -15862,6 +15862,11 @@
       supersedes: null
   todos: []
   automation: eligible
+  closed_reason: "Task requires design decisions: ChannelLifecycle doesn't currently emit events, so
+    this is not just 'forwarding' but implementing event infrastructure first. Need to decide: (1)
+    which events to emit (health, reconnection, state changes?), (2) event naming convention, (3)
+    event data structure. Not suitable for automated implementation. Should be split into: (1)
+    design+implement ChannelLifecycle events, (2) forward events in Bot."
 - _ulid: 01KGGXR6CBBKST4W4327HFVVXR
   slugs: []
   title: Configure lefthook to lint only staged files on pre-commit

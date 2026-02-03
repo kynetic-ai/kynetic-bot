@@ -15847,7 +15847,7 @@
     (multimodal), other file types should be accessible with option to add format-specific adapters.
     Enable agent to request/process user-uploaded content.
   spec_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -15858,6 +15858,7 @@
   notes: []
   todos: []
   automation: eligible
+  started_at: 2026-02-03T09:15:50.398Z
 - _ulid: 01KGHBMCWTDRAMXQQWP763B3V3
   slugs: []
   title: Implement kbot skill system following Claude Code .claude/skills/ spec

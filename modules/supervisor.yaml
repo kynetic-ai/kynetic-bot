@@ -216,7 +216,7 @@ features:
       - id: ac-1
         given: soft shutdown requested
         when: SIGTERM sent
-        then: waits up to shutdownTimeout (30s default)
+        then: waits up to configured shutdownTimeout
       - id: ac-2
         given: soft shutdown timeout exceeded
         when: child running

@@ -1219,4 +1219,14 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KGHD1DD2TRMQ1S0YE9SER9BV
+    type: success
+    content: Using Explore agent for codebase investigation before implementing saved significant time.
+      For attachment forwarding task, Explore agent analyzed the full flow (Discord→Bot→Agent) and
+      identified the exact gap (attachments parsed but not forwarded to ACP). This prevented
+      premature implementation and ensured correct approach.
+    created_at: 2026-02-03T09:23:49.283Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

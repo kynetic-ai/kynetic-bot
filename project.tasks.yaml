@@ -15376,6 +15376,9 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "Merged in PR #84. Made shutdown timeout configurable via SHUTDOWN_TIMEOUT env var
+    for both bot and supervisor CLIs. Added 18 tests for validation logic. Spec updated with ac-9,
+    ac-10, ac-11 for configurability."
   depends_on: []
   context: []
   priority: 3
@@ -15383,6 +15386,7 @@
   vcs_refs: []
   created_at: 2026-02-02T19:56:15.105Z
   started_at: 2026-02-03T00:10:45.386Z
+  completed_at: 2026-02-03T00:57:11.259Z
   notes:
     - _ulid: 01KGGDCYDX0BQRB76J0YY2VSW9
       created_at: 2026-02-03T00:10:52.734Z
@@ -15468,7 +15472,23 @@
         @shutdown-modes ac-9, ac-10, ac-11. Total test count now 1550.
       supersedes: null
   todos: []
-  completed_at: 2026-02-03T00:57:11.259Z
-  closed_reason: "Merged in PR #84. Made shutdown timeout configurable via SHUTDOWN_TIMEOUT env var
-    for both bot and supervisor CLIs. Added 18 tests for validation logic. Spec updated with ac-9,
-    ac-10, ac-11 for configurability."
+- title: Add AC annotations to implementation files
+  type: task
+  priority: 4
+  spec_ref: null
+  tags: []
+  description: "Codebase-wide AC annotation audit needed. Subagent found 14+ implementation files
+    missing AC annotations including: autonomous.ts, escalation.ts, skills.ts (agent subsystem);
+    ToolWidgetBuilder.ts, ToolCallTracker.ts, CondensedToolDisplay.ts (Discord widgets);
+    dm-policy.ts; context-usage-tracker.ts, history.ts (messaging); shadow.ts (memory). Test files
+    have good AC coverage but implementation code lacks inline annotations linking to specs."
+  _ulid: 01KGGKV5Q577A151DENHYCCX73
+  slugs: []
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  vcs_refs: []
+  created_at: 2026-02-03T02:03:30.394Z
+  notes: []
+  todos: []

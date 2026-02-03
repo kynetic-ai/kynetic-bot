@@ -481,12 +481,3 @@ inbox:
       - reflection
       - testing
     added_by: "@claude"
-  - _ulid: 01KGG9ENZEVY4MAZ6RHH6HWANF
-    text: "Codebase-wide AC annotation audit needed. Subagent found 14+ implementation files missing AC
-      annotations including: autonomous.ts, escalation.ts, skills.ts (agent subsystem);
-      ToolWidgetBuilder.ts, ToolCallTracker.ts, CondensedToolDisplay.ts (Discord widgets);
-      dm-policy.ts; context-usage-tracker.ts, history.ts (messaging); shadow.ts (memory). Test files
-      have good AC coverage but implementation code lacks inline annotations linking to specs."
-    created_at: 2026-02-02T23:01:55.310Z
-    tags: []
-    added_by: "@claude"

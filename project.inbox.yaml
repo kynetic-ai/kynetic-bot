@@ -81,14 +81,6 @@ inbox:
     created_at: 2026-01-30T07:57:42.012Z
     tags: []
     added_by: "@claude"
-  - _ulid: 01KG6YH21GSSXP27SXF4D26279
-    text: "System prompt and personality configuration - .kbot is the bot's brain using kspec as
-      library. Inject dynamic context: observations (friction/success patterns), session focus,
-      active work, user interests. Static base capabilities + dynamic per-session injection.
-      Personality evolves from observed patterns over time."
-    created_at: 2026-01-30T07:57:48.976Z
-    tags: []
-    added_by: "@claude"
   - _ulid: 01KG6YH3TC9G5PZWADXPE1ZBX0
     text: "Discord threads for subagent execution - Claude Code ACP already supports Task
       tool/subagents. Wire subagent spawning to create Discord threads: thread starter = task

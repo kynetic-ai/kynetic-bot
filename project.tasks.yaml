@@ -15290,7 +15290,7 @@
     Should align with existing checkpoint 24-hour TTL pattern.
   spec_ref: null
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -15352,6 +15352,11 @@
       content: "PR created: https://github.com/kynetic-ai/kynetic-bot/pull/83"
       supersedes: null
   todos: []
+  completed_at: 2026-02-03T00:01:47.626Z
+  closed_reason: "Merged in PR #83. Implemented crash checkpoint cleanup with
+    cleanupStaleCheckpoints() function, fixed checkpoint location to standard .kbot/checkpoints/
+    directory, added Supervisor.start() method for cleanup-on-startup, fixed ULID generation. Spec
+    updated with ac-9 for cleanup behavior."
 - _ulid: 01KGFYTPW1YYAQYZCDV5ZCWWZ5
   slugs: []
   title: Make shutdown timeout configurable

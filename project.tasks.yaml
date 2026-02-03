@@ -15611,10 +15611,17 @@
     - tool-display
   vcs_refs: []
   created_at: 2026-02-03T02:04:56.373Z
-  notes: []
+  started_at: 2026-02-03T09:08:36.085Z
+  notes:
+    - _ulid: 01KGHC77QZXBFAW8FSFSDDD34X
+      created_at: 2026-02-03T09:09:31.520Z
+      author: "@claude"
+      content: Investigating issue. Found that ToolWidgetBuilder.ts:33 uses fallback 'Tool Call' when
+        toolCall.title is undefined. Need to understand when/why title is missing from ACP streaming
+        events.
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-02-03T09:08:36.085Z
 - _ulid: 01KGGPN0GATCEPVVSSV6JXA3TJ
   slugs: []
   title: Create spec-review skill for automated verification + gap analysis

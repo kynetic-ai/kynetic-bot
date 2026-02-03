@@ -15482,18 +15482,59 @@
     dm-policy.ts; context-usage-tracker.ts, history.ts (messaging); shadow.ts (memory). Test files
     have good AC coverage but implementation code lacks inline annotations linking to specs."
   spec_ref: null
-  status: in_progress
+  status: completed
   blocked_by: []
+  closed_reason: "Task already complete - all 10 implementation files mentioned in task description
+    already have comprehensive AC annotations (67 total annotations). Verified via codebase
+    exploration: autonomous.ts, escalation.ts, skills.ts, ToolWidgetBuilder.ts, ToolCallTracker.ts,
+    CondensedToolDisplay.ts, dm-policy.ts, context-usage-tracker.ts, history.ts, and shadow.ts all
+    have inline AC comments following pattern '// AC: @spec-slug ac-N'. Annotations were added
+    during original implementation."
   depends_on: []
   context: []
   priority: 4
   tags: []
   vcs_refs: []
   created_at: 2026-02-03T02:03:30.394Z
-  notes: []
+  started_at: 2026-02-03T09:51:45.992Z
+  completed_at: 2026-02-03T09:53:44.359Z
+  notes:
+    - _ulid: 01KGHEQXDQMYXNWW316M37Z36D
+      created_at: 2026-02-03T09:53:35.159Z
+      author: "@claude"
+      content: >-
+        Verified all 10 files mentioned in task description already have AC annotations:
+
+        - autonomous.ts: 7 AC refs (@agent-autonomous, traits)
+
+        - escalation.ts: 5 AC refs (@agent-escalation)
+
+        - skills.ts: 10 AC refs (@agent-skills, @trait-validated)
+
+        - ToolWidgetBuilder.ts: 4 AC refs (@discord-tool-widgets)
+
+        - ToolCallTracker.ts: 6 AC refs (@discord-tool-widgets)
+
+        - CondensedToolDisplay.ts: 3 AC refs (@discord-tool-widgets)
+
+        - dm-policy.ts: 8 AC refs (@channel-dm-policy)
+
+        - context-usage-tracker.ts: 11 AC refs (@mem-context-usage)
+
+        - history.ts: 9 AC refs (@msg-history, @mem-conversation)
+
+        - shadow.ts: 4 AC refs (@mem-shadow-storage)
+
+
+        Total: 67 AC annotations across 10 files. All implementations properly annotated following
+        pattern '// AC: @spec-slug ac-N'.
+
+
+        Task appears to be already complete - annotations were added during original implementation.
+        No action needed.
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-02-03T09:51:45.992Z
 - _ulid: 01KGGKX523H5XDHZ397WBQQHA5
   slugs: []
   title: Fix /usage command interfering with message delivery
@@ -15787,7 +15828,7 @@
   description: "Bot: Forward ChannelLifecycle events (health, reconnection) for completeness -
     currently only AgentLifecycle events are forwarded"
   spec_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -15798,6 +15839,7 @@
   notes: []
   todos: []
   automation: eligible
+  started_at: 2026-02-03T09:54:10.481Z
 - _ulid: 01KGGXR6CBBKST4W4327HFVVXR
   slugs: []
   title: Configure lefthook to lint only staged files on pre-commit

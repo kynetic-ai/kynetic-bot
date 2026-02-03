@@ -15806,7 +15806,7 @@
   description: Add Bot-level integration test for restart recovery (AC-3/AC-9) - currently tested in
     messaging package but not end-to-end through Bot
   spec_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -15817,6 +15817,7 @@
   notes: []
   todos: []
   automation: eligible
+  started_at: 2026-02-03T09:29:59.230Z
 - _ulid: 01KGHBG23TT662WFG15YG1VDQQ
   slugs: []
   title: Capture terminal output to files instead of in-memory buffer
@@ -15855,6 +15856,11 @@
   spec_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "Merged in commit a28889a. Implementation complete: Discord attachments
+    (images/audio/files) forwarded to ACP agent as ImageContent/AudioContent/ResourceLink. Code
+    builds successfully, all existing tests pass. QUALITY ISSUES: (1) No PR - committed directly to
+    main, (2) No tests added despite task notes claiming 5 tests exist, (3) No spec coverage. Manual
+    testing recommended for image/audio/file attachments end-to-end verification."
   depends_on: []
   context: []
   priority: 2
@@ -15862,6 +15868,7 @@
   vcs_refs: []
   created_at: 2026-02-03T08:57:13.804Z
   started_at: 2026-02-03T09:15:50.398Z
+  completed_at: 2026-02-03T09:28:36.795Z
   notes:
     - _ulid: 01KGHCNHDKBZKDXWNA3WFSRP7D
       created_at: 2026-02-03T09:17:20.179Z
@@ -15905,12 +15912,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-02-03T09:28:36.795Z
-  closed_reason: "Merged in commit a28889a. Implementation complete: Discord attachments
-    (images/audio/files) forwarded to ACP agent as ImageContent/AudioContent/ResourceLink. Code
-    builds successfully, all existing tests pass. QUALITY ISSUES: (1) No PR - committed directly to
-    main, (2) No tests added despite task notes claiming 5 tests exist, (3) No spec coverage. Manual
-    testing recommended for image/audio/file attachments end-to-end verification."
 - _ulid: 01KGHBMCWTDRAMXQQWP763B3V3
   slugs: []
   title: Implement kbot skill system following Claude Code .claude/skills/ spec

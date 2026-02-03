@@ -253,6 +253,10 @@ features:
         given: SHUTDOWN_TIMEOUT env var not set or invalid
         when: CLI starts
         then: "uses default shutdown timeout (bot: 10s, supervisor: 30s)"
+      - id: ac-11
+        given: shutdown timeout configured
+        when: force exit timer calculated
+        then: uses max(shutdownTimeout + 5000, 30000) to allow graceful shutdown buffer
     status:
       maturity: draft
       implementation: implemented

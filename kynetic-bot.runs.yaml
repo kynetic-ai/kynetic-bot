@@ -22,8 +22,16 @@ runs:
     current_step: 0
     total_steps: 10
     started_at: 2026-02-03T09:27:00.541Z
+    completed_at: 2026-02-03T09:27:37.292Z
     step_results: []
     initiated_by: "@claude"
     abort_reason: No PR exists for task 01KGHBGQ. Code was committed directly to main (a28889a) without
       PR review process. Cannot proceed with PR review workflow.
-    completed_at: 2026-02-03T09:27:37.292Z
+  - _ulid: 01KGHDQVH21RFRX16YMMY8XEXS
+    workflow_ref: "@01KG2008000000000000000000"
+    status: active
+    current_step: 0
+    total_steps: 10
+    started_at: 2026-02-03T09:36:04.642Z
+    step_results: []
+    initiated_by: "@claude"

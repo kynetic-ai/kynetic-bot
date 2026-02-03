@@ -15749,23 +15749,42 @@
   created_at: 2026-02-03T08:55:10.466Z
   notes: []
   todos: []
-- title: Capture terminal output to files instead of in-memory buffer
+- _ulid: 01KGHBG23TT662WFG15YG1VDQQ
+  slugs: []
+  title: Capture terminal output to files instead of in-memory buffer
   type: task
-  priority: 3
-  spec_ref: null
-  tags: []
   description: "Terminal output handling rethink: Instead of 1MB in-memory buffer with truncation,
     capture terminal outputs to files by default. Return file path as metadata so agent can read
     output selectively (like Claude Code does). Truncate output sent to agent to avoid context
     blowout, but full output available via file. Also investigate ../kynetic-internal terminal
     support implementation for patterns/learnings."
-  _ulid: 01KGHBG23TT662WFG15YG1VDQQ
+  spec_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  priority: 3
+  tags: []
+  vcs_refs: []
+  created_at: 2026-02-03T08:56:52.090Z
+  notes: []
+  todos: []
+- title: Add Discord attachment support (images, files) forwarding to agent
+  type: task
+  priority: 2
+  spec_ref: null
+  tags: []
+  description: Add Discord attachment support (images, files) - forward attachments from Discord
+    messages to agent with appropriate handling. Images should be readable directly by agent
+    (multimodal), other file types should be accessible with option to add format-specific adapters.
+    Enable agent to request/process user-uploaded content.
+  _ulid: 01KGHBGQAC6753TXGQNWX3V0WP
   slugs: []
   status: pending
   blocked_by: []
   depends_on: []
   context: []
   vcs_refs: []
-  created_at: 2026-02-03T08:56:52.090Z
+  created_at: 2026-02-03T08:57:13.804Z
   notes: []
   todos: []

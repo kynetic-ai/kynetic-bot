@@ -87,14 +87,6 @@ inbox:
       - personality
       - design
     added_by: "@claude"
-  - _ulid: 01KG96STMRGH5DMM42TWYH72WP
-    text: Add Discord attachment support (images, files) - forward attachments from Discord messages to
-      agent with appropriate handling. Images should be readable directly by agent (multimodal),
-      other file types should be accessible with option to add format-specific adapters. Enable
-      agent to request/process user-uploaded content.
-    created_at: 2026-01-31T05:00:53.784Z
-    tags: []
-    added_by: Jacob Chapel
   - _ulid: 01KG983125E66VYX55343BQEFB
     text: Implement kbot-specific skill system following Claude Code skill specification - support
       .claude/skills/ structure with SKILL.md files, skill invocation, and skill context loading.

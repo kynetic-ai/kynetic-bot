@@ -29,7 +29,7 @@ runs:
       PR review process. Cannot proceed with PR review workflow.
   - _ulid: 01KGHDQVH21RFRX16YMMY8XEXS
     workflow_ref: "@01KG2008000000000000000000"
-    status: active
+    status: completed
     current_step: 9
     total_steps: 10
     started_at: 2026-02-03T09:36:04.642Z
@@ -73,8 +73,9 @@ runs:
       - step_index: 9
         status: completed
         started_at: 2026-02-03T09:40:28.130Z
-        completed_at: 2026-02-03T09:40:28.130Z
+        completed_at: 2026-02-03T09:40:31.589Z
     initiated_by: "@claude"
+    completed_at: 2026-02-03T09:40:31.590Z
   - _ulid: 01KGHDR610D7TP4QR0AZS0RDSE
     workflow_ref: "@01KG2007000000000000000000"
     status: active

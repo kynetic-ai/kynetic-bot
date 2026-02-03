@@ -15885,10 +15885,26 @@
     - tooling
   vcs_refs: []
   created_at: 2026-02-03T04:56:38.539Z
-  notes: []
+  started_at: 2026-02-03T09:55:22.335Z
+  notes:
+    - _ulid: 01KGHEVX6DY0SABQJGJJ1DKQ67
+      created_at: 2026-02-03T09:55:45.997Z
+      author: "@claude"
+      content: >-
+        Modified lefthook.yml:
+
+        - pre-commit: continues to use 'pnpm lint:fix {staged_files}' for fast, targeted linting of
+        only changed files
+
+        - pre-push: added 'pnpm lint' (full codebase lint without auto-fix) to catch any lint issues
+        before pushing
+
+
+        This ensures commits aren't blocked by unrelated lint errors while still maintaining code
+        quality through pre-push gate.
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-02-03T09:55:22.335Z
 - _ulid: 01KGGXSNJYHMMZ57HE3EXX83MJ
   slugs: []
   title: Change lefthook prettier to --check gate instead of --write

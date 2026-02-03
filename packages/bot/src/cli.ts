@@ -19,9 +19,10 @@ import {
 import { Bot, loadConfig } from './index.js';
 
 const log = createLogger('cli');
-const FORCE_EXIT_TIMEOUT = 30000;
+const DEFAULT_FORCE_EXIT_TIMEOUT = 30000;
 
 let isShuttingDown = false;
+let forceExitTimeout = DEFAULT_FORCE_EXIT_TIMEOUT;
 let shutdownPromise: Promise<void> | null = null;
 let bot: Bot | null = null;
 let channelLifecycle: ChannelLifecycle | null = null;
@@ -48,6 +49,10 @@ async function main(): Promise<void> {
 
   log.info('Loading configuration...');
   const config = loadConfig();
+
+  // Use configured shutdown timeout for force exit timer (with safety minimum)
+  // The force exit timer should be longer than the message drain timeout to allow graceful shutdown
+  forceExitTimeout = Math.max(config.shutdownTimeout + 5000, DEFAULT_FORCE_EXIT_TIMEOUT);
 
   log.info('Creating bot...');
   bot = await Bot.create(config, { checkpointPath });
@@ -90,7 +95,7 @@ async function shutdown(reason: string): Promise<void> {
   const forceExitTimer = setTimeout(() => {
     log.error('Forced exit - shutdown timeout exceeded');
     process.exit(1);
-  }, FORCE_EXIT_TIMEOUT);
+  }, forceExitTimeout);
   forceExitTimer.unref();
 
   shutdownPromise = (async () => {

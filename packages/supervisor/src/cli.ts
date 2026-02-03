@@ -14,11 +14,34 @@ import { createLogger } from '@kynetic-bot/core';
 import { Supervisor } from './supervisor.js';
 
 const log = createLogger('supervisor:cli');
-const FORCE_EXIT_TIMEOUT = 30000;
+const DEFAULT_SHUTDOWN_TIMEOUT = 30000;
+
+/**
+ * Parse SHUTDOWN_TIMEOUT from environment variable
+ * Returns the timeout in milliseconds, or the default if not set or invalid
+ */
+function getShutdownTimeout(): number {
+  const envValue = process.env.SHUTDOWN_TIMEOUT;
+  if (!envValue) return DEFAULT_SHUTDOWN_TIMEOUT;
+
+  const parsed = parseInt(envValue, 10);
+  if (Number.isNaN(parsed) || String(parsed) !== envValue.trim()) {
+    log.warn(
+      `Invalid SHUTDOWN_TIMEOUT value "${envValue}", using default ${DEFAULT_SHUTDOWN_TIMEOUT}ms`
+    );
+    return DEFAULT_SHUTDOWN_TIMEOUT;
+  }
+  if (parsed <= 0) {
+    log.warn(`SHUTDOWN_TIMEOUT must be positive, using default ${DEFAULT_SHUTDOWN_TIMEOUT}ms`);
+    return DEFAULT_SHUTDOWN_TIMEOUT;
+  }
+  return parsed;
+}
 
 let supervisor: Supervisor | null = null;
 let isShuttingDown = false;
 let shutdownPromise: Promise<void> | null = null;
+let forceExitTimeout = DEFAULT_SHUTDOWN_TIMEOUT;
 
 /**
  * Parse CLI arguments
@@ -53,8 +76,16 @@ async function main(): Promise<void> {
   log.info('Supervisor starting...');
 
   const { checkpointPath, childPath } = parseArgs();
+  const shutdownTimeoutMs = getShutdownTimeout();
 
-  log.info('Configuration', { childPath, checkpointPath: checkpointPath ?? '(none)' });
+  // Force exit timer should be longer than shutdown timeout to allow graceful shutdown
+  forceExitTimeout = Math.max(shutdownTimeoutMs + 5000, DEFAULT_SHUTDOWN_TIMEOUT);
+
+  log.info('Configuration', {
+    childPath,
+    checkpointPath: checkpointPath ?? '(none)',
+    shutdownTimeoutMs,
+  });
 
   // Create supervisor
   supervisor = new Supervisor({
@@ -62,7 +93,7 @@ async function main(): Promise<void> {
     checkpointPath,
     minBackoffMs: 1000,
     maxBackoffMs: 60000,
-    shutdownTimeoutMs: 30000,
+    shutdownTimeoutMs,
   });
 
   // Set up event logging
@@ -115,7 +146,7 @@ async function shutdown(reason: string): Promise<void> {
   const forceExitTimer = setTimeout(() => {
     log.error('Forced exit - shutdown timeout exceeded');
     process.exit(1);
-  }, FORCE_EXIT_TIMEOUT);
+  }, forceExitTimeout);
   forceExitTimer.unref();
 
   shutdownPromise = (async () => {

@@ -15637,6 +15637,14 @@
         (5) generic 'Tool Call'. Added titleFromKind() helper to generate human-readable titles from
         ToolKind enum values."
       supersedes: null
+    - _ulid: 01KGHCF0RBM8BQHJ9G02FK62M8
+      created_at: 2026-02-03T09:13:46.507Z
+      author: "@claude"
+      content: "Added comprehensive tests for title extraction fallback chain. 9 new test cases cover: (1)
+        update.title priority, (2) toolCall.title fallback, (3) _meta.claudeCode.toolName
+        extraction, (4) generation from kind values (read, edit, execute, search), (5) final 'Tool
+        Call' fallback. All 1558 tests passing."
+      supersedes: null
   todos: []
   automation: eligible
 - _ulid: 01KGGPN0GATCEPVVSSV6JXA3TJ

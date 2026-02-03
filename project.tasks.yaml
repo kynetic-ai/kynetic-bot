@@ -15918,7 +15918,7 @@
     lefthook runs prettier --write which reformats after commit, allowing violations to be
     committed. Change to run prettier --check as a gate, preventing commits with formatting issues.
   spec_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -15946,6 +15946,11 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-02-03T09:56:48.750Z
+  closed_reason: Changed prettier pre-commit hook from '--write' to '--check' (commit 353beaf). Hook
+    now acts as a gate that fails commits with formatting violations instead of auto-fixing.
+    Developers must run 'pnpm format' manually before committing. Ensures all committed code is
+    properly formatted.
 - _ulid: 01KGHBCYW3ENWGJV5T6VBS3817
   slugs: []
   title: Add Bot-level integration test for restart recovery

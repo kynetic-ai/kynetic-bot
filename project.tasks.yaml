@@ -15601,7 +15601,7 @@
 
     4. OR: Re-extract input on tool_call_update events when rawInput becomes available
   spec_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -15614,6 +15614,7 @@
   notes: []
   todos: []
   automation: eligible
+  started_at: 2026-02-03T09:08:36.085Z
 - _ulid: 01KGGPN0GATCEPVVSSV6JXA3TJ
   slugs: []
   title: Create spec-review skill for automated verification + gap analysis

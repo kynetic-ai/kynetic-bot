@@ -15511,21 +15511,96 @@
   created_at: 2026-02-03T02:04:35.266Z
   notes: []
   todos: []
-- title: Queue user messages during agent turn for mid-turn delivery
+- _ulid: 01KGGKXFHZNCBAK34JH3YJCQ8Z
+  slugs: []
+  title: Queue user messages during agent turn for mid-turn delivery
   type: task
-  priority: 2
-  spec_ref: null
-  tags: []
   description: User messages sent during agent turn are swallowed/ignored - messages sent while agent
     is working should be queued and slotted inline in agent's message feed so agent can see and
     react to them mid-turn. Currently lost/never delivered to agent.
-  _ulid: 01KGGKXFHZNCBAK34JH3YJCQ8Z
+  spec_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  priority: 2
+  tags: []
+  vcs_refs: []
+  created_at: 2026-02-03T02:04:46.002Z
+  notes: []
+  todos: []
+- title: Fix ACP tool_call generic title extraction from streaming events
+  type: task
+  priority: 2
+  spec_ref: null
+  tags:
+    - bug
+    - tool-display
+  description: >-
+    Bug: ACP tool_call events show generic titles because rawInput arrives in separate updates
+
+
+    ACTUAL EVENT STRUCTURE:
+
+    - Event 1 (seq N): { rawInput: {}, title: "Read File", kind: "read", status: "pending" }
+
+    - Event 2 (seq N+1): { rawInput: { file_path: "...", title: "Read /path/to/file.ts", status:
+    "completed" }
+
+
+    PROBLEM:
+
+    When extractToolInputFromAcp() processes Event 1:
+
+    1. rawInput is empty object → falls through to title parsing
+
+    2. Title is generic "Read File" → regex extracts "File"
+
+    3. Event 2 arrives but tool call already formatted with "File" instead of the path
+
+
+    ROOT CAUSE:
+
+    ACP streams tool_call events incrementally. The payload/title/rawInput are populated LATER in a
+    separate tool_call_update event. Current extraction logic doesn't detect or handle this
+    streaming pattern.
+
+
+    FAILED EXTRACTION PATH:
+
+    Line 643: title.match(/^(?:Read|Write|Edit...)\s+(.+)/i) matches "Read File" and extracts last
+    word
+
+
+    EVIDENCE:
+
+    - Real test data in /home/chapel/Projects/kbot-test/.kbot/sessions/dc3b15d4.../events.jsonl
+    shows first tool_call has title "Read File" with empty rawInput
+
+    - Turn-reconstructor.test.ts line 1380-1408 has passing test that works because test data
+    already has full path in title
+
+    - Test never encounters the real "Read File" generic title case
+
+
+    PROPOSED FIX:
+
+    1. When rawInput is empty AND title is generic ("Read File", "Terminal", etc), prefer NOT
+    extracting from title
+
+    2. Instead return empty string or placeholder, allowing fallback when real data arrives
+
+    3. OR: Check for generic titles and skip extraction, falling back to rawInput only when
+    populated
+
+    4. OR: Re-extract input on tool_call_update events when rawInput becomes available
+  _ulid: 01KGGKXSP1V7YFB4MRK94YJ03F
   slugs: []
   status: pending
   blocked_by: []
   depends_on: []
   context: []
   vcs_refs: []
-  created_at: 2026-02-03T02:04:46.002Z
+  created_at: 2026-02-03T02:04:56.373Z
   notes: []
   todos: []

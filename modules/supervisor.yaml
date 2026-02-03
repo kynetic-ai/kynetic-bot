@@ -245,6 +245,10 @@ features:
         given: planned restart in progress
         when: supervisor receives SIGTERM
         then: waits for planned restart to complete, then exits (no additional SIGTERM to child)
+      - id: ac-9
+        given: SHUTDOWN_TIMEOUT env var set
+        when: CLI starts
+        then: uses configured value for shutdown timeout (validates as positive integer)
     status:
       maturity: draft
       implementation: implemented

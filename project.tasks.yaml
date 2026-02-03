@@ -15447,4 +15447,16 @@
 
         - All existing tests pass (1532 tests)
       supersedes: null
+    - _ulid: 01KGGDTYT5XH47MBSE9HHQP4X0
+      created_at: 2026-02-03T00:18:31.878Z
+      author: "@claude"
+      content: |-
+        PR #84 review complete. Spec gap identified and fixed:
+        - Updated ac-1 to remove hardcoded '30s default' - now says 'configured shutdownTimeout'
+        - Added ac-9: SHUTDOWN_TIMEOUT env var configurability
+        - Added ac-10: Default timeout behavior when env var not set/invalid
+        - Added ac-11: Force exit timer calculation formula
+
+        PR is ready to merge. Implementation matches updated spec.
+      supersedes: null
   todos: []

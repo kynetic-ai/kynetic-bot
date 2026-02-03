@@ -1251,4 +1251,14 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KGHF0XZXZD7VH2TF9TD2RSR4
+    type: success
+    content: "Using Task tool with Explore agent for comprehensive codebase audits proved highly
+      effective. For AC annotation audit task, agent searched 10 files and found 67 annotations in
+      single pass. Much faster and more thorough than manual file-by-file checking. Pattern: use
+      Explore agent for 'find all X in codebase' tasks."
+    created_at: 2026-02-03T09:58:30.653Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

@@ -15601,7 +15601,7 @@
 
     4. OR: Re-extract input on tool_call_update events when rawInput becomes available
   spec_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -15653,6 +15653,12 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-02-03T09:25:33.819Z
+  closed_reason: "Merged in PR #85. Fixed ACP tool_call generic title extraction from streaming events
+    by implementing a robust 5-level fallback chain: (1) update.title from tool_call_update events,
+    (2) original toolCall.title, (3) _meta.claudeCode.toolName, (4) generated from kind (read →
+    'Read File'), (5) generic 'Tool Call'. Added 9 comprehensive test cases. All 396 tests passing,
+    all CI checks green."
 - _ulid: 01KGGPN0GATCEPVVSSV6JXA3TJ
   slugs: []
   title: Create spec-review skill for automated verification + gap analysis

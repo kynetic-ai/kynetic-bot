@@ -15806,7 +15806,7 @@
   description: Add Bot-level integration test for restart recovery (AC-3/AC-9) - currently tested in
     messaging package but not end-to-end through Bot
   spec_ref: null
-  status: in_progress
+  status: pending_review
   blocked_by: []
   depends_on: []
   context: []

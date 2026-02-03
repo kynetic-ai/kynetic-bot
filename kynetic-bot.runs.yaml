@@ -1,0 +1,10 @@
+kynetic_runs: "1.0"
+runs:
+  - _ulid: 01KGHD2AA0YJMT7AV41QY7VBV8
+    workflow_ref: "@01KG2008000000000000000000"
+    status: active
+    current_step: 0
+    total_steps: 10
+    started_at: 2026-02-03T09:24:18.880Z
+    step_results: []
+    initiated_by: "@claude"

@@ -316,13 +316,6 @@ inbox:
     created_at: 2026-01-31T07:46:37.478Z
     tags: []
     added_by: "@claude"
-  - _ulid: 01KG9G9BT9V5FBSTTTPMT88R0M
-    text: "Terminal killTerminal handler: Small race window between checking session.exited and calling
-      kill(). Benign (kill on already-exited is no-op) but could be tightened with atomic
-      check-and-kill pattern."
-    created_at: 2026-01-31T07:46:40.073Z
-    tags: []
-    added_by: "@claude"
   - _ulid: 01KG9JB5P77ASACB9MY8KTFW6Q
     text: Add timing assertion utility with tolerance for flaky CI tests - tests using exact ms
       comparisons (e.g., expect(timeDiff).toBeGreaterThanOrEqual(100)) fail in CI due to timing

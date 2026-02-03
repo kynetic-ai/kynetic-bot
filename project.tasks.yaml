@@ -15472,23 +15472,42 @@
         @shutdown-modes ac-9, ac-10, ac-11. Total test count now 1550.
       supersedes: null
   todos: []
-- title: Add AC annotations to implementation files
+- _ulid: 01KGGKV5Q577A151DENHYCCX73
+  slugs: []
+  title: Add AC annotations to implementation files
   type: task
-  priority: 4
-  spec_ref: null
-  tags: []
   description: "Codebase-wide AC annotation audit needed. Subagent found 14+ implementation files
     missing AC annotations including: autonomous.ts, escalation.ts, skills.ts (agent subsystem);
     ToolWidgetBuilder.ts, ToolCallTracker.ts, CondensedToolDisplay.ts (Discord widgets);
     dm-policy.ts; context-usage-tracker.ts, history.ts (messaging); shadow.ts (memory). Test files
     have good AC coverage but implementation code lacks inline annotations linking to specs."
-  _ulid: 01KGGKV5Q577A151DENHYCCX73
+  spec_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  priority: 4
+  tags: []
+  vcs_refs: []
+  created_at: 2026-02-03T02:03:30.394Z
+  notes: []
+  todos: []
+- title: Fix /usage command interfering with message delivery
+  type: task
+  priority: 1
+  spec_ref: null
+  tags: []
+  description: Bot harness /usage command interferes with agent message delivery - when harness sends
+    /usage for context tracking, subsequent agent messages are not delivered to user via Discord.
+    User sees partial responses cut off mid-task. Affects kbot sessions where agents may send
+    multiple tool calls followed by text responses.
+  _ulid: 01KGGKX523H5XDHZ397WBQQHA5
   slugs: []
   status: pending
   blocked_by: []
   depends_on: []
   context: []
   vcs_refs: []
-  created_at: 2026-02-03T02:03:30.394Z
+  created_at: 2026-02-03T02:04:35.266Z
   notes: []
   todos: []

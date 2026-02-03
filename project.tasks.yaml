@@ -15675,20 +15675,40 @@
   created_at: 2026-02-03T04:46:16.927Z
   notes: []
   todos: []
-- title: Forward ChannelLifecycle events from Bot
+- _ulid: 01KGGX6E0QCVGMCPPTHZXTMRJE
+  slugs: []
+  title: Forward ChannelLifecycle events from Bot
   type: task
-  priority: 3
-  spec_ref: null
-  tags: []
   description: "Bot: Forward ChannelLifecycle events (health, reconnection) for completeness -
     currently only AgentLifecycle events are forwarded"
-  _ulid: 01KGGX6E0QCVGMCPPTHZXTMRJE
+  spec_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  priority: 3
+  tags: []
+  vcs_refs: []
+  created_at: 2026-02-03T04:46:56.535Z
+  notes: []
+  todos: []
+- title: Configure lefthook to lint only staged files on pre-commit
+  type: task
+  priority: 4
+  spec_ref: null
+  tags:
+    - reflection
+    - tooling
+  description: Configure lefthook to lint only changed files on pre-commit (use {staged_files}), but
+    ensure full lint runs regularly (e.g., pre-push hook or CI). This prevents unrelated lint errors
+    from blocking commits while maintaining overall code quality.
+  _ulid: 01KGGXR6CBBKST4W4327HFVVXR
   slugs: []
   status: pending
   blocked_by: []
   depends_on: []
   context: []
   vcs_refs: []
-  created_at: 2026-02-03T04:46:56.535Z
+  created_at: 2026-02-03T04:56:38.539Z
   notes: []
   todos: []

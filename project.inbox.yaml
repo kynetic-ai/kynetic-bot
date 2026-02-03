@@ -200,3 +200,12 @@ inbox:
       - bug
       - discord
     added_by: "@claude"
+  - _ulid: 01KGHF0PFAZ7V9TKBYE7Q1227F
+    text: "Add --automation filter flag to 'kspec tasks ready' command to quickly filter for
+      automation-eligible tasks. Currently must check each task's automation field manually. Would
+      enable: kspec tasks ready --automation eligible"
+    created_at: 2026-02-03T09:58:22.954Z
+    tags:
+      - reflection
+      - cli
+    added_by: "@claude"

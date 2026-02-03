@@ -1,9 +1,4 @@
 inbox:
-  - _ulid: 01KG5Z1EH2MCEN3B1ZNSYZV1DZ
-    text: "Discord adapter: add health check support using client.ws.ping for latency monitoring"
-    created_at: 2026-01-29T22:47:31.618Z
-    tags: []
-    added_by: "@claude"
   - _ulid: 01KG5Z1KS7G4V7V09QT1VHTM9Y
     text: "Discord adapter: make bot message filtering configurable (currently filters all bots, not
       just self)"

@@ -15605,23 +15605,39 @@
   created_at: 2026-02-03T02:04:56.373Z
   notes: []
   todos: []
-- title: Create spec-review skill for automated verification + gap analysis
+- _ulid: 01KGGPN0GATCEPVVSSV6JXA3TJ
+  slugs: []
+  title: Create spec-review skill for automated verification + gap analysis
   type: task
-  priority: 3
-  spec_ref: null
-  tags:
-    - reflection
-    - workflow
   description: Spec review workflow/skill that runs verification + holistic review after spec changes.
     Would automate the repeated 'run two subagents to check plan vs implementation and find gaps'
     pattern.
-  _ulid: 01KGGPN0GATCEPVVSSV6JXA3TJ
+  spec_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  priority: 3
+  tags:
+    - reflection
+    - workflow
+  vcs_refs: []
+  created_at: 2026-02-03T02:52:34.185Z
+  notes: []
+  todos: []
+- title: Add Discord adapter health check using client.ws.ping
+  type: task
+  priority: 3
+  spec_ref: null
+  tags: []
+  description: "Discord adapter: add health check support using client.ws.ping for latency monitoring"
+  _ulid: 01KGGTRK6F5FE8RDMB3HEQ71MD
   slugs: []
   status: pending
   blocked_by: []
   depends_on: []
   context: []
   vcs_refs: []
-  created_at: 2026-02-03T02:52:34.185Z
+  created_at: 2026-02-03T04:04:25.935Z
   notes: []
   todos: []

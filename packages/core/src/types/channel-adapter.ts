@@ -91,4 +91,15 @@ export interface ChannelAdapter {
    * @param channel - Channel identifier (platform-specific)
    */
   sendTyping?(channel: string): Promise<void>;
+
+  /**
+   * Perform platform-specific health check (optional)
+   *
+   * Used by lifecycle managers to verify the adapter's connection is healthy.
+   * Platforms that support health checks (e.g., Discord's WebSocket ping)
+   * should implement this method.
+   *
+   * @returns Promise that resolves to true if healthy, false otherwise
+   */
+  healthCheck?(): Promise<boolean>;
 }

@@ -43,12 +43,115 @@ describe('ToolWidgetBuilder', () => {
     });
 
     it('should use default title when none provided', () => {
-      const toolCall = createMockToolCall({ title: undefined });
+      const toolCall = createMockToolCall({ title: undefined, kind: undefined });
 
       const result = builder.buildWidget(toolCall);
 
       const embedData = result.embed.toJSON();
       expect(embedData.title).toContain('Tool Call');
+    });
+
+    // Title extraction fallback chain
+    describe('title extraction', () => {
+      it('should use update.title if provided (highest priority)', () => {
+        const toolCall = createMockToolCall({ title: 'Original Title' });
+        const update: ToolCallUpdate = {
+          toolCallId: 'tc-123',
+          title: 'Updated Title',
+        } as ToolCallUpdate;
+
+        const result = builder.buildWidget(toolCall, update);
+
+        const embedData = result.embed.toJSON();
+        expect(embedData.title).toContain('Updated Title');
+        expect(embedData.title).not.toContain('Original Title');
+      });
+
+      it('should use toolCall.title if update has no title', () => {
+        const toolCall = createMockToolCall({ title: 'Original Title' });
+        const update: ToolCallUpdate = {
+          toolCallId: 'tc-123',
+          status: 'completed',
+        } as ToolCallUpdate;
+
+        const result = builder.buildWidget(toolCall, update);
+
+        const embedData = result.embed.toJSON();
+        expect(embedData.title).toContain('Original Title');
+      });
+
+      it('should extract from _meta.claudeCode.toolName if title missing', () => {
+        const toolCall = createMockToolCall({
+          title: undefined,
+          _meta: { claudeCode: { toolName: 'CustomTool' } },
+        } as ToolCall);
+
+        const result = builder.buildWidget(toolCall);
+
+        const embedData = result.embed.toJSON();
+        expect(embedData.title).toContain('CustomTool');
+      });
+
+      it('should generate from kind if title and toolName missing', () => {
+        const toolCall = createMockToolCall({
+          title: undefined,
+          kind: 'read',
+        });
+
+        const result = builder.buildWidget(toolCall);
+
+        const embedData = result.embed.toJSON();
+        expect(embedData.title).toContain('Read File');
+      });
+
+      it('should generate "Edit File" for edit kind', () => {
+        const toolCall = createMockToolCall({
+          title: undefined,
+          kind: 'edit',
+        });
+
+        const result = builder.buildWidget(toolCall);
+
+        const embedData = result.embed.toJSON();
+        expect(embedData.title).toContain('Edit File');
+      });
+
+      it('should generate "Execute Command" for execute kind', () => {
+        const toolCall = createMockToolCall({
+          title: undefined,
+          kind: 'execute',
+        });
+
+        const result = builder.buildWidget(toolCall);
+
+        const embedData = result.embed.toJSON();
+        expect(embedData.title).toContain('Execute Command');
+      });
+
+      it('should generate "Search" for search kind', () => {
+        const toolCall = createMockToolCall({
+          title: undefined,
+          kind: 'search',
+        });
+
+        const result = builder.buildWidget(toolCall);
+
+        const embedData = result.embed.toJSON();
+        expect(embedData.title).toContain('Search');
+      });
+
+      it('should fallback to "Tool Call" when everything is missing', () => {
+        const toolCall = createMockToolCall({
+          title: undefined,
+          kind: undefined,
+          _meta: undefined,
+        });
+
+        const result = builder.buildWidget(toolCall);
+
+        const embedData = result.embed.toJSON();
+        expect(embedData.title).toContain('Tool Call');
+      });
     });
 
     it('should truncate long titles', () => {

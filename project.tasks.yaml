@@ -15836,8 +15836,15 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-03T08:59:14.201Z
-  notes: []
+  notes:
+    - _ulid: 01KGHC3FQ3SZQJ2EHPAPDEND6G
+      created_at: 2026-02-03T09:07:28.611Z
+      author: "@claude"
+      content: "Automation status set to needs_review: Complex feature - needs spec with AC before
+        implementation"
+      supersedes: null
   todos: []
+  automation: needs_review
 - _ulid: 01KGHBP36BCR8MDBZB10YY8BVS
   slugs: []
   title: Auto-inject project context files when agent switches directories

@@ -15830,6 +15830,11 @@
   spec_ref: null
   status: cancelled
   blocked_by: []
+  closed_reason: "Task requires design decisions: ChannelLifecycle doesn't currently emit events, so
+    this is not just 'forwarding' but implementing event infrastructure first. Need to decide: (1)
+    which events to emit (health, reconnection, state changes?), (2) event naming convention, (3)
+    event data structure. Not suitable for automated implementation. Should be split into: (1)
+    design+implement ChannelLifecycle events, (2) forward events in Bot."
   depends_on: []
   context: []
   priority: 3
@@ -15862,11 +15867,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  closed_reason: "Task requires design decisions: ChannelLifecycle doesn't currently emit events, so
-    this is not just 'forwarding' but implementing event infrastructure first. Need to decide: (1)
-    which events to emit (health, reconnection, state changes?), (2) event naming convention, (3)
-    event data structure. Not suitable for automated implementation. Should be split into: (1)
-    design+implement ChannelLifecycle events, (2) forward events in Bot."
 - _ulid: 01KGGXR6CBBKST4W4327HFVVXR
   slugs: []
   title: Configure lefthook to lint only staged files on pre-commit
@@ -15875,7 +15875,7 @@
     ensure full lint runs regularly (e.g., pre-push hook or CI). This prevents unrelated lint errors
     from blocking commits while maintaining overall code quality.
   spec_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -15888,6 +15888,7 @@
   notes: []
   todos: []
   automation: eligible
+  started_at: 2026-02-03T09:55:22.335Z
 - _ulid: 01KGGXSNJYHMMZ57HE3EXX83MJ
   slugs: []
   title: Change lefthook prettier to --check gate instead of --write

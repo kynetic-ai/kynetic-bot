@@ -15869,10 +15869,20 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-03T04:46:16.927Z
-  notes: []
+  started_at: 2026-02-03T10:08:53.248Z
+  notes:
+    - _ulid: 01KGHFS6JTJK6ZKFASZGJZ516K
+      created_at: 2026-02-03T10:11:45.882Z
+      author: "@claude"
+      content: Implemented TypedEventEmitter utility in packages/core/src/utils/typed-event-emitter.ts -
+        provides compile-time type safety for event names and payloads. Refactored Bot class to
+        extend TypedEventEmitter<BotEvents> instead of base EventEmitter. Added overload signatures
+        for backward compatibility with generic EventEmitter interfaces (Discord adapter). Updated
+        BotEvents interface to match actual emitted events from SessionLifecycleManager. All 1567
+        tests passing.
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-02-03T10:08:53.248Z
 - _ulid: 01KGGX6E0QCVGMCPPTHZXTMRJE
   slugs: []
   title: Forward ChannelLifecycle events from Bot

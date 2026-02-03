@@ -15694,10 +15694,19 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-03T04:04:25.935Z
-  notes: []
+  started_at: 2026-02-03T09:41:10.958Z
+  notes:
+    - _ulid: 01KGHE2M9HRES6R8Y6AA1TD3MZ
+      created_at: 2026-02-03T09:41:57.682Z
+      author: "@claude"
+      content: "Explored codebase - found ChannelLifecycleManager already has health check mechanism
+        (packages/channels/src/lifecycle.ts:314-336) but only checks for adapter existence. Discord
+        adapter exposes client instance internally. Plan: (1) Add optional healthCheck() method to
+        ChannelAdapter interface, (2) Implement in Discord adapter using client.ws.ping, (3) Update
+        ChannelLifecycleManager to call adapter.healthCheck() if available."
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-02-03T09:41:10.958Z
 - _ulid: 01KGGWW9Z8A7DZ78K4TK3BR7DE
   slugs: []
   title: Expand DiscordSendOptions for ephemeral messages, threads, slash commands

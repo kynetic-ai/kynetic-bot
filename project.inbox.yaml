@@ -81,14 +81,6 @@ inbox:
     created_at: 2026-01-30T07:57:42.012Z
     tags: []
     added_by: "@claude"
-  - _ulid: 01KG6YGZ6GQTQBHEV4Z1MSN53V
-    text: Rich tool call widgets for Discord - extend adapter with embed/component support. Create
-      ToolWidgetBuilder for different tool kinds (bash, read, write, etc), ToolCallTracker for
-      message editing, MessageUpdateBatcher for rate limit handling. ACP already provides
-      tool_call/tool_call_update events.
-    created_at: 2026-01-30T07:57:46.064Z
-    tags: []
-    added_by: "@claude"
   - _ulid: 01KG6YH21GSSXP27SXF4D26279
     text: "System prompt and personality configuration - .kbot is the bot's brain using kspec as
       library. Inject dynamic context: observations (friction/success patterns), session focus,

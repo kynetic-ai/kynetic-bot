@@ -1,12 +1,4 @@
 inbox:
-  - _ulid: 01KG4KVBQ3QR4TD0H3FR39HAT3
-    text: "Allow kspec item trait add to accept multiple traits: kspec item trait add @spec @trait1
-      @trait2 @trait3 instead of requiring separate commands for each trait."
-    created_at: 2026-01-29T10:12:43.363Z
-    tags:
-      - reflection
-      - kspec-cli
-    added_by: "@claude"
   - _ulid: 01KG4KVDRYATHAAE28D4DBTNXK
     text: Display relates_to and depends_on fields in kspec item get output. Currently these fields are
       only visible by reading the YAML directly.

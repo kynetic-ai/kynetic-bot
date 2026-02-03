@@ -15711,6 +15711,10 @@
   spec_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "Merged in PR #88. Created spec-review skill for automated verification using
+    two-subagent pattern (verification + gap analysis). Follows established skill patterns, includes
+    comprehensive documentation with workflow steps, subagent prompts, and integration points. All
+    CI checks passed."
   depends_on: []
   context: []
   priority: 3
@@ -15720,6 +15724,7 @@
   vcs_refs: []
   created_at: 2026-02-03T02:52:34.185Z
   started_at: 2026-02-03T10:00:40.705Z
+  completed_at: 2026-02-03T10:07:49.175Z
   notes:
     - _ulid: 01KGHF85D0R4JFN7Z6D04HKP6N
       created_at: 2026-02-03T10:02:27.617Z
@@ -15768,11 +15773,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-02-03T10:07:49.175Z
-  closed_reason: "Merged in PR #88. Created spec-review skill for automated verification using
-    two-subagent pattern (verification + gap analysis). Follows established skill patterns, includes
-    comprehensive documentation with workflow steps, subagent prompts, and integration points. All
-    CI checks passed."
 - _ulid: 01KGGTRK6F5FE8RDMB3HEQ71MD
   slugs: []
   title: Add Discord adapter health check using client.ws.ping
@@ -15861,7 +15861,7 @@
   description: "Bot: Consider using TypedEventEmitter pattern for type-safe event names and payloads
     instead of base EventEmitter"
   spec_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -15872,6 +15872,7 @@
   notes: []
   todos: []
   automation: eligible
+  started_at: 2026-02-03T10:08:53.248Z
 - _ulid: 01KGGX6E0QCVGMCPPTHZXTMRJE
   slugs: []
   title: Forward ChannelLifecycle events from Bot

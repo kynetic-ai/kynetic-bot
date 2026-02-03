@@ -15482,7 +15482,7 @@
     dm-policy.ts; context-usage-tracker.ts, history.ts (messaging); shadow.ts (memory). Test files
     have good AC coverage but implementation code lacks inline annotations linking to specs."
   spec_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -15493,6 +15493,7 @@
   notes: []
   todos: []
   automation: eligible
+  started_at: 2026-02-03T09:51:45.992Z
 - _ulid: 01KGGKX523H5XDHZ397WBQQHA5
   slugs: []
   title: Fix /usage command interfering with message delivery
@@ -15688,6 +15689,11 @@
   spec_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "Merged in PR #87. Added optional healthCheck() method to ChannelAdapter interface
+    and implemented it in Discord adapter using client.ws.ping for WebSocket health monitoring.
+    Includes 8 comprehensive tests covering all scenarios (not started, missing WS, wrong status,
+    negative/excessive ping, healthy connection, edge cases, exceptions). All 1567 tests passing.
+    Implementation follows optional method pattern for backward compatibility."
   depends_on: []
   context: []
   priority: 3
@@ -15695,6 +15701,7 @@
   vcs_refs: []
   created_at: 2026-02-03T04:04:25.935Z
   started_at: 2026-02-03T09:41:10.958Z
+  completed_at: 2026-02-03T09:50:59.512Z
   notes:
     - _ulid: 01KGHE2M9HRES6R8Y6AA1TD3MZ
       created_at: 2026-02-03T09:41:57.682Z
@@ -15731,12 +15738,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-02-03T09:50:59.512Z
-  closed_reason: "Merged in PR #87. Added optional healthCheck() method to ChannelAdapter interface
-    and implemented it in Discord adapter using client.ws.ping for WebSocket health monitoring.
-    Includes 8 comprehensive tests covering all scenarios (not started, missing WS, wrong status,
-    negative/excessive ping, healthy connection, edge cases, exceptions). All 1567 tests passing.
-    Implementation follows optional method pattern for backward compatibility."
 - _ulid: 01KGGWW9Z8A7DZ78K4TK3BR7DE
   slugs: []
   title: Expand DiscordSendOptions for ephemeral messages, threads, slash commands

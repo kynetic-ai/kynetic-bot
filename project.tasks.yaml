@@ -15629,6 +15629,14 @@
         kind/_meta.claudeCode.toolName, (2) Better handle title updates from tool_call_update
         events."
       supersedes: null
+    - _ulid: 01KGHCDA4RR983PH9QN2BPM0EV
+      created_at: 2026-02-03T09:12:50.584Z
+      author: "@claude"
+      content: "Implemented extractTitle() method in ToolWidgetBuilder with fallback chain: (1)
+        update.title, (2) toolCall.title, (3) _meta.claudeCode.toolName, (4) generated from kind,
+        (5) generic 'Tool Call'. Added titleFromKind() helper to generate human-readable titles from
+        ToolKind enum values."
+      supersedes: null
   todos: []
   automation: eligible
 - _ulid: 01KGGPN0GATCEPVVSSV6JXA3TJ

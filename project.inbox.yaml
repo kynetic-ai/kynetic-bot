@@ -194,14 +194,6 @@ inbox:
       - personality
       - design
     added_by: "@claude"
-  - _ulid: 01KG8MKXN7VZAYJF649EN6W6NM
-    text: "Fix 5 lint errors on main blocking pre-commit hooks: 3 unused imports in bot.ts, unsafe any
-      in identity.ts, unused chunkIndex in splitter.ts"
-    created_at: 2026-01-30T23:43:05.895Z
-    tags:
-      - lint
-      - blocker
-    added_by: "@claude"
   - _ulid: 01KG8RPCE1VW5TNJ6APMCRPPYR
     text: "Document bash heredoc best practices in CLAUDE.md/AGENTS.md: prefer Python scripts or
       file-based approaches over complex heredoc escaping when dealing with special characters,

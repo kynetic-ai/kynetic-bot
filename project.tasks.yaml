@@ -15686,7 +15686,7 @@
   type: task
   description: "Discord adapter: add health check support using client.ws.ping for latency monitoring"
   spec_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -15731,6 +15731,12 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-02-03T09:50:59.512Z
+  closed_reason: "Merged in PR #87. Added optional healthCheck() method to ChannelAdapter interface
+    and implemented it in Discord adapter using client.ws.ping for WebSocket health monitoring.
+    Includes 8 comprehensive tests covering all scenarios (not started, missing WS, wrong status,
+    negative/excessive ping, healthy connection, edge cases, exceptions). All 1567 tests passing.
+    Implementation follows optional method pattern for backward compatibility."
 - _ulid: 01KGGWW9Z8A7DZ78K4TK3BR7DE
   slugs: []
   title: Expand DiscordSendOptions for ephemeral messages, threads, slash commands

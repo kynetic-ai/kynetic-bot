@@ -15374,7 +15374,7 @@
     - Consider reasonable defaults and bounds
   spec_ref: null
   meta_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -15468,3 +15468,7 @@
         @shutdown-modes ac-9, ac-10, ac-11. Total test count now 1550.
       supersedes: null
   todos: []
+  completed_at: 2026-02-03T00:57:11.259Z
+  closed_reason: "Merged in PR #84. Made shutdown timeout configurable via SHUTDOWN_TIMEOUT env var
+    for both bot and supervisor CLIs. Added 18 tests for validation logic. Spec updated with ac-9,
+    ac-10, ac-11 for configurability."

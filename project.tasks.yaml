@@ -15667,8 +15667,15 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-03T04:41:24.711Z
-  notes: []
+  notes:
+    - _ulid: 01KGHC3AKQ30EYJT0R0DZH2C26
+      created_at: 2026-02-03T09:07:23.384Z
+      author: "@claude"
+      content: "Automation status set to needs_review: Needs design - which options to support,
+        interaction patterns"
+      supersedes: null
   todos: []
+  automation: needs_review
 - _ulid: 01KGGX57BB0BV3YQF8C5K963ER
   slugs: []
   title: Refactor Bot to use TypedEventEmitter for type-safe events

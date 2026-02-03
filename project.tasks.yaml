@@ -15814,10 +15814,28 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-03T08:55:10.466Z
-  notes: []
+  started_at: 2026-02-03T09:29:59.230Z
+  notes:
+    - _ulid: 01KGHDEF3QY3DR8FRAQHH83CX2
+      created_at: 2026-02-03T09:30:57.015Z
+      author: "@claude"
+      content: >-
+        Messaging package tests cover AC-3/AC-9 for SessionLifecycleManager in isolation. Missing:
+        Bot-level integration test showing full restart recovery flow through Bot.handleMessage().
+        Need to test:
+
+        1. Bot starts, handles message (creates session)
+
+        2. Bot stops and restarts
+
+        3. Bot handles message for same session key
+
+        4. Verify session:recovered event emitted
+
+        5. Verify context restoration injected into new session
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-02-03T09:29:59.230Z
 - _ulid: 01KGHBG23TT662WFG15YG1VDQQ
   slugs: []
   title: Capture terminal output to files instead of in-memory buffer

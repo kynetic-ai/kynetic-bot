@@ -15686,7 +15686,7 @@
   type: task
   description: "Discord adapter: add health check support using client.ws.ping for latency monitoring"
   spec_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -15697,6 +15697,7 @@
   notes: []
   todos: []
   automation: eligible
+  started_at: 2026-02-03T09:41:10.958Z
 - _ulid: 01KGGWW9Z8A7DZ78K4TK3BR7DE
   slugs: []
   title: Expand DiscordSendOptions for ephemeral messages, threads, slash commands
@@ -15808,6 +15809,11 @@
   spec_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "Merged in PR #86. Added Bot-level integration test for restart recovery (AC-3/AC-9).
+    Test verifies Bot correctly wires SessionLifecycleManager for restart scenarios: Bot handles
+    message, SessionLifecycleManager detects existing conversation from ConversationStore, creates
+    new ACP session with context restoration, and processes messages correctly after restart. All
+    1560 tests passing. Full AC coverage confirmed across codebase."
   depends_on: []
   context: []
   priority: 3
@@ -15815,6 +15821,7 @@
   vcs_refs: []
   created_at: 2026-02-03T08:55:10.466Z
   started_at: 2026-02-03T09:29:59.230Z
+  completed_at: 2026-02-03T09:40:00.242Z
   notes:
     - _ulid: 01KGHDEF3QY3DR8FRAQHH83CX2
       created_at: 2026-02-03T09:30:57.015Z
@@ -15851,12 +15858,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-02-03T09:40:00.242Z
-  closed_reason: "Merged in PR #86. Added Bot-level integration test for restart recovery (AC-3/AC-9).
-    Test verifies Bot correctly wires SessionLifecycleManager for restart scenarios: Bot handles
-    message, SessionLifecycleManager detects existing conversation from ConversationStore, creates
-    new ACP session with context restoration, and processes messages correctly after restart. All
-    1560 tests passing. Full AC coverage confirmed across codebase."
 - _ulid: 01KGHBG23TT662WFG15YG1VDQQ
   slugs: []
   title: Capture terminal output to files instead of in-memory buffer

@@ -89,13 +89,6 @@ inbox:
     created_at: 2026-01-30T07:57:50.796Z
     tags: []
     added_by: "@claude"
-  - _ulid: 01KG6YHJBZGFNBHDVGXRG6CXF9
-    text: Per-user personality evolution - track user-specific patterns in .kbot, evolve communication
-      style and scope based on individual observation history. Beyond project-specific .kspec
-      context.
-    created_at: 2026-01-30T07:58:05.695Z
-    tags: []
-    added_by: "@claude"
   - _ulid: 01KG756XS1SYF6NM7D060N9TB1
     text: Kbot reimplements kspec shadow branch instead of using kspec as library.
       packages/memory/src/shadow/ duplicates functionality from kspec's parser/shadow.ts. Should add

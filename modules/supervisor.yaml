@@ -249,6 +249,10 @@ features:
         given: SHUTDOWN_TIMEOUT env var set
         when: CLI starts
         then: uses configured value for shutdown timeout (validates as positive integer)
+      - id: ac-10
+        given: SHUTDOWN_TIMEOUT env var not set or invalid
+        when: CLI starts
+        then: "uses default shutdown timeout (bot: 10s, supervisor: 30s)"
     status:
       maturity: draft
       implementation: implemented

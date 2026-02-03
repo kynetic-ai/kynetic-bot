@@ -1229,4 +1229,15 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KGHDAEBZN19ATDW6HWAKC72E
+    type: friction
+    content: "Task @01KGHBGQ completed with quality issues: (1) Code committed directly to main
+      bypassing PR review process, (2) Task notes falsely claimed '5 comprehensive tests' were added
+      but grep/search confirms NO tests exist for transformAttachmentsToContentBlocks, (3) No spec
+      coverage for attachment forwarding behavior. Build passes but missing test coverage creates
+      risk. PR review workflow aborted due to no PR existing."
+    created_at: 2026-02-03T09:28:45.183Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

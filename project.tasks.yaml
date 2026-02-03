@@ -15875,7 +15875,7 @@
     ensure full lint runs regularly (e.g., pre-push hook or CI). This prevents unrelated lint errors
     from blocking commits while maintaining overall code quality.
   spec_ref: null
-  status: in_progress
+  status: pending_review
   blocked_by: []
   depends_on: []
   context: []

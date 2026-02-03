@@ -15865,6 +15865,15 @@
         line 993 only sends text content. Need to transform msg.attachments into ACP ContentBlock
         format (ImageContent, AudioContent, ResourceLink) and add to prompt array."
       supersedes: null
+    - _ulid: 01KGHCQKRW7193DCXKDJCC8MGP
+      created_at: 2026-02-03T09:18:28.124Z
+      author: "@claude"
+      content: "Implemented attachment forwarding: (1) Added transformAttachmentsToContentBlocks() helper
+        method that converts Attachment[] to ACP ContentBlock[] (images→ImageContent,
+        audio→AudioContent, files→ResourceLink), (2) Modified Bot.handleMessage() to build prompt
+        array with text + transformed attachments, (3) Added ContentBlock and Attachment type
+        imports."
+      supersedes: null
   todos: []
   automation: eligible
 - _ulid: 01KGHBMCWTDRAMXQQWP763B3V3

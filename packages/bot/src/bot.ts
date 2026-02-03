@@ -8,10 +8,9 @@
  * @see @bot-orchestration
  */
 
-import { EventEmitter } from 'node:events';
 import { execSync } from 'node:child_process';
 import path from 'node:path';
-import { createLogger, type NormalizedMessage } from '@kynetic-bot/core';
+import { createLogger, TypedEventEmitter, type NormalizedMessage } from '@kynetic-bot/core';
 import { ChannelRegistry, ChannelLifecycle, StreamingSplitTracker } from '@kynetic-bot/channels';
 import {
   AgentLifecycle,
@@ -33,6 +32,7 @@ import {
   type SummaryProvider,
   type StderrProvider,
   type SessionLifecycleEvents,
+  type SessionState,
 } from '@kynetic-bot/messaging';
 import {
   KbotShadow,
@@ -120,7 +120,8 @@ export interface EscalationContext {
  * @trait-observable - Bot emits events for message lifecycle, errors, state changes,
  * session management, and tool execution.
  */
-export interface BotEvents {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Index signature required for TypedEventEmitter compatibility
+export interface BotEvents extends Record<string, (...args: any[]) => void> {
   /** Message received from channel, before processing */
   'message:received': (msg: NormalizedMessage) => void;
 
@@ -175,21 +176,24 @@ export interface BotEvents {
   'agent:state': (from: string, to: string) => void;
 
   /** New session created */
-  'session:created': (data: { sessionKey: string; acpSessionId: string }) => void;
+  'session:created': (data: { sessionKey: string; state: SessionState }) => void;
 
   /** Session rotated due to context limits */
   'session:rotated': (data: {
     sessionKey: string;
     oldSessionId: string;
-    newSessionId: string;
-    reason: string;
+    newState: SessionState;
   }) => void;
 
   /** Session recovered after agent restart */
-  'session:recovered': (data: { sessionKey: string; acpSessionId: string }) => void;
+  'session:recovered': (data: {
+    sessionKey: string;
+    state: SessionState;
+    fromConversationId: string;
+  }) => void;
 
   /** Context restoration failed during session recovery */
-  'session:restore:error': (data: { sessionKey: string; error: string }) => void;
+  'session:restore:error': (data: { sessionKey: string; error: string | Error }) => void;
 
   /** Context usage tracking error */
   'usage:error': (data: unknown) => void;
@@ -239,7 +243,7 @@ export interface BotOptions {
  * @trait-graceful-shutdown - Drains messages before stopping
  * @trait-health-monitored - Delegates to AgentLifecycle health monitoring
  */
-export class Bot extends EventEmitter {
+export class Bot extends TypedEventEmitter<BotEvents> {
   private state: BotState = 'idle';
   private readonly config: BotConfig;
   private readonly registry: ChannelRegistry;

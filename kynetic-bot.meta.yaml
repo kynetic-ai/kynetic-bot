@@ -1271,4 +1271,14 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KGHF1BG8429A35VEK1Z7HGH2
+    type: friction
+    content: "Task @01KGGX6E described as 'forward events' but investigation revealed events don't exist
+      yet - requires implementing EventEmitter infrastructure first. Task description implied simple
+      forwarding work when actually needed design decisions. Led to task cancellation. Pattern: task
+      descriptions sometimes understate complexity, requiring investigation before automation."
+    created_at: 2026-02-03T09:58:44.488Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

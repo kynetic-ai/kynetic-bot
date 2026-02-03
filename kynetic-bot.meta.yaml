@@ -1199,4 +1199,13 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KGGK1B6YC23E6N0XRWTMZJJN
+    type: success
+    content: Bot CLI pattern of exporting testable helper functions (like parseArgs patterns) enables
+      direct unit testing without recreating logic. Supervisor CLI should follow same pattern for
+      getShutdownTimeout().
+    created_at: 2026-02-03T01:49:24.063Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

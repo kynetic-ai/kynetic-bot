@@ -15382,6 +15382,31 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-02T19:56:15.105Z
-  notes: []
-  todos: []
   started_at: 2026-02-03T00:10:45.386Z
+  notes:
+    - _ulid: 01KGGDCYDX0BQRB76J0YY2VSW9
+      created_at: 2026-02-03T00:10:52.734Z
+      author: "@claude"
+      content: >-
+        Starting implementation. Current state:
+
+        - Bot uses config.shutdownTimeout (from SHUTDOWN_TIMEOUT env var, default 10s) for message
+        draining
+
+        - Bot CLI has hardcoded FORCE_EXIT_TIMEOUT = 30000 for force-exit timer
+
+        - Supervisor takes shutdownTimeoutMs in config (default 30s)
+
+        - Supervisor CLI hardcodes shutdownTimeoutMs: 30000 and FORCE_EXIT_TIMEOUT = 30000
+
+
+        Plan:
+
+        1. Make bot CLI use config.shutdownTimeout for FORCE_EXIT_TIMEOUT (read from loadConfig)
+
+        2. Make supervisor CLI use SHUTDOWN_TIMEOUT env var for both shutdownTimeoutMs and
+        FORCE_EXIT_TIMEOUT
+
+        3. Add tests for the configurable timeout behavior
+      supersedes: null
+  todos: []

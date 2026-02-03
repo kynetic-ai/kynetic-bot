@@ -15875,7 +15875,7 @@
     ensure full lint runs regularly (e.g., pre-push hook or CI). This prevents unrelated lint errors
     from blocking commits while maintaining overall code quality.
   spec_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -15905,6 +15905,11 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-02-03T09:56:00.822Z
+  closed_reason: Configured lefthook to run full lint on pre-push (commit ac43c32). Pre-commit hook
+    continues to lint only staged files with auto-fix for fast feedback. Pre-push now runs 'pnpm
+    lint' (full codebase, no auto-fix) to catch lint issues before pushing. Prevents unrelated lint
+    errors from blocking commits while maintaining code quality.
 - _ulid: 01KGGXSNJYHMMZ57HE3EXX83MJ
   slugs: []
   title: Change lefthook prettier to --check gate instead of --write

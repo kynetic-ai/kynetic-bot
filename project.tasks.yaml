@@ -15641,6 +15641,7 @@
   created_at: 2026-02-03T04:04:25.935Z
   notes: []
   todos: []
+  automation: eligible
 - _ulid: 01KGGWW9Z8A7DZ78K4TK3BR7DE
   slugs: []
   title: Expand DiscordSendOptions for ephemeral messages, threads, slash commands

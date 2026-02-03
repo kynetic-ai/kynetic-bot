@@ -15292,6 +15292,10 @@
   meta_ref: null
   status: completed
   blocked_by: []
+  closed_reason: "Merged in PR #83. Implemented crash checkpoint cleanup with
+    cleanupStaleCheckpoints() function, fixed checkpoint location to standard .kbot/checkpoints/
+    directory, added Supervisor.start() method for cleanup-on-startup, fixed ULID generation. Spec
+    updated with ac-9 for cleanup behavior."
   depends_on: []
   context: []
   priority: 3
@@ -15299,6 +15303,7 @@
   vcs_refs: []
   created_at: 2026-02-02T19:56:12.717Z
   started_at: 2026-02-02T23:04:03.705Z
+  completed_at: 2026-02-03T00:01:47.626Z
   notes:
     - _ulid: 01KGG9JS00KC8VEDH8F84BCFGZ
       created_at: 2026-02-02T23:04:09.472Z
@@ -15352,11 +15357,6 @@
       content: "PR created: https://github.com/kynetic-ai/kynetic-bot/pull/83"
       supersedes: null
   todos: []
-  completed_at: 2026-02-03T00:01:47.626Z
-  closed_reason: "Merged in PR #83. Implemented crash checkpoint cleanup with
-    cleanupStaleCheckpoints() function, fixed checkpoint location to standard .kbot/checkpoints/
-    directory, added Supervisor.start() method for cleanup-on-startup, fixed ULID generation. Spec
-    updated with ac-9 for cleanup behavior."
 - _ulid: 01KGFYTPW1YYAQYZCDV5ZCWWZ5
   slugs: []
   title: Make shutdown timeout configurable
@@ -15374,7 +15374,7 @@
     - Consider reasonable defaults and bounds
   spec_ref: null
   meta_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -15384,3 +15384,4 @@
   created_at: 2026-02-02T19:56:15.105Z
   notes: []
   todos: []
+  started_at: 2026-02-03T00:10:45.386Z

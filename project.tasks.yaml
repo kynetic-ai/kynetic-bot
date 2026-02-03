@@ -15836,10 +15836,32 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-03T04:46:56.535Z
-  notes: []
+  started_at: 2026-02-03T09:54:10.481Z
+  notes:
+    - _ulid: 01KGHETBB411801ZEM6TBG5XVE
+      created_at: 2026-02-03T09:54:54.949Z
+      author: "@claude"
+      content: >-
+        Investigation: ChannelLifecycle does not currently emit events (no EventEmitter). To forward
+        events from Bot, need to:
+
+
+        1. Make ChannelLifecycle extend EventEmitter
+
+        2. Define event types (health:status, reconnect:attempt, reconnect:success, state:change,
+        etc.)
+
+        3. Emit events at appropriate points (handleHealthCheckFailure, attemptReconnect, state
+        changes)
+
+        4. Update Bot.setupAgentEventHandlers() to also setup channel event forwarding
+
+
+        This is more than just forwarding - requires implementing event infrastructure in
+        ChannelLifecycle first. Estimated scope: modify 2 files (lifecycle.ts, bot.ts), add tests.
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-02-03T09:54:10.481Z
 - _ulid: 01KGGXR6CBBKST4W4327HFVVXR
   slugs: []
   title: Configure lefthook to lint only staged files on pre-commit

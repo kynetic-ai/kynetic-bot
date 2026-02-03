@@ -15788,22 +15788,41 @@
   created_at: 2026-02-03T08:57:13.804Z
   notes: []
   todos: []
-- title: Implement kbot skill system following Claude Code .claude/skills/ spec
+- _ulid: 01KGHBMCWTDRAMXQQWP763B3V3
+  slugs: []
+  title: Implement kbot skill system following Claude Code .claude/skills/ spec
   type: task
-  priority: 2
-  spec_ref: null
-  tags: []
   description: Implement kbot-specific skill system following Claude Code skill specification -
     support .claude/skills/ structure with SKILL.md files, skill invocation, and skill context
     loading. Should work across providers (not Claude-specific). Enables extending kbot capabilities
     via user-defined skills like /spec-plan, /task-work, etc.
-  _ulid: 01KGHBMCWTDRAMXQQWP763B3V3
+  spec_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  priority: 2
+  tags: []
+  vcs_refs: []
+  created_at: 2026-02-03T08:59:14.201Z
+  notes: []
+  todos: []
+- title: Auto-inject project context files when agent switches directories
+  type: task
+  priority: 2
+  spec_ref: null
+  tags: []
+  description: Auto-inject project context files when switching directories - when agent works with
+    different projects, automatically load relevant context (AGENTS.md, README.md,
+    .claude/settings.json, etc.). Paired with new tool/command for agent to set cwd/focus directory,
+    enables seamless cross-project work without manual file reading.
+  _ulid: 01KGHBP36BCR8MDBZB10YY8BVS
   slugs: []
   status: pending
   blocked_by: []
   depends_on: []
   context: []
   vcs_refs: []
-  created_at: 2026-02-03T08:59:14.201Z
+  created_at: 2026-02-03T09:00:09.803Z
   notes: []
   todos: []

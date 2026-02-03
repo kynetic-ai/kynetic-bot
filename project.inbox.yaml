@@ -87,14 +87,6 @@ inbox:
       - personality
       - design
     added_by: "@claude"
-  - _ulid: 01KG983728NQC4BGE2R4PNZBG5
-    text: Auto-inject project context files when switching directories - when agent works with different
-      projects, automatically load relevant context (AGENTS.md, README.md, .claude/settings.json,
-      etc.). Paired with new tool/command for agent to set cwd/focus directory, enables seamless
-      cross-project work without manual file reading.
-    created_at: 2026-01-31T05:23:29.992Z
-    tags: []
-    added_by: Jacob Chapel
   - _ulid: 01KG9C1KWKFVK7YG588VN6BXYQ
     text: Create test harness to validate commands against real Claude Code instance - smoke tests for
       /context, /help and other commands to prevent silent failures. Integration test suite for

@@ -30,7 +30,7 @@ export interface WidgetResult {
 
 export class ToolWidgetBuilder {
   buildWidget(toolCall: ToolCall, update?: ToolCallUpdate): WidgetResult {
-    const title = toolCall.title || 'Tool Call';
+    const title = this.extractTitle(toolCall, update);
     const status = (update?.status ||
       toolCall.status ||
       'in_progress') as keyof typeof STATUS_COLORS;
@@ -125,6 +125,61 @@ export class ToolWidgetBuilder {
     return icons[kind || ''] || '⚙️';
   }
 
+  /**
+   * Extract title from tool call, with fallbacks for streaming events
+   *
+   * Priority:
+   * 1. Updated title from tool_call_update
+   * 2. Original tool call title
+   * 3. Tool name from _meta.claudeCode.toolName
+   * 4. Generated from kind (e.g., "bash" -> "Bash Command")
+   * 5. Generic fallback
+   */
+  private extractTitle(toolCall: ToolCall, update?: ToolCallUpdate): string {
+    // 1. Check update first (most recent)
+    if (update?.title) {
+      return update.title;
+    }
+
+    // 2. Check original tool call title
+    if (toolCall.title) {
+      return toolCall.title;
+    }
+
+    // 3. Check _meta.claudeCode.toolName
+    const meta = toolCall._meta as { claudeCode?: { toolName?: string } } | undefined;
+    if (meta?.claudeCode?.toolName) {
+      return meta.claudeCode.toolName;
+    }
+
+    // 4. Generate from kind
+    if (toolCall.kind) {
+      return this.titleFromKind(toolCall.kind);
+    }
+
+    // 5. Generic fallback
+    return 'Tool Call';
+  }
+
+  /**
+   * Generate a human-readable title from tool kind
+   */
+  private titleFromKind(kind: string): string {
+    const titles: Record<string, string> = {
+      read: 'Read File',
+      edit: 'Edit File',
+      delete: 'Delete File',
+      move: 'Move File',
+      search: 'Search',
+      execute: 'Execute Command',
+      think: 'Thinking',
+      fetch: 'Fetch',
+      switch_mode: 'Switch Mode',
+      other: 'Tool Call',
+    };
+    return titles[kind] || 'Tool Call';
+  }
+
   private truncate(text: string, maxLength: number): string {
     if (text.length <= maxLength) {
       return text;
@@ -179,8 +234,6 @@ export class ToolWidgetBuilder {
    */
   private formatBinaryMessage(byteCount: number): string {
     const kb = (byteCount / 1024).toFixed(1);
-    return byteCount >= 1024
-      ? `(binary file, ${kb} KB)`
-      : `(binary file, ${byteCount} bytes)`;
+    return byteCount >= 1024 ? `(binary file, ${kb} KB)` : `(binary file, ${byteCount} bytes)`;
   }
 }

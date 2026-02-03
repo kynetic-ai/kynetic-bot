@@ -15658,20 +15658,37 @@
   created_at: 2026-02-03T04:41:24.711Z
   notes: []
   todos: []
-- title: Refactor Bot to use TypedEventEmitter for type-safe events
+- _ulid: 01KGGX57BB0BV3YQF8C5K963ER
+  slugs: []
+  title: Refactor Bot to use TypedEventEmitter for type-safe events
   type: task
-  priority: 4
-  spec_ref: null
-  tags: []
   description: "Bot: Consider using TypedEventEmitter pattern for type-safe event names and payloads
     instead of base EventEmitter"
-  _ulid: 01KGGX57BB0BV3YQF8C5K963ER
+  spec_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  priority: 4
+  tags: []
+  vcs_refs: []
+  created_at: 2026-02-03T04:46:16.927Z
+  notes: []
+  todos: []
+- title: Forward ChannelLifecycle events from Bot
+  type: task
+  priority: 3
+  spec_ref: null
+  tags: []
+  description: "Bot: Forward ChannelLifecycle events (health, reconnection) for completeness -
+    currently only AgentLifecycle events are forwarded"
+  _ulid: 01KGGX6E0QCVGMCPPTHZXTMRJE
   slugs: []
   status: pending
   blocked_by: []
   depends_on: []
   context: []
   vcs_refs: []
-  created_at: 2026-02-03T04:46:16.927Z
+  created_at: 2026-02-03T04:46:56.535Z
   notes: []
   todos: []

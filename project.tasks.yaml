@@ -15928,10 +15928,24 @@
     - tooling
   vcs_refs: []
   created_at: 2026-02-03T04:57:26.878Z
-  notes: []
+  started_at: 2026-02-03T09:56:19.806Z
+  notes:
+    - _ulid: 01KGHEX9QTNG9Q72ZHR584EXZ9
+      created_at: 2026-02-03T09:56:31.610Z
+      author: "@claude"
+      content: >-
+        Changed pre-commit format hook from 'prettier --write' to 'prettier --check'. 
+
+
+        Now acts as a gate that fails the commit if formatting violations exist, instead of
+        auto-fixing after commit. Developers must run 'pnpm format' manually to fix violations
+        before committing.
+
+
+        This prevents improperly formatted code from being committed.
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-02-03T09:56:19.806Z
 - _ulid: 01KGHBCYW3ENWGJV5T6VBS3817
   slugs: []
   title: Add Bot-level integration test for restart recovery

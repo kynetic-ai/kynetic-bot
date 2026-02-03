@@ -558,11 +558,3 @@ inbox:
     created_at: 2026-02-02T23:01:55.310Z
     tags: []
     added_by: "@claude"
-  - _ulid: 01KGGJXYBJ714RMTMCDZNSMEH3
-    text: Extract shared shutdown timeout constants (FORCE_EXIT_BUFFER_MS, MIN_FORCE_EXIT_TIMEOUT) from
-      bot/supervisor CLIs to reduce duplication
-    created_at: 2026-02-03T01:47:32.594Z
-    tags:
-      - reflection
-      - cleanup
-    added_by: "@claude"

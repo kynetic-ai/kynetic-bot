@@ -15641,20 +15641,37 @@
   created_at: 2026-02-03T04:04:25.935Z
   notes: []
   todos: []
-- title: Expand DiscordSendOptions for ephemeral messages, threads, slash commands
+- _ulid: 01KGGWW9Z8A7DZ78K4TK3BR7DE
+  slugs: []
+  title: Expand DiscordSendOptions for ephemeral messages, threads, slash commands
   type: task
-  priority: 3
-  spec_ref: null
-  tags: []
   description: "Discord adapter: expand DiscordSendOptions for ephemeral messages, thread options,
     slash command support"
-  _ulid: 01KGGWW9Z8A7DZ78K4TK3BR7DE
+  spec_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  priority: 3
+  tags: []
+  vcs_refs: []
+  created_at: 2026-02-03T04:41:24.711Z
+  notes: []
+  todos: []
+- title: Refactor Bot to use TypedEventEmitter for type-safe events
+  type: task
+  priority: 4
+  spec_ref: null
+  tags: []
+  description: "Bot: Consider using TypedEventEmitter pattern for type-safe event names and payloads
+    instead of base EventEmitter"
+  _ulid: 01KGGX57BB0BV3YQF8C5K963ER
   slugs: []
   status: pending
   blocked_by: []
   depends_on: []
   context: []
   vcs_refs: []
-  created_at: 2026-02-03T04:41:24.711Z
+  created_at: 2026-02-03T04:46:16.927Z
   notes: []
   todos: []

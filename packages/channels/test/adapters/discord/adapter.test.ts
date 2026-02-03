@@ -1106,6 +1106,148 @@ describe('setupBotEventListeners()', () => {
   });
 });
 
+describe('healthCheck()', () => {
+  let adapter: DiscordAdapter;
+
+  beforeEach(() => {
+    (globalThis as Record<string, unknown>).__mockClientRef = null;
+    adapter = new DiscordAdapter({ token: 'test-token' });
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+    (globalThis as Record<string, unknown>).__mockClientRef = null;
+  });
+
+  it('should return false if adapter not started', async () => {
+    const result = await adapter.healthCheck();
+    expect(result).toBe(false);
+  });
+
+  it('should return false if WebSocket not available', async () => {
+    const startPromise = adapter.start();
+    setImmediate(() => {
+      const client = getMockClient();
+      client?.emit(Events.ClientReady, client);
+    });
+    await startPromise;
+
+    const mockClient = getMockClient();
+
+    // Simulate missing WebSocket
+    (mockClient as { ws: unknown }).ws = undefined;
+
+    const result = await adapter.healthCheck();
+    expect(result).toBe(false);
+  });
+
+  it('should return false if WebSocket status is not READY', async () => {
+    const startPromise = adapter.start();
+    setImmediate(() => {
+      const client = getMockClient();
+      client?.emit(Events.ClientReady, client);
+    });
+    await startPromise;
+
+    const mockClient = getMockClient();
+
+    // Simulate non-READY status
+    (mockClient as { ws: { status: number } }).ws = { status: 1, ping: 50 }; // 1 = CONNECTING
+
+    const result = await adapter.healthCheck();
+    expect(result).toBe(false);
+  });
+
+  it('should return false if ping is negative', async () => {
+    const startPromise = adapter.start();
+    setImmediate(() => {
+      const client = getMockClient();
+      client?.emit(Events.ClientReady, client);
+    });
+    await startPromise;
+
+    const mockClient = getMockClient();
+
+    // Simulate negative ping
+    (mockClient as { ws: { status: number; ping: number } }).ws = { status: 0, ping: -1 };
+
+    const result = await adapter.healthCheck();
+    expect(result).toBe(false);
+  });
+
+  it('should return false if ping exceeds threshold', async () => {
+    const startPromise = adapter.start();
+    setImmediate(() => {
+      const client = getMockClient();
+      client?.emit(Events.ClientReady, client);
+    });
+    await startPromise;
+
+    const mockClient = getMockClient();
+
+    // Simulate very high ping (> 10s)
+    (mockClient as { ws: { status: number; ping: number } }).ws = { status: 0, ping: 15000 };
+
+    const result = await adapter.healthCheck();
+    expect(result).toBe(false);
+  });
+
+  it('should return true if connection is healthy', async () => {
+    const startPromise = adapter.start();
+    setImmediate(() => {
+      const client = getMockClient();
+      client?.emit(Events.ClientReady, client);
+    });
+    await startPromise;
+
+    const mockClient = getMockClient();
+
+    // Simulate healthy connection
+    (mockClient as { ws: { status: number; ping: number } }).ws = { status: 0, ping: 50 };
+
+    const result = await adapter.healthCheck();
+    expect(result).toBe(true);
+  });
+
+  it('should return true for ping at edge of threshold', async () => {
+    const startPromise = adapter.start();
+    setImmediate(() => {
+      const client = getMockClient();
+      client?.emit(Events.ClientReady, client);
+    });
+    await startPromise;
+
+    const mockClient = getMockClient();
+
+    // Simulate ping just under 10s threshold
+    (mockClient as { ws: { status: number; ping: number } }).ws = { status: 0, ping: 9999 };
+
+    const result = await adapter.healthCheck();
+    expect(result).toBe(true);
+  });
+
+  it('should return false and log warning on exception', async () => {
+    const startPromise = adapter.start();
+    setImmediate(() => {
+      const client = getMockClient();
+      client?.emit(Events.ClientReady, client);
+    });
+    await startPromise;
+
+    const mockClient = getMockClient();
+
+    // Simulate error accessing ws.ping
+    Object.defineProperty(mockClient, 'ws', {
+      get: () => {
+        throw new Error('WebSocket error');
+      },
+    });
+
+    const result = await adapter.healthCheck();
+    expect(result).toBe(false);
+  });
+});
+
 describe('cleanupSession()', () => {
   let adapter: DiscordAdapter;
 

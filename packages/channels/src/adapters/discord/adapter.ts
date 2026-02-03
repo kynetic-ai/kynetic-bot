@@ -219,6 +219,36 @@ export class DiscordAdapter implements ChannelAdapter {
   }
 
   /**
+   * Perform health check using Discord WebSocket ping
+   *
+   * @returns Promise that resolves to true if connection is healthy
+   */
+  async healthCheck(): Promise<boolean> {
+    if (!this.isStarted) {
+      return false;
+    }
+
+    try {
+      // Check if client and WebSocket are available
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
+      if (!this.client.ws || this.client.ws.status !== 0) {
+        // Status 0 = READY
+        return false;
+      }
+
+      // Discord.js WebSocket ping returns the latency in milliseconds
+      // Negative value or very high latency indicates unhealthy connection
+      const ping = this.client.ws.ping;
+      return ping >= 0 && ping < 10000; // Consider healthy if ping < 10s
+    } catch (error) {
+      this.logger.warn('Health check failed', {
+        error: error instanceof Error ? error.message : String(error),
+      });
+      return false;
+    }
+  }
+
+  /**
    * Clean up session resources (threads, condensed display, tool tracking)
    *
    * Should be called when a session ends (completed, cancelled, or crash).

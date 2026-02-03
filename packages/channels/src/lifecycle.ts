@@ -316,23 +316,33 @@ export class ChannelLifecycle {
       return;
     }
 
-    try {
-      // Simple health check: adapter should still be defined
-      // Platform-specific health checks could be added here
-      if (!this.adapter) {
-        throw new Error('Adapter not available');
-      }
-
-      // Reset failure counter on success
-      if (this.consecutiveFailures > 0) {
-        this.consecutiveFailures = 0;
-        if (this.state === 'unhealthy') {
-          this.state = 'healthy';
+    // Use async wrapper to handle platform-specific health checks
+    void (async () => {
+      try {
+        // Simple health check: adapter should still be defined
+        if (!this.adapter) {
+          throw new Error('Adapter not available');
         }
+
+        // Platform-specific health check if available
+        if (this.adapter.healthCheck) {
+          const isHealthy = await this.adapter.healthCheck();
+          if (!isHealthy) {
+            throw new Error('Adapter health check failed');
+          }
+        }
+
+        // Reset failure counter on success
+        if (this.consecutiveFailures > 0) {
+          this.consecutiveFailures = 0;
+          if (this.state === 'unhealthy') {
+            this.state = 'healthy';
+          }
+        }
+      } catch {
+        this.handleHealthCheckFailure();
       }
-    } catch {
-      this.handleHealthCheckFailure();
-    }
+    })();
   }
 
   /**

@@ -15409,4 +15409,42 @@
 
         3. Add tests for the configurable timeout behavior
       supersedes: null
+    - _ulid: 01KGGDGQXYTH7TBZ6EJG1AY98J
+      created_at: 2026-02-03T00:12:57.151Z
+      author: "@claude"
+      content: >-
+        Implementation complete:
+
+
+        **Bot CLI (packages/bot/src/cli.ts)**:
+
+        - Force exit timeout now based on config.shutdownTimeout from SHUTDOWN_TIMEOUT env var
+
+        - Formula: max(shutdownTimeout + 5000, 30000) to ensure graceful shutdown has time to
+        complete
+
+        - Uses existing BotConfig loading via loadConfig()
+
+
+        **Supervisor CLI (packages/supervisor/src/cli.ts)**:
+
+        - Added getShutdownTimeout() function to parse SHUTDOWN_TIMEOUT env var
+
+        - Supervisor's shutdownTimeoutMs config now uses SHUTDOWN_TIMEOUT env var (default 30000)
+
+        - Force exit timeout uses same formula as bot CLI
+
+        - Warns and uses default if env var is invalid or non-positive
+
+
+        **Consistency**:
+
+        - Both CLIs now respect the same SHUTDOWN_TIMEOUT env var
+
+        - Bot default: 10000ms for message draining, 30000ms for force exit
+
+        - Supervisor default: 30000ms for graceful shutdown, 35000ms for force exit
+
+        - All existing tests pass (1532 tests)
+      supersedes: null
   todos: []

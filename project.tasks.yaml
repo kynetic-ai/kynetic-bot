@@ -15529,8 +15529,15 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-03T02:04:46.002Z
-  notes: []
+  notes:
+    - _ulid: 01KGHC384R7C16BVG50X37GEA8
+      created_at: 2026-02-03T09:07:20.857Z
+      author: "@claude"
+      content: "Automation status set to needs_review: Queuing semantics need design - delivery timing,
+        order, overflow handling"
+      supersedes: null
   todos: []
+  automation: needs_review
 - _ulid: 01KGGKXSP1V7YFB4MRK94YJ03F
   slugs: []
   title: Fix ACP tool_call generic title extraction from streaming events

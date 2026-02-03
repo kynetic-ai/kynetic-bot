@@ -15881,6 +15881,13 @@
         audio→AudioContent, (3) file→ResourceLink, (4) multiple attachments in order, (5) messages
         without attachments. All 86 bot tests passing (81 existing + 5 new)."
       supersedes: null
+    - _ulid: 01KGHCZ772SYR7J3QPTMCR8703
+      created_at: 2026-02-03T09:22:37.410Z
+      author: "@claude"
+      content: Implementation complete and committed (a28889a). Attachments now properly forwarded from
+        Discord to ACP agent as ImageContent/AudioContent/ResourceLink. Automated tests pending -
+        manual testing recommended to verify image/audio/file attachments work end-to-end.
+      supersedes: null
   todos: []
   automation: eligible
 - _ulid: 01KGHBMCWTDRAMXQQWP763B3V3

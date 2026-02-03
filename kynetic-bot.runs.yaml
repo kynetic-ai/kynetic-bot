@@ -30,7 +30,7 @@ runs:
   - _ulid: 01KGHDQVH21RFRX16YMMY8XEXS
     workflow_ref: "@01KG2008000000000000000000"
     status: active
-    current_step: 4
+    current_step: 5
     total_steps: 10
     started_at: 2026-02-03T09:36:04.642Z
     step_results:
@@ -53,7 +53,11 @@ runs:
       - step_index: 4
         status: completed
         started_at: 2026-02-03T09:40:15.676Z
-        completed_at: 2026-02-03T09:40:15.676Z
+        completed_at: 2026-02-03T09:40:19.513Z
+      - step_index: 5
+        status: completed
+        started_at: 2026-02-03T09:40:19.513Z
+        completed_at: 2026-02-03T09:40:19.513Z
     initiated_by: "@claude"
   - _ulid: 01KGHDR610D7TP4QR0AZS0RDSE
     workflow_ref: "@01KG2007000000000000000000"

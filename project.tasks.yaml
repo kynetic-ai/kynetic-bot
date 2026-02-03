@@ -15601,7 +15601,7 @@
 
     4. OR: Re-extract input on tool_call_update events when rawInput becomes available
   spec_ref: null
-  status: in_progress
+  status: pending_review
   blocked_by: []
   depends_on: []
   context: []

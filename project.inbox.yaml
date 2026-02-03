@@ -16,14 +16,6 @@ inbox:
       - reflection
       - workflow
     added_by: "@claude"
-  - _ulid: 01KG6YGV7WNKPBHRRYFDGJ7E1A
-    text: Session context not persisting - investigate why session/conversation files aren't being
-      written to .kbot, then implement replay of recent turns on new ACP session to restore context.
-      Storage infrastructure exists (turns.jsonl, events.jsonl, ConversationStore) but appears
-      unused. Quick win once storage is working.
-    created_at: 2026-01-30T07:57:42.012Z
-    tags: []
-    added_by: "@claude"
   - _ulid: 01KG6YH3TC9G5PZWADXPE1ZBX0
     text: "Discord threads for subagent execution - Claude Code ACP already supports Task
       tool/subagents. Wire subagent spawning to create Discord threads: thread starter = task

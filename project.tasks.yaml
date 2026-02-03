@@ -15877,6 +15877,10 @@
   spec_ref: null
   status: completed
   blocked_by: []
+  closed_reason: Configured lefthook to run full lint on pre-push (commit ac43c32). Pre-commit hook
+    continues to lint only staged files with auto-fix for fast feedback. Pre-push now runs 'pnpm
+    lint' (full codebase, no auto-fix) to catch lint issues before pushing. Prevents unrelated lint
+    errors from blocking commits while maintaining code quality.
   depends_on: []
   context: []
   priority: 4
@@ -15886,6 +15890,7 @@
   vcs_refs: []
   created_at: 2026-02-03T04:56:38.539Z
   started_at: 2026-02-03T09:55:22.335Z
+  completed_at: 2026-02-03T09:56:00.822Z
   notes:
     - _ulid: 01KGHEVX6DY0SABQJGJJ1DKQ67
       created_at: 2026-02-03T09:55:45.997Z
@@ -15905,11 +15910,6 @@
       supersedes: null
   todos: []
   automation: eligible
-  completed_at: 2026-02-03T09:56:00.822Z
-  closed_reason: Configured lefthook to run full lint on pre-push (commit ac43c32). Pre-commit hook
-    continues to lint only staged files with auto-fix for fast feedback. Pre-push now runs 'pnpm
-    lint' (full codebase, no auto-fix) to catch lint issues before pushing. Prevents unrelated lint
-    errors from blocking commits while maintaining code quality.
 - _ulid: 01KGGXSNJYHMMZ57HE3EXX83MJ
   slugs: []
   title: Change lefthook prettier to --check gate instead of --write
@@ -15918,7 +15918,7 @@
     lefthook runs prettier --write which reformats after commit, allowing violations to be
     committed. Change to run prettier --check as a gate, preventing commits with formatting issues.
   spec_ref: null
-  status: pending
+  status: in_progress
   blocked_by: []
   depends_on: []
   context: []
@@ -15931,6 +15931,7 @@
   notes: []
   todos: []
   automation: eligible
+  started_at: 2026-02-03T09:56:19.806Z
 - _ulid: 01KGHBCYW3ENWGJV5T6VBS3817
   slugs: []
   title: Add Bot-level integration test for restart recovery

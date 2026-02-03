@@ -15733,6 +15733,7 @@
   created_at: 2026-02-03T04:57:26.878Z
   notes: []
   todos: []
+  automation: eligible
 - _ulid: 01KGHBCYW3ENWGJV5T6VBS3817
   slugs: []
   title: Add Bot-level integration test for restart recovery

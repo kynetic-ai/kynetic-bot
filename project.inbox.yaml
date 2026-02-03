@@ -233,14 +233,6 @@ inbox:
     created_at: 2026-01-31T05:23:29.992Z
     tags: []
     added_by: Jacob Chapel
-  - _ulid: 01KG983DTDVQ2ND9KF3XZA9DA1
-    text: Add SetWorkingDirectory tool for agent to change focus directory - new ACP tool allowing agent
-      to explicitly set cwd/focus directory, triggering project context loading. Enables agent to
-      navigate between projects (e.g., kbot-test -> kynetic-bot) and automatically receive relevant
-      context files. Should update environment info shown to agent.
-    created_at: 2026-01-31T05:23:36.909Z
-    tags: []
-    added_by: Jacob Chapel
   - _ulid: 01KG9C1KWKFVK7YG588VN6BXYQ
     text: Create test harness to validate commands against real Claude Code instance - smoke tests for
       /context, /help and other commands to prevent silent failures. Integration test suite for

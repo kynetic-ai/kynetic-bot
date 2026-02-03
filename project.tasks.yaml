@@ -15625,19 +15625,36 @@
   created_at: 2026-02-03T02:52:34.185Z
   notes: []
   todos: []
-- title: Add Discord adapter health check using client.ws.ping
+- _ulid: 01KGGTRK6F5FE8RDMB3HEQ71MD
+  slugs: []
+  title: Add Discord adapter health check using client.ws.ping
+  type: task
+  description: "Discord adapter: add health check support using client.ws.ping for latency monitoring"
+  spec_ref: null
+  status: pending
+  blocked_by: []
+  depends_on: []
+  context: []
+  priority: 3
+  tags: []
+  vcs_refs: []
+  created_at: 2026-02-03T04:04:25.935Z
+  notes: []
+  todos: []
+- title: Expand DiscordSendOptions for ephemeral messages, threads, slash commands
   type: task
   priority: 3
   spec_ref: null
   tags: []
-  description: "Discord adapter: add health check support using client.ws.ping for latency monitoring"
-  _ulid: 01KGGTRK6F5FE8RDMB3HEQ71MD
+  description: "Discord adapter: expand DiscordSendOptions for ephemeral messages, thread options,
+    slash command support"
+  _ulid: 01KGGWW9Z8A7DZ78K4TK3BR7DE
   slugs: []
   status: pending
   blocked_by: []
   depends_on: []
   context: []
   vcs_refs: []
-  created_at: 2026-02-03T04:04:25.935Z
+  created_at: 2026-02-03T04:41:24.711Z
   notes: []
   todos: []

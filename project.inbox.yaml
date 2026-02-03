@@ -161,16 +161,6 @@ inbox:
       - reflection
       - tooling
     added_by: "@claude"
-  - _ulid: 01KG8SVYPXS033XX2TCVMJPQ21
-    text: "Detect uncommitted changes on branches with merged PRs. Stop hook helps when ending session,
-      but doesn't catch: (1) PR merged from GitHub UI while uncommitted changes exist locally, (2)
-      manual branch switching without ending session. Could add git hook or branch-switching check
-      to warn about stray uncommitted work."
-    created_at: 2026-01-31T01:14:51.997Z
-    tags:
-      - reflection
-      - tooling
-    added_by: "@claude"
   - _ulid: 01KG8YX2V34TMDEA639WCB1AK2
     text: Add Bot-level integration test for restart recovery (AC-3/AC-9) - currently tested in
       messaging package but not end-to-end through Bot

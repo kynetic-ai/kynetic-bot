@@ -15855,10 +15855,18 @@
   tags: []
   vcs_refs: []
   created_at: 2026-02-03T08:57:13.804Z
-  notes: []
+  started_at: 2026-02-03T09:15:50.398Z
+  notes:
+    - _ulid: 01KGHCNHDKBZKDXWNA3WFSRP7D
+      created_at: 2026-02-03T09:17:20.179Z
+      author: "@claude"
+      content: "Analysis complete: Attachments are parsed from Discord (parser.ts) and included in
+        NormalizedMessage.attachments, but are NOT forwarded to ACP agent. Bot.handleMessage() at
+        line 993 only sends text content. Need to transform msg.attachments into ACP ContentBlock
+        format (ImageContent, AudioContent, ResourceLink) and add to prompt array."
+      supersedes: null
   todos: []
   automation: eligible
-  started_at: 2026-02-03T09:15:50.398Z
 - _ulid: 01KGHBMCWTDRAMXQQWP763B3V3
   slugs: []
   title: Implement kbot skill system following Claude Code .claude/skills/ spec

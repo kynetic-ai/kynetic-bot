@@ -15861,7 +15861,7 @@
   description: "Bot: Consider using TypedEventEmitter pattern for type-safe event names and payloads
     instead of base EventEmitter"
   spec_ref: null
-  status: pending_review
+  status: completed
   blocked_by: []
   depends_on: []
   context: []
@@ -15883,6 +15883,13 @@
       supersedes: null
   todos: []
   automation: eligible
+  completed_at: 2026-02-03T10:18:17.993Z
+  closed_reason: "Merged in PR #89. Refactored Bot class to use TypedEventEmitter for compile-time
+    type safety on event names and payloads. Created new TypedEventEmitter utility that extends
+    Node.js EventEmitter with typed emit/on/off/once methods. Updated BotEvents interface to
+    accurately reflect actual emitted events from SessionLifecycleManager. Maintained backward
+    compatibility with overload signatures for generic EventEmitter interfaces. All 1567 tests
+    passing, all CI checks passed."
 - _ulid: 01KGGX6E0QCVGMCPPTHZXTMRJE
   slugs: []
   title: Forward ChannelLifecycle events from Bot

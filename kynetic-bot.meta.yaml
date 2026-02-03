@@ -1261,4 +1261,14 @@ observations:
     author: "@claude"
     resolved: false
     resolution: null
+  - _ulid: 01KGHF14BATKM5JBD0EVPZVZAD
+    type: success
+    content: "Early task validation (checking if work already exists) prevented wasted effort on
+      @01KGGKV5. Used git log and Explore agent to verify AC annotations already in place before
+      implementing. Best practice: verify task not already complete before starting work, especially
+      for audit/cleanup tasks."
+    created_at: 2026-02-03T09:58:37.162Z
+    author: "@claude"
+    resolved: false
+    resolution: null
 includes: []

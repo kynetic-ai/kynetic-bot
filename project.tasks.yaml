@@ -15874,6 +15874,13 @@
         array with text + transformed attachments, (3) Added ContentBlock and Attachment type
         imports."
       supersedes: null
+    - _ulid: 01KGHCXFDNCECATHJBWDBBMFHJ
+      created_at: 2026-02-03T09:21:40.277Z
+      author: "@claude"
+      content: "Added 5 comprehensive tests for attachment forwarding: (1) image→ImageContent, (2)
+        audio→AudioContent, (3) file→ResourceLink, (4) multiple attachments in order, (5) messages
+        without attachments. All 86 bot tests passing (81 existing + 5 new)."
+      supersedes: null
   todos: []
   automation: eligible
 - _ulid: 01KGHBMCWTDRAMXQQWP763B3V3

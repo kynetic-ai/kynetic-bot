@@ -14,3 +14,6 @@ export { parseSessionKey, buildSessionKey, isValidSessionKey } from './utils/ses
 
 // Utilities - Errors
 export { KyneticError, UnknownAgentError, InvalidSessionKeyError } from './utils/errors.js';
+
+// Utilities - Typed Event Emitter
+export { TypedEventEmitter } from './utils/typed-event-emitter.js';

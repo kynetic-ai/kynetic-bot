@@ -18,19 +18,19 @@ Uses **kspec** for spec/task management. Specs define bot behavior, tasks track 
 
 AGENTS.md provides **project architecture, gotchas, and decision frameworks**. For detailed workflows and command syntax, use skills and CLI help:
 
-| Need | Where to look |
-|------|---------------|
-| CLI command syntax | `kspec help <command>` or invoke `/kspec` skill |
-| Task lifecycle (start → submit → PR → complete) | `/task-work` skill |
-| Creating PRs | `/pr` skill |
-| PR review and merge | `/pr-review` skill |
-| Pre-PR quality checks | `/local-review` skill |
-| Spec authoring (items, ACs, traits) | `/spec` skill |
-| Plan-to-spec translation | `/spec-plan` skill |
-| Spec implementation verification | `/spec-review` skill |
-| Session context (focus, threads, observations) | `/meta` skill |
-| Inbox/observation processing | `/triage` skill |
-| Session reflection | `/reflect` skill |
+| Need                                            | Where to look                                   |
+| ----------------------------------------------- | ----------------------------------------------- |
+| CLI command syntax                              | `kspec help <command>` or invoke `/kspec` skill |
+| Task lifecycle (start → submit → PR → complete) | `/task-work` skill                              |
+| Creating PRs                                    | `/pr` skill                                     |
+| PR review and merge                             | `/pr-review` skill                              |
+| Pre-PR quality checks                           | `/local-review` skill                           |
+| Spec authoring (items, ACs, traits)             | `/spec` skill                                   |
+| Plan-to-spec translation                        | `/spec-plan` skill                              |
+| Spec implementation verification                | `/spec-review` skill                            |
+| Session context (focus, threads, observations)  | `/meta` skill                                   |
+| Inbox/observation processing                    | `/triage` skill                                 |
+| Session reflection                              | `/reflect` skill                                |
 
 Skills inject their full documentation when invoked — you don't need to memorize their contents.
 
@@ -47,10 +47,12 @@ kspec session start
 ```
 
 **Required env vars:**
+
 - `DISCORD_TOKEN` — Discord bot token
 - `AGENT_COMMAND` — Command to spawn agent (e.g., `claude -m opus-4`)
 
 **Key optional env vars:**
+
 - `KBOT_DATA_DIR` — Data directory (default: `.kbot`)
 - `LOG_LEVEL` — debug, info, warn, error (default: `info`)
 - `ESCALATION_CHANNEL` — Discord channel ID for escalation notifications
@@ -59,7 +61,7 @@ Use `kspec` for all spec/task commands.
 
 ## Essential Rules
 
-1. **Use CLI, not manual YAML edits** — Never manually edit files in `.kspec/` or `.kbot/`. CLI auto-commits to shadow branch.
+1. **Use CLI, not manual YAML edits** — Never manually edit files in `.kspec/` or `.kbot/`. `.kspec/` changes are auto-committed by kspec CLI; `.kbot/` changes are auto-committed by the bot's runtime scheduler.
 2. **Spec before code** — If changing behavior, check spec coverage. Update spec first if needed.
 3. **Add notes** — Document what you do in task notes for audit trail.
 4. **Check dependencies** — Tasks have `depends_on` relationships; complete prerequisites first.
@@ -126,13 +128,13 @@ If the bot crashes mid-write, a `.kbot-lock` file may exist. The bot auto-recove
 
 ### Troubleshooting
 
-| Issue | Fix |
-|-------|-----|
-| `.kspec/` doesn't exist | `kspec init` |
-| `.kbot/` doesn't exist | First bot run creates it, or create worktree manually |
-| Worktree disconnected | `kspec shadow repair` |
-| Sync conflicts | `kspec shadow resolve` |
-| Commands seem broken | Check `pwd` — must be project root |
+| Issue                   | Fix                                                   |
+| ----------------------- | ----------------------------------------------------- |
+| `.kspec/` doesn't exist | `kspec init`                                          |
+| `.kbot/` doesn't exist  | First bot run creates it, or create worktree manually |
+| Worktree disconnected   | `kspec shadow repair`                                 |
+| Sync conflicts          | `kspec shadow resolve`                                |
+| Commands seem broken    | Check `pwd` — must be project root                    |
 
 ## Bot Architecture
 
@@ -149,7 +151,7 @@ Discord → DiscordAdapter → NormalizedMessage → SessionKeyRouter
 
 The bot spawns an agent as a child process via `AGENT_COMMAND` and communicates over stdio JSON-RPC 2.0.
 
-- Sessions have ULIDs, tracked by `ACPClient`
+- Sessions have IDs (opaque strings), tracked by `ACPClient`
 - Prompt sources: `'user'` for end-user messages, `'system'` for bot-generated context (default is `'system'`)
 - **Gotcha**: Only one prompt per session at a time — concurrent prompts throw `session already prompting`
 - Cancel is optional — falls back to SIGTERM if agent doesn't support `session/cancel`
@@ -163,7 +165,7 @@ The supervisor spawns the bot as a child process with an IPC channel:
 - **Clean exit (code 0) means intentional shutdown — supervisor exits too, no respawn**
 - Checkpoint protocol: bot sends `planned_restart` via IPC → supervisor verifies checkpoint file → supervisor sends `restart_ack` → bot exits → supervisor respawns with `KBOT_CHECKPOINT_PATH` env → bot restores state → bot deletes consumed checkpoint
 - Checkpoints have 24h TTL — stale ones are cleaned on supervisor startup
-- Escalation: when backoff reaches max, emits `escalation` event. Notifies `ESCALATION_CHANNEL` if configured
+- Escalation: when backoff reaches max, emits `escalation` event and logs. External handler can notify `ESCALATION_CHANNEL` if configured
 
 ### Memory
 
@@ -196,6 +198,7 @@ pending → in_progress → pending_review → completed
 ```
 
 **State transitions:**
+
 - `kspec task start` → `in_progress`
 - `kspec task submit` → `pending_review` (code done, awaiting merge)
 - `kspec task complete` → `completed` (from in_progress, pending, or pending_review)
@@ -206,11 +209,12 @@ pending → in_progress → pending_review → completed
 ### Notes (Work Log)
 
 Tasks have append-only notes that track progress:
+
 ```yaml
 notes:
   - _ulid: 01KEYRJ953HRYWJ0W4XEG6J9FB
-    created_at: "2026-01-14T17:00:00Z"
-    author: "@claude"
+    created_at: '2026-01-14T17:00:00Z'
+    author: '@claude'
     content: |
       What was done and why...
 ```
@@ -239,11 +243,7 @@ This shows active work, recently completed tasks, ready tasks, inbox items, and 
 4. **Submit**: Mark pending_review when code is done, PR created
 5. **Complete**: Mark completed after PR merged
 
-### Creating Work
-
-- **Clear scope?** → Create task directly
-- **Unclear scope?** → Add to inbox, triage later
-- **Behavior change?** → Check/update spec first, then derive task
+See **Creating Work** under Spec-First Development for how to decide between tasks, inbox, and specs.
 
 **For the full task lifecycle with PR creation, use `/task-work` skill.**
 
@@ -261,14 +261,15 @@ kspec meta question add "Should we support legacy format in v2?"
 
 ### Observation Types
 
-| Type | Purpose | Example |
-|------|---------|---------|
-| friction | Things that didn't work | "Bulk updates require too many commands" |
-| success | Patterns worth replicating | "Using --dry-run prevented issues" |
-| question | Open decisions | "When should we validate?" |
-| idea | Improvement opportunities | "Could auto-generate docs" |
+| Type     | Purpose                    | Example                                  |
+| -------- | -------------------------- | ---------------------------------------- |
+| friction | Things that didn't work    | "Bulk updates require too many commands" |
+| success  | Patterns worth replicating | "Using --dry-run prevented issues"       |
+| question | Open decisions             | "When should we validate?"               |
+| idea     | Improvement opportunities  | "Could auto-generate docs"               |
 
 **Observations vs Inbox:**
+
 - **Observations** — Learning and reflection (friction, success, patterns)
 - **Inbox** — Potential work (features, improvements to do later)
 
@@ -278,12 +279,12 @@ kspec meta question add "Should we support legacy format in v2?"
 
 **Core principle**: If you're changing behavior and the spec doesn't cover it, update the spec first.
 
-| Situation | Flow |
-|-----------|------|
-| Clear behavior change | Check spec → Update/create spec → Derive task |
-| Vague idea, unclear scope | Capture in inbox → Triage later |
-| Infra/internal (no user impact) | Create task directly, no spec needed |
-| Bug revealing spec gap | Fix bug → Update spec to match reality |
+| Situation                       | Flow                                          |
+| ------------------------------- | --------------------------------------------- |
+| Clear behavior change           | Check spec → Update/create spec → Derive task |
+| Vague idea, unclear scope       | Capture in inbox → Triage later               |
+| Infra/internal (no user impact) | Create task directly, no spec needed          |
+| Bug revealing spec gap          | Fix bug → Update spec to match reality        |
 
 ### Plan Mode Workflow
 
@@ -306,6 +307,7 @@ When a plan is approved, you MUST translate it to specs before implementing:
 ## Staying Aligned During Work
 
 **Watch for scope expansion:**
+
 - Modifying files outside your current task
 - Adding functionality the spec doesn't mention
 - "While I'm here, I should also..." thoughts
@@ -323,6 +325,7 @@ The full PR lifecycle has three steps — **all required, in order:**
 3. **`/pr-review`** — Review and merge. Or `kspec workflow start @pr-review-merge`.
 
 **Quality gates (never skip without explicit approval):**
+
 - All CI checks passing
 - All review comments addressed
 - All review threads resolved
@@ -381,18 +384,21 @@ Priority: `pending_review` > `in_progress` > `pending`. Always inherit existing 
 ### Blocking Rules
 
 **Block only for genuine external blockers:**
+
 - Requires human architectural decision
 - Needs spec clarification
 - Depends on external API/service not available
 - Formally blocked by `depends_on`
 
 **Do NOT block for:**
+
 - Task seems complex (do the work)
 - Tests are failing (fix them)
 - Service needs running (start it)
 - Another task's PR is in CI (not a formal dependency)
 
 **After blocking a task:**
+
 ```bash
 kspec task block @task --reason "Reason..."
 kspec tasks ready --eligible
@@ -405,23 +411,27 @@ kspec tasks ready --eligible
 ## Running the Bot
 
 **Required env:**
+
 - `DISCORD_TOKEN` — Discord bot token
 - `AGENT_COMMAND` — Command to spawn agent (e.g., `claude -m opus-4`)
 
 **Optional env:**
+
 - `KBOT_DATA_DIR` — Data directory (default: `.kbot`)
 - `LOG_LEVEL` — debug, info, warn, error (default: `info`)
 - `HEALTH_CHECK_INTERVAL` — Health check interval in ms (default: `30000`)
-- `SHUTDOWN_TIMEOUT` — Graceful shutdown timeout in ms (default: `10000`)
+- `SHUTDOWN_TIMEOUT` — Graceful shutdown timeout in ms (default: `10000` for kbot, `30000` for kbot-supervisor)
 - `ESCALATION_CHANNEL` — Discord channel ID for escalation notifications
 
 **Commands:**
+
 ```bash
 kbot              # Run bot directly
 kbot-supervisor   # Run with supervisor (auto-restart)
 ```
 
 **Scripts:**
+
 ```bash
 pnpm build        # Build all packages
 pnpm test         # Run all tests (vitest)
@@ -429,6 +439,7 @@ pnpm lint         # Lint all packages
 ```
 
 **Gotchas:**
+
 - `AGENT_COMMAND` is split by spaces — no shell quoting support. Use simple commands.
 - Env number values must be strict integers (e.g., `HEALTH_CHECK_INTERVAL=30000` not `30s`).
 - Escalation channel falls back to last active channel if `ESCALATION_CHANNEL` not configured.
@@ -437,14 +448,14 @@ pnpm lint         # Lint all packages
 
 Workflows are structured process definitions in `.kspec/kynetic-bot.meta.yaml`. They provide step-by-step guidance for common processes.
 
-| Workflow | Trigger | Purpose |
-|----------|---------|---------|
-| `@task-work-session` | manual | Full task lifecycle from start through PR merge |
-| `@session-reflect` | session-end | Structured reflection to capture learnings |
-| `@pr-review-merge` | pr-merge | Quality gates before merging PRs |
-| `@inbox-triage` | session-start | Systematic inbox processing |
-| `@local-review` | manual | Pre-PR quality enforcement: AC coverage, test quality, isolation |
-| `@pr-review-loop` | loop-pr-review | PR review subagent workflow for loop mode |
+| Workflow             | Trigger        | Purpose                                                          |
+| -------------------- | -------------- | ---------------------------------------------------------------- |
+| `@task-work-session` | manual         | Full task lifecycle from start through PR merge                  |
+| `@session-reflect`   | session-end    | Structured reflection to capture learnings                       |
+| `@pr-review-merge`   | pr-merge       | Quality gates before merging PRs                                 |
+| `@inbox-triage`      | session-start  | Systematic inbox processing                                      |
+| `@local-review`      | manual         | Pre-PR quality enforcement: AC coverage, test quality, isolation |
+| `@pr-review-loop`    | loop-pr-review | PR review subagent workflow for loop mode                        |
 
 ```bash
 # Start a workflow
@@ -461,18 +472,18 @@ Workflows are advisory — they guide the process but don't enforce it.
 
 ## Troubleshooting
 
-| Issue | Fix |
-|-------|-----|
-| `.kspec/` doesn't exist | Run `kspec init` |
-| Worktree disconnected | Run `kspec shadow repair` |
-| Running kspec from .kspec/ | Run from project root |
-| Sync conflicts | Run `kspec shadow resolve` |
-| `.kbot/` doesn't exist | First bot run creates it, or create worktree manually |
-| `.kbot-lock` file exists | Bot crashed mid-write. Auto-recovers on next start. Delete manually if stale |
-| Bot won't start | Check `DISCORD_TOKEN` and `AGENT_COMMAND` env vars |
-| Supervisor respawn loop | Check logs for crash reason. Fix root cause. Escalation fires at max backoff |
-| Restart ACK timeout | Supervisor didn't acknowledge checkpoint request. Check IPC channel |
-| Checkpoint rejected | Supervisor couldn't read checkpoint file. Check file permissions and path |
+| Issue                      | Fix                                                                          |
+| -------------------------- | ---------------------------------------------------------------------------- |
+| `.kspec/` doesn't exist    | Run `kspec init`                                                             |
+| Worktree disconnected      | Run `kspec shadow repair`                                                    |
+| Running kspec from .kspec/ | Run from project root                                                        |
+| Sync conflicts             | Run `kspec shadow resolve`                                                   |
+| `.kbot/` doesn't exist     | First bot run creates it, or create worktree manually                        |
+| `.kbot-lock` file exists   | Bot crashed mid-write. Auto-recovers on next start. Delete manually if stale |
+| Bot won't start            | Check `DISCORD_TOKEN` and `AGENT_COMMAND` env vars                           |
+| Supervisor respawn loop    | Check logs for crash reason. Fix root cause. Escalation fires at max backoff |
+| Restart ACK timeout        | Supervisor didn't acknowledge checkpoint request. Check IPC channel          |
+| Checkpoint rejected        | Supervisor couldn't read checkpoint file. Check file permissions and path    |
 
 ## Environment
 
